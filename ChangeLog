@@ -3,6 +3,7 @@
 	* AUTHORS, COPYING, INSTALL, README: New.
 
 	* tinyepkg.el: Add "Compat" levels and explaint it.
+	(ti::macrof-minor-mode-wizard): comment out unused code.
 
 	** MOVE tinyepkg.el out of tiny tools to a separate package **
 

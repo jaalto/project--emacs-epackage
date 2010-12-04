@@ -747,7 +747,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1204.1522"
+(defconst epackage-version-time "2010.1204.1533"
   "*Version of last edit.")
 
 (defcustom epackage--load-hook nil
@@ -1562,31 +1562,31 @@ Format is described in variable `epackage--sources-list-url'."
 
 ;; FIXME: Unfinished, this is at a sketch / planning phase.
 
-(eval-and-compile
-  (ti::macrof-minor-mode-wizard
-   "epackage-" " Epkg" "z" "Epkg" 'Epackage "epackage--"
-   "Emacs package manager
+;; (eval-and-compile
+;;   (ti::macrof-minor-mode-wizard
+;;    "epackage-" " Epkg" "z" "Epkg" 'Epackage "epackage--"
+;;    "Emacs package manager
 
-Mode description:
+;; Mode description:
 
-\\{epackage--mode-prefix-map}"
+;; \\{epackage--mode-prefix-map}"
 
-   "Epackage"
-   nil
-   "Number conversion mode"
-   (list                                ;arg 10
-    epackage--mode-easymenu-name
-    "----"
-    ["Package version"    epackage-version        t]
-    ["Package commentary" epackage-commentary     t]
-    ["Mode help"   epackage-mode-help   t]
-    ["Mode off"    epackage-mode        t])
-   (progn
-     (define-key map "v"  'epackage-version)
-     (define-key map "?"  'epackage-mode-help)
-     (define-key map "Hm" 'epackage-mode-help)
-     (define-key map "Hc" 'epackage-commentary)
-     (define-key map "Hv" 'epackage-version))))
+;;    "Epackage"
+;;    nil
+;;    "Number conversion mode"
+;;    (list                                ;arg 10
+;;     epackage--mode-easymenu-name
+;;     "----"
+;;     ["Package version"    epackage-version        t]
+;;     ["Package commentary" epackage-commentary     t]
+;;     ["Mode help"   epackage-mode-help   t]
+;;     ["Mode off"    epackage-mode        t])
+;;    (progn
+;;      (define-key map "v"  'epackage-version)
+;;      (define-key map "?"  'epackage-mode-help)
+;;      (define-key map "Hm" 'epackage-mode-help)
+;;      (define-key map "Hc" 'epackage-commentary)
+;;      (define-key map "Hv" 'epackage-version))))
 
 (defsubst epackage-directory-name ()
   "Return package directory.
