@@ -1,0 +1,52 @@
+2010-12-04  Jari Aalto  <jari.aalto@cante.net>
+
+	* AUTHORS, COPYING, INSTALL, README: New.
+
+	* tinyepkg.el: Add "Compat" levels and explaint it.
+
+	** MOVE tinyepkg.el out of tiny tools to a separate package **
+
+2010-12-03  Jari Aalto  <jari.aalto@cante.net>
+
+	* tinyepkg.el (epackage--directory-name-vcs):
+	Set value from 'vc' to more descriptive 'packages'.
+
+2010-12-02 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* tinyepkg.el
+	(top level): Draw picture about epackage framewrk.
+	(epackage-git-command-branch-current-name): New.
+	(epackage-git-branch-list-current-branch): New.
+	(epackage-git-command-branch-list): New.
+	(epackage-git-command-tag-list): New.
+	(epackage-with-last-git-output): New.
+	(epackage-git-branch-list-master-p): New.
+	(epackage-master-p): New.
+
+2010-11-30 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* tinyepkg.el:
+	(top level) Untabify (big diff). Revise spec: introduce 00epackage/
+	and 00link/ directories. Add [ERROR] to every error message. Sources
+	list is no longer file retrieved by HTTP, but also a Git repository.
+	(epackage-upgrade-package): New.
+	(epackage-upgrade-sources-list): New.
+
+2010-11-29 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* tinyepkg.el: Proof of concept implemented. The core
+	functionality is ready. External Emacs Packages can be downloaded,
+	enabled, activated, disabled. Boot loader epackage-loader.el is also
+	functional.
+
+2010-11-28 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* tinyepkg.el: Revise epackage specification.
+
+2010-11-27 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* tinyepkg.el: Update epackage specification.
+
+2009-03-29  Jari Aalto  <jari.aalto@cante.net>
+
+	* tinyepkg.el: New.
