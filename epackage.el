@@ -781,7 +781,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1204.1927"
+(defconst epackage-version-time "2010.1204.1930"
   "*Version of last edit.")
 
 (defcustom epackage--load-hook nil
@@ -1233,10 +1233,16 @@ If VERBOSE is non-nil, display progress message."
    (epackage-git-command-branch-list dir verbose)))
 
 (defun epackage-git-command-pull (dir &optional verbose)
-  "Run 'git branch' in DIR.
+  "Run 'git pull' in DIR.
 If VERBOSE is non-nil, display progress message."
   (epackage-with-git-command dir verbose
     "pull"))
+
+(defun epackage-git-command-fetch (dir &optional verbose)
+  "Run 'git fetch' in DIR.
+If VERBOSE is non-nil, display progress message."
+  (epackage-with-git-command dir verbose
+    "fetch"))
 
 (defun epackage-git-command-clone (url dir &optional verbose)
   "Run 'git clone URL DIR' in VCS package directory vault.
