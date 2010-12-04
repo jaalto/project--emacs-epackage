@@ -781,7 +781,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1204.1942"
+(defconst epackage-version-time "2010.1204.2035"
   "*Version of last edit.")
 
 (defcustom epackage--load-hook nil
@@ -802,7 +802,8 @@ available packages.
 
 The included text file contains information about package names
 and their repository download URLs. Empty lines and comment on
-their own lines started with character '#' are ignored:
+their own lines started with character '#' are ignored. There
+must be no leading whitespaces in front of PACKAGE-NAME.
 
   # Comment
   PACKAGE-NAME REPOSITORY-URL DESCRIPTION
@@ -904,6 +905,12 @@ See `epackage-loader-file-generate'.")
 
 (defvar epackage--debug t
   "If non-nil, activate debug.")
+
+(defsubst epackage-string-p (string)
+  "Return STRING of value is non-empty. Otherwise return nil."
+  (and (stringp string)
+       (not (string-match "^[ \t\r\n]*$" string))
+       string))
 
 (defsubst epackage-file-name-compose (name)
   "Return path to NAME in epackage directory."
@@ -1009,14 +1016,15 @@ documentation of epackage.el."
 
 (defun epackage-package-downloaded-p (package)
   "Check if package has been downloaded."
-  (unless (stringp package)
+  (unless (epackage-string-p package)
     (error "Epackage: [ERROR arg 'package' is not a string."))
   (let ((dir (epackage-file-name-vcs-compose package)))
-    (file-directory-p dir)))
+    (if (file-directory-p dir)
+	dir)))
 
 (defun epackage-package-activated-p (package)
   "Check if package has been activated, return activate file."
-  (unless (stringp package)
+  (unless (epackage-string-p package)
     (error "Epackage: [ERROR] arg 'package' is not a string."))
   (let ((file (epackage-file-name-activated-compose package)))
     (if (file-exists-p file)
@@ -1024,7 +1032,7 @@ documentation of epackage.el."
 
 (defun epackage-package-enabled-p (package)
   "Check if package has been enabled, return enabled file."
-  (unless (stringp package)
+  (unless (epackage-string-p package)
     (error "Epackage: [ERROR] arg 'package' is not a string."))
   (let ((file (epackage-file-name-install-compose package)))
     (if (file-exists-p file)
@@ -1253,9 +1261,13 @@ If VERBOSE is non-nil, display progress message."
 (defun epackage-git-command-clone (url dir &optional verbose)
   "Run 'git clone URL DIR' in VCS package directory vault.
 If VERBOSE is non-nil, display progress message."
-  (epackage-with-directory (epackage-file-name-vcs-directory)
-    (epackage-with-git-command dir verbose
-      "clone" url dir)))
+  (let* ((name (file-name-nondirectory dir))
+	 (dir-before (replace-regexp-in-string
+		      (regexp-quote name)
+		      ""
+		      dir)))
+    (epackage-with-git-command dir-before verbose
+      "clone" url name)))
 
 (defun epackage-master-p (package)
   "Return non-nil if PACKAGE's VCS branch is master."
@@ -1478,6 +1490,19 @@ or whose name match `epackage--directory-name'."
       (kill-buffer (current-buffer))
       (epackage-loader-file-byte-compile-maybe))))
 
+(defun epackage-sources-list-info-parse-line (package)
+  "Return list of fields described in `epackage--sources-list-url'.
+Point must be at the beginning of line."
+  (if (looking-at
+       (format
+	`,(concat "^\\(%s\\)\\>"
+		  "[ \t]+\\([^ \t\r\n]+\\)"
+		  "[ \t]*\\([^ \t\r\n]*\\)")))
+      (list
+       (match-string-no-properties 1)
+       (match-string-no-properties 2)
+       (match-string-no-properties 3))))
+
 (defun epackage-sources-list-info-main (package)
   "Return '(pkg url description) for PACKAGE.
 Format is described in variable `epackage--sources-list-url'."
@@ -1506,6 +1531,22 @@ Format is described in variable `epackage--sources-list-url'."
   (let ((info (epackage-sources-list-info-main package)))
     (when info
       (nth 2 info))))
+
+(defun epackage-sources-list-info-description (package)
+  "Return description for PACKAGE or nil."
+  (let ((info (epackage-sources-list-info-main package)))
+    (when info
+      (nth 2 info))))
+
+(defun epackage-sources-list-info-pkg-list ()
+  "Return list of packages."
+  (epackage-with-sources-list
+   (goto-char (point-min))
+   (let (case-fold-search
+	 list)
+     (when (re-search-forward "^\\([a-z][a-z0-9-]+\\)[ \]+[a-z]" nil t)
+       (setq list (cons (match-string-no-properties 1) list)))
+     list)))
 
 (defun epackage-require-emacs ()
   "Require Emacs features."
@@ -1582,6 +1623,7 @@ Format is described in variable `epackage--sources-list-url'."
              (epackage-sources-list-directory)))
   (epackage-git-command-clone epackage--sources-list-url dir))
 
+;;###autoload
 (defun epackage-cmd-download-sources-list ()
   "Download or upgrade package list; the yellow pages of package repositories."
   (interactive)
@@ -1589,18 +1631,66 @@ Format is described in variable `epackage--sources-list-url'."
       (epackage-upgrade-sources-list "Upgrading available package list")
     (epackage-download-sources-list "Downloading available package list")))
 
-(defun epackage-cmd-download-package (PACKAGE)
-  "Download PACKAGE, but do not install it."
-  (if (not (epackage-sources-list-p))
-      (message
-       (substitute-command-keys
-        "Epackage: No package list. Run \\[epackage-cmd-download-sources-list]"))
-    (let ()
-      ;; FIXME: Present list of package as completing-read
-      )))
+;;###autoload
+(defun epackage-cmd-upgrade-package (package &optional verbose)
+  "Downloads updates for existing PACKAGE.
+Install new configurations if package has been enabled.
+If VERBOSE is non-nil, display progress messages."
+  (interactive
+   (let (package)
+     (if (not (epackage-sources-list-p))
+	 (message
+	  (substitute-command-keys
+	   `,(concat
+	      "Epackage: No package list. "
+	      "Run \\[epackage-cmd-download-sources-list]")))
+       (setq package
+	     (completing-read
+	      "Install epackage: "
+	      (epackage-sources-list-info-pkg-list)
+	      (not 'predicate)
+	      'require-match)))
+     (list package 'interactive)))
+  (cond
+   ((not (epackage-string-p package))
+    (message "No epackage selected for upgrade.")
+    ((not (epackage-package-downloaded-p package))
+     (message "Epackage not downloaded"))
+    ((not (epackage-master-p package))
+     (message "Abort. Package is manually modified. Branch is not 'master' in %s"
+	      (epackage-file-name-vcs-compose package)))
+    (t
+     (epackage-upgrade-package package verbose)))))
 
+;;###autoload
+(defun epackage-cmd-download-package (package &optional verbose)
+  "Download PACKAGE, but do not install it.
+If VERBOSE is non-nil, display progress messages."
+  (interactive
+   (let (package)
+     (if (not (epackage-sources-list-p))
+	 (message
+	  (substitute-command-keys
+	   `,(concat
+	      "Epackage: No package list. "
+	      "Run \\[epackage-cmd-download-sources-list]")))
+       (setq package
+	     (completing-read
+	      "Install epackage: "
+	      (epackage-sources-list-info-pkg-list)
+	      (not 'predicate)
+	      'require-match)))
+     (list package 'interactive)))
+  (if (not (epackage-string-p package))
+      (message "No epackage selected for install.")
+    (if (epackage-package-downloaded-p package)
+	(message "Epackage already downloaded: %s" package)
+      (epackage-download-package package verbose))))
+
+;;###autoload
 (defun epackage-initialize ()
   "Inialize package."
+  (interactive)
   (unless epackage--initialize-flag
     (epackage-require-main))
   (unless (epackage-sources-list-p)
