@@ -313,115 +313,125 @@
 ;;
 ;;      The Git repository branches used are:
 ;;
-;;      o   `master', required. Branched off from `upstream'. Adds directory
-;;          `epackage/'. This contains everything to use the package.
+;;      o   `master', required. The published epackage.
+;;          Branched off from `upstream'. Adds directory
+;;          `epackage/' where the packaging information resides.
 ;;      o   `patches', optional. Patches to `upstream' code, if any.
-;;          this branch is merged to to `master'.
+;;          This branch is merged to to `master'.
 ;;      o   `upstream', required. The original unmodified upstream code.
+
 ;;          Releases are tagged with label
-;;          "upstream/YYYY-MM-DD[--VERSION]". The YYYY-MM-DD is the date of
-;;          upstream release or best guess (if only year is known, use
-;;          YYYY-01-01), and it is accompanied with optional "--VERSION" of
-;;          the package. Not all packages include version information. The
-;;          ISO 8601 date is needed so that the 1) release date is
-;;          immediately available e.g. for post processing and 2) the tags
-;;          sort nicely by date. An example: "upstream/2009-12-31--0.3"
+;;          "upstream/YYYY-MM-DD[--VERSION]". The YYYY-MM-DD is the
+;;          date of upstream release or best guess like if only year
+;;          is known, use YYYY-01-01. The options part "--VERSION" is
+;;          the official version of extension; if known. Not all
+;;          extensions include version information. The ISO 8601 date is
+;;          needed so that the release date is immediately
+;;          available e.g. for post processing and so that the tags sort
+;;          nicely by date. An example: "upstream/2009-12-31--0.3-devel"
 ;;
-;;      Tha bove in pictures. The `master' and possible `patches' are
-;;      alwasy rebased (R) on current upstream code. This picture
-;;      makes sense only if you're familiar git(1):
+;;      The same in pictures. The `master' contains merges from
+;;      `patches' and `upstream'.
 ;;
-;;          upstream    * - o - o - o
-;;                           \ R     \ (Rebase)
-;;          master            \       o -  o - o - o =>
-;;                             \          / (merge)
-;;          patches             o  - o - o
+;;          patches        o - o (modications; merged to master)
+;;                       /
+;;          upstream    * ---- o
+;;                       \      \ (merge)
+;;          master        o ---- o - =>         epacakge/ dir
 ;;
 ;;      The epackaging method borrows concept from the Debian where a
 ;;      separate control directory is used for package information.
-;;      The directory name *epackage* is not configurable. The layout
-;;      of epackaged Emacs extension is:
+;;      The directory name is *epackage/* and it is not configurable.
+;;      The layout of an epackaged Emacs extension looks like:
 ;;
-;;          <Emacs extension root dir>
-;;          |
+;;          <PACKAGE, Emacs extension root dir>
+;;	    | <files and possible directories>
+;;	    |
 ;;          +- .git/                    Version control branches (see above)
 ;;          |
 ;;          +-- epackage/
-;;              info                    required: The package control file
-;;              PACKAGE-0loaddefs.el    optional: ###autoload statements
-;;              PACKAGE-autoloads.el    optional: all autoload statements (raw)
-;;              PACKAGE-compile.el      optional: Code to byte compile package
-;;              PACKAGE-install.el      required: Code to make package available
-;;              PACKAGE-uninstall.el    optional: to remove package
-;;              PACKAGE-xactivate.el    optional: Code to activate package
+;;              info                    required: The package information file
+;;              PACKAGE-0loaddefs.el    optional: extracted ###autoload statements
+;;              PACKAGE-autoloads.el    optional:  autoload statements (manual)
+;;              PACKAGE-compile.el      optional: Code to byte compile the extension
+;;              PACKAGE-install.el      required: Code to make extension available
+;;              PACKAGE-uninstall.el    optional: Code to remove extension from Emacs
+;;              PACKAGE-xactivate.el    optional: Code to activate the extension
 ;;
 ;;      The nanes of the files have been chosen to sort
 ;;      alphabetically. All these configuration files are later
-;;      combined in a gigantic loader, as you has chosen, to that
-;;      Emacs will not spend time on loading individual files. Because
-;;      the files list alphabetically, they can be combined safely
-;;      together even on command line:
+;;      combined in a single loader file. Loading a single file is
+;;      faster than spending time in loading small file along
+;;      `load-path'. The alphabetic order makes it possible to combine
+;;      them safely together. Even on command line (for testing):
 ;;
 ;;              cat PACKAGE-* | egrep -v '00|uninst|compile' > PACKAGE-00.el
 ;;
 ;;     The *-0loaddefs.el
 ;;
 ;;      This file contains extracted ##autoload definitions. The file
-;;      is suatomatically generated. The file does not modify user's
-;;      environment. If PACKAGE does not contains any ###autoload
-;;      definitions, the manually crafted *-install.el file works as a
-;;      substitute. The "zero" at the start of the name is to help
-;;      proper sorting ordering of all files.
+;;      is automatically generated. The file does not modify user's
+;;      environment. If extension does not contains any ###autoload
+;;      definitions, the manually crafted *-install.el file can be
+;;      used as a substitute. In case of missing ##autoload stanzad,
+;;      you're encouraged to contact upstream with a possible patch.
+;;      The "zero" at the start of the name is to help proper sorting
+;;      ordering of files. Menmonic: "if you load this file, you
+;;	can start calling extension's features".
 ;;
 ;;     The *-install.el
 ;;
-;;      This file is manually written and it publishes user variables
-;;      and interactive `M-x' functions in autoload states. The file
-;;      does not modify user's environment. This file is necessary
-;;      only if PACKAGE does not contain proper ###autoload statements
-;;      (see *-0loaddefs.el). The "install" in name refers to
-;;      installation or availability of interactive functions, not to
-;;      any modifications to the system. Mnemonic: "if you load this
-;;      file, you can start using package's features" (see
-;;      *-activate.el).
+;;      This file is manually or automatically written. It publishes
+;;      user variables and interactive `M-x' functions in *autoload*
+;;      state. No modifications to user's EMacs setup is allowd. This
+;;      file is only necessary if extension does not contain proper
+;;      ###autoload statements. The "install" in name refers to
+;;      installation, or availability for that matter, of interactive
+;;      functions. *Note:* try to avoid `require' or `load' commands
+;;      as much as possible; or delay their calls to the point where
+;;      user calls functions interactively. That helps keeping Emacs
+;;      startup fast and lean. Mnemonic: "if you load this file, you
+;;      can start calling extension's features".
 ;;
 ;;     The *-uninstall.el
 ;;
 ;;      This file does the opposite of *-install.el and *-activate.el
-;;      It runs commands to remove the package as if it has never been
-;;      loaded. Due to the nature of Emacs, it may not be possible to
-;;      completely uninstall the package. The uninstallation covers
-;;      undoing the changes to *-hook, *-functions and
-;;      `auto-mode-alist' alike variables. The actual symbols (defined
-;;      functions and variables) are not removed. Usually it is more
-;;      practical to just restart Emacs than completely trying undo
-;;      all the effects of a package.
+;;      It runs commands to remove the extension as if it has never
+;;      been loaded. Due to the nature of Emacs, it is not really
+;;      practical to completely try to uninstall the package. The
+;;      uninstallation usually covers undoing the changes to *-hook,
+;;      *-functions and `auto-mode-alist' and the like variables. The
+;;      actual symbols (defined functions and variables) are not
+;;      removed. To shake extension completely, restart Emacs after
+;;      uninstall of epackage.
 ;;
 ;;     The *-xactivate.el
 ;;
-;;      This file makes the PACKAGE immediately active in user's
+;;      This file makes the extension immediately active in user's
 ;;      environment. It can modify current environment by adding
 ;;      functions to hooks, adding minor or major modes or arranging
 ;;      keybindings so that when pressed, a feature is loaded and
 ;;      activated. It may also loop through `buffer-list' to activate
 ;;      features immediately in running Emacs. It is adviseable that
 ;;      any custom settings, like variables and prefix keys, are
-;;      defined in `~/.emacs' *before* this file gets loaded.
-;;      Mnemonic: "If you load this file, the bells and whistles are
-;;      turned on". The "x" at the start of the name is to help proper
-;;      sorting ordering of all files.
+;;      defined in `~/.emacs' *before* this file gets loaded. As with
+;;      *-install.el, try to avoid `require' or `load' commands and
+;;      stick to `autoload'. Mnemonic: "If you load this file, the
+;;      bells and whistles are turned on". The "x" at the start of the
+;;      name is to help proper sorting ordering of all files.
 ;;
 ;;  The info file
 ;;
-;;      A RFC 2822 formatted file (email), which contains information about
-;;      the package. The minumum required fields are presented below. The
-;;      header field names are case insensitive. Continued lines must be
-;;      indented; suggested indentation is 1 space. Required fields have
-;;      been marked with asterisk (*). In the long description part, new
-;;      paragraphs are separated by a single dot(.) character on their own
-;;      line. The layout of the `info' mirrors concepts of `control' file in
-;;      Debian packaging system (see
-;;      <http://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-Version>).
+;;      A RFC 2822 (email) formatted file, which contains information
+;;      about the extension. The header field names are case
+;;      insensitive; but if you use the default *get.sh*, it expects
+;;      the Vcs-* field to be case-sensitive. Continued lines must be
+;;      indented; suggested indentation is 1 space. Required fields
+;;      are marked with asterisk (*). In the long description
+;;      part, new paragraphs are separated by a single dot(.)
+;;      character on their own line. The layout of the `info' mirrors
+;;      concepts of `control' file in Debian packaging system which is explained in
+;;      <http://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-Version>.
 ;;
 ;;          *Package: <unique name, all lowercase>
 ;;          *Section: <data | extensions | files | languages | mail | tools | M-x finder-list-keywords>
@@ -475,79 +485,86 @@
 ;;
 ;;  Details of the info file fields
 ;;
+;;	Recommendations: Use one space to indent continued field.
+;;	Limitlilne maximum length to 80 characters. See variable
+;;	`fill-column'
+;;
 ;;     Bugs
 ;;
-;;      URL where the bugs should be reported. This can be email address
-;;      or link to a issue tracker of upstream project. Note: send
-;;      problems epackage problems to address mentioned in `Maintainer'.
+;;      URL to report bugs. This can be an email address or a link to
+;;      issue tracker of upstream project. Note: send packaging
+;;      problems or update requests to the extesion's epackage
+;;      `Maintainer'.
 ;;
 ;;    Compat
 ;;
-;;      The compatibility level this epackage. The Epackage format may
-;;      change in time and this field indicates for which version the
-;;      software was packaged. If the value is missing or is empty, no
-;;      specific compatibility version is required and latest is assumed.
-;;      Usually all epackage maintainers should update their work to the
+;;      The compatibility level used in this epackage. The Epackage
+;;      format may change in time and this field indicates which the
+;;      epackage layout version. If the value is missing or is empty,
+;;      no specific compatibility level is required and latest is
+;;      assumed. Usually an epackage maintainer should follow the
 ;;      latest format to prevent installation problems. See section
 ;;      "Epackage Comatibility Levels" for more information.
 ;;
 ;;     Conflicts
 ;;
-;;      This field lists packages that must be removed before install
-;;      should be done. This field follow guidelines of
+;;      List of packages that must be removed before install can be
+;;      done. This field follow guidelines of
 ;;      <http://www.debian.org/doc/debian-policy/ch-relationships.html>.
 ;;
 ;;     Depends (required)
 ;;
-;;      List of dependencies: Emacs flavor and packages required. The
-;;      version information is enclosed in parentheses with comparison
-;;      operators ">=" and "<=". A between range is not defined. This
-;;      field follow guidelines of
+;;      List of dependencies: Emacs flavor and additional packages
+;;      required. The version information is enclosed in parentheses
+;;      with comparison operators ">=" and "<=". A between range is
+;;      not defined. This field follows guidelines of
 ;;      <http://www.debian.org/doc/debian-policy/ch-relationships.html>.
 ;;
-;;      In case program works inly in certain Emacs versions, this
-;;      information should be announces in field "Status::note" (which
-;;      see). Packages that are not updated to work for latest Emacs
-;;      versions are candidate for removal from package archive
-;;      anyway. An example:
+;;      In case an extension works only with certain version of Emacs,
+;;      this information should be written to the end of
+;;      `Description'. (which see). Old packages that are not updated
+;;      to work for latest Emacs releases are candidate for removal
+;;      from a epackage archive's "yellow pages". An example how to use
+;;	the field:
 ;;
-;;              Depends: emacs (>= 22.2.2) | xemacs (>= 20)
+;;              Depends: emacs (>= 22.2) | xemacs (>= 20)
 ;;
 ;;     Description (required)
 ;;
-;;      The first line of this field is a consise description that fits on
-;;      maximum line length of 80 characters in order to display in
-;;      combined format "PACKAGE -- SHORT DESCRIPTION". The longer
-;;      description is explained in paragraphs that are separated from
-;;      each orher with a single (.) at its own line. The paragraphs
-;;      are recommended to be intended by one space.
+;;      The first line of this field is a consise description that
+;;      fits on maximum line length of 80 characters in order to
+;;      display "PACKAGE -- SHORT DESCRIPTION". The long description
+;;      is explained in paragraphs that are separated from each orher
+;;      with a single (.) at its own line. The paragraphs are
+;;      recommended to be intended by one space.
 ;;
 ;;     Email
 ;;
-;;      Upstream developers email address(es). Multiple developers
-;;      are listed like in email: separated by commas. Teh role can
-;;      be expressed in parenthesis. An example:
+;;      The Upstream developer's email address(es). Multiple
+;;      developers are separated by commas. The role can be expressed
+;;      in RFC 2822 comment-parenthesis. An example:
 ;;
 ;;              Email: John doe (Author) <jdoe@example.com>,
 ;;               Joe Average (Co-developer) <jave@example.com>
 ;;
 ;;     Homepage
 ;;
-;;      URL to the project homepage. For this field it is adviseable to use
-;;      project a addresses that doesn't move; those of Freshmeat.net,
-;;      Sourceforge, Launchpad, Github etc. The Freshmeat is especially
-;;      good because it provides an easy hub to all other related Open
-;;      Source projects. Through Freshmeat users can quickly browse related
-;;      software and subscribe to project announcements. Freshmeat is also
-;;      easy for the upstream developer to set up because it requires no
-;;      heavy project management (it's kind of "yellow pages").
+;;      URL to the project's homepage. It is recommended to use
+;;      addresses that don't move; those of http://Freshmeat.net,
+;;      http://www.Sourceforge.com, http://Launchpad.net,
+;;      http://Github.com, http://Bitbucket.com etc. The Freshmeat is
+;;      especially good because it provides project information in
+;;      standardized manner. Through Freshmeat it is also possible to
+;;      browse related software and subscribe to announcements.
+;;      Freshmeat is also easy for the upstream developers to set up
+;;      because it requires no heavy project management; only links.
 ;;
-;;      In any case, the Homepage link should not directly point to a
-;;      volatile personal homepage if an alternative exists. Try to
-;;      encourage "Garage" upstream developers to set up their software at
-;;      some project hosting site that would contain an issue tracker.
-;;      Examples: Sourceforge.net, Savannah.gnu.org, Bitbucket.com,
-;;      Github.com, Gitorious.com etc. For more information, see
+;;      In any case, the Homepage URL should not directly point to
+;;      developer's volatile personal homepage if there is alternative
+;;      choices. It is good idea to encourage "Garage" upstream
+;;      developers to set up their software at some project hosting
+;;      site because they include infrastructure for issue tracking.
+;;      For more information, see
 ;;      <http://en.wikipedia.org/wiki/Comparison_of_open_source_software_hosting_facilities>.
 ;;
 ;;     License
@@ -556,34 +573,40 @@
 ;;      License abbreviations should follow list defined at
 ;;      <http://wiki.debian.org/CopyrightFormat>. A special word "None"
 ;;      should be used if the software has no license information in any of
-;;      the source files.
+;;      the source files. Examples of valid license tokens:
+;;
+;;		GPL-2, GPL-2+, GPL-3, GPL-3+, BSD, Apache-2.0
 ;;
 ;;     Maintainer
 ;;
-;;      The packaged who maintains the utility in epackage format. If
-;;      this field is missing `Email' is assumed. Best if upstream (Email)
-;;      is also the Maintainer of epackage.
+;;      This extension's epackage maintainer. The person who made this
+;;      extension available in epackage format. If this field is
+;;      missing, then the upstream (`Email') is assumed to be the
+;;      packager. It is always desireable that upstream, who develops
+;;      the extension also provides the software in epackage format.
 ;;
 ;;     Package (required)
 ;;
-;;      The name of the PACKAGE in all lowercase, satisfying regexp
-;;      "[a-z0-9-]+". Usually basename of the file name like
-;;      package.el or the canonical known name in case of bigger
-;;      packages like "gnus". An example "html-helper-mode.el" =>
-;;      package name is "html-helper-mode". It is adviseable to always
-;;      add *-mode even if file does not explicitly say so. An example
-;;      "python.el" => package name is "python-mode". No two packages
-;;      can have same name. Please contact package author in case of
-;;      name clashes.
+;;      The name of the extension in all lowercase, satisfying regexp
+;;      "[a-z][a-z0-9-]+". Usually basename of the extension file or
+;;      the canonical known name in case of bigger packages like
+;;      "gnus". An example "html-helper-mode.el" => package name is
+;;      "html-helper-mode". In case of minor or major modes, it is
+;;      adviseable to always add *-mode even if file name does not
+;;      explicitly say so. An example "python.el" => package name is
+;;      "python-mode". No two packages can have the same name. Please
+;;      notify upstream about the clash.
 ;;
 ;;     Recommends
 ;;
-;;      This field lists additional packages that the current package
-;;      can utilize. E.g a package A, can take advantage of package B,
-;;      if it is aailable, but it is not a requirement to install B
-;;      for package A to work. This field is *not* used to annouce
-;;      related packages. That information can be mentioned in
-;;      the end of "Description" in paragraph "SEE ALSO".
+;;      List of packages that current extension can support or take
+;;      advantage of. E.g this field would list package B if A can
+;;      take advantage of package B, but it is not a requirement to
+;;      install B for package A to work. This field is *not* used to
+;;      annouce related packages. That information can be mentioned in
+;;      the end of `Description' in separate paragraph "SEE ALSO".
+;;      This field follow guidelines of
+;;	<http://www.debian.org/doc/debian-policy/ch-relationships.html#s-binarydeps>
 ;;
 ;;     Section (required)
 ;;
@@ -620,23 +643,28 @@
 ;;     Vcs-Browser
 ;;
 ;;      The URL address to the version control browser of the repository.
+;;	This field follow guidelines of
+;;	<http://www.debian.org/doc/developers-reference/best-pkging-practices.html#bpp-vcs>
 ;;
 ;;     Vcs-Type
 ;;
 ;;      Version Control System type information. The value is the
-;;      lowercase name of the version control program; cvs, svn, bzr, hg,
-;;      git etc. A special value "http" can be used to signify direct HTTP
-;;      download. An example of an Emacs package hosted directly at a web
-;;      page:
+;;      lowercase name of the version control program; cvs, svn, bzr,
+;;      hg, git etc. A special value "http" can be used to signify
+;;      direct HTTP download. This field follow guidelines of
+;;      <http://www.debian.org/doc/developers-reference/best-pkging-practices.html#bpp-vcs>.
+;;      An example of an Emacs extension hosted directly at a web page:
 ;;
 ;;          Vcs-Type: http
 ;;          Vcs-Url: http://www.emacswiki.org/emacs/download/vline.el
 ;;
 ;;     Vcs-Url
 ;;
-;;      The Version Control System repository URL without any options. For
-;;      CVS, this is the value of CVSROOT which includes also the protocol
-;;      name:
+;;      The Version Control System repository URL without any options.
+;;      For CVS, this is the value of CVSROOT which includes also the
+;;      protocol name. This field follow guidelines of
+;;      <http://www.debian.org/doc/developers-reference/best-pkging-practices.html#bpp-vcs>.
+;;      An example:
 ;;
 ;;          Vcs-Type: cvs
 ;;          Vcs-Url: :pserver:anonymous@example.com/reository/foo
@@ -665,25 +693,26 @@
 ;;
 ;;     Wiki
 ;;
-;;      This field points to package at <http://www.emacswiki.org>. If
-;;      it does not exists, consider creating one for the PACKAGE.
+;;      This field points to extension page at at
+;;      <http://www.emacswiki.org>. If etension does not yet have a
+;;      page, encourage upstream to create one.
 ;;
 ;;     X-*
 ;;
-;;      Any other custom fields can be inserted using `X-*' field
-;;      notation:
+;;      Any other custom field can be inserted using `X-*' field
+;;      notation. It is recommended that X-fields are liste at the bottom,
+;;	Just before `Description:' field.
 ;;
 ;;          X-Comment: <comment here>
 ;;          X-Upstream-Homepage: <URL>
 ;;
 ;; Epackage Compatibility Levels
 ;;
-;;   The latest epackage format is alwyas described in section "Epackage
-;;   specification" above. In here you find list of older format and
-;;   changes since (Currently none). This section interests epackage
-;;   maintainers that update their packaging.
+;;   The latest epackage format is alwyas described in section
+;;   "Epackage specification" above. In here you can find list of
+;;   older formats and changes.
 ;;
-;;   o  2010-12-03 Compatibility level 1 specification written.
+;;   o  2010-12-03 First spec. Compatibility level 1.
 ;;
 ;; TODO
 ;;
@@ -747,7 +776,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1204.1549"
+(defconst epackage-version-time "2010.1204.1842"
   "*Version of last edit.")
 
 (defcustom epackage--load-hook nil
