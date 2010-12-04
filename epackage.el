@@ -781,7 +781,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1204.1930"
+(defconst epackage-version-time "2010.1204.1936"
   "*Version of last edit.")
 
 (defcustom epackage--load-hook nil
@@ -988,6 +988,12 @@ documentation of epackage.el."
           (if (string= "" package)
               ""
             (format "/%s-install.el" package))))
+
+(defsubst epackage-git-directory-p (dir)
+  "Return DIR if directory contains .git/"
+  (let ((path (concat (file-name-as-directory dir) ".git")))
+    (if (file-directory-p path)
+        path)))
 
 (defun epackage-package-enabled-p (package)
   "Return file if PACKAGE is enabled."
