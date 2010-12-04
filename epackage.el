@@ -33,14 +33,14 @@
 
 ;;; Install:
 
+;;  Put this file along your Emacs-Lisp `load-path' and add following
+;;  into your ~/.emacs startup file.
 ;;
-;;  Put this file on your Emacs-Lisp `load-path', add following into your
-;;  ~/.emacs startup file.
-;;
-;;      ;;  M-x epackage to start installing, upgrading. removing
+;;      ;;  M-x epackage to start package manager
 ;;      (autoload 'epackage "epackage" "" t)
 ;;
-;;      ;; One big file to boot all packages (auto generated)
+;;      ;; One big file to boot all installed packages
+;;	;; Automatically generated. Do not edit.
 ;;      (load "~/.emacs.d/epackage/00link/epackage-loader" 'noerr)
 
 ;;; Commentary:
@@ -49,9 +49,9 @@
 ;;
 ;;      Emacs has been around for decades now. Many new version have
 ;;      come and gone (18.59 ... 24.x), Still there are wealth of
-;;      extensions found e.g. from <http://emacswiki.org> that enhance
-;;      and add new features. The typical procedure to add new a
-;;      extension to Emacs is:
+;;      extensions available e.g. et <http://emacswiki.org> that add
+;;      new features. The typical procedure to add new a extension to
+;;      Emacs is:
 ;;
 ;;      o   Find an extension at places like
 ;;          http://dir.gmane.org/gmane.emacs.sources or
@@ -70,39 +70,41 @@
 ;;
 ;;      This utility is different from the existing ELPA Emacs package
 ;;      manager. It has been built around two concepts: 1) it borrows
-;;      the Debian style of package management and applies it to Emacs
-;;      packages. The main idea is being distributed in nature; not
-;;      centralized like ELPA.
+;;      the Debian style of package management and 2) it user version
+;;      controlled packages. This is completely different approach
+;;      than centralized ELPA Emacs package manager.For more information
+;;	about ELPA, see <http://www.emacswiki.org/emacs/ELPA>.
 ;;
-;;      Each Emacs extension is cnoverted into epackage format, which
-;;      means including Debians tyle control directory epackge/ where
-;;      all the details about activation, autoloads and installation
-;;      are kept. The seond concept is that each epackage is imported
-;;      and distributed using Git Distributed Version Control System
-;;      (DVCS). After initial load of an epackage repository, the
-;;      subsequent downloads are ver efficient because only deltas are
-;;      trasferred. Another benefit of DVCS is its distributed nature:
-;;      local modifications are possible, all the software history and
-;;      releases are included in the repository. This give some
-;;      interesting prospects and freedom to maintain and deploy
-;;      epackages from anywhere.
+;;      Each Emacs extension is wrapped into epackage format which
+;;      basicly follows Debian tyle control directory named epackge/
+;;      where all the details about activation, autoloads and
+;;      installation are kept. In addition, each epackage is imported
+;;      and deployed using Git Distributed Version Control System
+;;      (DVCS). A specific "Yellow pages" lists all available Git
+;;      repositories where to download packages. Once the epackage has
+;;      been downloaded, subsequent downloads are very efficient
+;;      because only deltas are trasferred. Another benefit of DVCS is
+;;      its distributed nature: local modifications are possible, all
+;;      the software history and releases are included in the
+;;      repository. This opens some interesting prospects and freedom
+;;      to maintain and deploy epackages.
 ;;
 ;;      If you're an Emacs user, all these details do not concern you.
 ;;      From package management view, select packages to downlaod, and
-;;      they appear in your local disk. You have several options how
-;;      to proceed from theree: select autoload install (no Emacs
-;;      changes), or activation (Emacs environment is changed). Later
-;;      you can upgrade packages and periodically download epackage
-;;      list to see what new has been made available,
-
-;;      If you're a Emacs extension developer who would like to start
-;;      distributing your work in epackage format, that will require
-;;      familiarizing with the git(1).
+;;      they will appear in your local disk. After that you have
+;;      several options how to proceed. Select autoload install (no
+;;      Emacs setup changes), or activation install (Emacs environment
+;;      is changed). Later you can upgrade packages and periodically
+;;      download new epackage list, the "yellow pages", that lists
+;;      available Git repositories.
 ;;
-;;      This package manager can co-exist with nay other installation
-;;      as usual. It is possible to use other package managers, like
-;;      ELPA, at the same time. User's standard Emacs startup files,
-;;      like ~/.emacs are never modified.
+;;      If you're a Emacs extension developer who would like to make
+;;      the extension available for other to download through
+;;      epackage, that will require familiarizing with the git(1).
+;;
+;;      The epackage system can co-exist with nay other installation,
+;;      like ELPA, as usual. User's standard Emacs startup files, like
+;;      ~/.emacs are never modified.
 ;;
 ;;  Epackage - the DVCS packaging system
 ;;
@@ -776,7 +778,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1204.1842"
+(defconst epackage-version-time "2010.1204.1901"
   "*Version of last edit.")
 
 (defcustom epackage--load-hook nil
