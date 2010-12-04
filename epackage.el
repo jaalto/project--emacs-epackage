@@ -40,7 +40,7 @@
 ;;      (autoload 'epackage "epackage" "" t)
 ;;
 ;;      ;; One big file to boot all installed packages
-;;	;; Automatically generated. Do not edit.
+;;      ;; Automatically generated. Do not edit.
 ;;      (load "~/.emacs.d/epackage/00link/epackage-loader" 'noerr)
 
 ;;; Commentary:
@@ -72,8 +72,8 @@
 ;;      manager. It has been built around two concepts: 1) it borrows
 ;;      the Debian style of package management and 2) it user version
 ;;      controlled packages. This is completely different approach
-;;      than centralized ELPA Emacs package manager.For more information
-;;	about ELPA, see <http://www.emacswiki.org/emacs/ELPA>.
+;;      than centralized ELPA Emacs package manager. For more information
+;;      about ELPA, see <http://www.emacswiki.org/emacs/ELPA>.
 ;;
 ;;      Each Emacs extension is wrapped into epackage format which
 ;;      basicly follows Debian tyle control directory named epackge/
@@ -108,9 +108,6 @@
 ;;
 ;;  Epackage - the DVCS packaging system
 ;;
-;;      This packaging system is called epackage, short name for
-;;      "Emacs Lisp packages".
-;;
 ;;      In this system packages are available in a form of
 ;;      distributed[1] git[2] version control repositories. The
 ;;      traditional packaging methods (like ELPA[2]) have previously
@@ -119,8 +116,8 @@
 ;;      approach:
 ;;
 ;;      o   Efficient downloads; fast, only deltas are transferred.
-;;      o   Local modifications; users can create their own customizations
-;;          and track them easily,
+;;      o   Local modifications are possible; users can create their own
+;;          customizations and track them easily,
 ;;      o   Helping package authors made easy; have you found an error?
 ;;          Have a spare time to fix it? Generate diff straight from the
 ;;          version control repository.
@@ -131,12 +128,13 @@
 ;;
 ;;      The Emacs extensions need to prepared for use with this
 ;;      system: imported to git, the repository must be made available
-;;      online and information about the avilability must be submitted
-;;      to epackage sources list, the "yellow pages". This job can be
-;;      done by anyone who wants to set up a reposository. It doesn't
-;;      need to be done by the original Emacs extension author
-;;      (upstream) who may not be familiar with the git(1) program.
-;;      For more inforamtion about the packaging see following topics.
+;;      online and information about the Git repository must be
+;;      submitted to epackage sources list, the "yellow pages". This
+;;      job can be done by anyone who wants to set up a reposository.
+;;      It doesn't need to be done by the original Emacs extension
+;;      author (upstream) who may not be familiar with the git(1)
+;;      program. For more inforamtion about the packaging see
+;;      following topics.
 ;;
 ;;      [1] DVCS = Distributed Version Control System
 ;;          http://en.wikipedia.org/wiki/Distributed_revision_control
@@ -347,8 +345,8 @@
 ;;      The layout of an epackaged Emacs extension looks like:
 ;;
 ;;          <PACKAGE, Emacs extension root dir>
-;;	    | <files and possible directories>
-;;	    |
+;;          | <files and possible directories>
+;;          |
 ;;          +- .git/                    Version control branches (see above)
 ;;          |
 ;;          +-- epackage/
@@ -379,7 +377,7 @@
 ;;      you're encouraged to contact upstream with a possible patch.
 ;;      The "zero" at the start of the name is to help proper sorting
 ;;      ordering of files. Menmonic: "if you load this file, you
-;;	can start calling extension's features".
+;;      can start calling extension's features".
 ;;
 ;;     The *-install.el
 ;;
@@ -487,9 +485,9 @@
 ;;
 ;;  Details of the info file fields
 ;;
-;;	Recommendations: Use one space to indent continued field.
-;;	Limitlilne maximum length to 80 characters. See variable
-;;	`fill-column'
+;;      Recommendations: Use one space to indent continued field.
+;;      Limitlilne maximum length to 80 characters. See variable
+;;      `fill-column'
 ;;
 ;;     Bugs
 ;;
@@ -527,7 +525,7 @@
 ;;      `Description'. (which see). Old packages that are not updated
 ;;      to work for latest Emacs releases are candidate for removal
 ;;      from a epackage archive's "yellow pages". An example how to use
-;;	the field:
+;;      the field:
 ;;
 ;;              Depends: emacs (>= 22.2) | xemacs (>= 20)
 ;;
@@ -577,7 +575,7 @@
 ;;      should be used if the software has no license information in any of
 ;;      the source files. Examples of valid license tokens:
 ;;
-;;		GPL-2, GPL-2+, GPL-3, GPL-3+, BSD, Apache-2.0
+;;              GPL-2, GPL-2+, GPL-3, GPL-3+, BSD, Apache-2.0
 ;;
 ;;     Maintainer
 ;;
@@ -608,7 +606,7 @@
 ;;      annouce related packages. That information can be mentioned in
 ;;      the end of `Description' in separate paragraph "SEE ALSO".
 ;;      This field follow guidelines of
-;;	<http://www.debian.org/doc/debian-policy/ch-relationships.html#s-binarydeps>
+;;      <http://www.debian.org/doc/debian-policy/ch-relationships.html#s-binarydeps>
 ;;
 ;;     Section (required)
 ;;
@@ -645,8 +643,8 @@
 ;;     Vcs-Browser
 ;;
 ;;      The URL address to the version control browser of the repository.
-;;	This field follow guidelines of
-;;	<http://www.debian.org/doc/developers-reference/best-pkging-practices.html#bpp-vcs>
+;;      This field follow guidelines of
+;;      <http://www.debian.org/doc/developers-reference/best-pkging-practices.html#bpp-vcs>
 ;;
 ;;     Vcs-Type
 ;;
@@ -703,7 +701,7 @@
 ;;
 ;;      Any other custom field can be inserted using `X-*' field
 ;;      notation. It is recommended that X-fields are liste at the bottom,
-;;	Just before `Description:' field.
+;;      Just before `Description:' field.
 ;;
 ;;          X-Comment: <comment here>
 ;;          X-Upstream-Homepage: <URL>
@@ -721,6 +719,11 @@
 ;;      - GUI: After download. Trying to install or arctivate package,
 ;;        check emacs compatibility and refuse to install if not met.
 ;:
+;;      - GIT package repo: What if user has made local customizations?
+;;        Branch != master. Thought: we leave if alone and mark it
+;;        "manual". USer can deal with the merges and take full
+;;        responsibility. We can still 'git fetch' updatess
+;;
 ;;      - Verify Compatibility Level of downloaded epackage
 ;;      - Run health check for downloaded Epackage
 ;;
@@ -778,7 +781,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1204.1901"
+(defconst epackage-version-time "2010.1204.1927"
   "*Version of last edit.")
 
 (defcustom epackage--load-hook nil
