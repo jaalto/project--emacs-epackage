@@ -1,0 +1,24 @@
+tinyepkg.el for Emacs
+.....................
+
+Description
+
+	This is an Emacs extension: Distributed Emacs Lisp package
+	management system. With it, you can install Emacs extensions
+	that have been put available as git DVCS repositories. This
+	format is called "epackage". The details can be found from
+	commentary of file tinyepkg.el.
+
+Depends
+
+	-   Emacs 22.1+ (released 2007).
+	-   git(1) Distributed Version Control System (DVCS). Any version.
+	    http://en.wikipedia.org/wiki/Git_(software)
+	-   Depends only on standard Emacs. Does not use external or
+	    ``cl`` libraries.
+
+License
+
+	GNU GPL-2+. See file COPYING
+
+End of file
