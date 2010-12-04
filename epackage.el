@@ -38,7 +38,7 @@
 ;;  ~/.emacs startup file.
 ;;
 ;;      ;;  M-x epackage to start installing, upgrading. removing
-;;      (autoload 'epackage "tinyepkg" "" t)
+;;      (autoload 'epackage "epackage" "" t)
 ;;
 ;;      ;; One big file to boot all packages (auto generated)
 ;;      (load "~/.emacs.d/epackage/00link/epackage-loader" 'noerr)
@@ -747,7 +747,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1204.1533"
+(defconst epackage-version-time "2010.1204.1537"
   "*Version of last edit.")
 
 (defcustom epackage--load-hook nil
@@ -926,7 +926,7 @@ TYPE can be on of the following:
   'uninstall
 
 Refer top Epackage specification for more information in
-documentation of tinyepkg.el."
+documentation of epackage.el."
   (let ((dir (epackage-file-name-vcs-package-control-directory package))
         (file (cdr-safe (assq type epackage--layout-mapping))))
     (if (not file)

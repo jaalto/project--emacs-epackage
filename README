@@ -1,4 +1,4 @@
-tinyepkg.el for Emacs
+epackaeg.el for Emacs
 .....................
 
 Description
@@ -7,7 +7,7 @@ Description
 	management system. With it, you can install Emacs extensions
 	that have been put available as git DVCS repositories. This
 	format is called "epackage". The details can be found from
-	commentary of file tinyepkg.el.
+	commentary of file epackage.el.
 
 Depends
 
