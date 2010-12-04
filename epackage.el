@@ -993,7 +993,7 @@ documentation of epackage.el."
   "Return DIR if directory contains .git/"
   (let ((path (concat (file-name-as-directory dir) ".git")))
     (if (file-directory-p path)
-        path)))
+        dir)))
 
 (defun epackage-package-enabled-p (package)
   "Return file if PACKAGE is enabled."
