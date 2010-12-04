@@ -781,7 +781,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1204.1936"
+(defconst epackage-version-time "2010.1204.1942"
   "*Version of last edit.")
 
 (defcustom epackage--load-hook nil
@@ -1500,6 +1500,12 @@ Format is described in variable `epackage--sources-list-url'."
   (let ((info (epackage-sources-list-info-main package)))
     (when info
       (nth 1 info))))
+
+(defun epackage-sources-list-info-description (package)
+  "Return description for PACKAGE or nil."
+  (let ((info (epackage-sources-list-info-main package)))
+    (when info
+      (nth 2 info))))
 
 (defun epackage-require-emacs ()
   "Require Emacs features."
