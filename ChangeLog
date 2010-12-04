@@ -4,6 +4,7 @@
 
 	* epackage.el:
 	(top-level): Rename package. Add "Compat" levels and explaint it.
+	Add acronym DELPS = Distributed Emacs Lisp Package System.
 	(ti::macrof-minor-mode-wizard): comment out unused code.
 
 	** MOVE tinyepkg.el out of tiny tools to a separate package **

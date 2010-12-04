@@ -1,4 +1,4 @@
-;;; epackage.el --- Distributed Emacs Lisp package management system
+;;; epackage.el --- Distributed Emacs Lisp package system (DELPS)
 
 ;; This file is not part of Emacs
 
@@ -747,7 +747,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1204.1537"
+(defconst epackage-version-time "2010.1204.1549"
   "*Version of last edit.")
 
 (defcustom epackage--load-hook nil

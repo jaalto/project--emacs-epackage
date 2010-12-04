@@ -1,13 +1,13 @@
-epackaeg.el for Emacs
+epackage.el for Emacs
 .....................
 
 Description
 
 	This is an Emacs extension: Distributed Emacs Lisp package
-	management system. With it, you can install Emacs extensions
-	that have been put available as git DVCS repositories. This
-	format is called "epackage". The details can be found from
-	commentary of file epackage.el.
+	system (DELPS). With it, you can install Emacs extensions that
+	have been put available as git DVCS repositories. This format
+	is called "epackage". The details can be found from commentary
+	of file epackage.el.
 
 Depends
 
