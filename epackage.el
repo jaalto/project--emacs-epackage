@@ -174,7 +174,7 @@
 ;;      o   e, edit package's *info* file.
 ;;      o   E, email upstream, the package author (maintainer). You can
 ;;             as for new wishlist features, report bugs etc.
-;;      o   g, get. Update avaiĺable package list.
+;;      o   g, get. Update available package list (get new yellow pages data)
 ;;      o   i, install package.
 ;;      o   l, list only installed packages.
 ;;      o   m, mark package (for command install or remove).
@@ -196,8 +196,8 @@
 ;;
 ;;      o   (A)ctivated. The package has been downloaded and code to
 ;;          immediately activate the package has been taken into use.
-;;          This setting chnages user's Emacs environment as defined
-;;          by the packager. The chnages typically include modifying hook
+;;          This setting changes user's Emacs environment as defined
+;;          by the packager. The changes typically include modifying hook
 ;;          to activate the package e.g. by file extension, adding
 ;;          keybindings to activate the package etc. You might want
 ;;          to use (v)iew command to see what exactly happens
@@ -671,9 +671,10 @@
 ;;
 ;;     Vcs-Args
 ;;
-;;      Additional arguments passed to VCS program after speficying the *Vcs-Url*
-;;      E.g. CVS directories may need a specific module to check out. A setup like
-;;      below would yield command: "cvs -d <Vcs-Url> co -d <Package> <Vcs-Args>"
+;;      Additional arguments passed to VCS program after speficying
+;;      the *Vcs-Url* E.g. CVS directories may need a specific module
+;;      to check out. A setup like below would yield command: "cvs -d
+;;      <Vcs-Url> co -d <Package> <Vcs-Args>"
 ;;
 ;;          Vcs-Type: cvs
 ;;          Vcs-Url: :pserver:anonymous@example.com/reository/foo
@@ -708,80 +709,80 @@
 ;;
 ;; Epackage Compatibility Levels
 ;;
-;;   The latest epackage format is alwyas described in section
-;;   "Epackage specification" above. In here you can find list of
-;;   older formats and changes.
+;;	The latest epackage format is alwyas described in section
+;;	"Epackage specification" above. In here you can find list of
+;;	older formats and changes.
 ;;
-;;   o  2010-12-03 First spec. Compatibility level 1.
+;;	o  2010-12-03 Draft spec. Compatibility level 1.
 ;;
 ;; TODO
 ;;
-;;      - GUI: After download. Trying to install or arctivate package,
-;;        check emacs compatibility and refuse to install if not met.
-;:
-;;      - GIT package repo: What if user has made local customizations?
-;;        Branch != master. Thought: we leave if alone and mark it
-;;        "manual". USer can deal with the merges and take full
-;;        responsibility. We can still 'git fetch' updatess
+;;      o   GUI: After download. Trying to install or arctivate package,
+;;	    check emacs compatibility and refuse to install if not met.
 ;;
-;;      - Verify Compatibility Level of downloaded epackage
-;;      - Run health check for downloaded Epackage
+;;      o   GIT package repo: What if user has made local customizations?
+;;	    Branch != master. Thought: we leave if alone and mark it
+;;	    "manual". USer can deal with the merges and take full
+;;	    responsibility. We can still 'git fetch' updatess
 ;;
-;;      - Verify sources list file: No duplicate same packages.
+;;      o   Verify Compatibility Level of downloaded epackage
+;;      o   Run health check for downloaded Epackage
 ;;
-;;      - What to do if Yellow pages URL (repo) chnages and you have the old one
-;;        installed? How to cope with the change? The Git repository may
-;;        need to be destroyed and downloaded again to be sure (not
-;;        necessarily derived from old one).
+;;      o   Verify sources list file: No duplicate same packages.
 ;;
-;;      - What if epackage maintainer kills the repo and reinstantiates it
-;;        from fresh? Symptoms: can't pull, because repos have diverged and
-;;        do not have common objects. SOLUTION: offer deleting repo and
-;;        downloading it again. Warn if there are any local modifications,
-;;        the user might want ot have a backup (*.b). Can we do that? What
-;;        if a backup already exists?
+;;      o   What to do if Yellow pages URL (repo) changes and you have
+;;	    the old one installed? How to cope with the change? The Git
+;;	    repository may need to be destroyed and downloaded again to
+;;	    be sure (not necessarily derived from old one).
 ;;
-;;      - Move package list into Git repository
-;;      - GUI: drop outline. If user selects DETAIL view, collect
-;;        information to another buffer dynamically (info, git tags,
-;;        current git branch)
+;;      o   What if epackage maintainer kills the repo and reinstantiates it
+;;	    from fresh? Symptoms: can't pull, because repos have diverged and
+;;	    do not have common objects. SOLUTION: offer deleting repo and
+;;	    downloading it again. Warn if there are any local modifications,
+;;	    the user might want ot have a backup (*.b). Can we do that? What
+;;	    if a backup already exists?
 ;;
-;;      - New file: cache. Build it dynamically from packages and
-;;        combine with package information (e.g. version).
+;;      o   Move package list into Git repository
+;;      o   GUI: drop outline. If user selects DETAIL view, collect
+;;	    information to another buffer dynamically (info, git tags,
+;;	    current git branch)
 ;;
-;;      - Use 00link directory where to draw symlinks. This is faster
-;;        than using many paths in `load-path' but it won't work in
-;;        Windows.
-;;        => make it configurable
-;;      - Dynamically search all *.el and *elc. When byte compiled,
-;;        symlink those files as well.
+;;      o   New file: cache. Build it dynamically from packages and
+;;	    combine with package information (e.g. version).
 ;;
-;;      - Install action by default runs eable (*-autoloads),
-;;        unless user has activated auto-activate feature (toggle)
-;;      - Another toggle is auto-byte-compile feature on package install.
+;;      o   Use 00link directory where to draw symlinks. This is faster
+;;	    than using many paths in `load-path' but it won't work in
+;;	    Windows.
+;;	    => make it configurable
+;;      o   Dynamically search all *.el and *elc. When byte compiled,
+;;	    symlink those files as well.
 ;;
-;;      - refetch repository (destroy, re-download).
+;;      o   Install action by default runs eable (*-autoloads),
+;;	    unless user has activated auto-activate feature (toggle)
+;;      o   Another toggle is auto-byte-compile feature on package install.
 ;;
-;;      - Git tags, where is this information kept?
-;;      - How to update package, or all packages?
-;;        => Running git preocess? When update is avilable how to flag this?
-;;        => What about conflits?
-;;      - What about 'local', manual branch and updates?
-;;      - Retrieve new yellow pages (available packages)
-;;      - Rescan current information? (what is installed, what is not)
-;;        => Keep cache? Or regenerate, or scan at startup every time?
-;;      - What if user manually deletes directories? Refresh?
-;;      - Package health check, Lint?
-;;      - Edit yellow pages catalog?
-;;        => Submit/update yellow pages catalog changes?
-;;        => version controlled, patches? Interface to automatic email?
-;;      - Yellow pages URL health check? What to do with broken links?
+;;      o   refetch repository (destroy, re-download).
+;;
+;;      o   Git tags, where is this information kept?
+;;      o   How to update package, or all packages?
+;;	    => Running git preocess? When update is avilable how to flag this?
+;;	    => What about conflits?
+;;      o   What about 'local', manual branch and updates?
+;;      o   Retrieve new yellow pages (available packages)
+;;      o   Rescan current information? (what is installed, what is not)
+;;	    => Keep cache? Or regenerate, or scan at startup every time?
+;;      o   What if user manually deletes directories? Refresh?
+;;      o   Package health check, Lint?
+;;      o   Edit yellow pages catalog?
+;;	    => Submit/update yellow pages catalog changes?
+;;	    => version controlled, patches? Interface to automatic email?
+;;      o   Yellow pages URL health check? What to do with broken links?
 
 ;;; Change Log:
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1204.2126"
+(defconst epackage-version-time "2010.1205.1548"
   "*Version of last edit.")
 
 (defcustom epackage--load-hook nil
@@ -1020,7 +1021,7 @@ documentation of epackage.el."
     (error "Epackage: [ERROR arg 'package' is not a string."))
   (let ((dir (epackage-file-name-vcs-compose package)))
     (if (file-directory-p dir)
-	dir)))
+        dir)))
 
 (defun epackage-package-activated-p (package)
   "Check if package has been activated, return activate file."
@@ -1218,10 +1219,10 @@ Return:
   (let (list)
     (while (re-search-forward "^\\(\\*?\\) +\\([^ \t\r\n]*\\)" nil t)
       (setq list (cons
-		  (concat
-		   (match-string-no-properties 1)
-		   (match-string-no-properties 2))
-		  list)))
+                  (concat
+                   (match-string-no-properties 1)
+                   (match-string-no-properties 2))
+                  list)))
     list))
 
 (defsubst epackage-git-command-branch-parse-main ()
@@ -1270,10 +1271,10 @@ If VERBOSE is non-nil, display progress message."
   "Run 'git clone URL DIR' in VCS package directory vault.
 If VERBOSE is non-nil, display progress message."
   (let* ((name (file-name-nondirectory dir))
-	 (dir-before (replace-regexp-in-string
-		      (regexp-quote name)
-		      ""
-		      dir)))
+         (dir-before (replace-regexp-in-string
+                      (regexp-quote name)
+                      ""
+                      dir)))
     (epackage-with-git-command dir-before verbose
       "clone" url name)))
 
@@ -1503,9 +1504,9 @@ or whose name match `epackage--directory-name'."
 Point must be at the beginning of line."
   (if (looking-at
        (format
-	`,(concat "^\\(%s\\)\\>"
-		  "[ \t]+\\([^ \t\r\n]+\\)"
-		  "[ \t]*\\([^ \t\r\n]*\\)")))
+        `,(concat "^\\(%s\\)\\>"
+                  "[ \t]+\\([^ \t\r\n]+\\)"
+                  "[ \t]*\\([^ \t\r\n]*\\)")))
       (list
        (match-string-no-properties 1)
        (match-string-no-properties 2)
@@ -1551,7 +1552,7 @@ Format is described in variable `epackage--sources-list-url'."
   (epackage-with-sources-list
    (goto-char (point-min))
    (let (case-fold-search
-	 list)
+         list)
      (when (re-search-forward "^\\([a-z][a-z0-9-]+\\)[ \]+[a-z]" nil t)
        (setq list (cons (match-string-no-properties 1) list)))
      list)))
@@ -1647,17 +1648,17 @@ If VERBOSE is non-nil, display progress messages."
   (interactive
    (let (package)
      (if (not (epackage-sources-list-p))
-	 (message
-	  (substitute-command-keys
-	   `,(concat
-	      "Epackage: No package list. "
-	      "Run \\[epackage-cmd-download-sources-list]")))
+         (message
+          (substitute-command-keys
+           `,(concat
+              "Epackage: No package list. "
+              "Run \\[epackage-cmd-download-sources-list]")))
        (setq package
-	     (completing-read
-	      "Install epackage: "
-	      (epackage-sources-list-info-pkg-list)
-	      (not 'predicate)
-	      'require-match)))
+             (completing-read
+              "Install epackage: "
+              (epackage-sources-list-info-pkg-list)
+              (not 'predicate)
+              'require-match)))
      (list package 'interactive)))
   (cond
    ((not (epackage-string-p package))
@@ -1666,7 +1667,7 @@ If VERBOSE is non-nil, display progress messages."
     (message "Epackage not downloaded"))
    ((not (epackage-master-p package))
     (message "Abort. Package is manually modified. Branch is not 'master' in %s"
-	     (epackage-file-name-vcs-compose package)))
+             (epackage-file-name-vcs-compose package)))
    (t
     (epackage-upgrade-package package verbose)
     ;; FIXME: Add post-processing
@@ -1682,22 +1683,22 @@ If VERBOSE is non-nil, display progress messages."
   (interactive
    (let (package)
      (if (not (epackage-sources-list-p))
-	 (message
-	  (substitute-command-keys
-	   `,(concat
-	      "Epackage: No package list. "
-	      "Run \\[epackage-cmd-download-sources-list]")))
+         (message
+          (substitute-command-keys
+           `,(concat
+              "Epackage: No package list. "
+              "Run \\[epackage-cmd-download-sources-list]")))
        (setq package
-	     (completing-read
-	      "Install epackage: "
-	      (epackage-sources-list-info-pkg-list)
-	      (not 'predicate)
-	      'require-match)))
+             (completing-read
+              "Install epackage: "
+              (epackage-sources-list-info-pkg-list)
+              (not 'predicate)
+              'require-match)))
      (list package 'interactive)))
   (if (not (epackage-string-p package))
       (message "No epackage selected for install.")
     (if (epackage-package-downloaded-p package)
-	(message "Epackage already downloaded: %s" package)
+        (message "Epackage already downloaded: %s" package)
       (epackage-download-package package verbose))))
 
 ;;###autoload
