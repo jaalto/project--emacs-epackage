@@ -94,3 +94,11 @@
 2009-03-29  Jari Aalto  <jari.aalto@cante.net>
 
 	* tinyepkg.el: New.
+
+License
+
+	This program is free software; you can redistribute and/or modify
+	program under the terms of GNU General Public license either version 2
+	of the License, or (at your option) any later version.
+
+End of file
