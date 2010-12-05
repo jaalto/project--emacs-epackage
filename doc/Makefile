@@ -38,6 +38,7 @@ $(HTML): $(TXT)
 	--title "Epackage - Distributed Emacs Lisp Package System (DELPS)" \
 	--css-code-bg \
 	--css-file=index.css \
+	--disclaimer-file=disclaimer.txt \
 	--out \
 	$(TXT)
 
