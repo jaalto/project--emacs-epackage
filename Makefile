@@ -26,15 +26,24 @@ PACKAGE		= epackage
 SRC		= $(PACKAGE).el
 BIN		= emacs
 
-all: build doc
+all: help
+
+help:
+	@echo "Select make <target>:"
+	@echo "---------------------"
+	@grep '^# .*-' Makefile | sed 's,# ,,' | sort
 
 $(PACKAGE).elc: $(SRC)
 	$(BIN) --batch -Q -q -f batch-byte-compile $(SRC)
 
+# build - Byte compile *.el file
 build: $(PACKAGE).elc
 
+# doc - Build plain text and HTML documentation from *.el with external utilities
 doc:
 	$(MAKE) -C doc
+
+# install - There is no install. Manually copy *.el file to Emacs load-path
 
 .PHONY: doc
 
