@@ -59,7 +59,7 @@
 ;;      o   Download and save the *.el file along `load-path'
 ;;      o   Read the installation information. Usually embedded in comments
 ;;          at the beginning of *.el files.
-;;      o   Add code to the Emacs startup file ~/.emacs
+;;      o   Add code to the Emacs startup file `~/.emacs'.
 ;;          to arrange loading the extension to your liking.
 ;;
 ;;      That's quite a bit of work for each extension; reaching
@@ -83,7 +83,7 @@
 ;;      (DVCS). A specific "Yellow pages" lists all available Git
 ;;      repositories where to download packages. Once the epackage has
 ;;      been downloaded, subsequent downloads are very efficient
-;;      because only deltas are trasferred. Another benefit of DVCS is
+;;      because only deltas are transferred. Another benefit of DVCS is
 ;;      its distributed nature: local modifications are possible, all
 ;;      the software history and releases are included in the
 ;;      repository. This opens some interesting prospects and freedom
@@ -100,11 +100,11 @@
 ;;
 ;;      If you're a Emacs extension developer who would like to make
 ;;      the extension available for other to download through
-;;      epackage, that will require familiarizing with the git(1).
+;;      epackage, that will require familiarizing with the `git(1)'.
 ;;
 ;;      The epackage system can co-exist with nay other installation,
 ;;      like ELPA, as usual. User's standard Emacs startup files, like
-;;      ~/.emacs are never modified.
+;;      `~/.emacs' are never modified.
 ;;
 ;;  Epackage - the DVCS packaging system
 ;;
@@ -130,10 +130,10 @@
 ;;      system: imported to git, the repository must be made available
 ;;      online and information about the Git repository must be
 ;;      submitted to epackage sources list, the "yellow pages". This
-;;      job can be done by anyone who wants to set up a reposository.
+;;      job can be done by anyone who wants to set up a repository.
 ;;      It doesn't need to be done by the original Emacs extension
-;;      author (upstream) who may not be familiar with the git(1)
-;;      program. For more inforamtion about the packaging see
+;;      author (upstream) who may not be familiar with the `git(1)'
+;;      program. For more information about the packaging see
 ;;      following topics.
 ;;
 ;;      [1] DVCS = Distributed Version Control System
@@ -163,7 +163,7 @@
 ;;      The fields are:
 ;;
 ;;      o   1 - Unique package name. No two package scan have the same name.
-;;      o   2 - Package classification. M-x finder-list-keywords
+;;      o   2 - Package classification. `M-x' `finder-list-keywords'
 ;;      o   3 - status: (A)activated (E)nabled (I)installed etc.
 ;;      o   4 - Version number. Only known once package has been downloaded.
 ;;      o   5 - Short package description
@@ -188,24 +188,24 @@
 ;;      o   s<key>, sort command. Change listing by several criterias.
 ;;      o   u, unmark (install, purge, remove).
 ;;      o   U, upgrade package to newer version.
-;;      o   v<key>, view comand. E.g (a)activation file, (i)info file.
+;;      o   v<key>, view command. E.g (a)activation file, (i)info file.
 ;;      o   q, quit. Run `bury-buffer'.
 ;;      o   x, execute (install, purge, remove).
 ;;
-;;      The package state is shows with following status indiators:
+;;      The package state is shows with following status indicators:
 ;;
 ;;      o   (A)ctivated. The package has been downloaded and code to
 ;;          immediately activate the package has been taken into use.
 ;;          This setting changes user's Emacs environment as defined
 ;;          by the packager. The changes typically include modifying hook
 ;;          to activate the package e.g. by file extension, adding
-;;          keybindings to activate the package etc. You might want
+;;          key bindings to activate the package etc. You might want
 ;;          to use (v)iew command to see what exactly happens
 ;;      o   (E)enabled. One step down from Activated state. Only interactive
 ;;          functions and variables are provided in latent `autoload'
-;;          stae for user to call with `M-x' <function name>. User
+;;          state for user to call with `M-x' <function name>. User
 ;;          configuration is not modified in any way.If you want full
-;;          control over package setup, set package to Emabled state
+;;          control over package setup, set package to Enabled state
 ;;          and add further code to Emacs startup file "/.emacs to
 ;;          configure it
 ;;      o   (I)installed. This is synonym for Downloaded. Package has
@@ -219,8 +219,8 @@
 ;;      o   (x)emacs core. Package is included in latest core XEmacs.
 ;;
 ;;      Building the initial list of available packages takes some time
-;;      and this is done via open internet connection. Install command
-;;      also requires an open internet connection.
+;;      and this is done via open Internet connection. Install command
+;;      also requires an open Internet connection.
 ;;
 ;;  The epackage system framework
 ;;
@@ -231,7 +231,7 @@
 ;;      the upstream. These two can be the same person or two separate
 ;;      persons.
 ;;
-;;      o   A = An Emacs user who wannts to install new software
+;;      o   A = An Emacs user who wants to install new software
 ;;      o   (Y)ellow pages = The sources list file that contains
 ;;          information about available epakages around the globe.
 ;;      o   E = The epackage. Maintained by a person who has found an
@@ -248,7 +248,7 @@
 ;;      find package, a "yellow pages" is consulted. It is seeded and
 ;;      update by all the epackage maintainer that wish to make epackages
 ;;      available. The user A does not need to know any details of this
-;;      process; like in Debian, he justs "apt-get" install an epackage
+;;      process; like in Debian, he runs "apt-get" install an epackage
 ;;      that is made newly available or which has been updated and is
 ;;      upgradeable.
 ;;
@@ -289,7 +289,7 @@
 ;;  User's local epackage system layout
 ;;
 ;;      The packages are installed under root `epackage--root-directory',
-;;      which defaults to ~/.emacs.d or ~/elisp respectively. The
+;;      which defaults to `~/.emacs.d' or `~/elisp' respectively. The
 ;;      root directory is organized as follows:
 ;;
 ;;          epackage
@@ -309,17 +309,16 @@
 ;;             +-- package2/
 ;;             +-- ...
 ;;
-;;  Epackage specification (version 1)
+;;  Epackage specification (draft; level 1)
 ;;
 ;;      The Git repository branches used are:
 ;;
-;;      o   `master', required. The published epackage.
-;;          Branched off from `upstream'. Adds directory
+;;      o   *master*, required. The published epackage.
+;;          Branched off from *upstream*. Adds directory
 ;;          `epackage/' where the packaging information resides.
-;;      o   `patches', optional. Patches to `upstream' code, if any.
-;;          This branch is merged to to `master'.
-;;      o   `upstream', required. The original unmodified upstream code.
-
+;;      o   *patches*, optional. Patches to *upstream* code, if any.
+;;          This branch is merged to *master*.
+;;      o   *upstream*, required. The original unmodified upstream code.
 ;;          Releases are tagged with label
 ;;          "upstream/YYYY-MM-DD[--VERSION]". The YYYY-MM-DD is the
 ;;          date of upstream release or best guess like if only year
@@ -328,7 +327,7 @@
 ;;          extensions include version information. The ISO 8601 date is
 ;;          needed so that the release date is immediately
 ;;          available e.g. for post processing and so that the tags sort
-;;          nicely by date. An example: "upstream/2009-12-31--0.3-devel"
+;;          nicely by date. An example: `upstream/2009-12-31--0.3-devel'.
 ;;
 ;;      The same in pictures. The `master' contains merges from
 ;;      `patches' and `upstream'.
@@ -341,7 +340,7 @@
 ;;
 ;;      The epackaging method borrows concept from the Debian where a
 ;;      separate control directory is used for package information.
-;;      The directory name is *epackage/* and it is not configurable.
+;;      The directory name is `epackage/' and it is not configurable.
 ;;      The layout of an epackaged Emacs extension looks like:
 ;;
 ;;          <PACKAGE, Emacs extension root dir>
@@ -358,7 +357,7 @@
 ;;              PACKAGE-uninstall.el    optional: Code to remove extension from Emacs
 ;;              PACKAGE-xactivate.el    optional: Code to activate the extension
 ;;
-;;      The nanes of the files have been chosen to sort
+;;      The names of the files have been chosen to sort
 ;;      alphabetically. All these configuration files are later
 ;;      combined in a single loader file. Loading a single file is
 ;;      faster than spending time in loading small file along
@@ -371,19 +370,19 @@
 ;;
 ;;      This file contains extracted ##autoload definitions. The file
 ;;      is automatically generated. The file does not modify user's
-;;      environment. If extension does not contains any ###autoload
+;;      environment. If extension does not contains any `###autoload'
 ;;      definitions, the manually crafted *-install.el file can be
-;;      used as a substitute. In case of missing ##autoload stanzad,
+;;      used as a substitute. In case of missing `##autoload' stanzas,
 ;;      you're encouraged to contact upstream with a possible patch.
 ;;      The "zero" at the start of the name is to help proper sorting
-;;      ordering of files. Menmonic: "if you load this file, you
+;;      ordering of files. Mnemonic: "if you load this file, you
 ;;      can start calling extension's features".
 ;;
 ;;     The *-install.el
 ;;
 ;;      This file is manually or automatically written. It publishes
 ;;      user variables and interactive `M-x' functions in *autoload*
-;;      state. No modifications to user's EMacs setup is allowd. This
+;;      state. No modifications to user's Emacs setup is allowed. This
 ;;      file is only necessary if extension does not contain proper
 ;;      ###autoload statements. The "install" in name refers to
 ;;      installation, or availability for that matter, of interactive
@@ -410,11 +409,11 @@
 ;;      This file makes the extension immediately active in user's
 ;;      environment. It can modify current environment by adding
 ;;      functions to hooks, adding minor or major modes or arranging
-;;      keybindings so that when pressed, a feature is loaded and
+;;      key bindings so that when pressed, a feature is loaded and
 ;;      activated. It may also loop through `buffer-list' to activate
-;;      features immediately in running Emacs. It is adviseable that
-;;      any custom settings, like variables and prefix keys, are
-;;      defined in `~/.emacs' *before* this file gets loaded. As with
+;;      features immediately in running Emacs. It is best that any
+;;      custom settings, like variables and prefix keys, are defined
+;;      in `~/.emacs' *before* this file gets loaded. As with
 ;;      *-install.el, try to avoid `require' or `load' commands and
 ;;      stick to `autoload'. Mnemonic: "If you load this file, the
 ;;      bells and whistles are turned on". The "x" at the start of the
@@ -486,14 +485,14 @@
 ;;  Details of the info file fields
 ;;
 ;;      Recommendations: Use one space to indent continued field.
-;;      Limitlilne maximum length to 80 characters. See variable
+;;      Limit maximum line length to 80 characters. See variable
 ;;      `fill-column'
 ;;
 ;;     Bugs
 ;;
 ;;      URL to report bugs. This can be an email address or a link to
 ;;      issue tracker of upstream project. Note: send packaging
-;;      problems or update requests to the extesion's epackage
+;;      problems or update requests to the extension's epackage
 ;;      `Maintainer'.
 ;;
 ;;    Compat
@@ -504,7 +503,7 @@
 ;;      no specific compatibility level is required and latest is
 ;;      assumed. Usually an epackage maintainer should follow the
 ;;      latest format to prevent installation problems. See section
-;;      "Epackage Comatibility Levels" for more information.
+;;      "Epackage Compatibility Levels" for more information.
 ;;
 ;;     Conflicts
 ;;
@@ -531,10 +530,10 @@
 ;;
 ;;     Description (required)
 ;;
-;;      The first line of this field is a consise description that
+;;      The first line of this field is a concise description that
 ;;      fits on maximum line length of 80 characters in order to
 ;;      display "PACKAGE -- SHORT DESCRIPTION". The long description
-;;      is explained in paragraphs that are separated from each orher
+;;      is explained in paragraphs that are separated from each other
 ;;      with a single (.) at its own line. The paragraphs are
 ;;      recommended to be intended by one space.
 ;;
@@ -569,7 +568,7 @@
 ;;
 ;;     License
 ;;
-;;      If misssing, the value is automatically assumed "GPL-2+". The valid
+;;      If missing, the value is automatically assumed "GPL-2+". The valid
 ;;      License abbreviations should follow list defined at
 ;;      <http://wiki.debian.org/CopyrightFormat>. A special word "None"
 ;;      should be used if the software has no license information in any of
@@ -582,20 +581,20 @@
 ;;      This extension's epackage maintainer. The person who made this
 ;;      extension available in epackage format. If this field is
 ;;      missing, then the upstream (`Email') is assumed to be the
-;;      packager. It is always desireable that upstream, who develops
+;;      packager. It is always desirable that upstream, who develops
 ;;      the extension also provides the software in epackage format.
 ;;
 ;;     Package (required)
 ;;
 ;;      The name of the extension in all lowercase, satisfying regexp
-;;      "[a-z][a-z0-9-]+". Usually basename of the extension file or
+;;      "[a-z][a-z0-9-]+". Usually base name of the extension file or
 ;;      the canonical known name in case of bigger packages like
 ;;      "gnus". An example "html-helper-mode.el" => package name is
-;;      "html-helper-mode". In case of minor or major modes, it is
-;;      adviseable to always add *-mode even if file name does not
-;;      explicitly say so. An example "python.el" => package name is
-;;      "python-mode". No two packages can have the same name. Please
-;;      notify upstream about the clash.
+;;      "html-helper-mode". In case of minor or major modes, always
+;;      add *-mode even if file name does not explicitly say so. An
+;;      example "python.el" => package name is "python-mode". No two
+;;      packages can have the same name. Please notify upstream about
+;;      the clash.
 ;;
 ;;     Recommends
 ;;
@@ -603,7 +602,7 @@
 ;;      advantage of. E.g this field would list package B if A can
 ;;      take advantage of package B, but it is not a requirement to
 ;;      install B for package A to work. This field is *not* used to
-;;      annouce related packages. That information can be mentioned in
+;;      announce related packages. That information can be mentioned in
 ;;      the end of `Description' in separate paragraph "SEE ALSO".
 ;;      This field follow guidelines of
 ;;      <http://www.debian.org/doc/debian-policy/ch-relationships.html#s-binarydeps>
@@ -616,7 +615,7 @@
 ;;     Status
 ;;
 ;;      This field lists information about the package. Each keyword
-;;      has a unique mening. the allowed list:
+;;      has a unique meaning. the allowed list:
 ;;
 ;;          keyword := core-emacs
 ;;                     | core-xemacs
@@ -671,7 +670,7 @@
 ;;
 ;;     Vcs-Args
 ;;
-;;      Additional arguments passed to VCS program after speficying
+;;      Additional arguments passed to VCS program after specifying
 ;;      the *Vcs-Url* E.g. CVS directories may need a specific module
 ;;      to check out. A setup like below would yield command: "cvs -d
 ;;      <Vcs-Url> co -d <Package> <Vcs-Args>"
@@ -689,14 +688,14 @@
 ;;
 ;;     Vcs-Password
 ;;
-;;      The Version Control System repository's password. In some rara cases
-;;      a generic password, like "anonymous" to access repository is needed.
+;;      The Version Control System repository's password. In some rare cases
+;;      a generic password, like "anonymous" to access repository, is needed.
 ;;
 ;;     Wiki
 ;;
-;;      This field points to extension page at at
-;;      <http://www.emacswiki.org>. If etension does not yet have a
-;;      page, encourage upstream to create one.
+;;      This field points to extension page at
+;;      <http://www.emacswiki.org>. If extension does not yet have a
+;;      page yet, encourage upstream to create one.
 ;;
 ;;     X-*
 ;;
@@ -713,7 +712,7 @@
 ;;	"Epackage specification" above. In here you can find list of
 ;;	older formats and changes.
 ;;
-;;	o  2010-12-03 Draft spec. Compatibility level 1.
+;;	o   2010-12-03 Draft spec. Compatibility level 1.
 ;;
 ;; TODO
 ;;
@@ -722,8 +721,8 @@
 ;;
 ;;      o   GIT package repo: What if user has made local customizations?
 ;;	    Branch != master. Thought: we leave if alone and mark it
-;;	    "manual". USer can deal with the merges and take full
-;;	    responsibility. We can still 'git fetch' updatess
+;;	    "manual". User can deal with the merges and take full
+;;	    responsibility. We can still run 'git fetch'.
 ;;
 ;;      o   Verify Compatibility Level of downloaded epackage
 ;;      o   Run health check for downloaded Epackage
@@ -757,7 +756,7 @@
 ;;      o   Dynamically search all *.el and *elc. When byte compiled,
 ;;	    symlink those files as well.
 ;;
-;;      o   Install action by default runs eable (*-autoloads),
+;;      o   Install action by default enables (installs *-autoloads),
 ;;	    unless user has activated auto-activate feature (toggle)
 ;;      o   Another toggle is auto-byte-compile feature on package install.
 ;;
@@ -765,8 +764,8 @@
 ;;
 ;;      o   Git tags, where is this information kept?
 ;;      o   How to update package, or all packages?
-;;	    => Running git preocess? When update is avilable how to flag this?
-;;	    => What about conflits?
+;;	    => Running git process? When update is available how to flag this?
+;;	    => What about conflicts?
 ;;      o   What about 'local', manual branch and updates?
 ;;      o   Retrieve new yellow pages (available packages)
 ;;      o   Rescan current information? (what is installed, what is not)
@@ -782,7 +781,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1205.1548"
+(defconst epackage-version-time "2010.1205.1616"
   "*Version of last edit.")
 
 (defcustom epackage--load-hook nil
