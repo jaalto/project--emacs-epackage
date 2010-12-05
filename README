@@ -6,8 +6,7 @@ Description
 	An Emacs extension for Distributed Emacs Lisp Package System
 	(DELPS). With it, you can install Emacs extensions that have
 	been put available as git DVCS repositories. This format is
-	called "epackage". The details of epackaging are described in
-	the commentary of epackage.el.
+	called "epackage".
 
 Important files
 
