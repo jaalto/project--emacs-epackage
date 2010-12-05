@@ -1,3 +1,11 @@
+2010-12-05 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* doc/index.css: New.
+
+	* doc/Makefile: New.
+
+	* Makefile: New.
+
 2010-12-04  Jari Aalto  <jari.aalto@cante.net>
 
 	* AUTHORS, COPYING, INSTALL, README: New.
