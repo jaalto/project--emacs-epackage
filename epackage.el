@@ -76,7 +76,7 @@
 ;;      about ELPA, see <http://www.emacswiki.org/emacs/ELPA>.
 ;;
 ;;      Each Emacs extension is wrapped into epackage format which
-;;      basicly follows Debian tyle control directory named epackge/
+;;      basily follows Debian style control directory named ? epackage/'
 ;;      where all the details about activation, autoloads and
 ;;      installation are kept. In addition, each epackage is imported
 ;;      and deployed using Git Distributed Version Control System
@@ -90,7 +90,7 @@
 ;;      to maintain and deploy epackages.
 ;;
 ;;      If you're an Emacs user, all these details do not concern you.
-;;      From package management view, select packages to downlaod, and
+;;      From package management view, select packages to download, and
 ;;      they will appear in your local disk. After that you have
 ;;      several options how to proceed. Select autoload install (no
 ;;      Emacs setup changes), or activation install (Emacs environment
@@ -781,7 +781,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1205.1616"
+(defconst epackage-version-time "2010.1205.1617"
   "*Version of last edit.")
 
 (defcustom epackage--load-hook nil
