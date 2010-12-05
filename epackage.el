@@ -760,7 +760,7 @@
 ;;	    unless user has activated auto-activate feature (toggle)
 ;;      o   Another toggle is auto-byte-compile feature on package install.
 ;;
-;;      o   refetch repository (destroy, re-download).
+;;      o   re-fetch repository (destroy, re-download).
 ;;
 ;;      o   Git tags, where is this information kept?
 ;;      o   How to update package, or all packages?
@@ -779,10 +779,19 @@
 
 ;;; Change Log:
 
+(eval-when-compile
+  (autoload 'url-http-parse-response "url"))
+
 ;;; Code:
 
-(defconst epackage-version-time "2010.1205.1617"
+(defconst epackage-version-time "2010.1205.1825"
   "*Version of last edit.")
+
+(defgroup Epackage nil
+  "Distributed Emacs Lisp package system (DELPS)."
+;  :link '(function-link view-mode)
+;  :link '(custom-manual "(emacs)Misc File Ops")
+  :group 'tools)
 
 (defcustom epackage--load-hook nil
   "*Hook run when file has been loaded."
@@ -924,6 +933,9 @@ See `epackage-loader-file-generate'.")
           (epackage-directory)
           epackage--loader-file))
 
+(defsubst epackage-file-name-install-compose (&rest args)
+  (error "Not implemented"))
+
 (defsubst epackage-file-name-vcs-compose (package)
   "Return VCS directory for PACKAGE."
   (format "%s/%s%s"
@@ -1022,22 +1034,6 @@ documentation of epackage.el."
     (if (file-directory-p dir)
         dir)))
 
-(defun epackage-package-activated-p (package)
-  "Check if package has been activated, return activate file."
-  (unless (epackage-string-p package)
-    (error "Epackage: [ERROR] arg 'package' is not a string."))
-  (let ((file (epackage-file-name-activated-compose package)))
-    (if (file-exists-p file)
-        file)))
-
-(defun epackage-package-enabled-p (package)
-  "Check if package has been enabled, return enabled file."
-  (unless (epackage-string-p package)
-    (error "Epackage: [ERROR] arg 'package' is not a string."))
-  (let ((file (epackage-file-name-install-compose package)))
-    (if (file-exists-p file)
-        file)))
-
 (defsubst epackage-sources-list-directory ()
   "Return sources list, the yellow pages, directory."
   (epackage-file-name-vcs-compose epackage--sources-package-name))
@@ -1086,6 +1082,16 @@ documentation of epackage.el."
   "Run BODY if variable `epackage--debug' is non-nil."
   `(when epackage--debug
      ,@body))
+
+(put 'epackage-with-message 'lisp-indent-function 1)
+(put 'epackage-with-message 'edebug-form-spec '(body))
+(defmacro epackage-with-message (message &rest body)
+  "Display MESSAGE before and after (\"..done\") BODY. Return BODY."
+  `(progn
+     (message (concat ,message "..."))
+     (prog1
+	 ,@body
+       (message (concat ,message "...done")))))
 
 (put 'epackage-with-directory 'lisp-indent-function 1)
 (put 'epackage-with-directory 'edebug-form-spec '(body))
@@ -1343,15 +1349,6 @@ If VERBOSE is non-nil, display progress message."
       (error "Epackage: [ERROR] file does not exists: %s" from))
     (copy-file from to 'overwrite 'keep-time)))
 
-(defun epackage-enable-package (package)
-  "Activate PACKAGE."
-  (let ((from (epackage-file-name-vcs-directory-control-file
-               package 'enable))
-        (to (epackage-file-name-enabled-compose package)))
-    (unless (file-exists-p from)
-      (error "Epackage: [ERROR] file does not exists: %s" from))
-    (copy-file from to 'overwrite 'keep-time)))
-
 (defun epackage-disable-package (package)
   "Disable PACKAGE."
   (dolist (file (directory-files
@@ -1505,7 +1502,8 @@ Point must be at the beginning of line."
        (format
         `,(concat "^\\(%s\\)\\>"
                   "[ \t]+\\([^ \t\r\n]+\\)"
-                  "[ \t]*\\([^ \t\r\n]*\\)")))
+                  "[ \t]*\\([^ \t\r\n]*\\)")
+	(regexp-quote package)))
       (list
        (match-string-no-properties 1)
        (match-string-no-properties 2)
@@ -1533,12 +1531,6 @@ Format is described in variable `epackage--sources-list-url'."
   (let ((info (epackage-sources-list-info-main package)))
     (when info
       (nth 1 info))))
-
-(defun epackage-sources-list-info-description (package)
-  "Return description for PACKAGE or nil."
-  (let ((info (epackage-sources-list-info-main package)))
-    (when info
-      (nth 2 info))))
 
 (defun epackage-sources-list-info-description (package)
   "Return description for PACKAGE or nil."
@@ -1627,17 +1619,19 @@ Format is described in variable `epackage--sources-list-url'."
   (if message
       (message message))
   (if (epackage-sources-list-p)
-      (error "Epackage: [ERROR] Directory already exists: %s"
-             (epackage-sources-list-directory)))
-  (epackage-git-command-clone epackage--sources-list-url dir))
+      (error "Epackage: [ERROR] Sources list already exists."))
+  (let ((dir (epackage-sources-list-directory)))
+    (epackage-git-command-clone epackage--sources-list-url dir)))
 
 ;;###autoload
 (defun epackage-cmd-download-sources-list ()
   "Download or upgrade package list; the yellow pages of package repositories."
   (interactive)
   (if (epackage-sources-list-p)
-      (epackage-upgrade-sources-list "Upgrading available package list")
-    (epackage-download-sources-list "Downloading available package list")))
+      (epackage-with-message "Upgrading package list"
+	(epackage-upgrade-sources-list))
+    (epackage-with-message "Downloading package list"
+      (epackage-download-sources-list))))
 
 ;;###autoload
 (defun epackage-cmd-upgrade-package (package &optional verbose)

@@ -1,5 +1,11 @@
 2010-12-05 Sun  Jari Aalto  <jari.aalto@cante.net>
 
+	* epackage.el (defgroup Epackage): New.
+	(epackage-sources-list-info-parse-line): Fix `format'.
+	(epackage-download-sources-list): define variable `dir'.
+	(epackage-with-debug): New.
+	(epackage-with-message): New.
+
 	* doc/index.css: New.
 
 	* doc/Makefile: New.
