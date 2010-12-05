@@ -4,8 +4,35 @@
 
 	* epackage.el:
 	(top-level): Rename package. Add "Compat" levels and explaint it.
-	Add acronym DELPS = Distributed Emacs Lisp Package System.
+	Add acronym DELPS = Distributed Emacs Lisp Package System. Add
+	###autoload stanzas.
 	(ti::macrof-minor-mode-wizard): comment out unused code.
+	(epackage-git-command-fetch): New.
+	(epackage-git-directory-p): New.
+	(epackage-sources-list-info-description): New.
+	(epackage--sources-list-url): No leading whitespaces before
+	PACKAGE-NAME.
+	(epackage-sources-list-info-parse-line): New.
+	(epackage-sources-list-info-pkg-list): New.
+	(epackage-string-p): New.
+	(epackage-package-downloaded-p): Use `epackage-stringp-p'.
+	(epackage-package-activated-p): Use `epackage-string-p'.
+	(epackage-package-enabled-p): Use `epackage-string-p'.
+	(epackage-cmd-download-package): Complete function.
+	(epackage-cmd-upgrade-package): New.
+	(epackage-initialize): Add `interactive'.
+	(epackage-package-downloaded-p): Return DIR.
+	(epackage-download-package): Correct dir. Call
+	`epackage-file-name-vcs-directory'.
+	(epackage-git-command-clone): Fix running directory and
+	clone command args.
+	(epackage-git-command-tag-list): Correct git command.
+	(epackage-git-command-branch-parse-1): New.
+	(epackage-git-command-branch-parse-main): New.
+	(epackage-git-command-branch-list): Split into smaller pieces.
+	(epackage-with-git-command): Correct macro expansion in variable
+	`verbose'.
+	(epackage-with-git-command): Fix mapconcat call.
 
 	** MOVE tinyepkg.el out of tiny tools to a separate package **
 
