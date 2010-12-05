@@ -3,7 +3,7 @@ README: epackage.el for Emacs
 
 Description
 
-	An Emacs extension for Distributed Emacs Lisp package system
+	An Emacs extension for Distributed Emacs Lisp Package System
 	(DELPS). With it, you can install Emacs extensions that have
 	been put available as git DVCS repositories. This format is
 	called "epackage". The details of epackaging are described in
