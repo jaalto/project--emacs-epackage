@@ -27,18 +27,19 @@ SRC		= ../$(PACKAGE).el
 TXT		= index.txt
 HTML		= index.html
 DOCDIR		= doc
+LICENSE		= disclaimer.txt
 
 all: doc
 
 $(TXT): $(SRC)
 	ripdoc $(SRC) > $(TXT)
 
-$(HTML): $(TXT)
+$(HTML): $(TXT) $(LICENSE)
 	t2html --author "Jari Aalto" \
 	--title "Epackage - Distributed Emacs Lisp Package System (DELPS)" \
 	--css-code-bg \
 	--css-file=index.css \
-	--disclaimer-file=disclaimer.txt \
+	--disclaimer-file=$(LICENSE) \
 	--out \
 	$(TXT)
 
