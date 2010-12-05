@@ -1,5 +1,5 @@
-epackage.el for Emacs
-.....................
+README: epackage.el for Emacs
+-----------------------------
 
 Description
 
@@ -9,16 +9,33 @@ Description
 	called "epackage". The details of epackaging are described in
 	the commentary of epackage.el.
 
-Depends
+Important files
 
-	-   Emacs 22.1+ (released 2007).
-	-   git(1) Distributed Version Control System (DVCS). Any version.
-	    http://en.wikipedia.org/wiki/Git_(software)
-	-   Depends only on standard Emacs. Does not use external or
-	    ``cl`` libraries.
+    	COPYING		GPL-2+ Licence
+    	INSTALL         Install instructions
+    	ChangeLog	Project change records
+
+Project details
+
+	Homepage	http://freshmeat.net/projects/perlwebget
+	Bugs		See freshmeat page
+	Source code	See freshmeat page
+
+	Depends
+	- Emacs 22.1+ (released 2007).
+	- git[1], any version.
+	- Depends only on standard Emacs. Does not use external or
+          "cl" libraries.
+
+References
+
+	[1] Git Distributed Version Control System (DVCS).
+	http://en.wikipedia.org/wiki/Git_(software)
 
 License
 
-	GNU GPL-2+. See file COPYING
+	This program is free software; you can redistribute and/or modify
+	program under the terms of GNU General Public license either version 2
+	of the License, or (at your option) any later version.
 
 End of file
