@@ -24,13 +24,16 @@
 
 PACKAGE		= epackage
 SRC		= $(PACKAGE).el
+BIN		= emacs
 
 all: build doc
 
-build:
-	$${EMACS_BIN:-emacs} --batch -q -f byte-compile $(SRC)
+build: $(PACKAGE).elc
+	$(BIN) --batch -Q -q -f byte-compile $(SRC)
 
 doc:
 	$(MAKE) -C doc
+
+.PHONY: doc
 
 # End of file
