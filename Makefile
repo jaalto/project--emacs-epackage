@@ -28,8 +28,10 @@ BIN		= emacs
 
 all: build doc
 
-build: $(PACKAGE).elc
+$(PACKAGE).elc: $(SRC)
 	$(BIN) --batch -Q -q -f byte-compile $(SRC)
+
+build: $(PACKAGE).elc
 
 doc:
 	$(MAKE) -C doc
