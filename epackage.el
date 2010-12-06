@@ -784,8 +784,13 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1205.1825"
+(defconst epackage-version-time "2010.1206.2019"
   "*Version of last edit.")
+
+(defconst epackage-w32-p
+  (or (memq system-type '(ms-dos windows-nt))
+      (memq window-system '(win32 w32 mswindows)))
+  "Non-nil under Windows, DOS operating system.")
 
 (defgroup Epackage nil
   "Distributed Emacs Lisp package system (DELPS)."
@@ -854,14 +859,14 @@ Directory should not contain a trailing slash."
   "Name of package directory under `epackage--root-directory'.
 Use function `epackage-directory' for full path name.")
 
-(defvar epackage--directory-name-vcs "packages"
+(defconst epackage--directory-name-vcs "packages"
   "VCS directory under `epackage--root-directory'.
 Use function `epackage-file-name-vcs-compose' for full path name.")
 
-(defvar epackage--directory-name-install "install"
+(defconst epackage--directory-name-install "install"
   "Install directory under `epackage--root-directory'.")
 
-(defvar epackage--directory-name-link "00link"
+(defconst epackage--directory-name-link "00link"
   "Link directory under `epackage--root-directory'.
 This directory contains symlinks to all installed packages and
 their *.el and *.elc files.")
@@ -880,17 +885,19 @@ their *.el and *.elc files.")
   "Regexp to exclude dirctory names.")
 
 (defconst epackage--layout-mapping
-  '((activate . "xactivate")
-    (autoload . "autoloads")
-    (enable . "install")
-    (info . "info")
-    (loaddefs . "loaddefs")
-    (uninstall . "uninstall"))
+  '((activate  "-xactivate.el")
+    (autoload  "-autoloads.el")
+    (enable  "-install.el"  'required)
+    (info  "info" 'required)
+    (loaddefs  "-0loaddefs.el")
+    (uninstall  "-uninstall.el"))
   "File name mappings under epackage/ directory.
 Format is:
-  '((TYPE . FILENAME) ...)
+  '((TYPE . FILENAME [REQUIRED-FLAG]) ...)
 
-Used in `epackage-file-name-vcs-directory-control-file'.")
+Ff FILENAME sarts with '-', then the package name is prefixed to
+the FILENAME. Say package name 'foo' is prefixed with '-install'
+producing 'foo-install.el.")
 
 (defvar epackage--initialize-flag nil
   "Set to t, when epackage has been started. do not touch.")
@@ -965,6 +972,17 @@ See `epackage-loader-file-generate'.")
   "Return control directory of PACKAGE"
   (let ((root (epackage-file-name-vcs-compose package)))
     (format "%s/%s" root epackage--package-control-directory)))
+
+(defsubst epackage-file-name-nondirectory (dir)
+  "Return last component in DIR.
+Examples:
+    /path/to/dir	=>  dir
+    /path/to/dir/	=>  dir."
+  (epackage-with-w32
+   ;; Convert to forward slashes
+   (setq dir (expand-file-name dir)))
+  (if (string-match "/\\([^/]+\\)/?$" dir)
+      (match-string-no-properties 1 dir)))
 
 (defun epackage-file-name-vcs-directory-control-file (package type)
   "Return PACKAGE's control file of TYPE.
@@ -1044,6 +1062,13 @@ documentation of epackage.el."
           (epackage-sources-list-directory)
           epackage--sources-file-name))
 
+(defsubst epackage-directory-p (dir)
+  "Check if directory contains subdir `epackage--directory-name'."
+  (file-directory-p
+   (concat
+    (file-name-as-directory dir)
+    epackage--directory-name)))
+
 (defsubst epackage-sources-list-p ()
   "Check existence of `epackage--sources-file-name'."
   (file-exists-p (epackage-file-name-sources-list)))
@@ -1075,6 +1100,14 @@ documentation of epackage.el."
               epackage--directory-name
             (error
              "Epackage: [ERROR] epackage--directory-name is not a string"))))
+
+
+(put 'epackage-with-w32 'lisp-indent-function 0)
+(put 'epackage-with-w32 'edebug-form-spec '(body))
+(defmacro epackage-with-w32 (&rest body)
+  "Run BODY in Windows like operating system."
+  `(when epackage-w32-p
+     ,@body))
 
 (put 'epackage-with-debug 'lisp-indent-function 0)
 (put 'epackage-with-debug 'edebug-form-spec '(body))
@@ -1204,7 +1237,7 @@ If VERBOSE is non-nil, display progress message."
    (mapconcat 'concat list " ")))
 
 (defun epackage-git-command-tag-list (dir &optional verbose)
-  "Run 'git branch' in DIR.
+  "Run 'git tag -l' in DIR.
 If VERBOSE is non-nil, display progress message.
 
 Return:
@@ -1235,14 +1268,18 @@ Return:
   (epackage-with-last-git-output
     (epackage-git-command-branch-parse-1)))
 
-(defun epackage-git-command-branch-list (dir &optional verbose)
-  "Run 'git tag -l' in DIR.
+(defun epackage-git-command-branch-list (dir &optional verbose arg)
+  "Run 'git branch ARG' in DIR.
 If VERBOSE is non-nil, display progress message.
 
 Return:
     List of tag names."
-  (epackage-with-git-command dir verbose
-    "branch")
+  ;; FIXME improve macro to handle both cases
+  (if arg
+      (epackage-with-git-command dir verbose
+	"branch" arg)
+    (epackage-with-git-command dir verbose
+      "branch"))
   (epackage-git-command-branch-parse-main))
 
 (defun epackage-git-branch-list-current-branch (list)
@@ -1614,10 +1651,67 @@ Format is described in variable `epackage--sources-list-url'."
         (write-region (point) (point-max) file)
         (kill-buffer (current-buffer))))))
 
-(defun epackage-download-sources-list (&optional message)
+(defun epackage-pkg-lint-git-branches (dir)
+  "Check validity Git branches of package in DIR.
+If valid, return list of required branches."
+  (let ((list (epackage-git-command-branch-list
+	       dir (not 'verbose) "-a"))
+	branches
+	status)
+    (dolist (elt list)
+      ;; * master
+      ;; remotes/origin/upstream
+      (when (string-match "^\\(\\*?master\\|\\(?:.+/\\)upstream\\)$" elt)
+	(setq branches (cons elt branches))))
+    (if (eq (length branches) 2)
+	branches)))
+
+(defun epackage-pkg-lint-dir-structure (dir)
+  "Check validity directories of package in DIR.
+The base name of DIR is the package name. An example:
+
+  ~/.emacs.d/epackage/package/foo  => foo is package name.
+
+If valid, return list of required or optional files."
+  (let ((package (epackage-file-name-nondirectory dir))
+	invalid
+	list)
+    (dolist (elt epackage--layout-mapping)
+      (unless invalid
+	(let* ((name (nth 1 elt))
+	       (required (nth 2 elt))
+	       (path (format "%s%s/%s%s"
+			     (file-name-as-directory dir)
+			     epackage--directory-name
+			     package
+			     name)))
+	  (cond
+	   (required
+	    (if (file-exists-p path)
+		(setq list (cons path list))
+	      (setq invalid path)))
+	   (t
+	    (if (file-exists-p path)
+		(setq list (cons path list))))))))
+    list))
+
+(defun epackage-pkg-lint-main (dir)
+  "Check validity of package in DIR.
+If invalid, return list of problems:
+  'dir      Missing `epackage--directory-name'
+  'files    Missing required `epackage--layout-mapping'.
+  'git      Missing required Git branches: upstream, master."
+  (let (list)
+    (if (not (epackage-directory-p dir))
+	(setq list (cons 'dir list))
+      (unless (epackage-pkg-lint-git-branches dir)
+	(setq list (cons 'git list)))
+      (unless (epackage-pkg-lint-dir-structure dir)
+	(setq list (cons 'files list))))
+    list))
+
+(defun epackage-download-sources-list ()
   "Download sources list file, the yellow pages."
-  (if message
-      (message message))
   (if (epackage-sources-list-p)
       (error "Epackage: [ERROR] Sources list already exists."))
   (let ((dir (epackage-sources-list-directory)))

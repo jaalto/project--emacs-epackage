@@ -1,3 +1,18 @@
+2010-12-06 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-download-sources-list): Remove argument
+	`message'.
+	(epackage-pkg-lint-git-branches): New.
+	(epackage--layout-mapping): Update.
+	(epackage-pkg-lint-dir-structure): New.
+	(epackage-w32-p): New.
+	(epackage-with-w32): New.
+	(epackage-file-name-nondirectory): New.
+	(epackage-directory-p): New.
+	(epackage-pkg-lint-main): New.
+	(epackage-git-command-branch-list): Add `arg' parameter.
+	(epackage-git-command-tag-list): Fix docstring.
+
 2010-12-05 Sun  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (defgroup Epackage): New.
