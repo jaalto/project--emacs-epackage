@@ -1,7 +1,7 @@
-License: Permission is granted to copy, distribute and/or modify this
-document under the terms of the GNU General Public License version 2
-or, at your option, any later version. Or, at your option, this
-material may also be copied, modified and distributed under the terms
-of GNU Free Documentation License (GNU FDL published by the Free
-Software Foundation) version 1.2 or later; without any of the
-Invariant Sections mentioned in the GFDL.
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU General Public License version 2 or, at your
+option, any later version published by the Free Software Foundation.
+Alternatively this material may also be copied, distributed and/or
+modified under the terms of the GNU Free Documentation License, Version
+1.2 or any later version published by the Free Software Foundation;
+without the Invariant Sections. See <http://www.gnu.org/licenses/>.
