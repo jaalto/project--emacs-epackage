@@ -785,7 +785,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1207.0831"
+(defconst epackage-version-time "2010.1207.0948"
   "*Version of last edit.")
 
 (eval-and-compile			;We need this at runtim
@@ -907,6 +907,12 @@ Format is:
 Ff FILENAME sarts with '-', then the package name is prefixed to
 the FILENAME. Say package name 'foo' is prefixed with '-install'
 producing 'foo-install.el.")
+
+(defvar epackage--doc-buffer "*Epackage documentation*"
+  "Buffer displayed by `epackage-doscumentation'.")
+
+(defvar epackage--finder-commentary-buffer "*Finder-package*"
+  "Buffer name of call `finder-commentary'.")
 
 (defvar epackage--initialize-flag nil
   "Set to t, when epackage has been started. do not touch.")
@@ -1843,6 +1849,48 @@ If VERBOSE is non-nil, display progress messages."
     (epackage-cmd-download-sources-list))
   (setq epackage--initialize-flag t))
 
+;;###autoload
+(defun epackage-manager ()
+  "Start User Interface."
+  (epackage-initialize))
+
+;;###autoload
+(defun epackage-version ()
+  "Display `epackage-version-time'."
+  (interactive)
+  (message epackage-version-time))
+
+(defun epackage-documentation-header-string ()
+  "Make documentation header string.
+Summary, Version, Maintainer etc."
+  (with-current-buffer (find-file-noselect (locate-library "epackage.el"))
+    (let ((summary (lm-summary))
+	  (maintainer (car-safe (lm-maintainer)))
+	  (version epackage-version-time))
+      (concat
+       "epackage.el -- " summary "\n\n"
+       "Version   : " version "\n"
+       "Maintainer: " (or maintainer "") "\n"
+       "\n"))))
+
+;;###autoload
+(defun epackage-documentation ()
+  "Display documentation."
+  (interactive)
+  (let ((buffer (get-buffer epackage--doc-buffer)))
+    (unless buffer
+      ;; See also lm-commentary
+      (finder-commentary "epackage.el")
+      (with-current-buffer epackage--finder-commentary-buffer
+	(let ((str (buffer-string))
+	      (buffer (get-buffer-create epackage--doc-buffer)))
+	  (with-current-buffer buffer
+	    (insert str)
+	    (goto-char (point-min))
+	    (insert (epackage-documentation-header-string)))))
+      (kill-buffer epackage--finder-commentary-buffer))
+    (display-buffer buffer)))
+
 ;;;###autoload (autoload 'epackage-mode          "epackage" "" t)
 ;;;###autoload (autoload 'turn-on-epackage-mode  "epackage" "" t)
 ;;;###autoload (autoload 'tun-off-epackage-mode  "epackage" "" t)
@@ -1876,18 +1924,9 @@ If VERBOSE is non-nil, display progress messages."
 ;;      (define-key map "Hc" 'epackage-commentary)
 ;;      (define-key map "Hv" 'epackage-version))))
 
-(defsubst epackage-directory-name ()
-  "Return package directory.
-Refences:
-  `epackage--package-root-directory'
-  `epackage--directory-name'."
-  (if (and (stringp epackage--root-directory)
-           (stringp epackage--directory-name))
-      (format "%s/%s"
-              epackage--root-directory
-              epackage--directory-name)
-    (error (concat "Epackge: [FATAL] Invalid epackage--root-directory"
-                    " or epackage--directory-name"))))
+
+;;###autoload
+(defalias 'epackage-manager 'epackage)
 
 (add-hook  'epackage--mode-hook 'epackage-mode-define-keys)
 (provide   'epackage)
