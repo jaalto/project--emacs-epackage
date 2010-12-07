@@ -617,8 +617,8 @@
 ;;      This field lists information about the package. Each keyword
 ;;      has a unique meaning. the allowed list:
 ;;
-;;          keyword := core-emacs
-;;                     | core-xemacs
+;;          keyword := core-emacs[-NN.N]
+;;                     | core-xemacs[-NN.N]
 ;;                     | unmaintained
 ;;                     | broken
 ;;                     | unsafe
@@ -626,18 +626,21 @@
 ;;                     | unstable
 ;;                     | experimental
 ;;
-;;      The `core-*' values mark the package being included (or will be) in
-;;      the latest [X]Emacs. Value `unmaintained' means that the original
-;;      developer has vanished or abandoned the project and is no longer
-;;      available for developing the package. Value `unsafe' means that the
-;;      not all the symmbols are name space clean (prefix-*), so some of
-;;      the commands might clash with existing ones. The current release
-;;      status of package can be indicated with term `stable' (no more
-;;      actively developed, bugs shaken out), `unstable' (package is in
-;;      active development) and `experimental' (no gurantees, not
-;;      necessarily tested but this is the latest code). Value `broken'
-;;      means that package is broken and does not work in some Emacs
-;;      version (usually latest).
+;;      The `core-*' values mark the package being included (or will
+;;      be) in the latest [X]Emacs. The optional NN.N announces in
+;;      which Emacs flavor the feature was included; e.g.
+;;      *core-emacs-22.1*. Value `unmaintained' means that the
+;;      original developer has vanished or abandoned the project and
+;;      is no longer available for developing the package. Value
+;;      `unsafe' means that the not all the symmbols are name space
+;;      clean (prefix-*), so some of the commands might clash with
+;;      existing ones. The current release status of package can be
+;;      indicated with term `stable' (no more actively developed, bugs
+;;      shaken out), `unstable' (package is in active development) and
+;;      `experimental' (no gurantees, not necessarily tested but this
+;;      is the latest code). Value `broken' means that package is
+;;      broken and does not work in some Emacs version (usually
+;;      latest).
 ;;
 ;;     Vcs-Browser
 ;;
@@ -787,7 +790,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1207.1026"
+(defconst epackage-version-time "2010.1207.1124"
   "*Version of last edit.")
 
 (eval-and-compile			;We need this at runtim
