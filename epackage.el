@@ -794,7 +794,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1207.1824"
+(defconst epackage-version-time "2010.1207.1848"
   "*Version of last edit.")
 
 (eval-and-compile			;We need this at runtim
@@ -987,6 +987,22 @@ q	Quit.
        (not (string-match "^[ \t\r\n]*$" string))
        string))
 
+(defsubst epackage-directory ()
+  "Return root directory."
+  (format "%s%s"
+          (expand-file-name
+           (file-name-as-directory epackage--root-directory))
+          (if (stringp epackage--directory-name)
+              epackage--directory-name
+            (epackage-error
+	      "epackage--directory-name is not a string"))))
+
+(defsubst epackage-file-name-loader-directory ()
+  "Location of `epackage--directory-name-conf'."
+  (format "%s/%s"
+	  (epackage-directory)
+	  epackage--directory-name-conf))
+
 (defsubst epackage-file-name-compose (name)
   "Return path to NAME in epackage directory."
   (format "%s/%s"
@@ -1036,7 +1052,7 @@ Examples:
 
 (put 'epackage-ignore-errors 'lisp-indent-function 0)
 (put 'epackage-ignore-errors 'edebug-form-spec '(body))
-(defmacro epackage-ignore-errors (body)
+(defmacro epackage-ignore-errors (&rest body)
   "A close `ignore-errors' CL library macro equivalent."
   `(condition-case error
        (progn
@@ -1063,32 +1079,26 @@ Examples:
   `(when epackage--debug
      ,@body))
 
+(defmacro epackage-fatal (format &rest args)
+  "Call `error' with ARGS. Mark message with FATAL tag."
+  `(error (concat "Epackage: [FATAL] " ,format) ,@args))
+
 (put 'epackage-error 'lisp-indent-function 0)
 (put 'epackage-error 'edebug-form-spec '(body))
 (defmacro epackage-error (format &rest args)
   "Call `error' with ARGS. mark message with ERROR tag."
-  (let ((fmt (concat "Epackage: [ERROR] " `,format)))
-    `(error ,fmt ,@args)))
-
-(put 'epackage-fatal 'lisp-indent-function 0)
-(put 'epackage-fatal 'edebug-form-spec '(body))
-(defmacro epackage-fatal (format &rest args)
-  "Call `error' with ARGS. Mark message with FATAL tag."
-  (let ((fmt (concat "Epackage: [FATAL] " `,format)))
-    `(error ,fmt ,@args)))
+  `(error (concat "Epackage: [ERROR] " ,format) ,@args))
 
 (put 'epackage-fatal 'lisp-indent-function 0)
 (put 'epackage-fatal 'edebug-form-spec '(body))
 (defmacro epackage-warn (format &rest args)
   "Call `error' with ARGS. Mark message with WARN tag."
-  (let ((fmt (concat "Epackage: [WARN] " `,format)))
-    `(error ,fmt ,@args)))
+  `(error (concat "Epackage: [WARN] " ,format) ,@args))
 
 (put 'epackage-message 'lisp-indent-function 0)
 (put 'epackage-message 'edebug-form-spec '(body))
 (defmacro epackage-message (format &rest args)
-  (let ((fmt (concat "Epackage: " `,format)))
-    `(message ,fmt ,@args)))
+  `(error (concat "Epackage: " ,format) ,@args))
 
 (put 'epackage-with-verbose 'lisp-indent-function 0)
 (put 'epackage-with-verbose 'edebug-form-spec '(body))
@@ -1245,25 +1255,9 @@ The TYPE is car of list `epackage--layout-mapping'."
       (substitute-command-keys
        (format
 	`,(concat
-	   "Invalid value in `epackage--program-git' (%s) "
+	   "Invalid value in epackage--program-git (%s) "
 	   "Run \\[epackage-initialize]")
 	epackage--program-git)))))
-
-(defsubst epackage-directory ()
-  "Return root directory."
-  (format "%s%s"
-          (expand-file-name
-           (file-name-as-directory epackage--root-directory))
-          (if (stringp epackage--directory-name)
-              epackage--directory-name
-            (epackage-error
-	      "epackage--directory-name is not a string"))))
-
-(defsubst epackage-file-name-loader-directory ()
-  "Location of `epackage--directory-name-conf'."
-  (format "%s/%s"
-	  (epackage-directory)
-	  epackage--directory-name-conf))
 
 (put 'epackage-with-directory 'lisp-indent-function 1)
 (put 'epackage-with-directory 'edebug-form-spec '(body))
@@ -1471,15 +1465,15 @@ If VERBOSE is non-nil, display progress message."
 If VERBOSE is non-nil, display progress message."
   (let ((url (epackage-sources-list-info-url package)))
     (unless url
-      (error-error "No download URL for package '%s'" package))
+      (epackage-error "No download URL for package '%s'" package))
     (let ((dir (epackage-file-name-package-compose package)))
       (epackage-with-verbose
 	(epackage-message "Upgrading package: %s..." package))
       (unless (epackage-git-master-p package)
-        (epackage-fatal
+	(epackage-fatal
 	  `,(concat
 	     "Can't upgrade. "
-	     "Branch name is not 'master' in '%'. "
+	     "Branch name is not \"master\" in '%s'. "
 	     "Possibly changed manually or invalid package.")
 	  dir))
       (epackage-git-command-pull dir verbose)
@@ -1554,7 +1548,7 @@ If VERBOSE is non-nil, display progress message."
 If VERBOSE is non-nil, display progress message.
 TYPE is car of `epackage--layout-mapping'."
   (let ((file (epackage-file-name-install-compose package type)))
-    (when (file-exists-p)
+    (when (file-exists-p file)
       (epackage-with-verbose
 	(epackage-message "Deleted %s" file))
       (delete-file file))))
@@ -1979,7 +1973,7 @@ If VERBOSE is non-nil, display progress message."
   (epackage-config-install-action 'enable package nil verbose))
 
 ;;;###autoload
-(defun epackage-cmd-disable-package (package &optional verbose)x
+(defun epackage-cmd-disable-package (package &optional verbose)
   "Disable PACKAGE.
 If VERBOSE is non-nil, display progress message."
   (interactive
@@ -2207,18 +2201,20 @@ Summary, Version, Maintainer etc."
 (put 'epackage-batch-macro 'edebug-form-spec '(body))
 (defmacro epackage-batch-macro (&rest body)
   "(dolist (elt command-line-args-left) BODY)."
-  (epackage-initialize)
-  (dolist (elt command-line-args-left)
-    ,@body))
+  `(progn
+     (epackage-initialize)
+     (dolist (elt command-line-args-left)
+       ,@body)))
 
 (put 'epackage-batch-ignore-errors-macro 'lisp-indent-function 0)
 (put 'epackage-batch-ignore-errors-macro 'edebug-form-spec '(body))
 (defmacro epackage-batch-ignore-errors-macro (&rest body)
   "Like `epackage-batch-macro' bug ignore errors in BODY."
-  (epackage-initialize)
-  (dolist (elt command-line-args-left)
-    (epackage-ignore-errors
-      ,@body)))
+  `(progn
+     (epackage-initialize)
+     (dolist (elt command-line-args-left)
+       (epackage-ignore-errors
+	 ,@body))))
 
 ;;;###autoload
 (defun epackage-batch-enable-package ()
@@ -2285,14 +2281,14 @@ Summary, Version, Maintainer etc."
   "Present an UI to run basic command."
   (epackage-initialize)
   (let ((loop t)
-	function)
+	choice)
   (while loop
     (setq choice (epackage-batch-ui-menu))
     (cond
      ((null choice)
       (message "** Uknown selection"))
      ((eq choice 'quit)
-      (Messahe "** Exit")
+      (message "** Exit")
       (setq loop nil))
      ((functionp choice)
       (message "Not implemented: %s" choice))))))
