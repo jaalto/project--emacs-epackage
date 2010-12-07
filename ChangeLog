@@ -43,6 +43,15 @@
 	(epackage-cmd-upgrade-package): Use `epackage-cmd-select-package'.
 	(epackage-cmd-download-package): Use `epackage-cmd-select-package'.
 	(epackage-ignore-errors): New.
+	(epackage-require-main): Add arg verbose.
+	(epackage-require-main): Add arg verbose.
+	(epackage-require-directories): Add arg verbose.
+	(epackage-require-git): Add arg verbose.
+	(epackage-require-emacs): Add arg verbose.
+	(epackage-cmd-download-sources-list): Add arg verbose.
+	(epackage-upgrade-sources-list): Add arg verbose.
+	(epackage-download-sources-list): Add arg verbose.
+	(epackage-with-message):  Add arg verbose.
 
 2010-12-06 Mon  Jari Aalto  <jari.aalto@cante.net>
 

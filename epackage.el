@@ -790,7 +790,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1207.1249"
+(defconst epackage-version-time "2010.1207.1307"
   "*Version of last edit.")
 
 (eval-and-compile			;We need this at runtim
@@ -1067,15 +1067,17 @@ Examples:
   (epackage-with-verbose
    (epackage-message ,@args)))
 
-(put 'epackage-with-message 'lisp-indent-function 1)
+(put 'epackage-with-message 'lisp-indent-function 2)
 (put 'epackage-with-message 'edebug-form-spec '(body))
-(defmacro epackage-with-message (message &rest body)
-  "Display MESSAGE before and after (\"..done\") BODY. Return BODY."
+(defmacro epackage-with-message (verbose message &rest body)
+  "if VERBOSE, display MESSAGE before and after (\"..done\") BODY."
   `(progn
-     (epackage-message "%s" (concat ,message "..."))
+     (if ,verbose
+	 (epackage-message "%s" (concat ,message "...")))
      (prog1
 	 ,@body
-       (epackage-message "%s" (concat ,message "...done")))))
+       (if ,verbose
+	   (epackage-message "%s" (concat ,message "...done"))))))
 
 (defun epackage-file-name-pkg-directory-control-file (package type)
   "Return PACKAGE's control file of TYPE.
@@ -1424,8 +1426,9 @@ If VERBOSE is non-nil, display progress message."
       (epackage-with-verbose
 	(epackage-message "Upgrading package: %s...done" package)))))
 
-(defun epackage-upgrade-sources-list ()
-  "Update list of available packages; the yellow pages."
+(defun epackage-upgrade-sources-list (&optional verbose)
+  "Update list of available packages; the yellow pages.
+If VERBOSE is non-nil, display progress message."
   (let ((dir (epackage-sources-list-directory)))
     (unless (file-directory-p dir)
       (epackage-error
@@ -1434,7 +1437,7 @@ If VERBOSE is non-nil, display progress message."
          `,(concat "No such directory '%s'. "
 		   "Run \\[epackage-initialize]")
          dir))))
-    (epackage-git-command-pull dir)))
+    (epackage-git-command-pull dir verbose)))
 
 (defun epackage-download-package (package &optional verbose)
   "Download PACKAGE to VCS directory.
@@ -1711,16 +1714,18 @@ Format is described in variable `epackage--sources-list-url'."
        (epackage-push (match-string-no-properties 1) list))
      list)))
 
-(defun epackage-require-emacs ()
-  "Require Emacs features."
+(defun epackage-require-emacs (&optonal verbose)
+  "Require Emacs features.
+If VERBOSE is non-nil, display progress message."
   (unless (fboundp 'url-retrieve-synchronously)
     (epackage-error
      `,(concat
 	"this Emacs does not define "
 	"`url-retrieve-synchronously' from url.el"))))
 
-(defun epackage-require-git ()
-  "Require Git program."
+(defun epackage-require-git (&optonal verbose)
+  "Require Git program.
+If VERBOSE is non-nil, display progress message."
   (cond
    ((null epackage--program-git)
     (let ((bin (executable-find "git")))
@@ -1736,22 +1741,25 @@ Format is described in variable `epackage--sources-list-url'."
     (epackage-error "Unknown value in `epackage--program-git' (%s)"
 		    epackage--program-git))))
 
-(defun epackage-require-directories ()
-  "Buid directory structure."
+(defun epackage-require-directories (&optonal verbose)
+  "Buid directory structure.
+If VERBOSE is non-nil, display progress message."
   (dolist (dir (list
                 (epackage-directory)
                 (epackage-file-name-pkg-directory)
                 (epackage-file-name-install-directory)
                 (epackage-file-name-link-directory)))
     (unless (file-directory-p dir)
-      (epackage-message "Making directory %s ..." dir)
+      (epackage-with-verbose
+	(epackage-message "Making directory %s ..." dir))
       (make-directory dir))))
 
-(defun epackage-require-main ()
-  "Check requirements to run Epackage."
-  (epackage-require-emacs)
-  (epackage-require-git)
-  (epackage-require-directories))
+(defun epackage-require-main (&optional verbose)
+  "Check requirements to run Epackage.
+If VERBOSE is non-nil, display progress message."
+  (epackage-require-emacs verbose)
+  (epackage-require-git verbose)
+  (epackage-require-directories verbose))
 
 (defun epackage-url-http-parse-respons-error (&optional url)
   "On HTTP GET error, show reponse and signal error for optional URL."
@@ -1837,12 +1845,14 @@ If invalid, return list of problems:
 	(epackage-push 'files list)))
     list))
 
-(defun epackage-download-sources-list ()
+(defun epackage-download-sources-list (&optional verbose)
   "Download sources list file, the yellow pages."
   (if (epackage-sources-list-p)
-      (epackage-message "Sources list already exists."))
-  (let ((dir (epackage-sources-list-directory)))
-    (epackage-git-command-clone epackage--sources-list-url dir)))
+      (epackage-with-verbose
+	(epackage-message "Sources list already exists."))
+    (let ((dir (epackage-sources-list-directory)))
+      (epackage-git-command-clone
+       epackage--sources-list-url dir verbose))))
 
 (defun epackage-cmd-select-package (&optional message)
   "Interactively select package with optional MESSAGE.
@@ -1866,13 +1876,15 @@ Return package name or nil."
 	  package))))
 
 ;;###autoload
-(defun epackage-cmd-download-sources-list ()
-  "Download or upgrade package list; the yellow pages of package repositories."
-  (interactive)
+(defun epackage-cmd-download-sources-list (&optional verbose)
+  "Download or upgrade package list; the yellow pages of package repositories.
+If VERBOSE is non-nil, display progress messages."
+  (interactive
+   (list 'interactive))
   (if (epackage-sources-list-p)
-      (epackage-with-message "Upgrading package list"
-	(epackage-upgrade-sources-list))
-    (epackage-with-message "Downloading package list"
+      (epackage-with-message verbose "Upgrading package list"
+	(epackage-upgrade-sources-list verbose))
+    (epackage-with-message verbose "Downloading package list"
       (epackage-download-sources-list))))
 
 ;;###autoload
@@ -1909,7 +1921,7 @@ If VERBOSE is non-nil, display progress messages."
    (list 'interactive))
   (let ((list (epackage-status-downloaded-packages)))
     (if list
-	(epackage-with-message "Upgrading all packages"
+	(epackage-with-message verbose "Upgrading all packages"
 	  (dolist (elt list)
 	    (epackage-cmd-upgrade-package elt verbose)))
       (epackage-verbose-message "No packages downloaded to upgrade"))))
@@ -1928,13 +1940,15 @@ If VERBOSE is non-nil, display progress messages."
       (epackage-download-package package verbose))))
 
 ;;###autoload
-(defun epackage-initialize ()
-  "Inialize package."
-  (interactive)
+(defun epackage-initialize (&optional verbose)
+  "Inialize package.
+If VERBOSE is non-nil, display progress message."
+  (interactive
+   (list 'verbose))
   (unless epackage--initialize-flag
-    (epackage-require-main))
+    (epackage-require-main verbose))
   (unless (epackage-sources-list-p)
-    (epackage-cmd-download-sources-list))
+    (epackage-cmd-download-sources-list verbose))
   (setq epackage--initialize-flag t))
 
 ;;###autoload
