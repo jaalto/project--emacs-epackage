@@ -3,6 +3,11 @@
 	* epackage.el (epackage-push): New. Rewrite all other functions to
 	take advantage of this macro.
 	(epackage-status-installed-packages): New.
+	(epackage-initialize-verify): New.
+	(epackage--symlink-support-flag): New.
+	(epackage-enable-file): New.
+	(epackage-enable-package): Use `epackage-enable-file'.
+	(epackage-activate-package): Use `epackage-enable-file'.
 
 2010-12-06 Mon  Jari Aalto  <jari.aalto@cante.net>
 

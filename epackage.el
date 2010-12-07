@@ -784,13 +784,14 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1207.0730"
+(defconst epackage-version-time "2010.1207.0756"
   "*Version of last edit.")
 
+(eva-and-compile			;We need this at runtim
 (defconst epackage-w32-p
   (or (memq system-type '(ms-dos windows-nt))
       (memq window-system '(win32 w32 mswindows)))
-  "Non-nil under Windows, DOS operating system.")
+  "Non-nil under Windows, DOS operating system."))
 
 (defgroup Epackage nil
   "Distributed Emacs Lisp package system (DELPS)."
@@ -854,6 +855,13 @@ An example:
 Directory should not contain a trailing slash."
   :type  'directory
   :group 'Epackage)
+
+(defvar epackage--symlink-support-flag
+  (if epackage-w32-p
+      nil
+    t)
+  "If non-nil, symlinks are supported.
+The value must be nil under Windows Operating System.")
 
 (defvar epackage--directory-name "epackage"
   "Name of package directory under `epackage--root-directory'.
@@ -1078,6 +1086,16 @@ documentation of epackage.el."
   (unless (epackage-sources-list-p)
     (error "Epackage: Missing file %s. Run epackage-initialize"
            (epackage-file-name-sources-list))))
+
+(defun epackage-initialize-verify (&optional message)
+  "Signal error with MESSAGE if `epackage-initialize' has not been run."
+  (unless epackage--initialize-flag
+    (error
+     (concat "Epackage: [FATAL]"
+	     (if message
+		 (concat " " message ". ")
+	       ". ")
+	     (substitute-command-keys "Run \\[epackage-initialize]")))))
 
 (defun epackage-program-git-verify ()
   "Verify variable `epackage--program-git'."
@@ -1372,6 +1390,15 @@ If VERBOSE is non-nil, display progress message."
     (let ((dir (epackage-file-name-vcs-compose package)))
       (epackage-git-command-clone url dir))))
 
+(defun epackage-enable-file (from to)
+  "Enable by copying or by symlinking file FROM TO."
+  (cond
+   (epackage--symlink-support-flag
+    ;;  Prefer relative symlinks
+    )
+   (t
+    (copy-file from to 'overwrite 'keep-time))))
+
 (defun epackage-enable-package (package)
   "Enable PACKAGE."
   (let ((from (epackage-file-name-vcs-directory-control-file
@@ -1379,7 +1406,7 @@ If VERBOSE is non-nil, display progress message."
         (to (epackage-file-name-install-compose package)))
     (unless (file-exists-p from)
       (error "Epackage: [ERROR] File does not exists: %s" from))
-    (copy-file from to 'overwrite 'keep-time)))
+    (epackage-enable-file from to)))
 
 (defun epackage-activate-package (package)
   "Activate PACKAGE."
@@ -1388,7 +1415,7 @@ If VERBOSE is non-nil, display progress message."
         (to (epackage-file-name-activated-compose package)))
     (unless (file-exists-p from)
       (error "Epackage: [ERROR] file does not exists: %s" from))
-    (copy-file from to 'overwrite 'keep-time)))
+    (epackage-enable-file from to)))
 
 (defun epackage-disable-package (package)
   "Disable PACKAGE."
@@ -1440,7 +1467,16 @@ or whose name match `epackage--directory-name'."
 
 (defun epackage-status-installed-packages ()
   "Return list of packages in `epackage--directory-name-link'."
-  (let (list)
+  (let ((dir (epackage-file-name-link-directory))
+	list)
+    (epackage-initialize-verify "Can't use `epackage--directory-name-link'.")
+    (dolist (elt (directory-files
+		  (epackage-file-name-link-directory)
+		  (not 'full-path)
+		  "-install\\.el$"))
+      (if (string-match "\\(.+\\)-install\\.el$" elt)
+	  (add-to-list list (match-string 1 elt))))
+    (nreverse list)))
 
 (defun epackage-loader-file-insert-header ()
   "Insert header comments."
@@ -1671,7 +1707,7 @@ If valid, return list of required branches."
       ;; * master
       ;; remotes/origin/upstream
       (when (string-match "^\\(\\*?master\\|\\(?:.+/\\)upstream\\)$" elt)
-	(epackage-push elt branches))
+	(epackage-push elt branches)))
     (if (eq (length branches) 2)
 	branches)))
 
