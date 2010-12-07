@@ -1,3 +1,9 @@
+2010-12-07  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-push): New. Rewrite all other functions to
+	take advantage of this macro.
+	(epackage-status-installed-packages): New.
+
 2010-12-06 Mon  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-download-sources-list): Remove argument

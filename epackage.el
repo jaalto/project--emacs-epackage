@@ -784,7 +784,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1206.2019"
+(defconst epackage-version-time "2010.1207.0730"
   "*Version of last edit.")
 
 (defconst epackage-w32-p
@@ -1102,6 +1102,12 @@ documentation of epackage.el."
              "Epackage: [ERROR] epackage--directory-name is not a string"))))
 
 
+(put 'epackage-push 'lisp-indent-function 0)
+(put 'epackage-push 'edebug-form-spec '(body))
+(defmacro epackage-push (x place)
+  "A close `push' CL library macro equivalent: (push X PLACE)."
+  `(setq ,place (cons ,x ,place)))
+
 (put 'epackage-with-w32 'lisp-indent-function 0)
 (put 'epackage-with-w32 'edebug-form-spec '(body))
 (defmacro epackage-with-w32 (&rest body)
@@ -1247,20 +1253,18 @@ Return:
   (epackage-with-last-git-output
     (let (list)
       (while (re-search-forward "^\\([^ \t\r\n]*+\\)" nil t)
-        (setq list (cons
-                    (match-string-no-properties 1)
-                    list)))
+        (epackage-push (match-string-no-properties 1)
+		       list))
       list)))
 
 (defun epackage-git-command-branch-parse-1 ()
   "Parse list of branches from current point forward."
   (let (list)
     (while (re-search-forward "^\\(\\*?\\) +\\([^ \t\r\n]*\\)" nil t)
-      (setq list (cons
-                  (concat
-                   (match-string-no-properties 1)
-                   (match-string-no-properties 2))
-                  list)))
+      (epackage-push (concat
+		      (match-string-no-properties 1)
+		      (match-string-no-properties 2))
+		     list))
     list))
 
 (defsubst epackage-git-command-branch-parse-main ()
@@ -1320,7 +1324,7 @@ If VERBOSE is non-nil, display progress message."
     (epackage-with-git-command dir-before verbose
       "clone" url name)))
 
-(defun epackage-master-p (package)
+(defun epackage-git-master-p (package)
   "Return non-nil if PACKAGE's VCS branch is master."
   (let ((dir (epackage-file-name-vcs-compose package)))
     (when (file-directory-p dir)
@@ -1336,7 +1340,7 @@ If VERBOSE is non-nil, display progress message."
     (let ((dir (epackage-file-name-vcs-compose package)))
       (if verbose
           (message "Upgrading package: %s..." package))
-      (unless (epackage-master-p package)
+      (unless (epackage-git-master-p package)
         (error
          `,(concat
             "Epackage: [FATAL] Can't upgrade. "
@@ -1416,7 +1420,7 @@ ACTION can be:
                  (not (string-match
                        epackage--directory-exclude-regexp
                        elt)))
-        (setq list (cons elt list))))
+        (epackage-push elt list)))
     list))
 
 (defun epackage-directory-recursive-list (dir list)
@@ -1424,14 +1428,19 @@ ACTION can be:
 Exclude directories than contain file .nosearch
 or whose name match `epackage--directory-name'."
   (let ((dirs (epackage-directory-list dir)))
-    (setq list (cons dir list))
+    (epackage-push dir list)
     (dolist (elt dirs)
       (cond
        ((file-exists-p (concat elt "/.nosearch")))
        (t
-        (setq list (cons elt list))
+        (epackage-push elt list)
         (epackage-directory-recursive-list elt list))))
     list))
+
+
+(defun epackage-status-installed-packages ()
+  "Return list of packages in `epackage--directory-name-link'."
+  (let (list)
 
 (defun epackage-loader-file-insert-header ()
   "Insert header comments."
@@ -1582,7 +1591,7 @@ Format is described in variable `epackage--sources-list-url'."
    (let (case-fold-search
          list)
      (when (re-search-forward "^\\([a-z][a-z0-9-]+\\)[ \]+[a-z]" nil t)
-       (setq list (cons (match-string-no-properties 1) list)))
+       (epackage-push (match-string-no-properties 1) list))
      list)))
 
 (defun epackage-require-emacs ()
@@ -1662,7 +1671,7 @@ If valid, return list of required branches."
       ;; * master
       ;; remotes/origin/upstream
       (when (string-match "^\\(\\*?master\\|\\(?:.+/\\)upstream\\)$" elt)
-	(setq branches (cons elt branches))))
+	(epackage-push elt branches))
     (if (eq (length branches) 2)
 	branches)))
 
@@ -1688,11 +1697,11 @@ If valid, return list of required or optional files."
 	  (cond
 	   (required
 	    (if (file-exists-p path)
-		(setq list (cons path list))
+		(epackage-push path list)
 	      (setq invalid path)))
 	   (t
 	    (if (file-exists-p path)
-		(setq list (cons path list))))))))
+		(epackage-push path list)))))))
     list))
 
 (defun epackage-pkg-lint-main (dir)
@@ -1703,11 +1712,11 @@ If invalid, return list of problems:
   'git      Missing required Git branches: upstream, master."
   (let (list)
     (if (not (epackage-directory-p dir))
-	(setq list (cons 'dir list))
+	(epackage-push 'dir list)
       (unless (epackage-pkg-lint-git-branches dir)
-	(setq list (cons 'git list)))
+	(epackage-push 'git list))
       (unless (epackage-pkg-lint-dir-structure dir)
-	(setq list (cons 'files list))))
+	(epackage-push 'files list)))
     list))
 
 (defun epackage-download-sources-list ()
@@ -1752,7 +1761,7 @@ If VERBOSE is non-nil, display progress messages."
     (message "No epackage selected for upgrade."))
    ((not (epackage-package-downloaded-p package))
     (message "Epackage not downloaded"))
-   ((not (epackage-master-p package))
+   ((not (epackage-git-master-p package))
     (message "Abort. Package is manually modified. Branch is not 'master' in %s"
              (epackage-file-name-vcs-compose package)))
    (t
