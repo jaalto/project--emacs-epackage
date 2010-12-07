@@ -787,7 +787,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1207.0950"
+(defconst epackage-version-time "2010.1207.1026"
   "*Version of last edit.")
 
 (eval-and-compile			;We need this at runtim
@@ -870,9 +870,9 @@ The value must be nil under Windows Operating System.")
   "Name of package directory under `epackage--root-directory'.
 Use function `epackage-directory' for full path name.")
 
-(defconst epackage--directory-name-vcs "packages"
+(defconst epackage--directory-name-pkg "packages"
   "VCS directory under `epackage--root-directory'.
-Use function `epackage-file-name-vcs-compose' for full path name.")
+Use function `epackage-file-name-package-compose' for full path name.")
 
 (defconst epackage--directory-name-install "install"
   "Install directory under `epackage--root-directory'.")
@@ -960,18 +960,18 @@ See `epackage-loader-file-generate'.")
 (defsubst epackage-file-name-install-compose (&rest args)
   (error "Not implemented"))
 
-(defsubst epackage-file-name-vcs-compose (package)
+(defsubst epackage-file-name-package-compose (package)
   "Return VCS directory for PACKAGE."
   (format "%s/%s%s"
           (epackage-directory)
-          epackage--directory-name-vcs
+          epackage--directory-name-pkg
           (if (string= "" package)
               ""
             (concat "/" package))))
 
 (defsubst epackage-file-name-vcs-directory ()
   "Return VCS directory"
-  (epackage-file-name-vcs-compose ""))
+  (epackage-file-name-package-compose ""))
 
 (defsubst epackage-file-name-install-directory ()
   "Return VCS directory"
@@ -987,7 +987,7 @@ See `epackage-loader-file-generate'.")
 
 (defsubst epackage-file-name-vcs-package-control-directory (package)
   "Return control directory of PACKAGE"
-  (let ((root (epackage-file-name-vcs-compose package)))
+  (let ((root (epackage-file-name-package-compose package)))
     (format "%s/%s" root epackage--package-control-directory)))
 
 (defsubst epackage-file-name-nondirectory (dir)
@@ -1065,13 +1065,13 @@ documentation of epackage.el."
   "Check if package has been downloaded."
   (unless (epackage-string-p package)
     (error "Epackage: [ERROR arg 'package' is not a string."))
-  (let ((dir (epackage-file-name-vcs-compose package)))
+  (let ((dir (epackage-file-name-package-compose package)))
     (if (file-directory-p dir)
         dir)))
 
 (defsubst epackage-sources-list-directory ()
   "Return sources list, the yellow pages, directory."
-  (epackage-file-name-vcs-compose epackage--sources-package-name))
+  (epackage-file-name-package-compose epackage--sources-package-name))
 
 (defsubst epackage-file-name-sources-list ()
   "Return path to `epackage--sources-file-name'."
@@ -1353,7 +1353,7 @@ If VERBOSE is non-nil, display progress message."
 
 (defun epackage-git-master-p (package)
   "Return non-nil if PACKAGE's VCS branch is master."
-  (let ((dir (epackage-file-name-vcs-compose package)))
+  (let ((dir (epackage-file-name-package-compose package)))
     (when (file-directory-p dir)
       (let ((list (epackage-git-command-branch-list dir)))
         (epackage-git-branch-list-master-p list)))))
@@ -1364,7 +1364,7 @@ If VERBOSE is non-nil, display progress message."
   (let ((url (epackage-sources-list-info-url package)))
     (unless url
       (error "Epackage: [ERROR] No download URL for package '%s'" package))
-    (let ((dir (epackage-file-name-vcs-compose package)))
+    (let ((dir (epackage-file-name-package-compose package)))
       (if verbose
           (message "Upgrading package: %s..." package))
       (unless (epackage-git-master-p package)
@@ -1396,7 +1396,7 @@ If VERBOSE is non-nil, display progress message."
   (let ((url (epackage-sources-list-info-url package)))
     (unless url
       (error "Epackage: [ERROR] No Git URL for package '%s'" package))
-    (let ((dir (epackage-file-name-vcs-compose package)))
+    (let ((dir (epackage-file-name-package-compose package)))
       (epackage-git-command-clone url dir))))
 
 (defun epackage-enable-file (from to)
@@ -1472,18 +1472,45 @@ or whose name match `epackage--directory-name'."
         (epackage-directory-recursive-list elt list))))
     list))
 
-
-(defun epackage-status-installed-packages ()
-  "Return list of packages in `epackage--directory-name-link'."
-  (let ((dir (epackage-file-name-link-directory))
+(defun epackage-status-of-packages (type)
+  "Return packages of TYPE of `epackage--layout-mapping'."
+  (let* ((dir      (epackage-file-name-link-directory))
+	 (template (or (nth 1 (assq type epackage--layout-mapping))
+		       (error "invalid function arg TYPE: %s" type)))
+	 (regexp   (concat (regexp-quote template) "$"))
+	 (match    (concat "\\(.+\\)" regexp))
 	list)
     (epackage-initialize-verify "Can't use `epackage--directory-name-link'.")
     (dolist (elt (directory-files
-		  (epackage-file-name-link-directory)
+		  dir
 		  (not 'full-path)
-		  "-install\\.el$"))
-      (if (string-match "\\(.+\\)-install\\.el$" elt)
+		  regexp))
+      (if (string-match match elt)
 	  (add-to-list list (match-string 1 elt))))
+    (nreverse list)))
+
+(defsubst epackage-status-enabled-packages ()
+  "Return list of packages in `epackage--directory-name-link'."
+  (epackage-status-of-packages 'enable))
+
+(defsubst epackage-status-installed-packages ()
+  "Return list of packages in `epackage--directory-name-link'."
+  (epackage-status-of-packages 'install))
+
+(defsubst epackage-status-activated-packages ()
+  "Return list of packages in `epackage--directory-name-link'."
+  (epackage-status-of-packages 'activate))
+
+(defun epackage-status-downloaded-packages ()
+  "Return list of packages in `epackage--directory-name-pkg'."
+  (let ((dir (epackage-directory))
+	list)
+    (epackage-initialize-verify "Can't use `epackage--directory-name-pkg'")
+    (dolist (elt (directory-files
+		  dir
+		  (not 'full-path)))
+      (unless (string-match "\00" elt)
+	(add-to-list list (match-string 1 elt))))
     (nreverse list)))
 
 (defun epackage-loader-file-insert-header ()
@@ -1539,7 +1566,7 @@ or whose name match `epackage--directory-name'."
       (unless (member package list)
         (add-to-list 'list package)
         (epackage-loader-insert-file-path-list-by-path
-          (epackage-file-name-vcs-compose package))))))
+          (epackage-file-name-package-compose package))))))
 
 (defun epackage-loader-file-insert-install-code ()
   "Insert package installation code into `current-buffer'."
@@ -1807,7 +1834,7 @@ If VERBOSE is non-nil, display progress messages."
     (message "Epackage not downloaded"))
    ((not (epackage-git-master-p package))
     (message "Abort. Package is manually modified. Branch is not 'master' in %s"
-             (epackage-file-name-vcs-compose package)))
+             (epackage-file-name-package-compose package)))
    (t
     (epackage-upgrade-package package verbose)
     ;; FIXME: Add post-processing
@@ -1926,6 +1953,28 @@ Summary, Version, Maintainer etc."
 ;;      (define-key map "Hc" 'epackage-commentary)
 ;;      (define-key map "Hv" 'epackage-version))))
 
+(put 'epackage-batch-macro 'lisp-indent-function 0)
+(put 'epackage-batch-macro 'edebug-form-spec '(body))
+(defmacro epackage-batch-macro (&rest body)
+  "(dolist (elt command-line-args-left) BODY)."
+  (epackage-initialize)
+  (dolist (elt command-line-args-left)
+    ,@body))
+
+(defun epackage-batch-download-packages ()
+  "Run `epackage-cmd-download-package' for command line args."
+  (epackage-batch-macro
+    (epackage-cmd-download-package elt)))
+
+(defun epackage-batch-upgrade-packages ()
+  "Run `epackage-cmd-upgrade-package' for command line args."
+  (epackage-batch-macro
+    (epackage-cmd-upgrade-package elt)))
+
+(defun epackage-batch-upgrade-all-packages ()
+  "Run `epackage-cmd-upgrade-all-packages'."
+  (epackage-initialize)
+  (epackage-cmd-upgrade-all-packages package))
 
 ;;###autoload
 (defalias 'epackage-manager 'epackage)
