@@ -93,6 +93,11 @@
 	(epackage-batch-deactivate-package): New.
 	(epackage-batch-clean-package): New.
 	(epackage-batch-remove-package): New.
+	(epackage-config-install-autoload): New.
+	(epackage-config-delete-action): New.
+	(epackage-config-delete-all): New.
+	(epackage-batch-ui-main): New.
+	(epackage-batch-ui-menu): New.
 
 2010-12-06 Mon  Jari Aalto  <jari.aalto@cante.net>
 

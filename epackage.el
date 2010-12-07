@@ -170,21 +170,26 @@
 ;;
 ;;      In this view, some of the commands are (see mode help `C-h' `m'):
 ;;
+;;      o   _a_, Install activate configuration for package.
+;;	    modifies Emacs environment.
+;;      o   _A_, Deactivate. Uninstall activate configuration for package.
+;;      o   _c_, Clean package's configuration files (whole uninstall).
 ;;      o   d, run `dired' on package installation directory.
 ;;      o   e, edit package's *info* file.
 ;;      o   E, email upstream, the package author (maintainer). You can
-;;             as for new wishlist features, report bugs etc.
-;;      o   g, get. Update available package list (get new yellow pages data)
-;;      o   i, install package.
-;;      o   l, list only installed packages.
+;;          as for new wishlist features, report bugs etc.
+;;      o   g, Get yellow page data. Update package sources list.
+;;      o   _i_, Install standard configuration for package.
+;;      o   _I_, Uninstall standard configuration for package.
+;;      o   l<key>, list comand: installed, downloaded, enabled,
+;;	    activated, autoloaded, not-installed.
 ;;      o   m, mark package (for command install or remove).
 ;;      o   M, send mail to person who is the maintainer of epackage
-;;             for this utility. You can send requests to fix
-;;             packaging or update contents of the 'info' file if some
-;;             of the information in no up to date.
-;;      o   n, list only new packages (not-installed).
-;;      o   p, purge package; delete package physically from local disk.
-;;      o   r, remove package. Synonym for uninstall action.
+;;          for this utility. You can send requests to fix
+;;          packaging or update contents of the 'info' file if some
+;;          of the information in no up to date.
+;;      o   _o_, Install autoload configuration for package.
+;;      o   _r_, Remove; delete package physically from local disk.
 ;;      o   s<key>, sort command. Change listing by several criterias.
 ;;      o   u, unmark (install, purge, remove).
 ;;      o   U, upgrade package to newer version.
@@ -789,7 +794,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1207.1537"
+(defconst epackage-version-time "2010.1207.1824"
   "*Version of last edit.")
 
 (eval-and-compile			;We need this at runtim
@@ -943,6 +948,38 @@ producing 'foo-install.el.")
 
 (defvar epackage--debug t
   "If non-nil, activate debug.")
+
+(defconst epackage--batch-ui-menu-string "\
+a	Install activate configuration; modifies Emacs environment.
+A	Deactivate. Uninstall activate configuration
+c       Clean package's configuration files (whole uninstall).
+g	Get yellow page data. Update package sources list.
+i	Install standard configuration for package.
+I	Uninstall standard configuration for package.
+l	List installed packages.
+L	List downloaded packages.
+n	List no installed packages.
+o	Install autoload configuration for package.
+r	Remove; delete package physically from local disk.
+q	Quit.
+"
+  "UI menu to run epackage from command line.")
+
+(defconst epackage--batch-ui-menu-actions
+  '((?a 'ignore)
+    (?A 'ignore)
+    (?c 'ignore)
+    (?g 'ignore)
+    (?i 'ignore)
+    (?I 'ignore)
+    (?l 'ignore)
+    (?L 'ignore)
+    (?n 'ignore)
+    (?o 'ignore)
+    (?r 'ignore)
+    (?q 'quit)
+    (?Q 'quit))
+  "UI menucommand and actions. Format: '((KEY FUNCTION) ...).")
 
 (defsubst epackage-string-p (string)
   "Return STRING of value is non-empty. Otherwise return nil."
@@ -1495,26 +1532,47 @@ Return:
     (epackage-error "No file: %s" from)
     nil)))
 
-(defun epackage-install-package-action (type package &optional noerr verbose)
+(defun epackage-config-install-action
+  (type package &optional noerr verbose)
   "Run install of TYPE for PACKAGE.
-If VERBOSE is non-nil, display progress message.
 With NOERR, do not signall errors, display inly messages.
+If VERBOSE is non-nil, display progress message.
 TYPE is car of `epackage--layout-mapping'."
   (let ((from (epackage-file-name-pkg-directory-control-file
                package type))
         (to (epackage-file-name-install-compose package type)))
     (epackage-enable-file from to noerr verbose)))
 
-(defun epackage-action-package (package action)
-  "Perform ACTION on PACKAGE.
+(defun epackage-config-install-autoload (package &optional verbose)
+  "Install PACKAGE autoload files.
+If VERBOSE is non-nil, display progress message."
+  (or (epackage-config-install-action 'loaddefs package 'noerr)
+      (epackage-config-install-action 'autoload package nil verbose)))
 
-ACTION can be:
+(defun epackage-config-delete-action (type package &optional verbose)
+  "Delete install configuration TYPE for PACKAGE.
+If VERBOSE is non-nil, display progress message.
+TYPE is car of `epackage--layout-mapping'."
+  (let ((file (epackage-file-name-install-compose package type)))
+    (when (file-exists-p)
+      (epackage-with-verbose
+	(epackage-message "Deleted %s" file))
+      (delete-file file))))
 
-  'enable
-  'disable
-  'activate
-  'uninstall"
-  (error "Not implemented")) ;; FIXME
+(defun epackage-config-delete-all (package &optional verbose)
+  "Delete all install configuration files for PACKAGE
+If VERBOSE is non-nil, display progress message."
+  (let ((dir (epackage-file-name-install-directory)))
+    (epackage-error-no-directory dir)
+    (dolist (file (directory-files
+		   dir
+		   'full-path
+		   (format "^%s-" package)
+		   t))
+      (when (file-exists-p file)
+	(epackage-with-verbose
+	  (epackage-message "Deleted %s" file))
+	  (delete-file file)))))
 
 (defun epackage-directory-list (dir)
   "Return all directories under DIR."
@@ -1905,8 +1963,7 @@ If VERBOSE is non-nil, display progress message."
   (unless (epackage-string-p package)
     (epackage-error "PACKAGE name \"%s\" is invalid for autoload command"
 		    package))
-  (or (epackage-install-package-action 'loaddefs package 'noerr)
-      (epackage-install-package-action 'autoload package nil verbose)))
+  (epackage-config-install-autoload package verbose))
 
 ;;;###autoload
 (defun epackage-cmd-enable-package (package &optional verbose)
@@ -1918,7 +1975,8 @@ If VERBOSE is non-nil, display progress message."
   (unless (epackage-string-p package)
     (epackage-error "PACKAGE name \"%s\" is invalid for enable command"
 		    package))
-  (epackage-install-package-action 'enable package nil verbose))
+  (epackage-config-install-autoload package verbose)
+  (epackage-config-install-action 'enable package nil verbose))
 
 ;;;###autoload
 (defun epackage-cmd-disable-package (package &optional verbose)x
@@ -1937,26 +1995,6 @@ If VERBOSE is non-nil, display progress message."
       (delete-file file))))
 
 ;;;###autoload
-(defun epackage-cmd-clean-package (package &optional verbose)
-  "Clean all PACKAGE config fiels.
-If VERBOSE is non-nil, display progress message."
-  (interactive
-   (list (epackage-cmd-select-package "Disable epackage: ")
-	 'interactive))
-  (unless (epackage-string-p package)
-    (epackage-error "PACKAGE name \"%s\" is invalid for disable command"
-		    package))
-  (let ((dir (epackage-file-name-install-directory)))
-    (epackage-error-no-directory dir)
-    (dolist (file (directory-files
-		   dir
-		   'full-path
-		   (format "^%s-" package)
-		   t))
-      (if (file-exists-p file)
-	  (delete-file file)))))
-
-;;;###autoload
 (defun epackage-cmd-activate-package (package &optional verbose)
   "Activate PACKAGE.
 If VERBOSE is non-nil, display progress message."
@@ -1966,7 +2004,8 @@ If VERBOSE is non-nil, display progress message."
   (unless (epackage-string-p package)
     (epackage-error "PACKAGE name \"%s\" is invalid for activate command"
 		    package))
-  (epackage-install-package-action 'activate package nil verbose))
+  (epackage-config-install-autoload package verbose)
+  (epackage-config-install-action 'activate package nil verbose))
 
 ;;;###autoload
 (defun epackage-cmd-deactivate-package (package &optional verbose)
@@ -1985,8 +2024,20 @@ If VERBOSE is non-nil, display progress message."
       (delete-file file))))
 
 ;;;###autoload
+(defun epackage-cmd-clean-package (package &optional verbose)
+  "Clean all install configuration files of PACKAGE.
+If VERBOSE is non-nil, display progress message."
+  (interactive
+   (list (epackage-cmd-select-package "Disable epackage: ")
+	 'interactive))
+  (unless (epackage-string-p package)
+    (epackage-error "PACKAGE name \"%s\" is invalid for clean command"
+		    package))
+  (epackage-config-delete-all package verbose))
+
+;;;###autoload
 (defun epackage-cmd-remove-package (package &optional verbose)
-  "Physically remove PACKAGE from disk.
+  "Physically remove PACKAGE and its configuration files from disk.
 If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Remove epackage: ")
@@ -1997,6 +2048,9 @@ If VERBOSE is non-nil, display progress message."
 	(epackage-with-verbose
 	  (epackage-message "Remove ignored. Package not installed: %s"
 			    package))
+      (epackage-config-delete-all package verbose)
+      (epackage-with-verbose
+	(epackage-message "Deleted directory %s" dir))
       (delete-directory dir 'recursive))))
 
 ;;;###autoload
@@ -2219,6 +2273,29 @@ Summary, Version, Maintainer etc."
   "Run `epackage-cmd-upgrade-all-packages'."
   (epackage-initialize)
   (epackage-cmd-upgrade-all-packages 'verbose))
+
+(defun epackage-batch-ui-menu ()
+  "Display UI menu."
+  (message epackage--batch-ui-menu-string)
+  (let ((char (read-char-exclusive "Choice: ")))
+    (nth 1 (assoc char epackage--batch-ui-menu-actions))))
+
+;;;###autoload
+(defun epackage-batch-ui-main ()
+  "Present an UI to run basic command."
+  (epackage-initialize)
+  (let ((loop t)
+	function)
+  (while loop
+    (setq choice (epackage-batch-ui-menu))
+    (cond
+     ((null choice)
+      (message "** Uknown selection"))
+     ((eq choice 'quit)
+      (Messahe "** Exit")
+      (setq loop nil))
+     ((functionp choice)
+      (message "Not implemented: %s" choice))))))
 
 ;;;###autoload
 (defalias 'epackage-manager 'epackage)
