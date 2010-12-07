@@ -790,7 +790,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1207.1201"
+(defconst epackage-version-time "2010.1207.1209"
   "*Version of last edit.")
 
 (eval-and-compile			;We need this at runtim
@@ -1833,6 +1833,27 @@ If invalid, return list of problems:
   (let ((dir (epackage-sources-list-directory)))
     (epackage-git-command-clone epackage--sources-list-url dir)))
 
+(defun epackage-cmd-select-package (&optional message)
+  "Interactively select package with optional MESSAGE.
+Return package name or nil."
+  (let (package)
+    (if (not (epackage-sources-list-p))
+	(epackage-message
+	 (substitute-command-keys
+	  `,(concat
+	     "Can't build package list. "
+	     "Run \\[epackage-cmd-download-sources-list]")))
+      (setq package
+	    (completing-read
+	     (if message
+		 message
+	       "Select package: ")
+	     (epackage-sources-list-info-pkg-list)
+	     (not 'predicate)
+	     'require-match))
+      (if (epackage-string-p package)
+	  package))))
+
 ;;###autoload
 (defun epackage-cmd-download-sources-list ()
   "Download or upgrade package list; the yellow pages of package repositories."
@@ -1899,20 +1920,8 @@ If VERBOSE is non-nil, display progress messages."
   "Download PACKAGE, but do not install it.
 If VERBOSE is non-nil, display progress messages."
   (interactive
-   (let (package)
-     (if (not (epackage-sources-list-p))
-         (epackage-message
-          (substitute-command-keys
-           `,(concat
-              "Can't build package list. "
-              "Run \\[epackage-cmd-download-sources-list]")))
-       (setq package
-             (completing-read
-              "Install epackage: "
-              (epackage-sources-list-info-pkg-list)
-              (not 'predicate)
-              'require-match)))
-     (list package 'interactive)))
+   (list (epackage-cmd-select-package "Install package: ")
+	 'interactive))
   (if (not (epackage-string-p package))
       (epackage-message "No packages selected for install.")
     (if (epackage-package-downloaded-p package)

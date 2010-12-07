@@ -39,6 +39,7 @@
 	(epackage-verbose-message): New.
 	(epackage-cmd-upgrade-all-packages): New.
 	(epackage-error): New.
+	(epackage-cmd-select-package): New.
 
 2010-12-06 Mon  Jari Aalto  <jari.aalto@cante.net>
 
