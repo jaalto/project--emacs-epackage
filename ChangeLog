@@ -52,6 +52,22 @@
 	(epackage-upgrade-sources-list): Add arg verbose.
 	(epackage-download-sources-list): Add arg verbose.
 	(epackage-with-message):  Add arg verbose.
+	(epackage-cmd-enable-package): Rename. Add interactive and autoload.
+	Was `epackage-enable-package'.
+	(epackage-cmd-activate-package): Rename. Add interactive and autoload.
+	Was `epackage-activate-package'.
+	(epackage-cmd-disable-package): Rename. Add interactive and autoload.
+	Was `epackage-disable-package'.
+	(epackage-file-name-pkg-directory-control-file): Change cdr to nth.
+	(epackage-file-name-install-compose): Implement.
+	(epackage-enable-file): Check FROM. Add arg verbose.
+	(epackage-cmd-activate-package): Change compose function.
+	(epackage-file-name-install-directory): Remove.
+	(epackage--directory-name-install): Remove.
+	(epackage--directory-name-link): Chnage value from 00link to 00control.
+	(epackage-initialize-string): New.
+	(epackage-error-no-directory): New.
+	(epackage-error-initialize): New.
 
 2010-12-06 Mon  Jari Aalto  <jari.aalto@cante.net>
 
