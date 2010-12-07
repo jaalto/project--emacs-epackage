@@ -96,8 +96,14 @@
 	(epackage-config-install-autoload): New.
 	(epackage-config-delete-action): New.
 	(epackage-config-delete-all): New.
+	(epackage--batch-ui-menu-actions): New.
+	(epackage--batch-ui-menu-string): New.
 	(epackage-batch-ui-main): New.
 	(epackage-batch-ui-menu): New.
+	(epackage-batch-ui-list-installed-packages): New.
+	(epackage-batch-ui-list-downloaded-packages): New.
+	(epackage-batch-list-package-summamry): New.
+	(epackage-status-not-installed-packages): New.
 
 2010-12-06 Mon  Jari Aalto  <jari.aalto@cante.net>
 
