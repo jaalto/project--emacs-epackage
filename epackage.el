@@ -790,7 +790,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1207.1209"
+(defconst epackage-version-time "2010.1207.1249"
   "*Version of last edit.")
 
 (eval-and-compile			;We need this at runtim
@@ -1004,6 +1004,15 @@ Examples:
   (if (string-match "/\\([^/]+\\)/?$" dir)
       (match-string-no-properties 1 dir)))
 
+(put 'epackage-ignore-errors 'lisp-indent-function 0)
+(put 'epackage-ignore-errors 'edebug-form-spec '(body))
+(defmacro epackage-ignore-errors (body)
+  "A close `ignore-errors' CL library macro equivalent."
+  `(condition-case error
+       (progn
+	 ,@body)
+     (error)))				;variable test, not a function call
+
 (put 'epackage-push 'lisp-indent-function 0)
 (put 'epackage-push 'edebug-form-spec '(body))
 (defmacro epackage-push (x place)
@@ -1024,7 +1033,7 @@ Examples:
   `(when epackage--debug
      ,@body))
 
-(put 'epackage-with-verbose 'lisp-indent-function 1)
+(put 'epackage-with-verbose 'lisp-indent-function 0)
 (put 'epackage-with-verbose 'edebug-form-spec '(body))
 (defmacro epackage-with-verbose (&rest body)
   "If variable `verbose' is non-nil, run BODY."
@@ -1033,21 +1042,23 @@ Examples:
 
 (put 'epackage-error 'lisp-indent-function 0)
 (put 'epackage-error 'edebug-form-spec '(body))
-(defmacro epackage-error (&rest args)
+(defmacro epackage-error (format &rest args)
   "Call `error' with ARGS. mark message with ERROR tag."
-  `(error `,(format (concat "Epackage: [ERROR] %s") ,@args)))
+  (let ((fmt (concat "Epackage: [ERROR] " `,format)))
+    `(error ,fmt ,@args)))
 
 (put 'epackage-fatal 'lisp-indent-function 0)
 (put 'epackage-fatal 'edebug-form-spec '(body))
-(defmacro epackage-fatal (&rest args)
+(defmacro epackage-fatal (format &rest args)
   "Call `error' with ARGS. Mark message with FATAL tag."
-  `(error `,(format (concat "Epackage: [FATAL] %s") ,@args)))
+  (let ((fmt (concat "Epackage: [FATAL] " `,format)))
+    `(error ,fmt ,@args)))
 
-(put 'epackage-with-message 'lisp-indent-function 0)
-(put 'epackage-with-message 'edebug-form-spec '(body))
-(defmacro epackage-message (&rest args)
-  "Call `message' with ARGS."
-  `(message `,(format (concat "Epackage: %s") ,@args)))
+(put 'epackage-message 'lisp-indent-function 0)
+(put 'epackage-message 'edebug-form-spec '(body))
+(defmacro epackage-message (format &rest args)
+  (let ((fmt (concat "Epackage: " `,format)))
+    `(message ,fmt ,@args)))
 
 (put 'epackage-verbose-message 'lisp-indent-function 0)
 (put 'epackage-verbose-message 'edebug-form-spec '(body))
@@ -1061,10 +1072,10 @@ Examples:
 (defmacro epackage-with-message (message &rest body)
   "Display MESSAGE before and after (\"..done\") BODY. Return BODY."
   `(progn
-     (epackage-message (concat ,message "..."))
+     (epackage-message "%s" (concat ,message "..."))
      (prog1
 	 ,@body
-       (epackage-message (concat ,message "...done")))))
+       (epackage-message "%s" (concat ,message "...done")))))
 
 (defun epackage-file-name-pkg-directory-control-file (package type)
   "Return PACKAGE's control file of TYPE.
@@ -1400,8 +1411,8 @@ If VERBOSE is non-nil, display progress message."
     (unless url
       (error-error "No download URL for package '%s'" package))
     (let ((dir (epackage-file-name-package-compose package)))
-      (if verbose
-          (message "Upgrading package: %s..." package))
+      (epackage-with-verbose
+	(epackage-message "Upgrading package: %s..." package))
       (unless (epackage-git-master-p package)
         (epackage-fatal
          `,(concat
@@ -1410,8 +1421,8 @@ If VERBOSE is non-nil, display progress message."
             "Possibly changed manually or invalid package.")
          dir))
       (epackage-git-command-pull dir verbose)
-      (if verbose
-          (message "Upgrading package: %s...done" package)))))
+      (epackage-with-verbose
+	(epackage-message "Upgrading package: %s...done" package)))))
 
 (defun epackage-upgrade-sources-list ()
   "Update list of available packages; the yellow pages."
@@ -1838,16 +1849,16 @@ If invalid, return list of problems:
 Return package name or nil."
   (let (package)
     (if (not (epackage-sources-list-p))
-	(epackage-message
-	 (substitute-command-keys
-	  `,(concat
-	     "Can't build package list. "
-	     "Run \\[epackage-cmd-download-sources-list]")))
+	(epackage-message "%s"
+			  (substitute-command-keys
+			   `,(concat
+			      "Can't build package list. "
+			      "Run \\[epackage-cmd-download-sources-list]")))
       (setq package
 	    (completing-read
 	     (if message
 		 message
-	       "Select package: ")
+	       "Select epackage: ")
 	     (epackage-sources-list-info-pkg-list)
 	     (not 'predicate)
 	     'require-match))
@@ -1870,20 +1881,8 @@ Return package name or nil."
 Install new configurations if package has been enabled.
 If VERBOSE is non-nil, display progress messages."
   (interactive
-   (let (package)
-     (if (not (epackage-sources-list-p))
-         (epackage-message
-          (substitute-command-keys
-           `,(concat
-              "No package list. "
-              "Run \\[epackage-cmd-download-sources-list]")))
-       (setq package
-             (completing-read
-              "Install epackage: "
-              (epackage-sources-list-info-pkg-list)
-              (not 'predicate)
-              'require-match)))
-     (list package 'interactive)))
+   (list (epackage-cmd-select-package "Upgrade epackage: ")
+	 'interactive))
   (cond
    ((not (epackage-string-p package))
     (epackage-message "No epackage selected for upgrade."))
@@ -1907,12 +1906,12 @@ If VERBOSE is non-nil, display progress messages."
 Install new configurations if package has been enabled.
 If VERBOSE is non-nil, display progress messages."
   (interactive
-   (list (interactive-p)))
+   (list 'interactive))
   (let ((list (epackage-status-downloaded-packages)))
     (if list
 	(epackage-with-message "Upgrading all packages"
 	  (dolist (elt list)
-	    (epackage-cmd-upgrade-package verbose)))
+	    (epackage-cmd-upgrade-package elt verbose)))
       (epackage-verbose-message "No packages downloaded to upgrade"))))
 
 ;;###autoload
@@ -1920,7 +1919,7 @@ If VERBOSE is non-nil, display progress messages."
   "Download PACKAGE, but do not install it.
 If VERBOSE is non-nil, display progress messages."
   (interactive
-   (list (epackage-cmd-select-package "Install package: ")
+   (list (epackage-cmd-select-package "Install epackage: ")
 	 'interactive))
   (if (not (epackage-string-p package))
       (epackage-message "No packages selected for install.")
@@ -2024,12 +2023,14 @@ Summary, Version, Maintainer etc."
 (defun epackage-batch-download-packages ()
   "Run `epackage-cmd-download-package' for command line args."
   (epackage-batch-macro
-    (epackage-cmd-download-package elt 'verbose)))
+    (epackage-ignore-errors
+     (epackage-cmd-download-package elt 'verbose))))
 
 (defun epackage-batch-upgrade-package ()
   "Run `epackage-cmd-upgrade-package' for command line args."
   (epackage-batch-macro
-    (epackage-cmd-upgrade-package elt 'verbose)))
+    (epackage-ignore-errors
+     (epackage-cmd-upgrade-package elt 'verbose))))
 
 (defun epackage-batch-upgrade-all-packages ()
   "Run `epackage-cmd-upgrade-all-packages'."

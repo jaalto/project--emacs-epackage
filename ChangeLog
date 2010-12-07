@@ -40,6 +40,9 @@
 	(epackage-cmd-upgrade-all-packages): New.
 	(epackage-error): New.
 	(epackage-cmd-select-package): New.
+	(epackage-cmd-upgrade-package): Use `epackage-cmd-select-package'.
+	(epackage-cmd-download-package): Use `epackage-cmd-select-package'.
+	(epackage-ignore-errors): New.
 
 2010-12-06 Mon  Jari Aalto  <jari.aalto@cante.net>
 
