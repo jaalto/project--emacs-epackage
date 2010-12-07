@@ -41,7 +41,7 @@
 ;;
 ;;      ;; One big file to boot all installed packages
 ;;      ;; Automatically generated. Do not edit.
-;;      (load "~/.emacs.d/epackage/00control/epackage-loader" 'noerr)
+;;      (load "~/.emacs.d/epackage/00conf/epackage-loader" 'noerr)
 
 ;;; Commentary:
 
@@ -292,19 +292,20 @@
 ;;      which defaults to `~/.emacs.d' or `~/elisp' respectively. The
 ;;      root directory is organized as follows:
 ;;
-;;          epackage
+;;	    epackage/		    Under epackage--root-directory
 ;;          |
-;;          +-- 00control/
-;;          |   epackage-loader.el      One big boot file
+;;          +-- 00coonf/
+;;          |   epackage-loader.el  One big boot file
+;;          |
+;;          +-- 00install/
 ;;          |   <package>-activate.el
 ;;          |   <package>-install.el
 ;;	    |   ...
 ;;          |
-;;          +--vc/     Packages. The Version control repositories.
+;;          +--packages/           Version control repositories.
 ;;             |
-;;             +-- 00epackage/          Yellow pages: list of available packages
-;;             +-- package/             Downloaded package
-;;             +-- package2/
+;;             +-- 00sources/      Yellow pages: list of available packages
+;;             +-- package/        Downloaded package
 ;;             +-- ...
 ;;
 ;;  Epackage specification (draft; level 1)
@@ -788,7 +789,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1207.1408"
+(defconst epackage-version-time "2010.1207.1524"
   "*Version of last edit.")
 
 (eval-and-compile			;We need this at runtim
@@ -808,7 +809,7 @@
   :type  'hook
   :group 'Epackage)
 
-(defcustom epackage--byte-compile-loader-file nil
+(defcustom epackage--loader-file-byte-compile-flag nil
   "*Non-nil measn to byte compile `epackage--loader-file'."
   :type  'boolean
   :group 'Epackage)
@@ -832,9 +833,6 @@ must be no leading whitespaces in front of PACKAGE-NAME.
 An example:
 
   foo git://example.com/repository/foo.git")
-
-(defconst epackage--sources-package-name "00epackage"
-  "The name of local repository of `epackage--sources-list-url'.")
 
 (defcustom epackage--root-directory
   (let (ret)
@@ -872,13 +870,33 @@ The value must be nil under Windows Operating System.")
 Use function `epackage-directory' for full path name.")
 
 (defconst epackage--directory-name-pkg "packages"
-  "VCS directory under `epackage--root-directory'.
+  "directory under `epackage--root-directory' where to download.
 Use function `epackage-file-name-package-compose' for full path name.")
 
-(defconst epackage--directory-name-link "00control"
-  "Link directory under `epackage--root-directory'.
-This directory contains symlinks to all installed packages and
-their *.el and *.elc files.")
+(defconst epackage--directory-name-conf "00conf"
+  "The name of local yellow pages repository.
+Use `epackage-file-name-loader-directory' for full path name.")
+
+(defconst epackage--sources-package-name "00sources"
+  "The name of local yellow pages repository.
+Copy of `epackage--sources-list-url'.")
+
+(defconst epackage--directory-name-install "00install"
+  "Install directory under `epackage--root-directory'.
+This directory contains control files from packages.")
+
+(defvar epackage--sources-file-name "epackage.lst"
+  "Name of yellow pages file that lists available packages.
+See variable `epackage--sources-list-url'.")
+
+(defvar epackage--loader-file "epackage-loader.el"
+  "file that contains package enabling and activation code.
+Use function `epackage-file-name-loader-file' for full path name.
+Make fle with `epackage-loader-file-generate'.
+See also variable `epackage--loader-file-byte-compile-flag'.")
+
+(defvar epackage--package-control-directory "epackage"
+  "Name of directory inside VCS controlled package.")
 
 (defconst epackage--directory-exclude-regexp
   (concat
@@ -920,17 +938,6 @@ producing 'foo-install.el.")
 (defvar epackage--program-git nil
   "Location of program git(1).")
 
-(defvar epackage--sources-file-name "epackage.lst"
-  "Name of yellow pages file that lists available packages.
-See variable `epackage--sources-list-url'.")
-
-(defvar epackage--loader-file "epackage-loader.el"
-  "file that contains all package enable and activate code.
-See `epackage-loader-file-generate'.")
-
-(defvar epackage--package-control-directory "epackage"
-  "Name of directory inside VCS controlled package.")
-
 (defvar epackage--process-output "*Epackage process*"
   "Output of `epackage--program-git'.")
 
@@ -952,7 +959,7 @@ See `epackage-loader-file-generate'.")
 (defsubst epackage-file-name-loader-file ()
   "Return path to boot loader file."
   (format "%s/%s"
-          (epackage-directory)
+          (epackage-file-name-loader-directory)
           epackage--loader-file))
 
 (defsubst epackage-file-name-package-compose (package)
@@ -968,11 +975,11 @@ See `epackage-loader-file-generate'.")
   "Return VCS directory"
   (epackage-file-name-package-compose ""))
 
-(defsubst epackage-file-name-link-directory ()
+(defsubst epackage-file-name-install-directory ()
   "Return link directory"
   (format "%s/%s"
           (epackage-directory)
-          epackage--directory-name-link))
+          epackage--directory-name-install))
 
 (defsubst epackage-file-name-vcs-package-control-directory (package)
   "Return control directory of PACKAGE"
@@ -985,8 +992,8 @@ Examples:
     /path/to/dir	=>  dir
     /path/to/dir/	=>  dir."
   (epackage-with-w32
-   ;; Convert to forward slashes
-   (setq dir (expand-file-name dir)))
+    ;; Convert to forward slashes
+    (setq dir (expand-file-name dir)))
   (if (string-match "/\\([^/]+\\)/?$" dir)
       (match-string-no-properties 1 dir)))
 
@@ -1033,6 +1040,13 @@ Examples:
   (let ((fmt (concat "Epackage: [FATAL] " `,format)))
     `(error ,fmt ,@args)))
 
+(put 'epackage-fatal 'lisp-indent-function 0)
+(put 'epackage-fatal 'edebug-form-spec '(body))
+(defmacro epackage-warn (format &rest args)
+  "Call `error' with ARGS. Mark message with WARN tag."
+  (let ((fmt (concat "Epackage: [WARN] " `,format)))
+    `(error ,fmt ,@args)))
+
 (put 'epackage-message 'lisp-indent-function 0)
 (put 'epackage-message 'edebug-form-spec '(body))
 (defmacro epackage-message (format &rest args)
@@ -1074,14 +1088,14 @@ The TYPE is car of list `epackage--layout-mapping'."
         (epackage-error "[ERROR] Unknown TYPE argument '%s'" type)
       (cond
        ((eq type 'info)
-         (format "%s/%s" dir file))
+	(format "%s/%s" dir file))
        (t
         (format "%s/%s%s" dir package file))))))
 
 (defun epackage-file-name-install-compose (package type)
-  "Rturn PACKAGE filenme of TYPE in `epackage--directory-name-link'.
+  "Rturn PACKAGE filenme of TYPE in `epackage--directory-name-install'.
 The TYPE is car of list `epackage--layout-mapping'."
-  (let ((dir (epackage-file-name-link-directory))
+  (let ((dir (epackage-file-name-install-directory))
         (file (nth 1 (assq type epackage--layout-mapping))))
     (if (not file)
         (epackage-error "[ERROR] Unknown TYPE argument '%s'" type)
@@ -1095,7 +1109,7 @@ The TYPE is car of list `epackage--layout-mapping'."
   "Return path to PACKAGE under activated directory."
   (format "%s/%s%s"
           (epackage-directory)
-          epackage--directory-name-link
+          epackage--directory-name-install
           (if (string= "" package)
               ""
             (format "/%s-xactivate.el" package))))
@@ -1104,7 +1118,7 @@ The TYPE is car of list `epackage--layout-mapping'."
   "Return path to PACKAGE under install directory."
   (format "%s/%s%s"
           (epackage-directory)
-          epackage--directory-name-link
+          epackage--directory-name-install
           (if (string= "" package)
               ""
             (format "/%s-install.el" package))))
@@ -1160,7 +1174,7 @@ The TYPE is car of list `epackage--layout-mapping'."
   "Signal error if `epackage--sources-file-name' does not exist."
   (unless (epackage-sources-list-p)
     (epackage-error "Missing file %s. Run epackage-initialize"
-           (epackage-file-name-sources-list))))
+		    (epackage-file-name-sources-list))))
 
 (defsubst epackage-initialize-string ()
   "Return message string to suggest running `epackage-initialize'."
@@ -1169,10 +1183,10 @@ The TYPE is car of list `epackage--layout-mapping'."
 (defun epackage-error-initialize (&optional message)
   "Display missing initialize error with optional MESSAGE."
   (epackage-fatal "%s"
-    (concat (if message
-		(concat message ". ")
-	      ". ")
-	    (epackage-initialize-string))))
+		  (concat (if message
+			      (concat message ". ")
+			    ". ")
+			  (epackage-initialize-string))))
 
 (defun epackage-error-no-directory (dir &optional message)
   "Signal error with optional MESSAGE if DIR does not exist."
@@ -1191,14 +1205,14 @@ The TYPE is car of list `epackage--layout-mapping'."
   (when (or (not (stringp epackage--program-git))
             (not (file-exists-p epackage--program-git)))
     (epackage-error
-     (substitute-command-keys
-      (format
-       `,(concat
-          "Invalid value in `epackage--program-git' (%s) "
-          "Run \\[epackage-initialize]")
-       epackage--program-git)))))
+      (substitute-command-keys
+       (format
+	`,(concat
+	   "Invalid value in `epackage--program-git' (%s) "
+	   "Run \\[epackage-initialize]")
+	epackage--program-git)))))
 
-(defun epackage-directory ()
+(defsubst epackage-directory ()
   "Return root directory."
   (format "%s%s"
           (expand-file-name
@@ -1206,7 +1220,13 @@ The TYPE is car of list `epackage--layout-mapping'."
           (if (stringp epackage--directory-name)
               epackage--directory-name
             (epackage-error
-             "epackage--directory-name is not a string"))))
+	      "epackage--directory-name is not a string"))))
+
+(defsubst epackage-file-name-loader-directory ()
+  "Location of `epackage--directory-name-conf'."
+  (format "%s/%s"
+	  (epackage-directory)
+	  epackage--directory-name-conf))
 
 (put 'epackage-with-directory 'lisp-indent-function 1)
 (put 'epackage-with-directory 'edebug-form-spec '(body))
@@ -1299,9 +1319,9 @@ If VERBOSE is non-nil, display progress message."
   `(epackage-with-directory ,dir
      (if ,verbose
          (epackage-message
-	  "Running 'git %s' in %s ..."
-	  (mapconcat #'concat (list ,@args) " ")
-	  ,dir))
+	   "Running 'git %s' in %s ..."
+	   (mapconcat #'concat (list ,@args) " ")
+	   ,dir))
      (prog1
          (unless (epackage-git-command-ok-p
                   (epackage-git-command-process
@@ -1309,9 +1329,9 @@ If VERBOSE is non-nil, display progress message."
            (epackage-git-error-handler)))
      (if ,verbose
          (epackage-message
-	  "Running 'git %s' in %s ...done"
-	  (mapconcat #'concat (list ,@args) " ")
-	  ,dir))))
+	   "Running 'git %s' in %s ...done"
+	   (mapconcat #'concat (list ,@args) " ")
+	   ,dir))))
 
 (defsubst epackage-git-branch-list-master-p (list)
   "Return non-nil if current branch LIST indicates master as current branch."
@@ -1420,11 +1440,11 @@ If VERBOSE is non-nil, display progress message."
 	(epackage-message "Upgrading package: %s..." package))
       (unless (epackage-git-master-p package)
         (epackage-fatal
-         `,(concat
-            "Can't upgrade. "
-            "Branch name is not 'master' in '%'. "
-            "Possibly changed manually or invalid package.")
-         dir))
+	  `,(concat
+	     "Can't upgrade. "
+	     "Branch name is not 'master' in '%'. "
+	     "Possibly changed manually or invalid package.")
+	  dir))
       (epackage-git-command-pull dir verbose)
       (epackage-with-verbose
 	(epackage-message "Upgrading package: %s...done" package)))))
@@ -1435,11 +1455,11 @@ If VERBOSE is non-nil, display progress message."
   (let ((dir (epackage-sources-list-directory)))
     (unless (file-directory-p dir)
       (epackage-error
-       (substitute-command-keys
-        (format
-         `,(concat "No such directory '%s'. "
-		   "Run \\[epackage-initialize]")
-         dir))))
+	(substitute-command-keys
+	 (format
+	  `,(concat "No such directory '%s'. "
+		    "Run \\[epackage-initialize]")
+	  dir))))
     (epackage-git-command-pull dir verbose)))
 
 (defun epackage-download-package (package &optional verbose)
@@ -1451,16 +1471,39 @@ If VERBOSE is non-nil, display progress message."
     (let ((dir (epackage-file-name-package-compose package)))
       (epackage-git-command-clone url dir))))
 
-(defsubst epackage-enable-file (from to &optional verbose)
-  "Enable by copying or by symlinking file FROM TO."
-  (unless (file-exists-p from) ;; FIXME, do we really need this?
-    (epackage-error "File does not exists: %s" from))
-  (epackage-verbose-message "processing %s" to)
+(defsubst epackage-enable-file (from to &optional noerr verbose)
+  "Enable by copying or by symlinking file FROM TO.
+With NOERR, do not signall errors, display inly messages.
+If VERBOSE is non-nil, display progress message.
+
+Return:
+    non-nil    ok
+    nil        nok"
   (cond
-   (epackage--symlink-support-flag
-    (dired-make-relative-symlink from to 'overwrite))
+   ((file-exists-p from)
+    (epackage-verbose-message "processing %s" to)
+    (cond
+     (epackage--symlink-support-flag
+      (dired-make-relative-symlink from to 'overwrite))
+     (t
+      (copy-file from to 'overwrite 'keep-time)))
+    t)
+   (noerr
+    (epackage-warn "No file: %s" from)
+    nil)
    (t
-    (copy-file from to 'overwrite 'keep-time))))
+    (epackage-error "No file: %s" from)
+    nil)))
+
+(defun epackage-install-package-action (type package &optional noerr verbose)
+  "Run install of TYPE for PACKAGE.
+If VERBOSE is non-nil, display progress message.
+With NOERR, do not signall errors, display inly messages.
+TYPE is car of `epackage--layout-mapping'."
+  (let ((from (epackage-file-name-pkg-directory-control-file
+               package type))
+        (to (epackage-file-name-install-compose package type)))
+    (epackage-enable-file from to noerr verbose)))
 
 (defun epackage-action-package (package action)
   "Perform ACTION on PACKAGE.
@@ -1500,13 +1543,13 @@ or whose name match `epackage--directory-name'."
 
 (defun epackage-status-of-packages (type)
   "Return packages of TYPE of `epackage--layout-mapping'."
-  (let* ((dir      (epackage-file-name-link-directory))
+  (let* ((dir      (epackage-file-name-install-directory))
 	 (template (or (nth 1 (assq type epackage--layout-mapping))
 		       (error "invalid function arg TYPE: %s" type)))
 	 (regexp   (concat (regexp-quote template) "$"))
 	 (match    (concat "\\(.+\\)" regexp))
-	list)
-    (epackage-initialize-verify "Can't use `epackage--directory-name-link'.")
+	 list)
+    (epackage-initialize-verify "Can't use `epackage--directory-name-install'.")
     (dolist (elt (directory-files
 		  dir
 		  (not 'full-path)
@@ -1516,15 +1559,15 @@ or whose name match `epackage--directory-name'."
     (nreverse list)))
 
 (defsubst epackage-status-enabled-packages ()
-  "Return list of packages in `epackage--directory-name-link'."
+  "Return list of packages in `epackage--directory-name-install'."
   (epackage-status-of-packages 'enable))
 
 (defsubst epackage-status-installed-packages ()
-  "Return list of packages in `epackage--directory-name-link'."
+  "Return list of packages in `epackage--directory-name-install'."
   (epackage-status-of-packages 'install))
 
 (defsubst epackage-status-activated-packages ()
-  "Return list of packages in `epackage--directory-name-link'."
+  "Return list of packages in `epackage--directory-name-install'."
   (epackage-status-of-packages 'activate))
 
 (defun epackage-status-downloaded-packages ()
@@ -1580,7 +1623,7 @@ or whose name match `epackage--directory-name'."
         package
         list)
     (dolist (file (directory-files
-                   (epackage-file-name-link-directory)
+                   (epackage-file-name-install-directory)
                    'full-path
                    "^.*-.*\\.el"
                    t))
@@ -1592,13 +1635,13 @@ or whose name match `epackage--directory-name'."
       (unless (member package list)
         (add-to-list 'list package)
         (epackage-loader-insert-file-path-list-by-path
-          (epackage-file-name-package-compose package))))))
+	 (epackage-file-name-package-compose package))))))
 
 (defun epackage-loader-file-insert-install-code ()
   "Insert package installation code into `current-buffer'."
   ;; FIXME: Should only insert activate, not enable code if both exist
   (dolist (file (directory-files
-                 (epackage-file-name-link-directory)
+                 (epackage-file-name-install-directory)
                  'full-path
                  "^.*-.*\\.el"
                  t))
@@ -1621,7 +1664,7 @@ or whose name match `epackage--directory-name'."
 
 (defsubst epackage-loader-file-byte-compile-maybe ()
   "Check `epackage--byte-compile-loader-file' and byte compile."
-  (when epackage--byte-compile-loader-file
+  (when epackage--loader-file-byte-compile-flag
     (epackage-loader-file-byte-compile)))
 
 (defun epackage-loader-file-generate ()
@@ -1656,18 +1699,18 @@ Point must be at the beginning of line."
   "Return '(pkg url description) for PACKAGE.
 Format is described in variable `epackage--sources-list-url'."
   (epackage-with-sources-list
-   (goto-char (point-min))
-   (let ((re
-          (format
-           `,(concat "^\\(%s\\)\\>"
-                     "[ \t]+\\([^ \t\r\n]+\\)"
-                     "[ \t]*\\([^ \t\r\n]*\\)")
-           (regexp-quote package))))
-     (when (re-search-forward re nil t)
-       (list
-        (match-string-no-properties 1)
-        (match-string-no-properties 2)
-        (match-string-no-properties 3))))))
+    (goto-char (point-min))
+    (let ((re
+	   (format
+	    `,(concat "^\\(%s\\)\\>"
+		      "[ \t]+\\([^ \t\r\n]+\\)"
+		      "[ \t]*\\([^ \t\r\n]*\\)")
+	    (regexp-quote package))))
+      (when (re-search-forward re nil t)
+	(list
+	 (match-string-no-properties 1)
+	 (match-string-no-properties 2)
+	 (match-string-no-properties 3))))))
 
 (defun epackage-sources-list-info-url (package)
   "Return URL for PACKAGE."
@@ -1684,23 +1727,23 @@ Format is described in variable `epackage--sources-list-url'."
 (defun epackage-sources-list-info-pkg-list ()
   "Return list of packages."
   (epackage-with-sources-list
-   (goto-char (point-min))
-   (let (case-fold-search
-         list)
-     (when (re-search-forward "^\\([a-z][a-z0-9-]+\\)[ \]+[a-z]" nil t)
-       (epackage-push (match-string-no-properties 1) list))
-     list)))
+    (goto-char (point-min))
+    (let (case-fold-search
+	  list)
+      (when (re-search-forward "^\\([a-z][a-z0-9-]+\\)[ \]+[a-z]" nil t)
+	(epackage-push (match-string-no-properties 1) list))
+      list)))
 
-(defun epackage-require-emacs (&optonal verbose)
+(defun epackage-require-emacs (&optional verbose)
   "Require Emacs features.
 If VERBOSE is non-nil, display progress message."
   (unless (fboundp 'url-retrieve-synchronously)
     (epackage-error
-     `,(concat
-	"this Emacs does not define "
-	"`url-retrieve-synchronously' from url.el"))))
+      `,(concat
+	 "this Emacs does not define "
+	 "`url-retrieve-synchronously' from url.el"))))
 
-(defun epackage-require-git (&optonal verbose)
+(defun epackage-require-git (&optional verbose)
   "Require Git program.
 If VERBOSE is non-nil, display progress message."
   (cond
@@ -1718,13 +1761,14 @@ If VERBOSE is non-nil, display progress message."
     (epackage-error "Unknown value in `epackage--program-git' (%s)"
 		    epackage--program-git))))
 
-(defun epackage-require-directories (&optonal verbose)
+(defun epackage-require-directories (&optional verbose)
   "Buid directory structure.
 If VERBOSE is non-nil, display progress message."
   (dolist (dir (list
                 (epackage-directory)
                 (epackage-file-name-pkg-directory)
-                (epackage-file-name-link-directory)))
+                (epackage-file-name-install-directory)
+		(epackage-file-name-loader-directory)))
     (unless (file-directory-p dir)
       (epackage-with-verbose
 	(epackage-message "Making directory %s ..." dir))
@@ -1851,7 +1895,21 @@ Return package name or nil."
       (if (epackage-string-p package)
 	  package))))
 
-;;###autoload
+;;;###autoload
+(defun epackage-cmd-autoload-package (package &optional verbose)
+  "Autoload PACKAGE.
+If VERBOSE is non-nil, display progress message."
+  (interactive
+   (list (epackage-cmd-select-package "Autoload epackage: ")
+	 'interactive))
+  (unless (epackage-string-p package)
+    (epackage-error "PACKAGE name \"%s\" is invalid for autoload command"
+		    package))
+  ;; FIXME, perhaps we shold only favor loaddefs?
+  (epackage-install-package-action 'loaddefs package 'noerr)
+  (epackage-install-package-action 'autoload package nil verbose))
+
+;;;###autoload
 (defun epackage-cmd-enable-package (package &optional verbose)
   "Enable PACKAGE.
 If VERBOSE is non-nil, display progress message."
@@ -1861,12 +1919,9 @@ If VERBOSE is non-nil, display progress message."
   (unless (epackage-string-p package)
     (epackage-error "PACKAGE name \"%s\" is invalid for enable command"
 		    package))
-  (let ((from (epackage-file-name-pkg-directory-control-file
-               package 'enable))
-        (to (epackage-file-name-install-compose package 'enable)))
-    (epackage-enable-file from to verbose)))
+  (epackage-install-package-action 'enable package nil verbose))
 
-;;###autoload
+;;;###autoload
 (defun epackage-cmd-activate-package (package &optional verbose)
   "Activate PACKAGE.
 If VERBOSE is non-nil, display progress message."
@@ -1876,12 +1931,25 @@ If VERBOSE is non-nil, display progress message."
   (unless (epackage-string-p package)
     (epackage-error "PACKAGE name \"%s\" is invalid for activate command"
 		    package))
-  (let ((from (epackage-file-name-pkg-directory-control-file
-	       package 'activate))
-	(to (epackage-file-name-install-compose package 'activate)))
-    (epackage-enable-file from to verbose)))
+  (epackage-install-package-action 'activate package nil verbose))
 
-;;###autoload
+;;;###autoload
+(defun epackage-cmd-deactivate-package (package &optional verbose)
+  "Deactivate PACKAGE.
+If VERBOSE is non-nil, display progress message."
+  (interactive
+   (list (epackage-cmd-select-package "Deactivate epackage: ")
+	 'interactive))
+  (unless (epackage-string-p package)
+    (epackage-error "PACKAGE name \"%s\" is invalid for deactivate command"
+		    package))
+  (let ((file (epackage-file-name-install-compose package 'activate)))
+    (when (file-exists-p file)
+      (epackage-with-verbose
+	(epackage-message "Deleted %s" file))
+      (delete-file file))))
+
+;;;###autoload
 (defun epackage-cmd-disable-package (package &optional verbose)
   "Disable PACKAGE.
 If VERBOSE is non-nil, display progress message."
@@ -1891,17 +1959,32 @@ If VERBOSE is non-nil, display progress message."
   (unless (epackage-string-p package)
     (epackage-error "PACKAGE name \"%s\" is invalid for disable command"
 		    package))
-  (let ((dir (epackage-file-name-link-directory)))
+  (let ((dir (epackage-file-name-install-directory)))
     (epackage-error-no-directory dir)
     (dolist (file (directory-files
 		   dir
 		   'full-path
-		   (format "^%s-.*\\.el" package)
+		   (format "^%s-" package)
 		   t))
       (if (file-exists-p file)
 	  (delete-file file)))))
 
-;;###autoload
+;;;###autoload
+(defun epackage-cmd-remove-package (package &optional verbose)
+  "Physically remove PACKAGE from disk.
+If VERBOSE is non-nil, display progress message."
+  (interactive
+   (list (epackage-cmd-select-package "Remove epackage: ")
+	 'interactive))
+  (epackage-cmd-disable-package package verbose)
+  (let ((dir (epackage-package-downloaded-p package)))
+    (if (not dir)
+	(epackage-with-verbose
+	  (epackage-message "Remove ignored. Package not installed: %s"
+			    package))
+      (delete-directory dir 'recursive))))
+
+;;;###autoload
 (defun epackage-cmd-upgrade-package (package &optional verbose)
   "Downloads updates for existing PACKAGE.
 Install new configurations if package has been enabled.
@@ -1926,7 +2009,7 @@ If VERBOSE is non-nil, display progress messages."
     ;; - obsolete 00control/* files ?
     )))
 
-;;###autoload
+;;;###autoload
 (defun epackage-cmd-upgrade-all-packages (&optional verbose)
   "Downloads updates for all packages.
 Install new configurations if package has been enabled.
@@ -1940,7 +2023,7 @@ If VERBOSE is non-nil, display progress messages."
 	    (epackage-cmd-upgrade-package elt verbose)))
       (epackage-verbose-message "No packages downloaded to upgrade"))))
 
-;;###autoload
+;;;###autoload
 (defun epackage-cmd-download-sources-list (&optional verbose)
   "Download or upgrade package list; the yellow pages of package repositories.
 If VERBOSE is non-nil, display progress messages."
@@ -1952,7 +2035,7 @@ If VERBOSE is non-nil, display progress messages."
     (epackage-with-message verbose "Downloading package list"
       (epackage-download-sources-list))))
 
-;;###autoload
+;;;###autoload
 (defun epackage-cmd-download-package (package &optional verbose)
   "Download PACKAGE, but do not install it.
 If VERBOSE is non-nil, display progress messages."
@@ -1965,24 +2048,23 @@ If VERBOSE is non-nil, display progress messages."
         (epackage-message "already downloaded: %s" package)
       (epackage-download-package package verbose))))
 
-;;###autoload
+;;;###autoload
 (defun epackage-initialize (&optional verbose)
   "Inialize package.
 If VERBOSE is non-nil, display progress message."
   (interactive
    (list 'interactive))
-  (unless epackage--initialize-flag
-    (epackage-require-main verbose))
+  (epackage-require-main verbose)
   (unless (epackage-sources-list-p)
     (epackage-cmd-download-sources-list verbose))
   (setq epackage--initialize-flag t))
 
-;;###autoload
+;;;###autoload
 (defun epackage-manager ()
   "Start User Interface."
   (epackage-initialize))
 
-;;###autoload
+;;;###autoload
 (defun epackage-version ()
   "Display `epackage-version-time'."
   (interactive)
@@ -2001,7 +2083,7 @@ Summary, Version, Maintainer etc."
        "Maintainer: " (or maintainer "") "\n"
        "\n"))))
 
-;;###autoload
+;;;###autoload
 (defun epackage-documentation ()
   "Display documentation."
   (interactive)
@@ -2077,7 +2159,7 @@ Summary, Version, Maintainer etc."
   (epackage-initialize)
   (epackage-cmd-upgrade-all-packages 'verbose))
 
-;;###autoload
+;;;###autoload
 (defalias 'epackage-manager 'epackage)
 
 (add-hook  'epackage--mode-hook 'epackage-mode-define-keys)

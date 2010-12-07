@@ -68,6 +68,23 @@
 	(epackage-initialize-string): New.
 	(epackage-error-no-directory): New.
 	(epackage-error-initialize): New.
+	(epackage--sources-package-name): Change value from 00package to
+	00control.
+	(epackage--directory-name-link): Change 00link to 00packages.
+	(epackage--directory-name-conf): New.
+	(epackage-loader-directory): New.
+	(epackage-file-name-loader-file): Use  `epackage-loader-directory'.
+	(epackage-require-directories): Add `epackage-loader-directory'.
+	(epackage--directory-name-install): Rename. Was
+	`epackage--directory-name-link'.
+	(epackage-file-name-install-directory): Rename. Was
+	`epackage-file-name-link-directory'.
+	(epackage--loader-file-byte-compile-flag): Rename. Was
+	`epackage--byte-compile-loader-file'
+	(epackage-install-package-action): New.
+	(epackage-cmd-remove-package): New.
+	(epackage-warn): New.
+	(epackage-cmd-deactivate-package): New.
 
 2010-12-06 Mon  Jari Aalto  <jari.aalto@cante.net>
 
