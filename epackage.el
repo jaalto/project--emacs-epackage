@@ -843,7 +843,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1207.2044"
+(defconst epackage-version-time "2010.1207.2045"
   "*Version of last edit.")
 
 (eval-and-compile                       ;We need this at runtim
@@ -1022,7 +1022,7 @@ q       Quit."
 (defconst epackage--batch-ui-menu-actions
   '((?a epackage-cmd-activate-package)
     (?b epackage-batch-ui-loader-file-generate)
-;;    (?B epackage-batch-ui-loader-file-byte-compile)
+;;    (?B epackage-batch-ui-loader-file-byte-compile) ;; FIXME, byte cmpile package
     (?A epackage-cmd-deactivate-package)
     (?c epackage-cmd-clean-package)
     (?d epackage-cmd-download-package)
