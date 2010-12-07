@@ -95,7 +95,7 @@
 ;;      several options how to proceed. Select autoload install (no
 ;;      Emacs setup changes), or activation install (Emacs environment
 ;;      is changed). Later you can upgrade packages and periodically
-;;      download new epackage list, the "yellow pages", that lists
+;;      download new epackage list, the yellow pages, that lists
 ;;      available Git repositories.
 ;;
 ;;      If you're a Emacs extension developer who would like to make
@@ -129,7 +129,7 @@
 ;;      The Emacs extensions need to prepared for use with this
 ;;      system: imported to git, the repository must be made available
 ;;      online and information about the Git repository must be
-;;      submitted to epackage sources list, the "yellow pages". This
+;;      submitted to epackage sources list, the yellow pages. This
 ;;      job can be done by anyone who wants to set up a repository.
 ;;      It doesn't need to be done by the original Emacs extension
 ;;      author (upstream) who may not be familiar with the `git(1)'
@@ -240,19 +240,19 @@
 ;;          track of new releases and makes new epackages periodically
 ;;          available. If the initial packager looses interest,
 ;;          someone else can continue his work. He supplies the *url*
-;;          to the "Yellow pages" to notify about availability of epackage.
+;;          to the yellow pages to notify about availability of epackage.
 ;;      o   U = Upstream. Person or team who wrote Emacs Lisp extension,
 ;;          the code or utility than enhances Emacs.
 ;;
-;;      The moving parts communicate like in picture below. In order to
-;;      find package, a "yellow pages" is consulted. It is seeded and
-;;      update by all the epackage maintainer that wish to make epackages
-;;      available. The user A does not need to know any details of this
-;;      process; like in Debian, he runs "apt-get" install an epackage
-;;      that is made newly available or which has been updated and is
-;;      upgradeable.
+;;      The moving parts communicate like in picture below. In order
+;;      to find package, a yellow pages is consulted. It is seeded and
+;;      update by all the epackage maintainer that wish to make
+;;      epackages available. The user A does not need to know any
+;;      details of this process; like in Debian, he installs an
+;;      epackage that is made newly available or which has been
+;;      updated and is upgradeable.
 ;;
-;;      o   The location of "Yellow pages" is fixed (%).
+;;      o   The location of Yellow Pages is fixed (%).
 ;;      o   The location of E's and U's can be anywhere (*).
 ;;      o   The E and U can be the same person (the upstream).
 ;;
@@ -523,7 +523,7 @@
 ;;      this information should be written to the end of
 ;;      `Description'. (which see). Old packages that are not updated
 ;;      to work for latest Emacs releases are candidate for removal
-;;      from a epackage archive's "yellow pages". An example how to use
+;;      from a epackage archive's yellow pages. An example how to use
 ;;      the field:
 ;;
 ;;              Depends: emacs (>= 22.2) | xemacs (>= 20)
@@ -790,7 +790,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1207.1124"
+(defconst epackage-version-time "2010.1207.1201"
   "*Version of last edit.")
 
 (eval-and-compile			;We need this at runtim
@@ -972,7 +972,7 @@ See `epackage-loader-file-generate'.")
               ""
             (concat "/" package))))
 
-(defsubst epackage-file-name-vcs-directory ()
+(defsubst epackage-file-name-pkg-directory ()
   "Return VCS directory"
   (epackage-file-name-package-compose ""))
 
@@ -1004,7 +1004,69 @@ Examples:
   (if (string-match "/\\([^/]+\\)/?$" dir)
       (match-string-no-properties 1 dir)))
 
-(defun epackage-file-name-vcs-directory-control-file (package type)
+(put 'epackage-push 'lisp-indent-function 0)
+(put 'epackage-push 'edebug-form-spec '(body))
+(defmacro epackage-push (x place)
+  "A close `push' CL library macro equivalent: (push X PLACE)."
+  `(setq ,place (cons ,x ,place)))
+
+(put 'epackage-with-w32 'lisp-indent-function 0)
+(put 'epackage-with-w32 'edebug-form-spec '(body))
+(defmacro epackage-with-w32 (&rest body)
+  "Run BODY in Windows like operating system."
+  `(when epackage-w32-p
+     ,@body))
+
+(put 'epackage-with-debug 'lisp-indent-function 0)
+(put 'epackage-with-debug 'edebug-form-spec '(body))
+(defmacro epackage-with-debug (&rest body)
+  "Run BODY if variable `epackage--debug' is non-nil."
+  `(when epackage--debug
+     ,@body))
+
+(put 'epackage-with-verbose 'lisp-indent-function 1)
+(put 'epackage-with-verbose 'edebug-form-spec '(body))
+(defmacro epackage-with-verbose (&rest body)
+  "If variable `verbose' is non-nil, run BODY."
+  (when verbose
+    @,body))
+
+(put 'epackage-error 'lisp-indent-function 0)
+(put 'epackage-error 'edebug-form-spec '(body))
+(defmacro epackage-error (&rest args)
+  "Call `error' with ARGS. mark message with ERROR tag."
+  `(error `,(format (concat "Epackage: [ERROR] %s") ,@args)))
+
+(put 'epackage-fatal 'lisp-indent-function 0)
+(put 'epackage-fatal 'edebug-form-spec '(body))
+(defmacro epackage-fatal (&rest args)
+  "Call `error' with ARGS. Mark message with FATAL tag."
+  `(error `,(format (concat "Epackage: [FATAL] %s") ,@args)))
+
+(put 'epackage-with-message 'lisp-indent-function 0)
+(put 'epackage-with-message 'edebug-form-spec '(body))
+(defmacro epackage-message (&rest args)
+  "Call `message' with ARGS."
+  `(message `,(format (concat "Epackage: %s") ,@args)))
+
+(put 'epackage-verbose-message 'lisp-indent-function 0)
+(put 'epackage-verbose-message 'edebug-form-spec '(body))
+(defmacro epackage-verbose-message (&rest args)
+  "If variable `verbose' is non-nil, call `message' with ARGS."
+  (epackage-with-verbose
+   (epackage-message ,@args)))
+
+(put 'epackage-with-message 'lisp-indent-function 1)
+(put 'epackage-with-message 'edebug-form-spec '(body))
+(defmacro epackage-with-message (message &rest body)
+  "Display MESSAGE before and after (\"..done\") BODY. Return BODY."
+  `(progn
+     (epackage-message (concat ,message "..."))
+     (prog1
+	 ,@body
+       (epackage-message (concat ,message "...done")))))
+
+(defun epackage-file-name-pkg-directory-control-file (package type)
   "Return PACKAGE's control file of TYPE.
 
 TYPE can be on of the following:
@@ -1021,7 +1083,7 @@ documentation of epackage.el."
   (let ((dir (epackage-file-name-vcs-package-control-directory package))
         (file (cdr-safe (assq type epackage--layout-mapping))))
     (if (not file)
-        (error "Epackage: [ERROR] Unknown TYPE argument '%s'" type)
+        (epackage-error "[ERROR] Unknown TYPE argument '%s'" type)
       (cond
        ((eq type 'info)
          (format "%s/%s" dir file))
@@ -1067,7 +1129,7 @@ documentation of epackage.el."
 (defun epackage-package-downloaded-p (package)
   "Check if package has been downloaded."
   (unless (epackage-string-p package)
-    (error "Epackage: [ERROR arg 'package' is not a string."))
+    (epackage-error "arg 'package' is not a string."))
   (let ((dir (epackage-file-name-package-compose package)))
     (if (file-directory-p dir)
         dir)))
@@ -1096,15 +1158,14 @@ documentation of epackage.el."
 (defsubst epackage-sources-list-verify ()
   "Signal error if `epackage--sources-file-name' does not exist."
   (unless (epackage-sources-list-p)
-    (error "Epackage: Missing file %s. Run epackage-initialize"
+    (epackage-error "Missing file %s. Run epackage-initialize"
            (epackage-file-name-sources-list))))
 
 (defun epackage-initialize-verify (&optional message)
   "Signal error with MESSAGE if `epackage-initialize' has not been run."
   (unless epackage--initialize-flag
-    (error
-     (concat "Epackage: [FATAL]"
-	     (if message
+    (epackage-fatal
+     (concat (if message
 		 (concat " " message ". ")
 	       ". ")
 	     (substitute-command-keys "Run \\[epackage-initialize]")))))
@@ -1113,13 +1174,13 @@ documentation of epackage.el."
   "Verify variable `epackage--program-git'."
   (when (or (not (stringp epackage--program-git))
             (not (file-exists-p epackage--program-git)))
-    (error
+    (epackage-error
      (substitute-command-keys
       (format
        `,(concat
-          "Epackage: [ERROR] Invalid value in `epackage--program-git' (%s) "
+          "Invalid value in `epackage--program-git' (%s) "
           "Run \\[epackage-initialize]")
-          epackage--program-git)))))
+       epackage--program-git)))))
 
 (defun epackage-directory ()
   "Return root directory."
@@ -1128,39 +1189,8 @@ documentation of epackage.el."
            (file-name-as-directory epackage--root-directory))
           (if (stringp epackage--directory-name)
               epackage--directory-name
-            (error
-             "Epackage: [ERROR] epackage--directory-name is not a string"))))
-
-
-(put 'epackage-push 'lisp-indent-function 0)
-(put 'epackage-push 'edebug-form-spec '(body))
-(defmacro epackage-push (x place)
-  "A close `push' CL library macro equivalent: (push X PLACE)."
-  `(setq ,place (cons ,x ,place)))
-
-(put 'epackage-with-w32 'lisp-indent-function 0)
-(put 'epackage-with-w32 'edebug-form-spec '(body))
-(defmacro epackage-with-w32 (&rest body)
-  "Run BODY in Windows like operating system."
-  `(when epackage-w32-p
-     ,@body))
-
-(put 'epackage-with-debug 'lisp-indent-function 0)
-(put 'epackage-with-debug 'edebug-form-spec '(body))
-(defmacro epackage-with-debug (&rest body)
-  "Run BODY if variable `epackage--debug' is non-nil."
-  `(when epackage--debug
-     ,@body))
-
-(put 'epackage-with-message 'lisp-indent-function 1)
-(put 'epackage-with-message 'edebug-form-spec '(body))
-(defmacro epackage-with-message (message &rest body)
-  "Display MESSAGE before and after (\"..done\") BODY. Return BODY."
-  `(progn
-     (message (concat ,message "..."))
-     (prog1
-	 ,@body
-       (message (concat ,message "...done")))))
+            (epackage-error
+             "epackage--directory-name is not a string"))))
 
 (put 'epackage-with-directory 'lisp-indent-function 1)
 (put 'epackage-with-directory 'edebug-form-spec '(body))
@@ -1193,10 +1223,10 @@ documentation of epackage.el."
 (defsubst epackage-git-error-handler (&optional command)
   "On Git error, show proces buffer and signal error."
   (display-buffer epackage--process-output)
-  (error "Epackage: [ERROR] Git %scommand error"
-         (if command
-             (format "'%s' " command)
-           "")))
+  (epackage-error "Git %scommand error"
+		  (if command
+		      (format "'%s' " command)
+		    "")))
 
 (put 'epackage-with-process-output 'lisp-indent-function 0)
 (put 'epackage-with-process-output 'edebug-form-spec '(body))
@@ -1252,18 +1282,20 @@ Used inside `epackage-with-process-output'."
 If VERBOSE is non-nil, display progress message."
   `(epackage-with-directory ,dir
      (if ,verbose
-         (message "Epackage: Running 'git %s' in %s ..."
-                  (mapconcat #'concat (list ,@args) " ")
-                  ,dir))
+         (epackage-message
+	  "Running 'git %s' in %s ..."
+	  (mapconcat #'concat (list ,@args) " ")
+	  ,dir))
      (prog1
          (unless (epackage-git-command-ok-p
                   (epackage-git-command-process
                    ,@args))
            (epackage-git-error-handler)))
      (if ,verbose
-         (message "Epackage: Running 'git %s' in %s ...done"
-                  (mapconcat #'concat (list ,@args) " ")
-                  ,dir))))
+         (epackage-message
+	  "Running 'git %s' in %s ...done"
+	  (mapconcat #'concat (list ,@args) " ")
+	  ,dir))))
 
 (defsubst epackage-git-branch-list-master-p (list)
   "Return non-nil if current branch LIST indicates master as current branch."
@@ -1366,14 +1398,14 @@ If VERBOSE is non-nil, display progress message."
 If VERBOSE is non-nil, display progress message."
   (let ((url (epackage-sources-list-info-url package)))
     (unless url
-      (error "Epackage: [ERROR] No download URL for package '%s'" package))
+      (error-error "No download URL for package '%s'" package))
     (let ((dir (epackage-file-name-package-compose package)))
       (if verbose
           (message "Upgrading package: %s..." package))
       (unless (epackage-git-master-p package)
-        (error
+        (epackage-fatal
          `,(concat
-            "Epackage: [FATAL] Can't upgrade. "
+            "Can't upgrade. "
             "Branch name is not 'master' in '%'. "
             "Possibly changed manually or invalid package.")
          dir))
@@ -1385,11 +1417,11 @@ If VERBOSE is non-nil, display progress message."
   "Update list of available packages; the yellow pages."
   (let ((dir (epackage-sources-list-directory)))
     (unless (file-directory-p dir)
-      (error
+      (epackage-error
        (substitute-command-keys
         (format
-         (concat "Epackage: No such directory '%s'. "
-                 "Run \\[epackage-initialize]")
+         `,(concat "No such directory '%s'. "
+		   "Run \\[epackage-initialize]")
          dir))))
     (epackage-git-command-pull dir)))
 
@@ -1398,7 +1430,7 @@ If VERBOSE is non-nil, display progress message."
 If VERBOSE is non-nil, display progress message."
   (let ((url (epackage-sources-list-info-url package)))
     (unless url
-      (error "Epackage: [ERROR] No Git URL for package '%s'" package))
+      (epackage-error "No Git URL for package '%s'" package))
     (let ((dir (epackage-file-name-package-compose package)))
       (epackage-git-command-clone url dir))))
 
@@ -1412,20 +1444,20 @@ If VERBOSE is non-nil, display progress message."
 
 (defun epackage-enable-package (package)
   "Enable PACKAGE."
-  (let ((from (epackage-file-name-vcs-directory-control-file
+  (let ((from (epackage-file-name-pkg-directory-control-file
                package 'enable))
         (to (epackage-file-name-install-compose package)))
     (unless (file-exists-p from)
-      (error "Epackage: [ERROR] File does not exists: %s" from))
+      (epackage-error "File does not exists: %s" from))
     (epackage-enable-file from to)))
 
 (defun epackage-activate-package (package)
   "Activate PACKAGE."
-  (let ((from (epackage-file-name-vcs-directory-control-file
+  (let ((from (epackage-file-name-pkg-directory-control-file
                package 'activate))
         (to (epackage-file-name-activated-compose package)))
     (unless (file-exists-p from)
-      (error "Epackage: [ERROR] file does not exists: %s" from))
+      (epackage-error "file does not exists: %s" from))
     (epackage-enable-file from to)))
 
 (defun epackage-disable-package (package)
@@ -1506,14 +1538,14 @@ or whose name match `epackage--directory-name'."
 
 (defun epackage-status-downloaded-packages ()
   "Return list of packages in `epackage--directory-name-pkg'."
-  (let ((dir (epackage-directory))
+  (let ((dir (epackage-file-name-pkg-directory))
 	list)
     (epackage-initialize-verify "Can't use `epackage--directory-name-pkg'")
     (dolist (elt (directory-files
 		  dir
 		  (not 'full-path)))
-      (unless (string-match "\00" elt)
-	(add-to-list list (match-string 1 elt))))
+      (unless (string-match "^00\\|\\." elt)
+	(add-to-list 'list elt)))
     (nreverse list)))
 
 (defun epackage-loader-file-insert-header ()
@@ -1671,9 +1703,10 @@ Format is described in variable `epackage--sources-list-url'."
 (defun epackage-require-emacs ()
   "Require Emacs features."
   (unless (fboundp 'url-retrieve-synchronously)
-    (error (concat
-            "Epackage: [ERROR] this Emacs does not define "
-            "`url-retrieve-synchronously' from url.el"))))
+    (epackage-error
+     `,(concat
+	"this Emacs does not define "
+	"`url-retrieve-synchronously' from url.el"))))
 
 (defun epackage-require-git ()
   "Require Git program."
@@ -1681,26 +1714,26 @@ Format is described in variable `epackage--sources-list-url'."
    ((null epackage--program-git)
     (let ((bin (executable-find "git")))
       (unless bin
-        (error "Epackage: [ERROR] program 'git' not found in PATH"))
+        (epackage-error "program 'git' not found in PATH"))
       (setq epackage--program-git bin)))
    ((and (stringp epackage--program-git)
          (not (file-exists-p epackage--program-git)))
-    (error "Epackage: [ERROR] Invalid `epackage--program-git' (%s)"
-           epackage--program-git))
+    (epackage-error "Invalid `epackage--program-git' (%s)"
+		    epackage--program-git))
    ((file-executable-p epackage--program-git)) ;All ok
    (t
-    (error "Epackage: [ERROR] Unknown value in `epackage--program-git' (%s)"
-           epackage--program-git))))
+    (epackage-error "Unknown value in `epackage--program-git' (%s)"
+		    epackage--program-git))))
 
 (defun epackage-require-directories ()
   "Buid directory structure."
   (dolist (dir (list
                 (epackage-directory)
-                (epackage-file-name-vcs-directory)
+                (epackage-file-name-pkg-directory)
                 (epackage-file-name-install-directory)
                 (epackage-file-name-link-directory)))
     (unless (file-directory-p dir)
-      (message "Epackage: Making directory %s ..." dir)
+      (epackage-message "Making directory %s ..." dir)
       (make-directory dir))))
 
 (defun epackage-require-main ()
@@ -1725,7 +1758,7 @@ Format is described in variable `epackage--sources-list-url'."
   "Download URL and save to a FILE."
   (let ((buffer (url-retrieve-synchronously url)))
     (unless buffer
-      (error "Epackage: [ERROR] can't access url: %s" url))
+      (epackage-error "Can't access url: %s" url))
     (with-current-buffer buffer
       (epackage-url-http-parse-respons-error url)
       (re-search-forward "^$" nil 'move)
@@ -1796,7 +1829,7 @@ If invalid, return list of problems:
 (defun epackage-download-sources-list ()
   "Download sources list file, the yellow pages."
   (if (epackage-sources-list-p)
-      (error "Epackage: [ERROR] Sources list already exists."))
+      (epackage-message "Sources list already exists."))
   (let ((dir (epackage-sources-list-directory)))
     (epackage-git-command-clone epackage--sources-list-url dir)))
 
@@ -1818,10 +1851,10 @@ If VERBOSE is non-nil, display progress messages."
   (interactive
    (let (package)
      (if (not (epackage-sources-list-p))
-         (message
+         (epackage-message
           (substitute-command-keys
            `,(concat
-              "Epackage: No package list. "
+              "No package list. "
               "Run \\[epackage-cmd-download-sources-list]")))
        (setq package
              (completing-read
@@ -1832,12 +1865,13 @@ If VERBOSE is non-nil, display progress messages."
      (list package 'interactive)))
   (cond
    ((not (epackage-string-p package))
-    (message "No epackage selected for upgrade."))
+    (epackage-message "No epackage selected for upgrade."))
    ((not (epackage-package-downloaded-p package))
-    (message "Epackage not downloaded"))
+    (epackage-message "Epackage not downloaded"))
    ((not (epackage-git-master-p package))
-    (message "Abort. Package is manually modified. Branch is not 'master' in %s"
-             (epackage-file-name-package-compose package)))
+    (epackage-message
+     "Abort. Package is manually modified. Branch is not 'master' in %s"
+     (epackage-file-name-package-compose package)))
    (t
     (epackage-upgrade-package package verbose)
     ;; FIXME: Add post-processing
@@ -1847,16 +1881,30 @@ If VERBOSE is non-nil, display progress messages."
     )))
 
 ;;###autoload
+(defun epackage-cmd-upgrade-all-packages (&optional verbose)
+  "Downloads updates for all packages.
+Install new configurations if package has been enabled.
+If VERBOSE is non-nil, display progress messages."
+  (interactive
+   (list (interactive-p)))
+  (let ((list (epackage-status-downloaded-packages)))
+    (if list
+	(epackage-with-message "Upgrading all packages"
+	  (dolist (elt list)
+	    (epackage-cmd-upgrade-package verbose)))
+      (epackage-verbose-message "No packages downloaded to upgrade"))))
+
+;;###autoload
 (defun epackage-cmd-download-package (package &optional verbose)
   "Download PACKAGE, but do not install it.
 If VERBOSE is non-nil, display progress messages."
   (interactive
    (let (package)
      (if (not (epackage-sources-list-p))
-         (message
+         (epackage-message
           (substitute-command-keys
            `,(concat
-              "Epackage: No package list. "
+              "Can't build package list. "
               "Run \\[epackage-cmd-download-sources-list]")))
        (setq package
              (completing-read
@@ -1866,9 +1914,9 @@ If VERBOSE is non-nil, display progress messages."
               'require-match)))
      (list package 'interactive)))
   (if (not (epackage-string-p package))
-      (message "No epackage selected for install.")
+      (epackage-message "No packages selected for install.")
     (if (epackage-package-downloaded-p package)
-        (message "Epackage already downloaded: %s" package)
+        (epackage-message "already downloaded: %s" package)
       (epackage-download-package package verbose))))
 
 ;;###autoload
@@ -1967,17 +2015,17 @@ Summary, Version, Maintainer etc."
 (defun epackage-batch-download-packages ()
   "Run `epackage-cmd-download-package' for command line args."
   (epackage-batch-macro
-    (epackage-cmd-download-package elt)))
+    (epackage-cmd-download-package elt 'verbose)))
 
-(defun epackage-batch-upgrade-packages ()
+(defun epackage-batch-upgrade-package ()
   "Run `epackage-cmd-upgrade-package' for command line args."
   (epackage-batch-macro
-    (epackage-cmd-upgrade-package elt)))
+    (epackage-cmd-upgrade-package elt 'verbose)))
 
 (defun epackage-batch-upgrade-all-packages ()
   "Run `epackage-cmd-upgrade-all-packages'."
   (epackage-initialize)
-  (epackage-cmd-upgrade-all-packages package))
+  (epackage-cmd-upgrade-all-packages 'verbose))
 
 ;;###autoload
 (defalias 'epackage-manager 'epackage)

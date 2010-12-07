@@ -18,7 +18,7 @@
 	(epackage-version): New.
 	(epackage-batch-macro): New.
 	(epackage-batch-download-packages): New.
-	(epackage-batch-upgrade-packages): New.
+	(epackage-batch-upgrade-package): New.
 	(epackage-batch-upgrade-all-packages): New.
 	(epackage-file-name-package-compose): Rename. Was
 	`epackage-file-name-vcs-compose'.
@@ -30,6 +30,15 @@
 	(epackage-status-of-packages): New.
 	(epackage-status-installed-packages): New.
 	(epackage-status-activated-packages): New.
+	(epackage-file-name-pkg-directory): Rename. Was
+	`epackage-file-name-vcs-directory'
+	(epackage-cmd-upgrade-all-packages): New.
+	(epackage-message): New.
+	(epackage-with-message): Use `epackage-message'.
+	(epackage-with-verbose): New.
+	(epackage-verbose-message): New.
+	(epackage-cmd-upgrade-all-packages): New.
+	(epackage-error): New.
 
 2010-12-06 Mon  Jari Aalto  <jari.aalto@cante.net>
 
