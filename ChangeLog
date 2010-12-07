@@ -85,6 +85,14 @@
 	(epackage-cmd-remove-package): New.
 	(epackage-warn): New.
 	(epackage-cmd-deactivate-package): New.
+	(epackage-cmd-clean-package): New.
+	(epackage-batch-ignore-errors-macro): New.
+	(epackage-batch-enable-package): New.
+	(epackage-batch-disable-package): New.
+	(epackage-batch-activate-package): New.
+	(epackage-batch-deactivate-package): New.
+	(epackage-batch-clean-package): New.
+	(epackage-batch-remove-package): New.
 
 2010-12-06 Mon  Jari Aalto  <jari.aalto@cante.net>
 

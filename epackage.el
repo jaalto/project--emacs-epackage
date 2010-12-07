@@ -789,7 +789,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1207.1524"
+(defconst epackage-version-time "2010.1207.1537"
   "*Version of last edit.")
 
 (eval-and-compile			;We need this at runtim
@@ -1905,9 +1905,8 @@ If VERBOSE is non-nil, display progress message."
   (unless (epackage-string-p package)
     (epackage-error "PACKAGE name \"%s\" is invalid for autoload command"
 		    package))
-  ;; FIXME, perhaps we shold only favor loaddefs?
-  (epackage-install-package-action 'loaddefs package 'noerr)
-  (epackage-install-package-action 'autoload package nil verbose))
+  (or (epackage-install-package-action 'loaddefs package 'noerr)
+      (epackage-install-package-action 'autoload package nil verbose)))
 
 ;;;###autoload
 (defun epackage-cmd-enable-package (package &optional verbose)
@@ -1920,6 +1919,42 @@ If VERBOSE is non-nil, display progress message."
     (epackage-error "PACKAGE name \"%s\" is invalid for enable command"
 		    package))
   (epackage-install-package-action 'enable package nil verbose))
+
+;;;###autoload
+(defun epackage-cmd-disable-package (package &optional verbose)x
+  "Disable PACKAGE.
+If VERBOSE is non-nil, display progress message."
+  (interactive
+   (list (epackage-cmd-select-package "Disable epackage: ")
+	 'interactive))
+  (unless (epackage-string-p package)
+    (epackage-error "PACKAGE name \"%s\" is invalid for disable command"
+		    package))
+  (let ((file (epackage-file-name-install-compose package 'enable)))
+    (when (file-exists-p file)
+      (epackage-with-verbose
+	(epackage-message "Deleted %s" file))
+      (delete-file file))))
+
+;;;###autoload
+(defun epackage-cmd-clean-package (package &optional verbose)
+  "Clean all PACKAGE config fiels.
+If VERBOSE is non-nil, display progress message."
+  (interactive
+   (list (epackage-cmd-select-package "Disable epackage: ")
+	 'interactive))
+  (unless (epackage-string-p package)
+    (epackage-error "PACKAGE name \"%s\" is invalid for disable command"
+		    package))
+  (let ((dir (epackage-file-name-install-directory)))
+    (epackage-error-no-directory dir)
+    (dolist (file (directory-files
+		   dir
+		   'full-path
+		   (format "^%s-" package)
+		   t))
+      (if (file-exists-p file)
+	  (delete-file file)))))
 
 ;;;###autoload
 (defun epackage-cmd-activate-package (package &optional verbose)
@@ -1948,26 +1983,6 @@ If VERBOSE is non-nil, display progress message."
       (epackage-with-verbose
 	(epackage-message "Deleted %s" file))
       (delete-file file))))
-
-;;;###autoload
-(defun epackage-cmd-disable-package (package &optional verbose)
-  "Disable PACKAGE.
-If VERBOSE is non-nil, display progress message."
-  (interactive
-   (list (epackage-cmd-select-package "Disable epackage: ")
-	 'interactive))
-  (unless (epackage-string-p package)
-    (epackage-error "PACKAGE name \"%s\" is invalid for disable command"
-		    package))
-  (let ((dir (epackage-file-name-install-directory)))
-    (epackage-error-no-directory dir)
-    (dolist (file (directory-files
-		   dir
-		   'full-path
-		   (format "^%s-" package)
-		   t))
-      (if (file-exists-p file)
-	  (delete-file file)))))
 
 ;;;###autoload
 (defun epackage-cmd-remove-package (package &optional verbose)
@@ -2045,7 +2060,7 @@ If VERBOSE is non-nil, display progress messages."
   (if (not (epackage-string-p package))
       (epackage-message "No packages selected for install.")
     (if (epackage-package-downloaded-p package)
-        (epackage-message "already downloaded: %s" package)
+        (epackage-message "Skip, already downloaded: %s" package)
       (epackage-download-package package verbose))))
 
 ;;;###autoload
@@ -2142,18 +2157,64 @@ Summary, Version, Maintainer etc."
   (dolist (elt command-line-args-left)
     ,@body))
 
-(defun epackage-batch-download-packages ()
-  "Run `epackage-cmd-download-package' for command line args."
-  (epackage-batch-macro
+(put 'epackage-batch-ignore-errors-macro 'lisp-indent-function 0)
+(put 'epackage-batch-ignore-errors-macro 'edebug-form-spec '(body))
+(defmacro epackage-batch-ignore-errors-macro (&rest body)
+  "Like `epackage-batch-macro' bug ignore errors in BODY."
+  (epackage-initialize)
+  (dolist (elt command-line-args-left)
     (epackage-ignore-errors
-     (epackage-cmd-download-package elt 'verbose))))
+      ,@body)))
 
+;;;###autoload
+(defun epackage-batch-enable-package ()
+  "Run `epackage-cmd-enable-package' for command line args."
+  (epackage-batch-ignore-errors-macro
+   (epackage-cmd-enable-package elt 'verbose)))
+
+;;;###autoload
+(defun epackage-batch-disable-package ()
+  "Run `epackage-cmd-enable-package' for command line args."
+  (epackage-batch-ignore-errors-macro
+   (epackage-cmd-enable-package elt 'verbose)))
+
+;;;###autoload
+(defun epackage-batch-activate-package ()
+  "Run `epackage-cmd-enable-package' for command line args."
+  (epackage-batch-ignore-errors-macro
+   (epackage-cmd-activate-package elt 'verbose)))
+
+;;;###autoload
+(defun epackage-batch-deactivate-package ()
+  "Run `epackage-cmd-enable-package' for command line args."
+  (epackage-batch-ignore-errors-macro
+   (epackage-cmd-deactivate-package elt 'verbose)))
+
+;;;###autoload
+(defun epackage-batch-clean-package ()
+  "Run `epackage-cmd-enable-package' for command line args."
+  (epackage-batch-ignore-errors-macro
+   (epackage-cmd-clean-package elt 'verbose)))
+
+;;;###autoload
+(defun epackage-batch-remove-package ()
+  "Run `epackage-cmd-enable-package' for command line args."
+  (epackage-batch-ignore-errors-macro
+   (epackage-cmd-remove-package elt 'verbose)))
+
+;;;###autoload
+(defun epackage-batch-download-package ()
+  "Run `epackage-cmd-download-package' for command line args."
+  (epackage-batch-ignore-errors-macro
+   (epackage-cmd-download-package elt 'verbose)))
+
+;;;###autoload
 (defun epackage-batch-upgrade-package ()
   "Run `epackage-cmd-upgrade-package' for command line args."
-  (epackage-batch-macro
-    (epackage-ignore-errors
-     (epackage-cmd-upgrade-package elt 'verbose))))
+  (epackage-batch-ignore-errors-macro
+   (epackage-cmd-upgrade-package elt 'verbose)))
 
+;;;###autoload
 (defun epackage-batch-upgrade-all-packages ()
   "Run `epackage-cmd-upgrade-all-packages'."
   (epackage-initialize)
