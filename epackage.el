@@ -780,12 +780,14 @@
 ;;; Change Log:
 
 (eval-when-compile
+  (autoload 'lm-summary "lisp-mnt")
+  (autoload 'lm-maintainer "lisp-mnt")
   (autoload 'dired-make-relative-symlink "dired-x")
   (autoload 'url-http-parse-response "url"))
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1207.0948"
+(defconst epackage-version-time "2010.1207.0950"
   "*Version of last edit.")
 
 (eval-and-compile			;We need this at runtim
