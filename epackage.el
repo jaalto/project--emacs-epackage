@@ -788,7 +788,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1207.1406"
+(defconst epackage-version-time "2010.1207.1408"
   "*Version of last edit.")
 
 (eval-and-compile			;We need this at runtim
@@ -1168,9 +1168,9 @@ The TYPE is car of list `epackage--layout-mapping'."
 
 (defun epackage-error-initialize (&optional message)
   "Display missing initialize error with optional MESSAGE."
-  (epackage-fatal
+  (epackage-fatal "%s"
     (concat (if message
-		(concat " " message ". ")
+		(concat message ". ")
 	      ". ")
 	    (epackage-initialize-string))))
 
@@ -1891,7 +1891,7 @@ If VERBOSE is non-nil, display progress message."
   (unless (epackage-string-p package)
     (epackage-error "PACKAGE name \"%s\" is invalid for disable command"
 		    package))
-  (les ((dir (epackage-file-name-link-directory)))
+  (let ((dir (epackage-file-name-link-directory)))
     (epackage-error-no-directory dir)
     (dolist (file (directory-files
 		   dir
