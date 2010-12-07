@@ -780,14 +780,15 @@
 ;;; Change Log:
 
 (eval-when-compile
+  (autoload 'dired-make-relative-symlink "dired-x")
   (autoload 'url-http-parse-response "url"))
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1207.0756"
+(defconst epackage-version-time "2010.1207.0831"
   "*Version of last edit.")
 
-(eva-and-compile			;We need this at runtim
+(eval-and-compile			;We need this at runtim
 (defconst epackage-w32-p
   (or (memq system-type '(ms-dos windows-nt))
       (memq window-system '(win32 w32 mswindows)))
@@ -1394,8 +1395,7 @@ If VERBOSE is non-nil, display progress message."
   "Enable by copying or by symlinking file FROM TO."
   (cond
    (epackage--symlink-support-flag
-    ;;  Prefer relative symlinks
-    )
+    (dired-make-relative-symlink from to 'overwrite))
    (t
     (copy-file from to 'overwrite 'keep-time))))
 
