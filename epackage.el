@@ -54,9 +54,9 @@
 ;;
 ;;	NOTE: 2010-12-08 This extension is in alpha design state;
 ;;	meaning that it is not in full use yet. The core elements are
-;;	being written and the only way tto use this Emacs package are
-;;	`M-x' `epackage-[TAB]' commands. There is also batch command
-;;	line UI for rudimentary testing that you can try:
+;;	being planned and written. The command available can be
+;;	accessed with `M-x' `epackage-[TAB]' calls . There is also
+;;	batch command line UI for rudimentary testing:
 ;;
 ;;	    # Or run the provided Makefile: "make ui"
 ;;	    emacs --batch -Q -l /path/to/epackage.el -f epackage-batch-ui-menu
@@ -856,7 +856,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1208.1936"
+(defconst epackage-version-time "2010.1208.1940"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
