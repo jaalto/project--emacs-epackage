@@ -15,6 +15,16 @@
 	(epackage-loader-file-generate): Move
 	`epackage-with-message' outer to include *.elc generate message.
 	(epackage-batch-ui-menu): Add "?" help command.
+	(epackage-sources-list-info-pkg-list): Correct regexp.
+	(epackage-sources-list-verify): Use or, not unless.
+	(epackage-sources-list-p): Rewrite. Return file name.
+	(epackage-cmd-package-check-macro): New.
+	(epackage-cmd-autoload-package): Rewrite.
+	(epackage-cmd-enable-package): Rewrite.
+	(epackage-cmd-disable-package): Rewrite.
+	(epackage-cmd-activate-package): Rewrite.
+	(epackage-cmd-deactivate-package): Rewrite.
+	(epackage-cmd-clean-package): Rewrite.
 
 2010-12-07 Tue  Jari Aalto  <jari.aalto@cante.net>
 

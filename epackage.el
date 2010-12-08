@@ -843,7 +843,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1208.1039"
+(defconst epackage-version-time "2010.1208.1105"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1320,13 +1320,15 @@ The TYPE is car of list `epackage--layout-mapping'."
 
 (defsubst epackage-sources-list-p ()
   "Check existence of `epackage--sources-file-name'."
-  (file-exists-p (epackage-file-name-sources-list)))
+  (let ((file (epackage-file-name-sources-list)))
+    (if (file-exists-p file)
+	file)))
 
 (defsubst epackage-sources-list-verify ()
   "Signal error if `epackage--sources-file-name' does not exist."
-  (unless (epackage-sources-list-p)
-    (epackage-error "Missing file %s. Run epackage-initialize"
-                    (epackage-file-name-sources-list))))
+  (or (epackage-sources-list-p)
+      (epackage-error "Missing file %s. Run epackage-initialize"
+		      (epackage-file-name-sources-list))))
 
 (defsubst epackage-initialize-string ()
   "Return message string to suggest running `epackage-initialize'."
@@ -1909,10 +1911,10 @@ Format is described in variable `epackage--sources-list-url'."
 (defun epackage-sources-list-info-pkg-list ()
   "Return list of packages."
   (epackage-with-sources-list
-    (goto-char (point-min))
     (let (case-fold-search
           list)
-      (when (re-search-forward "^\\([a-z][a-z0-9-]+\\)[ \]+[a-z]" nil t)
+      (goto-char (point-min))
+      (while (re-search-forward "^\\([a-z][a-z0-9-]+\\)[ \t]+[a-z]" nil t)
         (epackage-push (match-string-no-properties 1) list))
       list)))
 
@@ -2078,6 +2080,19 @@ Return package name or nil."
       (if (epackage-string-p package)
           package))))
 
+(put 'epackage-cmd-package-check-macro 'lisp-indent-function 2)
+(put 'epackage-cmd-package-check-macro 'edebug-form-spec '(body))
+(defmacro epackage-cmd-package-check-macro
+  (package message &rest body)
+  "Check PACKAGE. If nok, display/error MESSAGE. If ok, run BODY."
+  `(cond
+    ((epackage-string-p ,package)
+     ,@body)
+    ((interactive-p)
+     (epackage-message ,message))
+    (t
+     (epackage-error ,message))))
+
 ;;;###autoload
 (defun epackage-cmd-autoload-package (package &optional verbose)
   "Autoload PACKAGE.
@@ -2085,10 +2100,10 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Autoload epackage: ")
          'interactive))
-  (unless (epackage-string-p package)
-    (epackage-error "PACKAGE name \"%s\" is invalid for autoload command"
-                    package))
-  (epackage-config-install-autoload package verbose))
+  (epackage-cmd-package-check-macro package
+      (format "PACKAGE name \"%s\" is invalid for autoload command"
+	      package)
+    (epackage-config-install-autoload package verbose)))
 
 ;;;###autoload
 (defun epackage-cmd-enable-package (package &optional verbose)
@@ -2097,11 +2112,11 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Enable epackage: ")
          'interactive))
-  (unless (epackage-string-p package)
-    (epackage-error "PACKAGE name \"%s\" is invalid for enable command"
-                    package))
-  (epackage-config-install-autoload package verbose)
-  (epackage-config-install-action 'enable package nil verbose))
+  (epackage-cmd-package-check-macro package
+      (format "package name \"%s\" is invalid for enable command"
+	      package)
+    (epackage-config-install-autoload package verbose)
+    (epackage-config-install-action 'enable package nil verbose)))
 
 ;;;###autoload
 (defun epackage-cmd-disable-package (package &optional verbose)
@@ -2110,14 +2125,14 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Disable epackage: ")
          'interactive))
-  (unless (epackage-string-p package)
-    (epackage-error "PACKAGE name \"%s\" is invalid for disable command"
-                    package))
-  (let ((file (epackage-file-name-install-compose package 'enable)))
-    (when (file-exists-p file)
-      (epackage-with-verbose
-        (epackage-message "Deleted %s" file))
-      (delete-file file))))
+  (epackage-cmd-package-check-macro package
+      (format "package name \"%s\" is invalid for disable command"
+	      package)
+    (let ((file (epackage-file-name-install-compose package 'enable)))
+      (when (file-exists-p file)
+	(epackage-with-verbose
+	  (epackage-message "Deleted %s" file))
+	(delete-file file)))))
 
 ;;;###autoload
 (defun epackage-cmd-activate-package (package &optional verbose)
@@ -2126,11 +2141,11 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Activate epackage: ")
          'interactive))
-  (unless (epackage-string-p package)
-    (epackage-error "PACKAGE name \"%s\" is invalid for activate command"
-                    package))
-  (epackage-config-install-autoload package verbose)
-  (epackage-config-install-action 'activate package nil verbose))
+  (epackage-cmd-package-check-macro package
+      (epackage-message "package name \"%s\" is invalid for activate command"
+			package)
+    (epackage-config-install-autoload package verbose)
+    (epackage-config-install-action 'activate package nil verbose)))
 
 ;;;###autoload
 (defun epackage-cmd-deactivate-package (package &optional verbose)
@@ -2139,14 +2154,14 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Deactivate epackage: ")
          'interactive))
-  (unless (epackage-string-p package)
-    (epackage-error "PACKAGE name \"%s\" is invalid for deactivate command"
-                    package))
-  (let ((file (epackage-file-name-install-compose package 'activate)))
-    (when (file-exists-p file)
-      (epackage-with-verbose
-        (epackage-message "Deleted %s" file))
-      (delete-file file))))
+  (epackage-cmd-package-check-macro package
+      (epackage-error "PACKAGE name \"%s\" is invalid for deactivate command"
+		      package)
+    (let ((file (epackage-file-name-install-compose package 'activate)))
+      (when (file-exists-p file)
+	(epackage-with-verbose
+	  (epackage-message "Deleted %s" file))
+	(delete-file file)))))
 
 ;;;###autoload
 (defun epackage-cmd-clean-package (package &optional verbose)
@@ -2155,10 +2170,10 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Disable epackage: ")
          'interactive))
-  (unless (epackage-string-p package)
-    (epackage-error "PACKAGE name \"%s\" is invalid for clean command"
-                    package))
-  (epackage-config-delete-all package verbose))
+  (epackage-cmd-package-check-macro package
+      (epackage-error "PACKAGE name \"%s\" is invalid for clean command"
+		      package)
+    (epackage-config-delete-all package verbose)))
 
 ;;;###autoload
 (defun epackage-cmd-remove-package (package &optional verbose)
