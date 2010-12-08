@@ -1,3 +1,10 @@
+2010-12-08 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-require-main): Disable
+	`epackage-require-emacs'. url.el not used yet.
+	(epackage--batch-ui-menu-header): New.
+	(epackage-maintainer): New.
+
 2010-12-07 Tue  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-push): New. Rewrite all other functions to

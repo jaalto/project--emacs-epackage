@@ -843,8 +843,11 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1208.0926"
-  "*Version of last edit.")
+(defconst epackage-version-time "2010.1208.1003"
+  "Version of last edit.")
+
+(defconst epackage-maintainer "jari.aalto@cante.net"
+  "Maintiner's email address.")
 
 (eval-and-compile                       ;We need this at runtim
 (defconst epackage-w32-p
@@ -1917,7 +1920,8 @@ If VERBOSE is non-nil, display progress message."
 (defun epackage-require-main (&optional verbose)
   "Check requirements to run Epackage.
 If VERBOSE is non-nil, display progress message."
-  (epackage-require-emacs verbose)
+  ;; FIXME, url.el not yet used.
+  ;; (epackage-require-emacs verbose)
   (epackage-require-git verbose)
   (epackage-require-directories verbose))
 
@@ -2169,7 +2173,7 @@ If VERBOSE is non-nil, display progress messages."
    (list 'interactive))
   (let ((list (epackage-status-downloaded-packages)))
     (if list
-        (epackage-with-message verbose "Upgrading all packages"
+        (epackage-with-message verbose "Wait, upgrading all packages"
           (dolist (elt list)
             (epackage-cmd-upgrade-package elt verbose)))
       (epackage-verbose-message "No packages downloaded to upgrade"))))
@@ -2183,7 +2187,7 @@ If VERBOSE is non-nil, display progress messages."
   (if (epackage-sources-list-p)
       (epackage-with-message verbose "Upgrading package list"
         (epackage-upgrade-sources-list verbose))
-    (epackage-with-message verbose "Downloading package list"
+    (epackage-with-message verbose "Wait, downloading package list"
       (epackage-download-sources-list))))
 
 ;;;###autoload
@@ -2425,6 +2429,18 @@ Summary, Version, Maintainer etc."
                menu))
     choice))
 
+(defsubst epackage--batch-ui-menu-header ()
+  "Display menu header."
+  (message "\
+Epackage - Distributed Emacs Package System (DELPS)
+===================================================
+Version: %s
+Contact: %s
+
+"
+	   epackage-version-time
+	   epackage-maintainer))
+
 ;;;###autoload
 (defun epackage-batch-ui-menu ()
   "Present an UI to run basic command."
@@ -2433,6 +2449,7 @@ Summary, Version, Maintainer etc."
         choice)
     (setq debug-on-error t)
     (while loop
+      (epackage--batch-ui-menu-header)
       (message epackage--batch-ui-menu-string)
       (setq choice (epackage-batch-ui-menu-selection))
       (epackage-with-debug
