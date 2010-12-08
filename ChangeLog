@@ -4,6 +4,14 @@
 	`epackage-require-emacs'. url.el not used yet.
 	(epackage--batch-ui-menu-header): New.
 	(epackage-maintainer): New.
+	(epackage-batch-ui-list-installed-packages): Add `interactive'.
+	(epackage-batch-ui-list-not-installed-packages): Add `interactive'.
+	(epackage-batch-ui-list-not-installed-packages): Add `interactive'.
+	(epackage-batch-ui-list-downloaded-packages): Add `interactive'.
+	(epackage-batch-ui-download-sources-list): Add `interactive'.
+	(epackage-batch-ui-upgrade-all-packages): Add `interactive'.
+	(epackage-batch-ui-loader-file-byte-compile): Add `interactive'.
+	(epackage-batch-ui-loader-file-generate): Add `interactive'.
 
 2010-12-07 Tue  Jari Aalto  <jari.aalto@cante.net>
 
@@ -16,7 +24,7 @@
 	(epackage-enable-package): Use `epackage-enable-file'.
 	(epackage-activate-package): Use `epackage-enable-file'.
 	(epackage-manager): New.
-	(epackage-version): devel New.
+	(epackage-version): New.
 	(epackage-documentation): New.
 	(epackage--doc-buffer): New.
 	(epackage--finder-commentary-buffer): New.

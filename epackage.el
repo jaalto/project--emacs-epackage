@@ -843,7 +843,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1208.1003"
+(defconst epackage-version-time "2010.1208.1009"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2320,27 +2320,32 @@ Summary, Version, Maintainer etc."
 
 ;;;###autoload
 (defun epackage-batch-ui-loader-file-generate ()
-    "Call `epackage-loader-file-generate'."
-    (epackage-loader-file-generate 'verbose))
+  "Call `epackage-loader-file-generate'."
+  (interactive)
+  (epackage-loader-file-generate 'verbose))
 
 ;;;###autoload
 (defun epackage-batch-ui-loader-file-byte-compile ()
-    "Call `epackage-loader-file-byte-compile'."
-    (epackage-loader-file-byte-compile 'verbose))
+  "Call `epackage-loader-file-byte-compile'."
+  (interactive)
+  (epackage-loader-file-byte-compile 'verbose))
 
 ;;;###autoload
 (defun epackage-batch-ui-upgrade-all-packages ()
-    "Call `epackage-cmd-upgrade-all-packages'."
-    (epackage-cmd-upgrade-all-packages 'verbose))
+  "Call `epackage-cmd-upgrade-all-packages'."
+  (interactive)
+  (epackage-cmd-upgrade-all-packages 'verbose))
 
 ;;;###autoload
 (defun epackage-batch-ui-download-sources-list ()
-    "Call `epackage-batch-ui-download-sources-list'."
-    (epackage-cmd-download-sources-list 'verbose))
+  "Call `epackage-batch-ui-download-sources-list'."
+  (interactive)
+  (epackage-cmd-download-sources-list 'verbose))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-downloaded-packages ()
   "List downloaded packages."
+  (interactive)
   (let ((list (epackage-status-downloaded-packages)))
     (if (not list)
         (message "No packages downloaded.")
@@ -2349,6 +2354,7 @@ Summary, Version, Maintainer etc."
 ;;;###autoload
 (defun epackage-batch-ui-list-not-installed-packages ()
   "List downloaded packages."
+  (interactive)
   (let ((list (epackage-status-not-installed-packages)))
     (if (not list)
         (message "All downloaded packages are installed.")
@@ -2357,6 +2363,7 @@ Summary, Version, Maintainer etc."
 ;;;###autoload
 (defun epackage-batch-ui-list-installed-packages ()
   "List installed packages."
+  (interactive)
   (let ((list (epackage-status-installed-packages)))
     (if (not list)
         (message "No packages installed.")
@@ -2432,12 +2439,11 @@ Summary, Version, Maintainer etc."
 (defsubst epackage--batch-ui-menu-header ()
   "Display menu header."
   (message "\
+===================================================
 Epackage - Distributed Emacs Package System (DELPS)
 ===================================================
 Version: %s
-Contact: %s
-
-"
+Contact: %s"
 	   epackage-version-time
 	   epackage-maintainer))
 
