@@ -843,7 +843,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1208.1108"
+(defconst epackage-version-time "2010.1208.1124"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1057,8 +1057,6 @@ generate	Write a boot loader that contains all packages'
 
 get		Get Yellow pages data. This updated package sources
 		list file to know about new available packages.
-
-Hint: press TAB to complete available package names."
   "UI menu help.")
 
 (defconst epackage--batch-ui-menu-actions
@@ -2080,15 +2078,23 @@ Return package name or nil."
       (if (epackage-string-p package)
           package))))
 
-(put 'epackage-cmd-package-check-macro 'lisp-indent-function 2)
+(put 'epackage-cmd-package-check-macro 'lisp-indent-function 3)
 (put 'epackage-cmd-package-check-macro 'edebug-form-spec '(body))
 (defmacro epackage-cmd-package-check-macro
-  (package message &rest body)
-  "Check PACKAGE. If nok, display/error MESSAGE. If ok, run BODY."
+  (package verbose message &rest body)
+  "Check PACKAGE, VERBOSE. If nok, display/signal error MESSAGE. If ok, run BODY."
   `(cond
+    ((or (null package) ;User pressed RETURN to not select any.
+	 (and (stringp package)
+	      (string-match "^[ \t]*$" package))))
+    ((and (stringp package)
+	  (not (member package (epackage-sources-list-info-pkg-list))))
+     (if (eq ,verbose 'interactive)
+	 (epackage-warn (format "Unknown package \"%s\"" package))
+       (epackage-error (format "Not a known package \"%s\"" package))))
     ((epackage-string-p ,package)
      ,@body)
-    ((interactive-p)
+    ((eq ,verbose 'interactive)
      (epackage-message ,message))
     (t
      (epackage-error ,message))))
@@ -2100,7 +2106,7 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Autoload epackage: ")
          'interactive))
-  (epackage-cmd-package-check-macro package
+  (epackage-cmd-package-check-macro package verbose
       (format "PACKAGE name \"%s\" is invalid for autoload command"
 	      package)
     (epackage-config-install-autoload package verbose)))
@@ -2112,7 +2118,7 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Enable epackage: ")
          'interactive))
-  (epackage-cmd-package-check-macro package
+  (epackage-cmd-package-check-macro package verbose
       (format "package name \"%s\" is invalid for enable command"
 	      package)
     (epackage-config-install-autoload package verbose)
@@ -2125,7 +2131,7 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Disable epackage: ")
          'interactive))
-  (epackage-cmd-package-check-macro package
+  (epackage-cmd-package-check-macro package verbose
       (format "package name \"%s\" is invalid for disable command"
 	      package)
     (let ((file (epackage-file-name-install-compose package 'enable)))
@@ -2141,7 +2147,7 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Activate epackage: ")
          'interactive))
-  (epackage-cmd-package-check-macro package
+  (epackage-cmd-package-check-macro package verbose
       (epackage-message "package name \"%s\" is invalid for activate command"
 			package)
     (epackage-config-install-autoload package verbose)
@@ -2154,7 +2160,7 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Deactivate epackage: ")
          'interactive))
-  (epackage-cmd-package-check-macro package
+  (epackage-cmd-package-check-macro package verbose
       (epackage-error "package name \"%s\" is invalid for deactivate command"
 		      package)
     (let ((file (epackage-file-name-install-compose package 'activate)))
@@ -2170,7 +2176,7 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Disable epackage: ")
          'interactive))
-  (epackage-cmd-package-check-macro package
+  (epackage-cmd-package-check-macro package verbose
       (epackage-error "package name \"%s\" is invalid for clean command"
 		      package)
     (epackage-config-delete-all package verbose)))
