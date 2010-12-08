@@ -25,6 +25,12 @@
 	(epackage-cmd-activate-package): Rewrite.
 	(epackage-cmd-deactivate-package): Rewrite.
 	(epackage-cmd-clean-package): Rewrite.
+	(epackage-sources-list-info-pkg-list): Add sort.
+	(epackage-sources-list-info-main): Correct regexp.
+	(epackage-status-installed-packages): Correct function.
+	(epackage-batch-ui-menu): Add `epackage-batch-ui-menu'.
+	(epackage-file-name-directory-previous): New.
+	(epackage-file-name-basename): New.
 
 2010-12-07 Tue  Jari Aalto  <jari.aalto@cante.net>
 

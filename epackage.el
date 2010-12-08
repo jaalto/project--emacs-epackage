@@ -189,7 +189,7 @@
 ;;      o   g, Get yellow page data. Update package sources list.
 ;;      o   _i_, Install standard configuration for package.
 ;;      o   _I_, Uninstall standard configuration for package.
-;;      o   l<key>, list comand: installed, downloaded, enabled,
+;;      o   l<key>, list comand: available, installed, downloaded, enabled,
 ;;          activated, autoloaded, not-installed.
 ;;      o   m, mark package (for command install or remove).
 ;;      o   M, send mail to person who is the maintainer of epackage
@@ -843,7 +843,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1208.1124"
+(defconst epackage-version-time "2010.1208.1901"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1016,12 +1016,39 @@ l       List installed packages.
 L       List downloaded packages.
 n       List not installed packages.
 o       Install autoload configuration for package.
+p       List available packages in yellow pages.
 r       Remove; delete package physically from local disk.
 u       Upgrade package. Download new updates.
 U       Upgrade all packages.
 ?	Help.
 q       Quit."
   "UI menu to run epackage from command line.")
+
+(defconst epackage--batch-ui-menu-actions
+  '((?a epackage-cmd-activate-package)
+    (?b epackage-batch-ui-loader-file-generate)
+;;    (?B epackage-batch-ui-loader-file-byte-compile) ;; FIXME, byte cmpile package
+    (?A epackage-batch-ui-deactivate-package)
+    (?c epackage-batch-ui-clean-package)
+    (?d epackage-batch-ui-download-package)
+    (?g epackage-batch-ui-download-sources-list)
+    (?i epackage-batch-ui-cmd-enable-package)
+    (?I epackage-barch-ui-disable-package)
+    (?l epackage-batch-ui-list-installed-packages)
+    (?L epackage-batch-ui-list-downloaded-packages)
+    (?n epackage-batch-ui-list-not-installed-packages)
+    (?o epackage-batch-ui-autoload-package)
+    (?r epackage-batch-ui-remove-package)
+    (?u epackage-batch-ui-upgrade-package)
+    (?U epackage-batch-ui-upgrade-all-packages)
+    (?p epackage-batch-ui-list-available-packages)
+    (?q quit)
+    (?Q quit))
+  "UI menucommand and actions. Format: '((KEY FUNCTION) ...).
+
+Use from command line:
+
+  emacs --batch -Q -l ./epackage.el -f epackage-batch-ui-menu")
 
 (defconst epackage--batch-ui-menu-help "\
 Packages management
@@ -1056,33 +1083,22 @@ generate	Write a boot loader that contains all packages'
 		after each package management change.
 
 get		Get Yellow pages data. This updated package sources
-		list file to know about new available packages.
+		list file to know about new available packages."
   "UI menu help.")
 
-(defconst epackage--batch-ui-menu-actions
-  '((?a epackage-cmd-activate-package)
-    (?b epackage-batch-ui-loader-file-generate)
-;;    (?B epackage-batch-ui-loader-file-byte-compile) ;; FIXME, byte cmpile package
-    (?A epackage-batch-ui-deactivate-package)
-    (?c epackage-batch-ui-clean-package)
-    (?d epackage-batch-ui-download-package)
-    (?g epackage-batch-ui-download-sources-list)
-    (?i epackage-batch-ui-cmd-enable-package)
-    (?I epackage-barch-ui-disable-package)
-    (?l epackage-batch-ui-list-installed-packages)
-    (?L epackage-batch-ui-list-downloaded-packages)
-    (?n epackage-batch-ui-list-not-installed-packages)
-    (?o epackage-batch-ui-autoload-package)
-    (?r epackage-batch-ui-remove-package)
-    (?u epackage-batch-ui-upgrade-package)
-    (?U epackage-batch-ui-upgrade-all-packages)
-    (?q quit)
-    (?Q quit))
-  "UI menucommand and actions. Format: '((KEY FUNCTION) ...).
 
-Use from command line:
+(defsubst epackage-file-name-basename (dir)
+  "Like `file-name-nondirectory' but always return last component
+An example:  /path/to/  => to"
+    (when (string-match "^.+/\\([^/]+\\)/?$" dir)
+      (match-string 1 dir)))
 
-  emacs --batch -Q -l ./epackage.el -f epackage-batch-ui-menu")
+(defsubst epackage-file-name-directory-previous (dir)
+  "Return previous directory by removing one component from DIR.
+Return nil of there is nothing to remove .i.e. the result wold be \"/\"."
+  (let ((path (file-name-as-directory dir)))
+    (when (string-match "\\(.+\\)/[^/]+/?$" path)
+      (match-string 1 dir))))
 
 (defsubst epackage-string-p (string)
   "Return STRING of value is non-empty. Otherwise return nil."
@@ -1550,11 +1566,8 @@ If VERBOSE is non-nil, display progress message."
 (defun epackage-git-command-clone (url dir &optional verbose)
   "Run 'git clone URL DIR' in VCS package directory vault.
 If VERBOSE is non-nil, display progress message."
-  (let* ((name (file-name-nondirectory dir))
-         (dir-before (replace-regexp-in-string
-                      (regexp-quote name)
-                      ""
-                      dir)))
+  (let ((name (epackage-file-name-basename dir))
+	(dir-before (epackage-file-name-directory-previous dir)))
     (epackage-with-git-command dir-before verbose
       "clone" url name)))
 
@@ -1710,7 +1723,8 @@ or whose name match `epackage--directory-name'."
          (regexp   (concat (regexp-quote template) "$"))
          (match    (concat "\\(.+\\)" regexp))
          list)
-    (epackage-initialize-verify "Can't use `epackage--directory-name-install'.")
+    (epackage-initialize-verify
+     "Can't use `epackage--directory-name-install'.")
     (dolist (elt (directory-files
                   dir
                   (not 'full-path)
@@ -1741,7 +1755,7 @@ or whose name match `epackage--directory-name'."
 
 (defsubst epackage-status-installed-packages ()
   "Return list of packages in `epackage-file-name-install-directory'."
-  (epackage-config-status-of-packages 'activate))
+  (epackage-config-status-of-packages 'enable))
 
 (defun epackage-status-not-installed-packages ()
   "Return list of packages in `epackage-file-name-pkg-directory'.
@@ -1886,7 +1900,7 @@ Format is described in variable `epackage--sources-list-url'."
            (format
             `,(concat "^\\(%s\\)\\>"
                       "[ \t]+\\([^ \t\r\n]+\\)"
-                      "[ \t]*\\([^ \t\r\n]*\\)")
+                      "[ \t]*\\([^ \t\r\n]*.*[^ \t\r\n]\\)")
             (regexp-quote package))))
       (when (re-search-forward re nil t)
         (list
@@ -1907,13 +1921,15 @@ Format is described in variable `epackage--sources-list-url'."
       (nth 2 info))))
 
 (defun epackage-sources-list-info-pkg-list ()
-  "Return list of packages."
+  "Return list of packages in alphabetical order."
   (epackage-with-sources-list
     (let (case-fold-search
           list)
       (goto-char (point-min))
       (while (re-search-forward "^\\([a-z][a-z0-9-]+\\)[ \t]+[a-z]" nil t)
         (epackage-push (match-string-no-properties 1) list))
+      (setq list (sort list (lambda (a b)
+			      (string< a b))))
       list)))
 
 (defun epackage-require-emacs (&optional verbose)
@@ -2409,37 +2425,37 @@ Summary, Version, Maintainer etc."
   (call-interactively 'epackage-cmd-download-sources-list))
 
 ;;;###autoload
-(defun epackage-batch-ui-cmd-autoload-package ()
+(defun epackage-batch-ui-autoload-package ()
   "Call `epackage-cmd-autoload-package'."
   (interactive)
   (call-interactively 'epackage-cmd-autoload-package))
 
 ;;;###autoload
-(defun epackage-batch-ui-cmd-enable-package ()
+(defun epackage-batch-ui-enable-package ()
   "Call `epackage-cmd-enable-package'."
   (interactive)
   (call-interactively 'epackage-cmd-enable-package))
 
 ;;;###autoload
-(defun epackage-batch-ui-cmd-disable-package ()
+(defun epackage-batch-ui-disable-package ()
   "Call `epackage-cmd-disable-package'."
   (interactive)
   (call-interactively 'epackage-cmd-disable-package))
 
 ;;;###autoload
-(defun epackage-batch-ui-cmd-deactivate-package ()
+(defun epackage-batch-ui-deactivate-package ()
   "Call `epackage-cmd-deactivate-package'."
   (interactive)
   (call-interactively 'epackage-cmd-deactivate-package))
 
 ;;;###autoload
-(defun epackage-batch-ui-cmd-download-package ()
+(defun epackage-batch-ui-download-package ()
   "Call `epackage-cmd-download-package'."
   (interactive)
   (call-interactively 'epackage-cmd-download-package))
 
 ;;;###autoload
-(defun epackage-batch-ui-cmd-clean-package ()
+(defun epackage-batch-ui-clean-package ()
   "Call `epackage-cmd-clean-package'."
   (interactive)
   (call-interactively 'epackage-cmd-clean-package))
@@ -2463,6 +2479,7 @@ Summary, Version, Maintainer etc."
   (let ((list (epackage-status-downloaded-packages)))
     (if (not list)
         (message "No packages downloaded.")
+      (message "Downloaded packages:")
       (epackage-batch-list-package-summamry list))))
 
 ;;;###autoload
@@ -2472,6 +2489,7 @@ Summary, Version, Maintainer etc."
   (let ((list (epackage-status-not-installed-packages)))
     (if (not list)
         (message "All downloaded packages are installed.")
+      (message "Not installed packages:")
       (epackage-batch-list-package-summamry list))))
 
 ;;;###autoload
@@ -2481,6 +2499,17 @@ Summary, Version, Maintainer etc."
   (let ((list (epackage-status-installed-packages)))
     (if (not list)
         (message "No packages installed.")
+      (message "Installed packages:")
+      (epackage-batch-list-package-summamry list))))
+
+;;;###autoload
+(defun epackage-batch-ui-list-available-packages ()
+  "Display available packages."
+  (interactive)
+  (let ((list (epackage-sources-list-info-pkg-list)))
+    (if (not list)
+        (message "No yellow pages sources list downloaded.")
+      (message "All available packages for download:")
       (epackage-batch-list-package-summamry list))))
 
 ;;;###autoload
@@ -2566,9 +2595,11 @@ Contact: %s"
 (defun epackage-batch-ui-menu ()
   "Present an UI to run basic command."
   (epackage-initialize 'verbose)
-  (let ((loop t)
+  (let ((vc-handled-backends nil)
+	(loop t)
         choice)
     (setq debug-on-error t)
+    (setq epackage--debug nil)
     (while loop
       (epackage--batch-ui-menu-header)
       (message epackage--batch-ui-menu-string)
