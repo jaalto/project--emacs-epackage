@@ -12,6 +12,9 @@
 	(epackage-batch-ui-upgrade-all-packages): Add `interactive'.
 	(epackage-batch-ui-loader-file-byte-compile): Add `interactive'.
 	(epackage-batch-ui-loader-file-generate): Add `interactive'.
+	(epackage-loader-file-generate): Move
+	`epackage-with-message' outer to include *.elc generate message.
+	(epackage-batch-ui-menu): Add "?" help command.
 
 2010-12-07 Tue  Jari Aalto  <jari.aalto@cante.net>
 

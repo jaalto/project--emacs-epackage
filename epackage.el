@@ -843,7 +843,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1208.1009"
+(defconst epackage-version-time "2010.1208.1039"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1019,25 +1019,64 @@ o       Install autoload configuration for package.
 r       Remove; delete package physically from local disk.
 u       Upgrade package. Download new updates.
 U       Upgrade all packages.
+?	Help.
 q       Quit."
   "UI menu to run epackage from command line.")
+
+(defconst epackage--batch-ui-menu-help "\
+Packages management
+-------------------
+download	Download package to disk. No install whatsoever.
+
+upgrade		Get new updates for package(s).
+
+install		Several choices:
+		* autoload. Install only minimal functions
+		  that will be available in autoload state only.
+		  If you want to configure everything manually in
+		  ~/.emacs startup file, use this (for experts).
+		* install standard = enable only autoload code.
+		  The opposite is uninstall = disable.
+		* activate = install hooks, bindings and the like.
+		  Posisbly modifies Emacs setup.
+		  The opposite is deactivate.
+
+clean		Delete all install configuration files. Package
+		will not be available for later use. M-x etc.
+		calls are not there any longer.
+
+remove		Physically remove configuration files and pakkage
+		from download directory
+
+Other actions
+-------------
+generate	Write a boot loader that contains all packages'
+		configurations in one file. This is intended to be
+		loaded from ~/.emacs. Must be generated/updated
+		after each package management change.
+
+get		Get Yellow pages data. This updated package sources
+		list file to know about new available packages.
+
+Hint: press TAB to complete available package names."
+  "UI menu help.")
 
 (defconst epackage--batch-ui-menu-actions
   '((?a epackage-cmd-activate-package)
     (?b epackage-batch-ui-loader-file-generate)
 ;;    (?B epackage-batch-ui-loader-file-byte-compile) ;; FIXME, byte cmpile package
-    (?A epackage-cmd-deactivate-package)
-    (?c epackage-cmd-clean-package)
-    (?d epackage-cmd-download-package)
+    (?A epackage-batch-ui-deactivate-package)
+    (?c epackage-batch-ui-clean-package)
+    (?d epackage-batch-ui-download-package)
     (?g epackage-batch-ui-download-sources-list)
-    (?i epackage-cmd-enable-package)
-    (?I epackage-cmd-disable-package)
+    (?i epackage-batch-ui-cmd-enable-package)
+    (?I epackage-barch-ui-disable-package)
     (?l epackage-batch-ui-list-installed-packages)
     (?L epackage-batch-ui-list-downloaded-packages)
     (?n epackage-batch-ui-list-not-installed-packages)
-    (?o epackage-cmd-autoload-package)
-    (?r epackage-cmd-remove-package)
-    (?u epackage-cmd-upgrade-package)
+    (?o epackage-batch-ui-autoload-package)
+    (?r epackage-batch-ui-remove-package)
+    (?u epackage-batch-ui-upgrade-package)
     (?U epackage-batch-ui-upgrade-all-packages)
     (?q quit)
     (?Q quit))
@@ -1813,16 +1852,16 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list 'interactive))
   (let ((file (epackage-file-name-loader-file)))
-    (with-current-buffer (find-file-noselect file)
-      (epackage-with-message verbose "Generating boot loader"
+    (epackage-with-message verbose "Generating boot loader"
+      (with-current-buffer (find-file-noselect file)
         (delete-region (point-min) (point-max))
         (epackage-loader-file-insert-main)
         (write-region (point-min)
                       (point-max)
                       (epackage-file-name-loader-file))
         (set-buffer-modified-p nil)
-        (kill-buffer (current-buffer))))
-    (epackage-loader-file-byte-compile-maybe verbose)))
+        (kill-buffer (current-buffer)))
+      (epackage-loader-file-byte-compile-maybe verbose))))
 
 (defun epackage-sources-list-info-parse-line (package)
   "Return list of fields described in `epackage--sources-list-url'.
@@ -2322,25 +2361,79 @@ Summary, Version, Maintainer etc."
 (defun epackage-batch-ui-loader-file-generate ()
   "Call `epackage-loader-file-generate'."
   (interactive)
-  (epackage-loader-file-generate 'verbose))
+  (call-interactively 'epackage-loader-file-generate))
 
 ;;;###autoload
 (defun epackage-batch-ui-loader-file-byte-compile ()
   "Call `epackage-loader-file-byte-compile'."
   (interactive)
-  (epackage-loader-file-byte-compile 'verbose))
+  (call-interactively 'epackage-loader-file-byte-compile))
+
+;;;###autoload
+(defun epackage-batch-ui-upgrade-package ()
+  "Call `epackage-cmd-upgrade-package'."
+  (interactive)
+  (call-interactively 'epackage-cmd-upgrade-package))
 
 ;;;###autoload
 (defun epackage-batch-ui-upgrade-all-packages ()
   "Call `epackage-cmd-upgrade-all-packages'."
   (interactive)
-  (epackage-cmd-upgrade-all-packages 'verbose))
+  (call-interactively 'epackage-cmd-upgrade-all-packages))
+
+;;;###autoload
+(defun epackage-batch-ui-download-sources-list ()
+  "Call `epackage-cmd-download-sources-list'."
+  (interactive)
+  (call-interactively 'epackage-cmd-download-sources-list))
+
+;;;###autoload
+(defun epackage-batch-ui-cmd-autoload-package ()
+  "Call `epackage-cmd-autoload-package'."
+  (interactive)
+  (call-interactively 'epackage-cmd-autoload-package))
+
+;;;###autoload
+(defun epackage-batch-ui-cmd-enable-package ()
+  "Call `epackage-cmd-enable-package'."
+  (interactive)
+  (call-interactively 'epackage-cmd-enable-package))
+
+;;;###autoload
+(defun epackage-batch-ui-cmd-disable-package ()
+  "Call `epackage-cmd-disable-package'."
+  (interactive)
+  (call-interactively 'epackage-cmd-disable-package))
+
+;;;###autoload
+(defun epackage-batch-ui-cmd-deactivate-package ()
+  "Call `epackage-cmd-deactivate-package'."
+  (interactive)
+  (call-interactively 'epackage-cmd-deactivate-package))
+
+;;;###autoload
+(defun epackage-batch-ui-cmd-download-package ()
+  "Call `epackage-cmd-download-package'."
+  (interactive)
+  (call-interactively 'epackage-cmd-download-package))
+
+;;;###autoload
+(defun epackage-batch-ui-cmd-clean-package ()
+  "Call `epackage-cmd-clean-package'."
+  (interactive)
+  (call-interactively 'epackage-cmd-clean-package))
+
+;;;###autoload
+(defun epackage-batch-ui-remove-package ()
+  "Call `epackage-cmd-remove-package'."
+  (interactive)
+  (call-interactively 'epackage-cmd-remove-package))
 
 ;;;###autoload
 (defun epackage-batch-ui-download-sources-list ()
   "Call `epackage-batch-ui-download-sources-list'."
   (interactive)
-  (epackage-cmd-download-sources-list 'verbose))
+  (call-interactively 'epackage-cmd-download-sources-list))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-downloaded-packages ()
@@ -2434,7 +2527,8 @@ Summary, Version, Maintainer etc."
                (length str)
                char
                menu))
-    choice))
+    (or choice
+	char)))
 
 (defsubst epackage--batch-ui-menu-header ()
   "Display menu header."
@@ -2470,8 +2564,10 @@ Contact: %s"
         (setq loop nil))
        ((functionp choice)
         (call-interactively choice))
+       ((eq choice ?\?)
+	(message epackage--batch-ui-menu-help))
        (t
-        (message "** Not catched: %s" choice))))))
+        (message "** Unknown menu selection: %s" choice))))))
 
 ;;;###autoload
 (defalias 'epackage-manager 'epackage)
