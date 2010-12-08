@@ -843,7 +843,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1207.2045"
+(defconst epackage-version-time "2010.1208.0926"
   "*Version of last edit.")
 
 (eval-and-compile                       ;We need this at runtim
@@ -871,7 +871,7 @@ returned by `epackage-file-name-loader-file' is byte compiled."
   :group 'Epackage)
 
 (defcustom epackage--sources-list-url
-  "jaalto@cante.net:srv/git/emacs-lisp-dev--epackage-sources-list"
+  "git://github.com/jaalto/project--emacs-epackage-sources-list.git"
   "URL to the location of available package list. The yellow pages.
 This is the Git repository that contains the canonical list of
 available packages.
