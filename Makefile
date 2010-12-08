@@ -44,7 +44,12 @@ doc:
 	$(MAKE) -C doc
 
 # install - There is no install. Manually copy *.el file to Emacs load-path
+install:
 
-.PHONY: doc
+# ui - Start command line package manager User Interface
+ui:
+	emacs -Q -nw --batch -l $(SRC) -f epackage-batch-ui-menu
+
+.PHONY: doc ui
 
 # End of file
