@@ -843,7 +843,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1208.1105"
+(defconst epackage-version-time "2010.1208.1108"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2131,7 +2131,7 @@ If VERBOSE is non-nil, display progress message."
     (let ((file (epackage-file-name-install-compose package 'enable)))
       (when (file-exists-p file)
 	(epackage-with-verbose
-	  (epackage-message "Deleted %s" file))
+	  (epackage-message "Delete %s" file))
 	(delete-file file)))))
 
 ;;;###autoload
@@ -2155,12 +2155,12 @@ If VERBOSE is non-nil, display progress message."
    (list (epackage-cmd-select-package "Deactivate epackage: ")
          'interactive))
   (epackage-cmd-package-check-macro package
-      (epackage-error "PACKAGE name \"%s\" is invalid for deactivate command"
+      (epackage-error "package name \"%s\" is invalid for deactivate command"
 		      package)
     (let ((file (epackage-file-name-install-compose package 'activate)))
       (when (file-exists-p file)
 	(epackage-with-verbose
-	  (epackage-message "Deleted %s" file))
+	  (epackage-message "Delete %s" file))
 	(delete-file file)))))
 
 ;;;###autoload
@@ -2171,7 +2171,7 @@ If VERBOSE is non-nil, display progress message."
    (list (epackage-cmd-select-package "Disable epackage: ")
          'interactive))
   (epackage-cmd-package-check-macro package
-      (epackage-error "PACKAGE name \"%s\" is invalid for clean command"
+      (epackage-error "package name \"%s\" is invalid for clean command"
 		      package)
     (epackage-config-delete-all package verbose)))
 
@@ -2190,7 +2190,7 @@ If VERBOSE is non-nil, display progress message."
                             package))
       (epackage-config-delete-all package verbose)
       (epackage-with-verbose
-        (epackage-message "Deleted directory %s" dir))
+        (epackage-message "Delete directory %s" dir))
       (delete-directory dir 'recursive))))
 
 ;;;###autoload
