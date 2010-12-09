@@ -66,10 +66,10 @@
 ;;	the erliest.
 ;;
 ;;      Emacs has been around for decades now. Many new version have
-;;      come and gone (18.59 ... 24.x), Still there are wealth of
-;;      extensions available e.g. et <http://emacswiki.org> that add
-;;      new features. The typical procedure to add new a extension to
-;;      Emacs is:
+;;      come and gone (in my days 18.59 ... 24.x), Still there are
+;;      wealth of extensions available e.g. et <http://emacswiki.org>
+;;      that add new features. The typical procedure to add new a
+;;      extension to Emacs is:
 ;;
 ;;      o   Find an extension at places like
 ;;          http://dir.gmane.org/gmane.emacs.sources or
@@ -83,8 +83,8 @@
 ;;      That's quite a bit of work for each extension; reaching
 ;;      thousands out there. Many Linux distributions offer package
 ;;      managers to download and install programs. E.g. Debian has
-;;      command *apt-get*, Redhat uses *rpm*, Suse uses *yum*. So why
-;;      not make one for Emacs as well.
+;;      command *apt-get* [1], Redhat uses *rpm* [2], Suse uses *yast*
+;;      [3]. So why not make one for Emacs as well.
 ;;
 ;;      This utility is different from the existing ELPA Emacs package
 ;;      manager. It has been built around two concepts: 1) it borrows
@@ -123,6 +123,13 @@
 ;;      The epackage system can co-exist with nay other installation,
 ;;      like ELPA, as usual. User's standard Emacs startup files, like
 ;;      `~/.emacs' are never modified.
+;;
+;;	[1] http://en.wikipedia.org/wiki/Advanced_Packaging_Tool
+;;
+;;	[2] http://en.wikipedia.org/wiki/RPM_Package_Manager
+;;
+;;	[3] http://en.wikipedia.org/wiki/YaST See also
+;	http://en.wikipedia.org/wiki/Yellowdog_Updater,_Modified
 ;;
 ;;  Epackage - the DVCS packaging system
 ;;
@@ -856,7 +863,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1209.0900"
+(defconst epackage-version-time "2010.1209.0906"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
