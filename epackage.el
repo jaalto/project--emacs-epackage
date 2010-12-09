@@ -66,10 +66,10 @@
 ;;      the earliest.
 ;;
 ;;      Emacs has been around for decades now. Many new version have
-;;      come and gone (in my days 18.59 ... 24.x), Still there are
-;;      wealth of extensions available e.g. et <http://emacswiki.org>
-;;      that add new features. The typical procedure to add a new
-;;      extension to Emacs is:
+;;      come and gone. And yet there are wealth of useful extensions
+;;      available e.g. at <http://emacswiki.org> which add new
+;;      features not yet available in standard Emacs. The typical
+;;      procedure to add a new extension to Emacs has been:
 ;;
 ;;      o   Find an extension at places like
 ;;          http://dir.gmane.org/gmane.emacs.sources or
@@ -86,14 +86,12 @@
 ;;      command *apt-get/aptitude* [1], Redhat uses *rpm* [2], Suse
 ;;      uses *yast* [3]. So why not make one for Emacs as well.
 ;;
-;;      This utility is different from the existing ELPA[4] Emacs
-;;      package manager. It has been built around two concepts: 1) it
-;;      borrows the Debian style of package management and 2) it uses
-;;      version controlled packages. This is a different approach than
-;;      centralized ELPA Emacs package manager.
+;;	The DELPS has been designed built around two concepts: it
+;;      borrows the Debian style package management and it uses
+;;      version controlled packages.
 ;;
 ;;      Each Emacs extension is wrapped into epackage format which
-;;      basically follows the Debian packaging style where a separate
+;;      basically follows the Debian [4] packaging style where a separate
 ;;      control directory named `epackage/' is used for all the
 ;;      packaging details: activation, autoloads and installation etc.
 ;;      In addition, each epackage is imported in and deployed using
@@ -101,11 +99,7 @@
 ;;      "Yellow pages" file lists the available Git repositories where
 ;;      user can download packages. Once an epackage has been
 ;;      downloaded, subsequent downloads are very efficient because
-;;      only deltas are transferred. Another benefit of DVCS is its
-;;      distributed nature: local modifications are possible; also all
-;;      the software history and releases are included in one place --
-;;      the Git repository. This opens some interesting prospects and
-;;      freedom to maintain and deploy epackages.
+;;      only deltas are transferred.
 ;;
 ;;      If you're an Emacs user, all these details do not concern you.
 ;;      From `M-x' `epackage' package management view, select packages
@@ -122,7 +116,7 @@
 ;;      epackage, that will require familiarizing with the `git(1)'.
 ;;
 ;;      The epackage system can co-exist with any other installation,
-;;      like ELPA, as usual. User's standard Emacs startup files, like
+;;      like ELPA [4], as usual. User's standard Emacs startup files, like
 ;;      `~/.emacs' are never modified.
 ;;
 ;;      [1] http://en.wikipedia.org/wiki/Advanced_Packaging_Tool
@@ -132,16 +126,18 @@
 ;;      [3] http://en.wikipedia.org/wiki/YaST See also
 ;;      http://en.wikipedia.org/wiki/Yellowdog_Updater,_Modified
 ;;
-;;      [4] http://www.emacswiki.org/emacs/ELPA
+;;      [4] http://www.debian.org/doc/developers-reference/best-pkging-practices.html#bpp-debian-control
+;;
+;;      [5] http://www.emacswiki.org/emacs/ELPA
 ;;
 ;;  Epackage - the DVCS packaging system
 ;;
-;;      In this system packages are available in a form of
-;;      distributed[1] git[2] version control repositories. The
-;;      traditional packaging methods (like ELPA[2]) have previously
-;;      relied on archives like *.tar.gz to hold the code. In contrast
-;;      the DVCS offers important features over monolithic archive
-;;      approach:
+;;      The DELPS epackages are in the form of distributed[1] git[2]
+;;      version control repositories. The traditional packaging
+;;      methods, like ELPA[2], have previously relied on archives like
+;;      *.tar.gz to hold the code. In contrast, the DVCS approach
+;;      offers interesting features over the traditional archive
+;;      distribution approach:
 ;;
 ;;      o   Efficient downloads; fast, only deltas are transferred.
 ;;      o   Local modifications are possible; users can create their own
@@ -157,15 +153,17 @@
 ;;          with the upstream e.g. through http://github.com
 ;;          push/pull.
 ;;
-;;      Each Emacs extension need to be prepared for use with this
-;;      system: import it into git, make repository must available
-;;      online and add information about the Git repository to
-;;      epackage sources list, the yellow pages. This job can be done
-;;      by anyone who wants to set up a repository. It doesn't need to
-;;      be done by the original Emacs extension author (upstream) who
-;;      may not be familiar with the `git(1)' program. For more
-;;      information about the packaging, refer to section "The
-;;      epackage system framework ".
+;;      Each Emacs extension is prepared for use with this system:
+;;      upstream code is imported into a git repository, the epackage
+;;      system is installe don top of upstream code in separate
+;;      directory, the whole git repository is made available online
+;;      and add information about its availability is recorded to a
+;;      separate seources list yellow pages. The epackaging work can
+;;      be done by anyone who wants to set up a repository. It doesn't
+;;      necesarily need to be done by the original Emacs extension
+;;      author (upstream) who may not be familiar with the `git(1)'
+;;      program. For more information about the packaging, refer to
+;;      section "The epackage system framework ".
 ;;
 ;;      [1] DVCS = Distributed Version Control System
 ;;          http://en.wikipedia.org/wiki/Distributed_revision_control
@@ -375,7 +373,7 @@
 ;;      The same in pictures. The `master' contains merges from
 ;;      `patches' and `upstream'.
 ;;
-;;          patches        o - o (medications; merged to master)
+;;          patches        o - o (modifications; merged to master)
 ;;                       /
 ;;          upstream    * ---- o
 ;;                       \      \ (merge)
@@ -875,7 +873,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1209.1009"
+(defconst epackage-version-time "2010.1209.1401"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
