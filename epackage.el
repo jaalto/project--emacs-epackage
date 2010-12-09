@@ -153,16 +153,19 @@
 ;;          downgrade to a older version with ease.
 ;;      o   Contains history of package in one place. No more scattered
 ;;          pieces around Internet.
+;;	o   Encourags social collaboration; more easier interacting
+;;	    with the upstream e.g. through http://github.com
+;;	    push/pull.
 ;;
-;;      The Emacs extensions need to prepared for use with this
-;;      system: imported to git, the repository must be made available
-;;      online and information about the Git repository must be
-;;      submitted to epackage sources list, the yellow pages. This
-;;      job can be done by anyone who wants to set up a repository.
-;;      It doesn't need to be done by the original Emacs extension
-;;      author (upstream) who may not be familiar with the `git(1)'
-;;      program. For more information about the packaging see
-;;      following topics.
+;;      Each Emacs extension need to be prepared for use with this
+;;      system: import it into git, make repository must available
+;;      online and add information about the Git repository to
+;;      epackage sources list, the yellow pages. This job can be done
+;;      by anyone who wants to set up a repository. It doesn't need to
+;;      be done by the original Emacs extension author (upstream) who
+;;      may not be familiar with the `git(1)' program. For more
+;;      information about the packaging, refer to section "The
+;;      epackage system framework ",
 ;;
 ;;      [1] DVCS = Distributed Version Control System
 ;;          http://en.wikipedia.org/wiki/Distributed_revision_control
@@ -866,7 +869,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1209.0920"
+(defconst epackage-version-time "2010.1209.0927"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
