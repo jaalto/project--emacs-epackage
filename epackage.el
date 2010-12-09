@@ -36,12 +36,29 @@
 ;;  Put this file along your Emacs-Lisp `load-path' and add following
 ;;  into your ~/.emacs startup file.
 ;;
-;;      ;;  M-x epackage to start package manager
-;;      (autoload 'epackage "epackage" "" t)
-;;
 ;;      ;; One big file to boot all installed packages
 ;;      ;; Automatically generated. Do not edit.
 ;;      (load "~/.emacs.d/epackage/00conf/epackage-loader" 'noerr)
+;;
+;;      ;;  M-x epackage to start package manager
+;;      (autoload 'epackage "epackage" "" t)
+;;
+;;      (autoload 'epackage-loader-file-byte-compile    "epackage" "" t)
+;;      (autoload 'epackage-loader-file-generate        "epackage" "" t)
+;;      (autoload 'epackage-cmd-autoload-package        "epackage" "" t)
+;;      (autoload 'epackage-cmd-enable-package          "epackage" "" t)
+;;      (autoload 'epackage-cmd-disable-package         "epackage" "" t)
+;;      (autoload 'epackage-cmd-activate-package        "epackage" "" t)
+;;      (autoload 'epackage-cmd-deactivate-package      "epackage" "" t)
+;;      (autoload 'epackage-cmd-clean-package           "epackage" "" t)
+;;      (autoload 'epackage-cmd-remove-package          "epackage" "" t)
+;;      (autoload 'epackage-cmd-upgrade-package         "epackage" "" t)
+;;      (autoload 'epackage-cmd-upgrade-all-packages    "epackage" "" t)
+;;      (autoload 'epackage-cmd-download-sources-list   "epackage" "" t)
+;;      (autoload 'epackage-cmd-download-package        "epackage" "" t)
+;;      (autoload 'epackage-initialize                  "epackage" "" t)
+;;      (autoload 'epackage-version                     "epackage" "" t)
+;;      (autoload 'epackage-documentation               "epackage" "" t)
 ;;
 ;;  In addition to full UI (M-x epackage), there is also minimal
 ;;  command line UI:
@@ -873,7 +890,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1209.1449"
+(defconst epackage-version-time "2010.1209.1545"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -922,6 +939,15 @@ must be no leading whitespaces in front of PACKAGE-NAME.
 An example:
 
   foo git://example.com/repository/foo.git")
+
+(defvar epackage--sources-list-regexp
+  `,(concat "^\\(%s\\)\\>"
+	    "[ \t]+\\([^ \t\r\n]+\\)"
+	    ;;  In case there i no description, do not *require*
+	    ;;  a match
+	    "\\(?:[ \t]+\\([^ \t\r\n]+.+[^ \t\r\n]+\\)\\)?")
+  "Regexp to match entries described in `epackage--sources-list-url'.
+The %s marks the package name.")
 
 (defcustom epackage--root-directory
   (let (ret)
@@ -1912,11 +1938,8 @@ If VERBOSE is non-nil, display progress message."
   "Return list of PACKAGE fields described in `epackage--sources-list-url'.
 Point must be at the beginning of line."
   (if (looking-at
-       (format
-        `,(concat "^\\(%s\\)\\>"
-                  "[ \t]+\\([^ \t\r\n]+\\)"
-                  "[ \t]*\\([^ \t\r\n]*\\)")
-        (regexp-quote package)))
+       (format epackage--sources-list-regexp
+	       (regexp-quote package)))
       (list
        (match-string-no-properties 1)
        (match-string-no-properties 2)
@@ -1927,12 +1950,8 @@ Point must be at the beginning of line."
 Format is described in variable `epackage--sources-list-url'."
   (epackage-with-sources-list
     (goto-char (point-min))
-    (let ((re
-           (format
-            `,(concat "^\\(%s\\)\\>"
-                      "[ \t]+\\([^ \t\r\n]+\\)"
-                      "[ \t]*\\([^ \t\r\n]*.*[^ \t\r\n]\\)")
-            (regexp-quote package))))
+    (let ((re (format epackage--sources-list-regexp
+		      (regexp-quote package))))
       (when (re-search-forward re nil t)
         (list
          (match-string-no-properties 1)

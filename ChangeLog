@@ -10,6 +10,13 @@
 	(epackage-batch-ui-download-sources-list): Remove duplicate.
 	(epackage--batch-ui-menu-actions): Correct function
 	to `epackage-batch-ui-enable-package'.
+	(epackage-sources-list-info-main): Do not require matching anything
+	in DESCRIPTION part.
+	(epackage--sources-list-regexp): New.
+	(epackage-sources-list-info-parse-line): Use
+	`epackage--sources-list-regexp'.
+	(epackage-sources-list-info-main): Use
+	`epackage--sources-list-regexp'.
 
 2010-12-08 Wed  Jari Aalto  <jari.aalto@cante.net>
 
