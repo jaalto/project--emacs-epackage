@@ -863,6 +863,9 @@
 ;;
 ;;      REPO
 ;;
+;;	o   > Check validity of "git tag -l" and upstream/* against the
+;;	   speficifation. Two dashes etc.
+;;
 ;;      o   Fetch, pull conflicts?
 ;;
 ;;      o   What if epackage maintainer kills the repo and re-instantiates it
@@ -918,7 +921,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1209.1616"
+(defconst epackage-version-time "2010.1209.1620"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
