@@ -23,6 +23,8 @@
 #	http://freshmeat.net/projects/perl-ripdoc
 
 PACKAGE		= epackage
+AUTHOR		= Jari Aalto
+DESCRIPTION	= Epackage - Distributed Emacs Lisp Package System (DELPS)
 SRC		= ../$(PACKAGE).el
 TXT		= index.txt
 HTML		= index.html
@@ -35,8 +37,9 @@ $(TXT): $(SRC)
 	ripdoc $(SRC) > $(TXT)
 
 $(HTML): $(TXT) $(LICENSE)
-	t2html --author "Jari Aalto" \
-	--title "Epackage - Distributed Emacs Lisp Package System (DELPS)" \
+	t2html \
+	--author "$(AUTHOR)" \
+	--title "$(DESCRIPTION)" \
 	--css-code-bg \
 	--css-file=index.css \
 	--disclaimer-file=$(LICENSE) \
