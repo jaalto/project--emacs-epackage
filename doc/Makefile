@@ -30,6 +30,8 @@ TXT		= index.txt
 HTML		= index.html
 DOCDIR		= doc
 LICENSE		= disclaimer.txt
+BIN		= t2html
+FLAGS		=
 
 all: doc
 
@@ -37,13 +39,14 @@ $(TXT): $(SRC)
 	ripdoc $(SRC) > $(TXT)
 
 $(HTML): $(TXT) $(LICENSE)
-	t2html \
+	$(BIN) \
 	--author "$(AUTHOR)" \
 	--title "$(DESCRIPTION)" \
 	--css-code-bg \
 	--css-file=index.css \
 	--disclaimer-file=$(LICENSE) \
 	--out \
+	$(FLAGS) \
 	$(TXT)
 
 doc: $(HTML)
