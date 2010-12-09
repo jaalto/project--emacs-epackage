@@ -52,18 +52,18 @@
 
 ;;  Preface 2009
 ;;
-;;	NOTE: 2010-12-08 This extension is in alpha design state;
-;;	meaning that it is not in full use yet. The core elements are
-;;	being planned and written. For testing, see available `M-x'
-;;	`epackage-*' commands. There is also a rudimentary batch
-;;	command line UI:
+;;      NOTE: 2010-12-08 This extension is in alpha design state;
+;;      meaning that it is not in full use yet. The core elements are
+;;      being planned and written. For testing, see available `M-x'
+;;      `epackage-*' commands. There is also a rudimentary batch
+;;      command line UI:
 ;;
-;;	    # Or run the provided Makefile: "make ui"
-;;	    emacs --batch -Q -l /path/to/epackage.el -f epackage-batch-ui-menu
+;;          # Or run the provided Makefile: "make ui"
+;;          emacs --batch -Q -l /path/to/epackage.el -f epackage-batch-ui-menu
 ;;
-;;	....expect full UI with nice menus, font-lock, mode command
-;;	and Emacs buffers like in ELPA somewhere around spring 2011
-;;	the earliest.
+;;      ....expect full UI with nice menus, font-lock, mode command
+;;      and Emacs buffers like in ELPA somewhere around spring 2011
+;;      the earliest.
 ;;
 ;;      Emacs has been around for decades now. Many new version have
 ;;      come and gone (in my days 18.59 ... 24.x), Still there are
@@ -93,7 +93,7 @@
 ;;      centralized ELPA Emacs package manager.
 ;;
 ;;      Each Emacs extension is wrapped into epackage format which
-;;      basicly follows the Debian packaging style where a separat
+;;      basically follows the Debian packaging style where a separate
 ;;      control directory named `epackage/' is used for all the
 ;;      packaging details: activation, autoloads and installation etc.
 ;;      In addition, each epackage is imported in and deployed using
@@ -125,14 +125,14 @@
 ;;      like ELPA, as usual. User's standard Emacs startup files, like
 ;;      `~/.emacs' are never modified.
 ;;
-;;	[1] http://en.wikipedia.org/wiki/Advanced_Packaging_Tool
+;;      [1] http://en.wikipedia.org/wiki/Advanced_Packaging_Tool
 ;;
-;;	[2] http://en.wikipedia.org/wiki/RPM_Package_Manager
+;;      [2] http://en.wikipedia.org/wiki/RPM_Package_Manager
 ;;
-;;	[3] http://en.wikipedia.org/wiki/YaST See also
-;;	http://en.wikipedia.org/wiki/Yellowdog_Updater,_Modified
+;;      [3] http://en.wikipedia.org/wiki/YaST See also
+;;      http://en.wikipedia.org/wiki/Yellowdog_Updater,_Modified
 ;;
-;;	[4] http://www.emacswiki.org/emacs/ELPA
+;;      [4] http://www.emacswiki.org/emacs/ELPA
 ;;
 ;;  Epackage - the DVCS packaging system
 ;;
@@ -153,9 +153,9 @@
 ;;          downgrade to a older version with ease.
 ;;      o   Contains history of package in one place. No more scattered
 ;;          pieces around Internet.
-;;	o   Encourages social collaboration; more easier interacting
-;;	    with the upstream e.g. through http://github.com
-;;	    push/pull.
+;;      o   Encourages social collaboration; more easier interacting
+;;          with the upstream e.g. through http://github.com
+;;          push/pull.
 ;;
 ;;      Each Emacs extension need to be prepared for use with this
 ;;      system: import it into git, make repository must available
@@ -264,7 +264,12 @@
 ;;
 ;;  The epackage system framework
 ;;
-;;      To epxlain how do all the pieces in this system go together,
+;;      Quick links for developrs:
+;;
+;;      o   https://github.com/jaalto/project--emacs-epackage-sources-list
+;;      o   https://github.com/jaalto/project--emacs-epackage-template
+;;
+;;      To explain how do all the pieces in this system go together,
 ;;      lets take a look at the system overview. The system mirrors
 ;;      the style of Debian packaging management. There are two
 ;;      primary actors: (1) the epackage package maintainer and (2)
@@ -273,7 +278,7 @@
 ;;
 ;;      o   A = An Emacs user who wants to install new software
 ;;      o   (Y)ellow pages = The sources list file that contains
-;;          information about available epakages around the globe.
+;;          information about available epackages around the globe.
 ;;      o   E = The epackage. Maintained by a person who has found an
 ;;          interesting utility and wrapped it in epackage format. He
 ;;          is the maintainer of epackaged software. He keeps
@@ -325,12 +330,11 @@
 ;;          |                           |               |
 ;;          =============================================
 ;;
-;;
-;;  User's local epackage system layout
+;;  Local directory layout
 ;;
 ;;      The packages are installed under root `epackage--root-directory',
 ;;      which defaults to `~/.emacs.d' or `~/elisp' respectively. The
-;;      root directory is organized as follows:
+;;      components below the root directory are organized as follows:
 ;;
 ;;          epackage/               Under epackage--root-directory
 ;;          |
@@ -768,41 +772,41 @@
 ;;
 ;; Batch command line interface
 ;;
-;;	Several FUNCTIONS can be accessed from command line in a
-;;	manner of:
+;;      Several FUNCTIONS can be accessed from command line in a
+;;      manner of:
 ;;
-;;	    emacs --batch -Q -l /path/to/epackage.el -f FUNCTION
+;;          emacs --batch -Q -l /path/to/epackage.el -f FUNCTION
 ;;
-;;	The functions and their command line arguments are:
+;;      The functions and their command line arguments are:
 ;;
-;;	    ;; Interactive, menu driven
-;;	    epackage-batch-ui-menu
+;;          ;; Interactive, menu driven
+;;          epackage-batch-ui-menu
 ;;
-;;	    epackage-batch-ui-upgrade-all-packages
-;;	    epackage-batch-upgrade-package PACKAGE ...
-;;	    epackage-batch-download-package PACKAGE ...
-;;	    epackage-batch-remove-package PACKAGE ...
-;;	    epackage-batch-clean-package PACKAGE ...
-;;	    epackage-batch-activate-package PACKAGE ...
-;;	    epackage-batch-deactivate-package PACKAGE ...
-;;	    epackage-batch-enable-package PACKAGE ...
-;;	    epackage-batch-disable-package PACKAGE ...
-;;	    epackage-batch-ui-list-installed-packages
-;;	    epackage-batch-ui-list-not-installed-packages
-;;	    epackage-batch-ui-list-downloaded-packages
-;;	    epackage-batch-ui-loader-file-generate
-;;	    epackage-batch-ui-loader-file-byte-compile
+;;          epackage-batch-ui-upgrade-all-packages
+;;          epackage-batch-upgrade-package PACKAGE ...
+;;          epackage-batch-download-package PACKAGE ...
+;;          epackage-batch-remove-package PACKAGE ...
+;;          epackage-batch-clean-package PACKAGE ...
+;;          epackage-batch-activate-package PACKAGE ...
+;;          epackage-batch-deactivate-package PACKAGE ...
+;;          epackage-batch-enable-package PACKAGE ...
+;;          epackage-batch-disable-package PACKAGE ...
+;;          epackage-batch-ui-list-installed-packages
+;;          epackage-batch-ui-list-not-installed-packages
+;;          epackage-batch-ui-list-downloaded-packages
+;;          epackage-batch-ui-loader-file-generate
+;;          epackage-batch-ui-loader-file-byte-compile
 ;;
-;;	    ;; This command also upgrades the yellow pages file
-;;	    epackage-batch-ui-download-sources-list
+;;          ;; This command also upgrades the yellow pages file
+;;          epackage-batch-ui-download-sources-list
 ;;
 ;; TODO
 ;;
-;;	[Within groups, sorted by priority. ">" under work]
+;;      [Within groups, sorted by priority. ">" under work]
 ;;
-;;	General
+;;      General
 ;;
-;;	o   > Add *-hook variables to command actions.
+;;      o   > Add *-hook variables to command actions.
 ;;      o   > Run health check for downloaded Epackage
 ;;      o   > auto-byte-compile feature on package install (cnfigurable)
 ;;      o   > Verify sources list file: No duplicate of same packages.
@@ -811,10 +815,10 @@
 ;;      o   > Dynamically search all *.el and *elc. When byte compiled,
 ;;          symlink those files as well.
 ;;      o   > Download problem, broken link:
-;;	    => Offer mailing the Yellow pages maintainer about broken link
+;;          => Offer mailing the Yellow pages maintainer about broken link
 ;;      o   What if user manually deletes directories? Left over config files?
 ;;
-;;	REPO
+;;      REPO
 ;;
 ;;      o   Fetch, pull conflicts?
 ;;
@@ -838,9 +842,9 @@
 ;;          "manual". User can deal with the merges and take full
 ;;          responsibility. We can still run 'git fetch'.
 ;;
-;;	GUI
+;;      GUI
 ;;
-;;	o   Write M-x epackage-manager
+;;      o   Write M-x epackage-manager
 ;;      o   Cache. Build it dynamically from packages and
 ;;          combine with package information (e.g. version).
 ;;      o   After download. Trying to install or activate package,
@@ -853,10 +857,10 @@
 ;;      o   Rescan current information? (what is installed, what is not)
 ;;          => Keep cache? Or regenerate, or scan at startup every time?
 ;;
-;;	Some day in the future:
+;;      Some day in the future:
 ;;
 ;;      o   Verify Compatibility Level of downloaded epackage
-;;	o   Implement Depends, Conflicts checks.
+;;      o   Implement Depends, Conflicts checks.
 ;;      o   Edit yellow pages catalog?
 ;;          => Submit/update yellow pages catalog changes?
 ;;          => version controlled, patches? Interface to automatic email?
@@ -871,7 +875,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1209.0952"
+(defconst epackage-version-time "2010.1209.1009"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1048,7 +1052,7 @@ p       List available packages in yellow pages.
 r       Remove; delete package physically from local disk.
 u       Upgrade package. Download new updates.
 U       Upgrade all packages.
-?	Help.
+?       Help.
 q       Quit."
   "UI menu to run epackage from command line.")
 
@@ -1081,37 +1085,37 @@ Use from command line:
 (defconst epackage--batch-ui-menu-help "\
 Packages management
 -------------------
-download	Download package to disk. No install whatsoever.
+download        Download package to disk. No install whatsoever.
 
-upgrade		Get new updates for package(s).
+upgrade         Get new updates for package(s).
 
-install		Several choices:
-		* autoload. Install only minimal functions
-		  that will be available in autoload state only.
-		  If you want to configure everything manually in
-		  ~/.emacs startup file, use this (for experts).
-		* install standard = enable only autoload code.
-		  The opposite is uninstall = disable.
-		* activate = install hooks, bindings and the like.
-		  Posisbly modifies Emacs setup.
-		  The opposite is deactivate.
+install         Several choices:
+                * autoload. Install only minimal functions
+                  that will be available in autoload state only.
+                  If you want to configure everything manually in
+                  ~/.emacs startup file, use this (for experts).
+                * install standard = enable only autoload code.
+                  The opposite is uninstall = disable.
+                * activate = install hooks, bindings and the like.
+                  Posisbly modifies Emacs setup.
+                  The opposite is deactivate.
 
-clean		Delete all install configuration files. Package
-		will not be available for later use. M-x etc.
-		calls are not there any longer.
+clean           Delete all install configuration files. Package
+                will not be available for later use. M-x etc.
+                calls are not there any longer.
 
-remove		Physically remove configuration files and pakkage
-		from download directory
+remove          Physically remove configuration files and pakkage
+                from download directory
 
 Other actions
 -------------
-generate	Write a boot loader that contains all packages'
-		configurations in one file. This is intended to be
-		loaded from ~/.emacs. Must be generated/updated
-		after each package management change.
+generate        Write a boot loader that contains all packages'
+                configurations in one file. This is intended to be
+                loaded from ~/.emacs. Must be generated/updated
+                after each package management change.
 
-get		Get Yellow pages data. This updated package sources
-		list file to know about new available packages."
+get             Get Yellow pages data. This updated package sources
+                list file to know about new available packages."
   "UI menu help.")
 
 
@@ -1364,13 +1368,13 @@ The TYPE is car of list `epackage--layout-mapping'."
   "Check existence of `epackage--sources-file-name'."
   (let ((file (epackage-file-name-sources-list)))
     (if (file-exists-p file)
-	file)))
+        file)))
 
 (defsubst epackage-sources-list-verify ()
   "Signal error if `epackage--sources-file-name' does not exist."
   (or (epackage-sources-list-p)
       (epackage-error "Missing file %s. Run epackage-initialize"
-		      (epackage-file-name-sources-list))))
+                      (epackage-file-name-sources-list))))
 
 (defsubst epackage-initialize-string ()
   "Return message string to suggest running `epackage-initialize'."
@@ -1595,7 +1599,7 @@ If VERBOSE is non-nil, display progress message."
   "Run 'git clone URL DIR' in VCS package directory vault.
 If VERBOSE is non-nil, display progress message."
   (let ((name (epackage-file-name-basename dir))
-	(dir-before (epackage-file-name-directory-previous dir)))
+        (dir-before (epackage-file-name-directory-previous dir)))
     (epackage-with-git-command dir-before verbose
       "clone" url name)))
 
@@ -1957,7 +1961,7 @@ Format is described in variable `epackage--sources-list-url'."
       (while (re-search-forward "^\\([a-z][a-z0-9-]+\\)[ \t]+[a-z]" nil t)
         (epackage-push (match-string-no-properties 1) list))
       (setq list (sort list (lambda (a b)
-			      (string< a b))))
+                              (string< a b))))
       list)))
 
 (defun epackage-require-emacs (&optional verbose)
@@ -2129,12 +2133,12 @@ Return package name or nil."
   "Check PACKAGE, VERBOSE. If nok, display/signal error MESSAGE. If ok, run BODY."
   `(cond
     ((or (null package) ;User pressed RETURN to not select any.
-	 (and (stringp package)
-	      (string-match "^[ \t]*$" package))))
+         (and (stringp package)
+              (string-match "^[ \t]*$" package))))
     ((and (stringp package)
-	  (not (member package (epackage-sources-list-info-pkg-list))))
+          (not (member package (epackage-sources-list-info-pkg-list))))
      (if (eq ,verbose 'interactive)
-	 (epackage-warn (format "Unknown package \"%s\"" package))
+         (epackage-warn (format "Unknown package \"%s\"" package))
        (epackage-error (format "Not a known package \"%s\"" package))))
     ((epackage-string-p ,package)
      ,@body)
@@ -2152,7 +2156,7 @@ If VERBOSE is non-nil, display progress message."
          'interactive))
   (epackage-cmd-package-check-macro package verbose
       (format "PACKAGE name \"%s\" is invalid for autoload command"
-	      package)
+              package)
     (epackage-config-install-autoload package verbose)))
 
 ;;;###autoload
@@ -2164,7 +2168,7 @@ If VERBOSE is non-nil, display progress message."
          'interactive))
   (epackage-cmd-package-check-macro package verbose
       (format "package name \"%s\" is invalid for enable command"
-	      package)
+              package)
     (epackage-config-install-autoload package verbose)
     (epackage-config-install-action 'enable package nil verbose)))
 
@@ -2177,12 +2181,12 @@ If VERBOSE is non-nil, display progress message."
          'interactive))
   (epackage-cmd-package-check-macro package verbose
       (format "package name \"%s\" is invalid for disable command"
-	      package)
+              package)
     (let ((file (epackage-file-name-install-compose package 'enable)))
       (when (file-exists-p file)
-	(epackage-with-verbose
-	  (epackage-message "Delete %s" file))
-	(delete-file file)))))
+        (epackage-with-verbose
+          (epackage-message "Delete %s" file))
+        (delete-file file)))))
 
 ;;;###autoload
 (defun epackage-cmd-activate-package (package &optional verbose)
@@ -2193,7 +2197,7 @@ If VERBOSE is non-nil, display progress message."
          'interactive))
   (epackage-cmd-package-check-macro package verbose
       (epackage-message "package name \"%s\" is invalid for activate command"
-			package)
+                        package)
     (epackage-config-install-autoload package verbose)
     (epackage-config-install-action 'activate package nil verbose)))
 
@@ -2206,12 +2210,12 @@ If VERBOSE is non-nil, display progress message."
          'interactive))
   (epackage-cmd-package-check-macro package verbose
       (epackage-error "package name \"%s\" is invalid for deactivate command"
-		      package)
+                      package)
     (let ((file (epackage-file-name-install-compose package 'activate)))
       (when (file-exists-p file)
-	(epackage-with-verbose
-	  (epackage-message "Delete %s" file))
-	(delete-file file)))))
+        (epackage-with-verbose
+          (epackage-message "Delete %s" file))
+        (delete-file file)))))
 
 ;;;###autoload
 (defun epackage-cmd-clean-package (package &optional verbose)
@@ -2222,7 +2226,7 @@ If VERBOSE is non-nil, display progress message."
          'interactive))
   (epackage-cmd-package-check-macro package verbose
       (epackage-error "package name \"%s\" is invalid for clean command"
-		      package)
+                      package)
     (epackage-config-delete-all package verbose)))
 
 ;;;###autoload
@@ -2610,7 +2614,7 @@ Summary, Version, Maintainer etc."
                char
                menu))
     (or choice
-	char)))
+        char)))
 
 (defsubst epackage--batch-ui-menu-header ()
   "Display menu header."
@@ -2620,15 +2624,15 @@ Epackage - Distributed Emacs Package System (DELPS)
 ===================================================
 Version: %s
 Contact: %s"
-	   epackage-version-time
-	   epackage-maintainer))
+           epackage-version-time
+           epackage-maintainer))
 
 ;;;###autoload
 (defun epackage-batch-ui-menu ()
   "Present an UI to run basic command."
   (epackage-initialize 'verbose)
   (let ((vc-handled-backends nil)
-	(loop t)
+        (loop t)
         choice)
     (setq debug-on-error t)
     (setq epackage--debug nil)
@@ -2649,7 +2653,7 @@ Contact: %s"
        ((functionp choice)
         (call-interactively choice))
        ((eq choice ?\?)
-	(message epackage--batch-ui-menu-help))
+        (message epackage--batch-ui-menu-help))
        (t
         (message "** Unknown menu selection: %s" choice))))))
 
