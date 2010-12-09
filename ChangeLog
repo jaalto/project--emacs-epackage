@@ -1,8 +1,11 @@
 2010-12-09 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el
-	(top level): Update documentation.
+	(top level): Update documentation. Run Elint and Checkdoc on code
+	and fix problems.
 	(epackage-manager): New.
+	(epackage-manager): Add `error'. Not implemented.
+	(epackage-batch-ui-download-sources-list): Remove duplicate.
 
 2010-12-08 Wed  Jari Aalto  <jari.aalto@cante.net>
 

@@ -873,7 +873,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1209.1407"
+(defconst epackage-version-time "2010.1209.1437"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -897,7 +897,7 @@
   :group 'Epackage)
 
 (defcustom epackage--loader-file-byte-compile-flag t
-  "*Non-nil meand to byte compile `epackage--loader-file'.
+  "*Non-nil means to byte compile `epackage--loader-file'.
 When non-nil, After calling `epackage-loader-file-generate', file
 returned by `epackage-file-name-loader-file' is byte compiled."
   :type  'boolean
@@ -942,7 +942,7 @@ An example:
       (message
        (concat "Epackage: [ERROR] Can't determine location of lisp packages."
                "Please define `epackage--root-directory'.")))))
-  "*Location of lisp files. Typically ~/.emacs.d or ~/elisp.
+  "*Location of Lisp files. Typically ~/.emacs.d or ~/elisp.
 Directory should not contain a trailing slash."
   :type  'directory
   :group 'Epackage)
@@ -951,7 +951,7 @@ Directory should not contain a trailing slash."
   (if epackage-w32-p
       nil
     t)
-  "If non-nil, symlinks are supported.
+  "Non-nil means symlinks are supported.
 The value must be nil under Windows Operating System.")
 
 (defvar epackage--directory-name "epackage"
@@ -959,7 +959,7 @@ The value must be nil under Windows Operating System.")
 Use function `epackage-directory' for full path name.")
 
 (defconst epackage--directory-name-pkg "packages"
-  "directory under `epackage--root-directory' where to download.
+  "Directory under `epackage--root-directory' where to download.
 Use function `epackage-file-name-package-compose' for full path name.")
 
 (defconst epackage--directory-name-conf "00conf"
@@ -979,7 +979,7 @@ This directory contains control files from packages.")
 See variable `epackage--sources-list-url'.")
 
 (defvar epackage--loader-file "epackage-loader.el"
-  "file that contains package enabling and activation code.
+  "File that contains package enabling and activation code.
 Use function `epackage-file-name-loader-file' for full path name.
 Make fle with `epackage-loader-file-generate'.
 See also variable `epackage--loader-file-byte-compile-flag'.")
@@ -1022,7 +1022,8 @@ producing 'foo-install.el.")
   "Buffer name of call `finder-commentary'.")
 
 (defvar epackage--initialize-flag nil
-  "Set to t, when epackage has been started. do not touch.")
+  "Non-nil means that package has been initialized.
+Set by function `epackage-initialize'. Do not touch.")
 
 (defvar epackage--program-git nil
   "Location of program git(1).")
@@ -1078,7 +1079,7 @@ q       Quit."
 
 Use from command line:
 
-  emacs --batch -Q -l ./epackage.el -f epackage-batch-ui-menu")
+  Emacs --batch -Q -l ./epackage.el -f epackage-batch-ui-menu")
 
 (defconst epackage--batch-ui-menu-help "\
 Packages management
@@ -1116,9 +1117,8 @@ get             Get Yellow pages data. This updated package sources
                 list file to know about new available packages."
   "UI menu help.")
 
-
 (defsubst epackage-file-name-basename (dir)
-  "Like `file-name-nondirectory' but always return last component
+  "Like `file-name-nondirectory' but always return last component of DIR.
 An example:  /path/to/  => to"
     (when (string-match "^.+/\\([^/]+\\)/?$" dir)
       (match-string 1 dir)))
@@ -1174,17 +1174,17 @@ Return nil of there is nothing to remove .i.e. the result wold be \"/\"."
             (concat "/" package))))
 
 (defsubst epackage-file-name-pkg-directory ()
-  "Return VCS directory"
+  "Return VCS directory."
   (epackage-file-name-package-compose ""))
 
 (defsubst epackage-file-name-install-directory ()
-  "Return link directory"
+  "Return link directory."
   (format "%s/%s"
           (epackage-directory)
           epackage--directory-name-install))
 
 (defsubst epackage-file-name-vcs-package-control-directory (package)
-  "Return control directory of PACKAGE"
+  "Return control directory of PACKAGE."
   (let ((root (epackage-file-name-package-compose package)))
     (format "%s/%s" root epackage--package-control-directory)))
 
@@ -1202,7 +1202,7 @@ Examples:
 (put 'epackage-ignore-errors 'lisp-indent-function 0)
 (put 'epackage-ignore-errors 'edebug-form-spec '(body))
 (defmacro epackage-ignore-errors (&rest body)
-  "A close `ignore-errors' CL library macro equivalent."
+  "Run BODY and ignore errors. Like CL `ignore-errors'."
   `(condition-case error
        (progn
          ,@body)
@@ -1229,24 +1229,25 @@ Examples:
      ,@body))
 
 (defmacro epackage-fatal (format &rest args)
-  "Call `error' with ARGS. Mark message with FATAL tag."
+  "Call `error' with FORMAT and ARGS. Mark message with FATAL tag."
   `(error (concat "Epackage: [FATAL] " ,format) ,@args))
 
 (put 'epackage-error 'lisp-indent-function 0)
 (put 'epackage-error 'edebug-form-spec '(body))
 (defmacro epackage-error (format &rest args)
-  "Call `error' with ARGS. mark message with ERROR tag."
+  "Call `error' with FORMAT and ARGS. mark message with ERROR tag."
   `(error (concat "Epackage: [ERROR] " ,format) ,@args))
 
 (put 'epackage-fatal 'lisp-indent-function 0)
 (put 'epackage-fatal 'edebug-form-spec '(body))
 (defmacro epackage-warn (format &rest args)
-  "Call `error' with ARGS. Mark message with WARN tag."
+  "Call `message' with FORMAT and ARGS. Mark message with WARN tag."
   `(message (concat "Epackage: [WARN] " ,format) ,@args))
 
 (put 'epackage-message 'lisp-indent-function 0)
 (put 'epackage-message 'edebug-form-spec '(body))
 (defmacro epackage-message (format &rest args)
+  "Call `message' with FORMAT and ARGS."
   `(message (concat "Epackage: " ,format) ,@args))
 
 (put 'epackage-with-verbose 'lisp-indent-function 0)
@@ -1266,7 +1267,7 @@ Examples:
 (put 'epackage-with-message 'lisp-indent-function 2)
 (put 'epackage-with-message 'edebug-form-spec '(body))
 (defmacro epackage-with-message (verbose message &rest body)
-  "if VERBOSE, display MESSAGE before and after (\"..done\") BODY."
+  "If VERBOSE, display MESSAGE before and after (\"..done\") BODY."
   `(progn
      (if ,verbose
          (epackage-message "%s" (concat ,message "...")))
@@ -1320,7 +1321,7 @@ The TYPE is car of list `epackage--layout-mapping'."
             (format "/%s-install.el" package))))
 
 (defsubst epackage-git-directory-p (dir)
-  "Return DIR if directory contains .git/"
+  "Check if there is .git under DIR. Return DIR if so."
   (let ((path (concat (file-name-as-directory dir) ".git")))
     (if (file-directory-p path)
         dir)))
@@ -1338,7 +1339,7 @@ The TYPE is car of list `epackage--layout-mapping'."
         file)))
 
 (defun epackage-package-downloaded-p (package)
-  "Check if package has been downloaded."
+  "Check if PACKAGE has been downloaded."
   (unless (epackage-string-p package)
     (epackage-error "arg 'package' is not a string."))
   (let ((dir (epackage-file-name-package-compose package)))
@@ -1355,11 +1356,11 @@ The TYPE is car of list `epackage--layout-mapping'."
           (epackage-sources-list-directory)
           epackage--sources-file-name))
 
-(defsubst epackage-directory-p (dir)
-  "Check if directory contains subdir `epackage--directory-name'."
+(defsubst epackage-directory-p (directory)
+  "Check if there is a subdir `epackage--directory-name' under DIRECTORY."
   (file-directory-p
    (concat
-    (file-name-as-directory dir)
+    (file-name-as-directory directory)
     epackage--directory-name)))
 
 (defsubst epackage-sources-list-p ()
@@ -1386,12 +1387,12 @@ The TYPE is car of list `epackage--layout-mapping'."
                             ". ")
                           (epackage-initialize-string))))
 
-(defun epackage-error-no-directory (dir &optional message)
-  "Signal error with optional MESSAGE if DIR does not exist."
-  (unless (file-directory-p dir)
+(defun epackage-error-no-directory (directory &optional message)
+  "If DIRECTORY does not exist, signal error with optional supplied MESSAGE."
+  (unless (file-directory-p directory)
     (epackage-error-initialize
      (or message
-         (format "No such directory %s" dir)))))
+         (format "No such directory %s" directory)))))
 
 (defun epackage-initialize-verify (&optional message)
   "Signal error with MESSAGE if `epackage-initialize' has not been run."
@@ -1439,7 +1440,7 @@ The TYPE is car of list `epackage--layout-mapping'."
        ,@body)))
 
 (defsubst epackage-git-error-handler (&optional command)
-  "On Git error, show proces buffer and signal error."
+  "On Git error, show proces buffer and signal error incuding COMMAND."
   (display-buffer epackage--process-output)
   (epackage-error "Git %scommand error"
                   (if command
@@ -1473,7 +1474,7 @@ Used inside `epackage-with-process-output'."
   (zerop status))
 
 (defun epackage-git-command-process (&rest args)
-  "Run git COMMAND with output to `epackage--process-output'."
+  "Run git command with ARGS and send output to `epackage--process-output'."
   (epackage-program-git-verify)
   (epackage-with-debug
     (let ((dir default-directory)) ;; buffer local variable
@@ -1496,7 +1497,7 @@ Used inside `epackage-with-process-output'."
 (put 'epackage-with-git-command 'lisp-indent-function 2)
 (put 'epackage-with-git-command 'edebug-form-spec '(body))
 (defmacro epackage-with-git-command (dir verbose &rest args)
-  "Run git command in DIR with ARGS.
+  "Run git command in DIR, under VERBOSE with ARGS.
 If VERBOSE is non-nil, display progress message."
   `(epackage-with-directory ,dir
      (if ,verbose
@@ -1553,7 +1554,7 @@ Return:
     (epackage-git-command-branch-parse-1)))
 
 (defun epackage-git-command-branch-list (dir &optional verbose arg)
-  "Run 'git branch ARG' in DIR.
+  "In DIR, run in optional VERBOSE mode 'git branch [ARG]'.
 If VERBOSE is non-nil, display progress message.
 
 Return:
@@ -1702,7 +1703,7 @@ TYPE is car of `epackage--layout-mapping'."
       (delete-file file))))
 
 (defun epackage-config-delete-all (package &optional verbose)
-  "Delete all install configuration files for PACKAGE
+  "Delete all install configuration files for PACKAGE.
 If VERBOSE is non-nil, display progress message."
   (let ((dir (epackage-file-name-install-directory)))
     (epackage-error-no-directory dir)
@@ -1908,7 +1909,7 @@ If VERBOSE is non-nil, display progress message."
       (epackage-loader-file-byte-compile-maybe verbose))))
 
 (defun epackage-sources-list-info-parse-line (package)
-  "Return list of fields described in `epackage--sources-list-url'.
+  "Return list of PACKAGE fields described in `epackage--sources-list-url'.
 Point must be at the beginning of line."
   (if (looking-at
        (format
@@ -2095,7 +2096,8 @@ If invalid, return list of problems:
     list))
 
 (defun epackage-download-sources-list (&optional verbose)
-  "Download sources list file, the yellow pages."
+  "Download sources list file, the yellow pages.
+If VERBOSE is non-nil, display progress message."
   (if (epackage-sources-list-p)
       (epackage-with-verbose
         (epackage-message "Sources list already exists."))
@@ -2247,7 +2249,7 @@ If VERBOSE is non-nil, display progress message."
 
 ;;;###autoload
 (defun epackage-cmd-upgrade-package (package &optional verbose)
-  "Downloads updates for existing PACKAGE.
+  "Upgrade PACKAGE by downloading new code.
 Install new configurations if package has been enabled.
 If VERBOSE is non-nil, display progress messages."
   (interactive
@@ -2272,7 +2274,7 @@ If VERBOSE is non-nil, display progress messages."
 
 ;;;###autoload
 (defun epackage-cmd-upgrade-all-packages (&optional verbose)
-  "Downloads updates for all packages.
+  "Upgrade all downloaded packages.
 Install new configurations if package has been enabled.
 If VERBOSE is non-nil, display progress messages."
   (interactive
@@ -2321,11 +2323,6 @@ If VERBOSE is non-nil, display progress message."
   (setq epackage--initialize-flag t))
 
 ;;;###autoload
-(defun epackage-manager ()
-  "Start User Interface."
-  (epackage-initialize))
-
-;;;###autoload
 (defun epackage-version ()
   "Display `epackage-version-time'."
   (interactive)
@@ -2362,8 +2359,10 @@ Summary, Version, Maintainer etc."
       (kill-buffer epackage--finder-commentary-buffer))
     (display-buffer buffer)))
 
+;;;###autoload
 (defun epackage-manager ()
   "Start User Interface."
+  (epackage-initialize)
   (error "Not yet implemented. Estimate: late spring 2011.")) ;; FIXME
 
 ;;;###autoload (autoload 'epackage-mode          "epackage" "" t)
@@ -2499,12 +2498,6 @@ Summary, Version, Maintainer etc."
   "Call `epackage-cmd-remove-package'."
   (interactive)
   (call-interactively 'epackage-cmd-remove-package))
-
-;;;###autoload
-(defun epackage-batch-ui-download-sources-list ()
-  "Call `epackage-batch-ui-download-sources-list'."
-  (interactive)
-  (call-interactively 'epackage-cmd-download-sources-list))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-downloaded-packages ()
@@ -2656,7 +2649,7 @@ Contact: %s"
         (message "** Unknown menu selection: %s" choice))))))
 
 ;;;###autoload
-(defalias 'epackage-manager 'epackage)
+(defalias 'epackage 'epackage-manager)
 
 (add-hook  'epackage--mode-hook 'epackage-mode-define-keys)
 (provide   'epackage)
