@@ -63,7 +63,7 @@
 ;;
 ;;	....expect full UI with nice menus, font-lock, mode command
 ;;	and Emacs buffers like in ELPA somewhere around spring 2011
-;;	the erliest.
+;;	the earliest.
 ;;
 ;;      Emacs has been around for decades now. Many new version have
 ;;      come and gone (in my days 18.59 ... 24.x), Still there are
@@ -153,7 +153,7 @@
 ;;          downgrade to a older version with ease.
 ;;      o   Contains history of package in one place. No more scattered
 ;;          pieces around Internet.
-;;	o   Encourags social collaboration; more easier interacting
+;;	o   Encourages social collaboration; more easier interacting
 ;;	    with the upstream e.g. through http://github.com
 ;;	    push/pull.
 ;;
@@ -193,7 +193,7 @@
 ;;
 ;;      The fields are:
 ;;
-;;      o   1 - Unique package name. No two package scan have the same name.
+;;      o   1 - Unique package name. No two package can have the same name.
 ;;      o   2 - Package classification. `M-x' `finder-list-keywords'
 ;;      o   3 - status: (A)activated (E)nabled (I)installed etc.
 ;;      o   4 - Version number. Only known once package has been downloaded.
@@ -211,11 +211,11 @@
 ;;      o   D, run `dired' on package installation directory.
 ;;      o   e, edit package's *info* file.
 ;;      o   E, email upstream, the package author (maintainer). You can
-;;          as for new wishlist features, report bugs etc.
+;;          as for new wish list features, report bugs etc.
 ;;      o   g, Get yellow page data. Update package sources list.
 ;;      o   _i_, Install standard configuration for package.
 ;;      o   _I_, Uninstall standard configuration for package.
-;;      o   l<key>, list comand: available, installed, downloaded, enabled,
+;;      o   l<key>, list command: available, installed, downloaded, enabled,
 ;;          activated, autoloaded, not-installed.
 ;;      o   m, mark package (for command install or remove).
 ;;      o   M, send mail to person who is the maintainer of epackage
@@ -371,13 +371,13 @@
 ;;      The same in pictures. The `master' contains merges from
 ;;      `patches' and `upstream'.
 ;;
-;;          patches        o - o (modications; merged to master)
+;;          patches        o - o (medications; merged to master)
 ;;                       /
 ;;          upstream    * ---- o
 ;;                       \      \ (merge)
-;;          master        o ---- o - =>         epacakge/ dir
+;;          master        o ---- o - =>         contains epackage/ directory
 ;;
-;;      The epackaging method borrows concept from the Debian where a
+;;      The epackage method borrows concept from Debian where a
 ;;      separate control directory is used for package information.
 ;;      The directory name is `epackage/' and it is not configurable.
 ;;      The layout of an epackaged Emacs extension looks like:
@@ -385,16 +385,16 @@
 ;;          <PACKAGE, Emacs extension root dir>
 ;;          | <files and possible directories>
 ;;          |
-;;          +- .git/                    Version control branches (see above)
+;;          +- .git/                  Version control branches (see above)
 ;;          |
 ;;          +-- epackage/
-;;              info                    required: The package information file
-;;              PACKAGE-0loaddefs.el    optional: extracted ###autoload statements
-;;              PACKAGE-autoloads.el    optional:  autoload statements (manual)
-;;              PACKAGE-compile.el      optional: Code to byte compile the extension
-;;              PACKAGE-install.el      required: Code to make extension available
-;;              PACKAGE-uninstall.el    optional: Code to remove extension from Emacs
-;;              PACKAGE-xactivate.el    optional: Code to activate the extension
+;;              info                  required: The information file
+;;              PACKAGE-0loaddefs.el  optional: extracted ###autoload statements
+;;              PACKAGE-autoloads.el  optional: autoload statements (manual)
+;;              PACKAGE-compile.el    optional: Code to byte compile the extension
+;;              PACKAGE-install.el    required: Code to make the extension available
+;;              PACKAGE-uninstall.el  optional: Code to remove the extension
+;;              PACKAGE-xactivate.el  optional: Code to activate the extension
 ;;
 ;;      The names of the files have been chosen to sort
 ;;      alphabetically. All these configuration files are later
@@ -680,12 +680,12 @@
 ;;      *core-emacs-22.1*. Value `unmaintained' means that the
 ;;      original developer has vanished or abandoned the project and
 ;;      is no longer available for developing the package. Value
-;;      `unsafe' means that the not all the symmbols are name space
+;;      `unsafe' means that the not all the symbols are name space
 ;;      clean (prefix-*), so some of the commands might clash with
 ;;      existing ones. The current release status of package can be
 ;;      indicated with term `stable' (no more actively developed, bugs
 ;;      shaken out), `unstable' (package is in active development) and
-;;      `experimental' (no gurantees, not necessarily tested but this
+;;      `experimental' (no guarantees, not necessarily tested but this
 ;;      is the latest code). Value `broken' means that package is
 ;;      broken and does not work in some Emacs version (usually
 ;;      latest).
@@ -751,7 +751,7 @@
 ;;     X-*
 ;;
 ;;      Any other custom field can be inserted using `X-*' field
-;;      notation. It is recommended that X-fields are liste at the bottom,
+;;      notation. It is recommended that X-fields are listed at the bottom,
 ;;      Just before `Description:' field.
 ;;
 ;;          X-Comment: <comment here>
@@ -759,7 +759,7 @@
 ;;
 ;; Epackage Compatibility Levels
 ;;
-;;      The latest epackage format is alwyas described in section
+;;      The latest epackage format is always described in section
 ;;      "Epackage specification" above. In here you can find list of
 ;;      older formats and changes.
 ;;
@@ -793,71 +793,73 @@
 ;;	    epackage-batch-ui-loader-file-generate
 ;;	    epackage-batch-ui-loader-file-byte-compile
 ;;
-;;	    ;; This command also upgrades the the yellow pages file
+;;	    ;; This command also upgrades the yellow pages file
 ;;	    epackage-batch-ui-download-sources-list
 ;;
 ;; TODO
 ;;
-;;      o   GUI: After download. Trying to install or arctivate package,
+;;	[Within groups, sorted by priority. ">" under work]
+;;
+;;	GUI
+;;
+;;	o   Write M-x epackage-manager
+;;      o   Cache. Build it dynamically from packages and
+;;          combine with package information (e.g. version).
+;;      o   After download. Trying to install or activate package,
 ;;          check emacs compatibility and refuse to install if not met.
 ;;
-;;      o   GIT package repo: What if user has made local customizations?
-;;          Branch != master. Thought: we leave if alone and mark it
-;;          "manual". User can deal with the merges and take full
-;;          responsibility. We can still run 'git fetch'.
+;;      o   If user selects DETAIL view, collect
+;;          information to another buffer dynamically (info, git tags,
+;;          current git branch)
 ;;
-;;      o   Verify Compatibility Level of downloaded epackage
-;;      o   Run health check for downloaded Epackage
+;;      o   Rescan current information? (what is installed, what is not)
+;;          => Keep cache? Or regenerate, or scan at startup every time?
 ;;
-;;      o   Verify sources list file: No duplicate same packages.
+;;	REPO
 ;;
-;;      o   What to do if Yellow pages URL (repo) changes and you have
-;;          the old one installed? How to cope with the change? The Git
-;;          repository may need to be destroyed and downloaded again to
-;;          be sure (not necessarily derived from old one).
+;;      o   Fetch, pull conflicts?
 ;;
-;;      o   What if epackage maintainer kills the repo and reinstantiates it
+;;      o   What if epackage maintainer kills the repo and re-instantiates it
 ;;          from fresh? Symptoms: can't pull, because repos have diverged and
 ;;          do not have common objects. SOLUTION: offer deleting repo and
 ;;          downloading it again. Warn if there are any local modifications,
 ;;          the user might want ot have a backup (*.b). Can we do that? What
 ;;          if a backup already exists?
 ;;
-;;      o   Move package list into Git repository
-;;      o   GUI: drop outline. If user selects DETAIL view, collect
-;;          information to another buffer dynamically (info, git tags,
-;;          current git branch)
-;;
-;;      o   New file: cache. Build it dynamically from packages and
-;;          combine with package information (e.g. version).
-;;
-;;      o   Use 00control directory where to draw symlinks. This is faster
-;;          than using many paths in `load-path' but it won't work in
-;;          Windows.
-;;          => make it configurable
-;;      o   Dynamically search all *.el and *elc. When byte compiled,
-;;          symlink those files as well.
-;;
-;;      o   Install action by default enables (installs *-autoloads),
-;;          unless user has activated auto-activate feature (toggle)
-;;      o   Another toggle is auto-byte-compile feature on package install.
+;;      o   What to do if Yellow pages URL (repo) changes and you have
+;;          the old one installed? How to cope with the change? The Git
+;;          repository may need to be destroyed and downloaded again to
+;;          be sure (not necessarily derived from old one).
 ;;
 ;;      o   re-fetch repository (destroy, re-download).
+;;      o   Git tags, where is this information kept? Affects GUI.
 ;;
-;;      o   Git tags, where is this information kept?
-;;      o   How to update package, or all packages?
-;;          => Running git process? When update is available how to flag this?
-;;          => What about conflicts?
-;;      o   What about 'local', manual branch and updates?
-;;      o   Retrieve new yellow pages (available packages)
-;;      o   Rescan current information? (what is installed, what is not)
-;;          => Keep cache? Or regenerate, or scan at startup every time?
-;;      o   What if user manually deletes directories? Refresh?
-;;      o   Package health check, Lint?
+;;      o   What if user has made local customizations?
+;;          Branch != master. Thought: we leave if alone and mark it
+;;          "manual". User can deal with the merges and take full
+;;          responsibility. We can still run 'git fetch'.
+;;
+;;	General
+;;
+;;	o   > Add *-hook variables to command actions.
+;;      o   > Run health check for downloaded Epackage
+;;      o   > auto-byte-compile feature on package install (cnfigurable)
+;;      o   > Verify sources list file: No duplicate of same packages.
+;;      o   > Standard install by default enables (installs *-install).
+;;          Make this configurable what to do by default.
+;;      o   > Dynamically search all *.el and *elc. When byte compiled,
+;;          symlink those files as well.
+;;      o   > Download problem, broken link:
+;;	    => Offer mailing the Yellow pages maintainer about broken link
+;;      o   What if user manually deletes directories? Left over config files?
+;;
+;;	Some day in the future:
+;;
+;;      o   Verify Compatibility Level of downloaded epackage
+;;	o   Implement Depends, Conflicts checks.
 ;;      o   Edit yellow pages catalog?
 ;;          => Submit/update yellow pages catalog changes?
 ;;          => version controlled, patches? Interface to automatic email?
-;;      o   Yellow pages URL health check? What to do with broken links?
 
 ;;; Change Log:
 
@@ -869,7 +871,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1209.0929"
+(defconst epackage-version-time "2010.1209.0950"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
