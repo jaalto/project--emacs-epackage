@@ -1,3 +1,9 @@
+2010-12-09 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el
+	(top level): Update documentation.
+	(epackage-manager): New.
+
 2010-12-08 Wed  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-require-main): Disable

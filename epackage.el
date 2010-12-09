@@ -165,7 +165,7 @@
 ;;      be done by the original Emacs extension author (upstream) who
 ;;      may not be familiar with the `git(1)' program. For more
 ;;      information about the packaging, refer to section "The
-;;      epackage system framework ",
+;;      epackage system framework ".
 ;;
 ;;      [1] DVCS = Distributed Version Control System
 ;;          http://en.wikipedia.org/wiki/Distributed_revision_control
@@ -869,7 +869,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1209.0927"
+(defconst epackage-version-time "2010.1209.0929"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2357,6 +2357,10 @@ Summary, Version, Maintainer etc."
             (insert (epackage-documentation-header-string)))))
       (kill-buffer epackage--finder-commentary-buffer))
     (display-buffer buffer)))
+
+(defun epackage-manager ()
+  "Start User Interface."
+  (error "Not yet implemented. Estimate: late spring 2011.")) ;; FIXME
 
 ;;;###autoload (autoload 'epackage-mode          "epackage" "" t)
 ;;;###autoload (autoload 'turn-on-epackage-mode  "epackage" "" t)
