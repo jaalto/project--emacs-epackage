@@ -1,5 +1,7 @@
 2010-12-09 Thu  Jari Aalto  <jari.aalto@cante.net>
 
+	* README (README::Project Details): Add Wiki URL.
+
 	* Makefile (ui): Use BIN, remove -nw option.
 
 	* epackage.el
