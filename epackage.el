@@ -68,59 +68,60 @@
 ;;      Emacs has been around for decades now. Many new version have
 ;;      come and gone (in my days 18.59 ... 24.x), Still there are
 ;;      wealth of extensions available e.g. et <http://emacswiki.org>
-;;      that add new features. The typical procedure to add new a
+;;      that add new features. The typical procedure to add a new
 ;;      extension to Emacs is:
 ;;
 ;;      o   Find an extension at places like
 ;;          http://dir.gmane.org/gmane.emacs.sources or
 ;;          http://www.emacswiki.org
-;;      o   Download and save the *.el file along `load-path'
+;;      o   Download and save the *.el file(s) along `load-path'
 ;;      o   Read the installation information. Usually embedded in comments
-;;          at the beginning of *.el files.
-;;      o   Add code to the Emacs startup file `~/.emacs'.
-;;          to arrange loading the extension to your liking.
+;;          at the beginning of *.el file(s).
+;;      o   Modify the Emacs startup file `~/.emacs'
+;;          to arrange loading the extension to one's liking.
 ;;
 ;;      That's quite a bit of work for each extension; reaching
 ;;      thousands out there. Many Linux distributions offer package
 ;;      managers to download and install programs. E.g. Debian has
-;;      command *apt-get* [1], Redhat uses *rpm* [2], Suse uses *yast*
-;;      [3]. So why not make one for Emacs as well.
+;;      command *apt-get/aptitude* [1], Redhat uses *rpm* [2], Suse
+;;      uses *yast* [3]. So why not make one for Emacs as well.
 ;;
-;;      This utility is different from the existing ELPA Emacs package
-;;      manager. It has been built around two concepts: 1) it borrows
-;;      the Debian style of package management and 2) it user version
-;;      controlled packages. This is completely different approach
-;;      than centralized ELPA Emacs package manager. For more information
-;;      about ELPA, see <http://www.emacswiki.org/emacs/ELPA>.
+;;      This utility is different from the existing ELPA[4] Emacs
+;;      package manager. It has been built around two concepts: 1) it
+;;      borrows the Debian style of package management and 2) it uses
+;;      version controlled packages. This is a different approach than
+;;      centralized ELPA Emacs package manager.
 ;;
 ;;      Each Emacs extension is wrapped into epackage format which
-;;      basily follows Debian style control directory named ? epackage/'
-;;      where all the details about activation, autoloads and
-;;      installation are kept. In addition, each epackage is imported
-;;      and deployed using Git Distributed Version Control System
-;;      (DVCS). A specific "Yellow pages" lists all available Git
-;;      repositories where to download packages. Once the epackage has
-;;      been downloaded, subsequent downloads are very efficient
-;;      because only deltas are transferred. Another benefit of DVCS is
-;;      its distributed nature: local modifications are possible, all
-;;      the software history and releases are included in the
-;;      repository. This opens some interesting prospects and freedom
-;;      to maintain and deploy epackages.
+;;      basicly follows the Debian packaging style where a separat
+;;      control directory named `epackage/' is used for all the
+;;      packaging details: activation, autoloads and installation etc.
+;;      In addition, each epackage is imported in and deployed using
+;;      Git Distributed Version Control System (DVCS). A specific
+;;      "Yellow pages" file lists the available Git repositories where
+;;      user can download packages. Once an epackage has been
+;;      downloaded, subsequent downloads are very efficient because
+;;      only deltas are transferred. Another benefit of DVCS is its
+;;      distributed nature: local modifications are possible; also all
+;;      the software history and releases are included in one place --
+;;      the Git repository. This opens some interesting prospects and
+;;      freedom to maintain and deploy epackages.
 ;;
 ;;      If you're an Emacs user, all these details do not concern you.
-;;      From package management view, select packages to download, and
-;;      they will appear in your local disk. After that you have
-;;      several options how to proceed. Select autoload install (no
-;;      Emacs setup changes), or activation install (Emacs environment
-;;      is changed). Later you can upgrade packages and periodically
-;;      download new epackage list, the yellow pages, that lists
-;;      available Git repositories.
+;;      From `M-x' `epackage' package management view, select packages
+;;      to download, and activate them. There are several ways how to
+;;      install the packages. Select autoload install (no Emacs setup
+;;      changes), standard install (= enabling), or activation install
+;;      (Emacs environment is changed). Later you can upgrade package
+;;      or packages. A new epackage list, the yellow pages, that lists
+;;      available Git repositories, must be refreshed from time to
+;;      time in order to see new available packages.
 ;;
-;;      If you're a Emacs extension developer who would like to make
+;;      If you're an Emacs extension developer who would like to make
 ;;      the extension available for other to download through
 ;;      epackage, that will require familiarizing with the `git(1)'.
 ;;
-;;      The epackage system can co-exist with nay other installation,
+;;      The epackage system can co-exist with any other installation,
 ;;      like ELPA, as usual. User's standard Emacs startup files, like
 ;;      `~/.emacs' are never modified.
 ;;
@@ -129,7 +130,9 @@
 ;;	[2] http://en.wikipedia.org/wiki/RPM_Package_Manager
 ;;
 ;;	[3] http://en.wikipedia.org/wiki/YaST See also
-;	http://en.wikipedia.org/wiki/Yellowdog_Updater,_Modified
+;;	http://en.wikipedia.org/wiki/Yellowdog_Updater,_Modified
+;;
+;;	[4] http://www.emacswiki.org/emacs/ELPA
 ;;
 ;;  Epackage - the DVCS packaging system
 ;;
@@ -863,7 +866,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1209.0906"
+(defconst epackage-version-time "2010.1209.0920"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
