@@ -6,7 +6,7 @@
 
 	* epackage.el
 	(top level): Update documentation. Run Elint and Checkdoc on code
-	and fix problems.
+	and fix problems. Add *-examples.el to Specification.
 	(epackage-manager): New.
 	(epackage-manager): Add `error'. Not implemented.
 	(epackage-batch-ui-download-sources-list): Remove duplicate.
@@ -19,6 +19,7 @@
 	`epackage--sources-list-regexp'.
 	(epackage-sources-list-info-main): Use
 	`epackage--sources-list-regexp'.
+
 
 2010-12-08 Wed  Jari Aalto  <jari.aalto@cante.net>
 

@@ -356,9 +356,7 @@
 ;;          +-- 00coonf/
 ;;          |   epackage-loader.el  One big boot file
 ;;          |
-;;          +-- 00install/
-;;          |   <package>-activate.el
-;;          |   <package>-install.el
+;;          +-- 00install/	   Extension "install" files
 ;;          |   ...
 ;;          |
 ;;          +--packages/           Version control repositories.
@@ -411,6 +409,7 @@
 ;;              PACKAGE-0loaddefs.el  optional: extracted ###autoload statements
 ;;              PACKAGE-autoloads.el  optional: autoload statements (manual)
 ;;              PACKAGE-compile.el    optional: Code to byte compile the extension
+;;              PACKAGE-examples.el   optional: Custmization examples
 ;;              PACKAGE-install.el    required: Code to make the extension available
 ;;              PACKAGE-uninstall.el  optional: Code to remove the extension
 ;;              PACKAGE-xactivate.el  optional: Code to activate the extension
@@ -422,21 +421,50 @@
 ;;      `load-path'. The alphabetic order makes it possible to combine
 ;;      them safely together. Even on command line (for testing):
 ;;
-;;              cat PACKAGE-* | egrep -v '00|uninst|compile' > PACKAGE-00.el
+;;		ls | egrep -vi '00|compile|examples|uninstall' | \
+;;              xargs cat > PACKAGE-00.el
 ;;
 ;;     The *-0loaddefs.el
 ;;
 ;;      This file contains extracted ##autoload definitions. The file
-;;      is automatically generated. The file does not modify user's
-;;      environment. If extension does not contains any `###autoload'
-;;      definitions, the manually crafted *-install.el file can be
-;;      used as a substitute. In case of missing `##autoload' stanzas,
-;;      you're encouraged to contact upstream with a possible patch.
-;;      The "zero" at the start of the name is to help proper sorting
-;;      ordering of files. Mnemonic: "if you load this file, you
-;;      can start calling extension's features". The file ends in:
+;;      is usually automatically generated. The file does not modify
+;;      user's environment. If extension does not contains any
+;;      `###autoload' definitions, the manually crafted *-install.el
+;;      file can be used as a substitute. In case of missing
+;;      `##autoload' stanzas, you're encouraged to contact upstream
+;;      with a possible patch. The "zero" at the start of the name is
+;;      to help proper sorting ordering of files. Mnemonic: "if you
+;;      load this file, you can start calling extension's features".
+;;      The file ends in:
 ;;
 ;;          (provide 'PACKAGE-0loaddefs)
+;;
+;;     The *-autoloads.el
+;;
+;;	This file contains manually written `autoload' statements.
+;;	This file acts as a backup if there is no `###auutoload'
+;;	definitions. Its purpose it to publish propective functions
+;;	(interactive or not) that might be called or used by the user.
+;;	Mnemonic: "if you load this file, you can write lisp code to
+;;	call the functions in the extension, or you can call
+;;	extension's interactive functions via M-x". The file ends in:
+;;
+;;          (provide 'PACKAGE-autoloads)
+;;
+;;     The *-examples.el
+;;
+;;	This file contans anything the upstream may have explained in
+;;	the comments, or interesting snippets various users have found
+;;	useful to customize the extentiosn. It provides a showcase, or
+;;	scratchbook, to present anything that might be useful to be
+;;	put into `~/.emacs' startup file. Mnemonic: "Look examples in
+;;	this file for ideas how to take more out of the extension".
+;;	This file is _not_ intenede to be loaded and it should _not_
+;;	contain any `provide' statements. In fact it is recommended that
+;;	any attempt to load this fle generates an error. The file starts
+;;	with:
+;;
+;;          (error "PACKAGE-examples.el is not a config file. Study the examples.")
 ;;
 ;;     The *-install.el
 ;;
@@ -890,7 +918,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1209.1545"
+(defconst epackage-version-time "2010.1209.1616"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
