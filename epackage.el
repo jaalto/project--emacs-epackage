@@ -873,7 +873,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1209.1437"
+(defconst epackage-version-time "2010.1209.1449"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1063,7 +1063,7 @@ q       Quit."
     (?c epackage-batch-ui-clean-package)
     (?d epackage-batch-ui-download-package)
     (?g epackage-batch-ui-download-sources-list)
-    (?i epackage-batch-ui-cmd-enable-package)
+    (?i epackage-batch-ui-enable-package)
     (?I epackage-barch-ui-disable-package)
     (?l epackage-batch-ui-list-installed-packages)
     (?L epackage-batch-ui-list-downloaded-packages)
