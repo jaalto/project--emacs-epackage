@@ -102,18 +102,18 @@
 ;;      only deltas are transferred.
 ;;
 ;;      If you're an Emacs user, all these details do not concern you.
-;;      From `M-x' `epackage' package management view, select packages
-;;      to download, and activate them. There are several ways how to
-;;      install the packages. Select autoload install (no Emacs setup
-;;      changes), standard install (= enabling), or activation install
-;;      (Emacs environment is changed). Later you can upgrade package
-;;      or packages. A new epackage list, the yellow pages, that lists
-;;      available Git repositories, must be refreshed from time to
-;;      time in order to see new available packages.
+;;      From `M-x' `epackage' management view, select items to
+;;      download, and activate them. There are several ways how to
+;;      install packages. Select *autoload* install (no Emacs setup
+;;      changes), *standard* install (= enabling), or *activation*
+;;      install (Emacs environment is changed). Later you can upgrade
+;;      packages. To get updates list of available packages, ask to
+;;      "get" the sources list "Yellow pages" that lists available Git
+;;      repositories.
 ;;
-;;      If you're an Emacs extension developer who would like to make
-;;      the extension available for other to download through
-;;      epackage, that will require familiarizing with the `git(1)'.
+;;      If you're a developer who would like to make the extensions
+;;      available for others as epackages, that will require
+;;      familiarizing with the `git(1)'.
 ;;
 ;;      The epackage system can co-exist with any other installation,
 ;;      like ELPA [4], as usual. User's standard Emacs startup files, like
@@ -873,7 +873,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1209.1401"
+(defconst epackage-version-time "2010.1209.1407"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
