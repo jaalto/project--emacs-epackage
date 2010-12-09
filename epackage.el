@@ -837,6 +837,7 @@
 ;;          Branch != master. Thought: we leave if alone and mark it
 ;;          "manual". User can deal with the merges and take full
 ;;          responsibility. We can still run 'git fetch'.
+;;
 ;;	GUI
 ;;
 ;;	o   Write M-x epackage-manager
