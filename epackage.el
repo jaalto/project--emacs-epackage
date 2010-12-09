@@ -800,20 +800,19 @@
 ;;
 ;;	[Within groups, sorted by priority. ">" under work]
 ;;
-;;	GUI
+;;	General
 ;;
-;;	o   Write M-x epackage-manager
-;;      o   Cache. Build it dynamically from packages and
-;;          combine with package information (e.g. version).
-;;      o   After download. Trying to install or activate package,
-;;          check emacs compatibility and refuse to install if not met.
-;;
-;;      o   If user selects DETAIL view, collect
-;;          information to another buffer dynamically (info, git tags,
-;;          current git branch)
-;;
-;;      o   Rescan current information? (what is installed, what is not)
-;;          => Keep cache? Or regenerate, or scan at startup every time?
+;;	o   > Add *-hook variables to command actions.
+;;      o   > Run health check for downloaded Epackage
+;;      o   > auto-byte-compile feature on package install (cnfigurable)
+;;      o   > Verify sources list file: No duplicate of same packages.
+;;      o   > Standard install by default enables (installs *-install).
+;;          Make this configurable what to do by default.
+;;      o   > Dynamically search all *.el and *elc. When byte compiled,
+;;          symlink those files as well.
+;;      o   > Download problem, broken link:
+;;	    => Offer mailing the Yellow pages maintainer about broken link
+;;      o   What if user manually deletes directories? Left over config files?
 ;;
 ;;	REPO
 ;;
@@ -838,20 +837,20 @@
 ;;          Branch != master. Thought: we leave if alone and mark it
 ;;          "manual". User can deal with the merges and take full
 ;;          responsibility. We can still run 'git fetch'.
+;;	GUI
 ;;
-;;	General
+;;	o   Write M-x epackage-manager
+;;      o   Cache. Build it dynamically from packages and
+;;          combine with package information (e.g. version).
+;;      o   After download. Trying to install or activate package,
+;;          check emacs compatibility and refuse to install if not met.
 ;;
-;;	o   > Add *-hook variables to command actions.
-;;      o   > Run health check for downloaded Epackage
-;;      o   > auto-byte-compile feature on package install (cnfigurable)
-;;      o   > Verify sources list file: No duplicate of same packages.
-;;      o   > Standard install by default enables (installs *-install).
-;;          Make this configurable what to do by default.
-;;      o   > Dynamically search all *.el and *elc. When byte compiled,
-;;          symlink those files as well.
-;;      o   > Download problem, broken link:
-;;	    => Offer mailing the Yellow pages maintainer about broken link
-;;      o   What if user manually deletes directories? Left over config files?
+;;      o   If user selects DETAIL view, collect
+;;          information to another buffer dynamically (info, git tags,
+;;          current git branch)
+;;
+;;      o   Rescan current information? (what is installed, what is not)
+;;          => Keep cache? Or regenerate, or scan at startup every time?
 ;;
 ;;	Some day in the future:
 ;;
@@ -871,7 +870,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1209.0950"
+(defconst epackage-version-time "2010.1209.0952"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
