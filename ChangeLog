@@ -2,6 +2,19 @@
 
 	* epackage.el (epackage-build-sources-list): New.
 	(epackage-combine-files): New.
+	(epackage-config-status-of-packages): Correct `add-to-list' call.
+	(epackage-cmd-remove-package): Adjust message.
+	(epackage-cmd-download-package): Adjust message.
+	(epackage-download-package): Adjust message. Pass `verbose'
+	to `epackage-git-command-clone'.
+	(epackage-cmd-enable-package): Check download status.
+	(epackage-cmd-autoload-package): Check download status.
+	(epackage-cmd-activate-package): Check download status.
+	(epackage-cmd-deactivate-package): Check no files.
+	(epackage-cmd-disable-package): Check no files.
+	(epackage-config-delete-all): Return list of deleted files.
+	(epackage-cmd-clean-package): Check nothing to clean.
+	(epackage-cmd-upgrade-package): Improve message.
 
 2010-12-12 Mon  Jari Aalto  <jari.aalto@cante.net>
 
