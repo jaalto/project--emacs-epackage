@@ -1,3 +1,24 @@
+2010-12-13 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-build-sources-list): New.
+	(epackage-combine-files): New.
+
+2010-12-12 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage--sources-package-name): update docstirng.
+	(epackage--sources-list-url): Add defcustom tags.
+	(epackage--sources-file-list): New.
+	(epackage-file-name-conf-directory): New.
+	(epackage-file-name-sources-list-main): New.
+	(epackage-sources-list-p): Use `epackage--sources-file-name-main'.
+	(epackage-sources-list-verify): Use `epackage--sources-file-name-main'.
+	(epackage-sources-list-p): Use `epackage--sources-file-name-main'.
+	(epackage-sources-list-verify): Use `epackage--sources-file-name-main'.
+	(epackage-with-sources-list): Use `epackage-file-name-sources-list-main'.
+	(epackage-cmd-build-sources-list): New.
+	(epackage-initialize): Call `epackage-cmd-build-sources-list'.
+	(epackage-require-directories): Add more directories.
+
 2010-12-09 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* README (README::Project Details): Add Wiki URL.
