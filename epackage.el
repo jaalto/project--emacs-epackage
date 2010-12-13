@@ -916,13 +916,16 @@
 
 (eval-when-compile
   (autoload 'lm-summary "lisp-mnt")
+  (autoload 'lm-commentary "lisp-mnt")
+  (autoload 'lm-creation-date "lisp-mnt")
+  (autoload 'lm-last-modified-date "lisp-mnt")
   (autoload 'lm-maintainer "lisp-mnt")
   (autoload 'dired-make-relative-symlink "dired-x")
   (autoload 'url-http-parse-response "url"))
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1213.0042"
+(defconst epackage-version-time "2010.1213.1934"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1299,6 +1302,13 @@ Examples:
 (defmacro epackage-push (x place)
   "A close `push' CL library macro equivalent: (push X PLACE)."
   `(setq ,place (cons ,x ,place)))
+
+(put 'epackage-assoc 'lisp-indent-function 0)
+(put 'epackage-assoc 'edebug-form-spec '(body))
+(defmacro epackage-asscoc (key list)
+  "Access of KEY in LIST and return its value.
+An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
+  `(nth 1 (assoc ,key ,list)))
 
 (put 'epackage-with-w32 'lisp-indent-function 0)
 (put 'epackage-with-w32 'edebug-form-spec '(body))
@@ -2511,8 +2521,8 @@ If VERBOSE is non-nil, display progress message."
    (list 'interactive))
   (epackage-require-main verbose)
   (unless (epackage-sources-list-p)
-    (epackage-cmd-download-sources-list verbose)
-    (epackage-cmd-build-sources-list verbose))
+    (epackage-cmd-download-sources-list verbose))
+  (epackage-cmd-build-sources-list verbose)
   (setq epackage--initialize-flag t))
 
 ;;;###autoload
@@ -2521,36 +2531,93 @@ If VERBOSE is non-nil, display progress message."
   (interactive)
   (message epackage-version-time))
 
+(defun epackage-documentation-buffer-version-defconst ()
+  "Return version from current buffer.
+Look for:  (defconst VARIABLE-NAME-VERSION* \"VALUE\"..."
+  (save-excursion
+    (goto-char (point-min))
+    (when (re-search-forward
+	   "^(defconst [^ ;\t\r\n]+-version.*[ \t]\"\\([^ \"\t\r\n]+\\)"
+	   nil t)
+      (match-string-no-properties 1))))
+
+(defun epackage-documentation-buffer-version-main ()
+  "Return version from current buffer."
+  (let ((version (lm-version)))
+    (unless version
+      (setq version (epackage-documentation-buffer-version-defconst)))
+    version))
+
+(defun epackage-documentation-buffer-main ()
+  "Return documentation from current buffer.
+Return:
+
+    '((KEY VALUE) ....)
+
+KEY is one of:
+
+    'summary    One line information
+    'version    Version number
+    'modified   Date
+    'created    Date
+    'copyright  Copyright line
+    'maintainer Emaail address(es) of maintainer."
+  (let ((summary    (lm-summary))
+	(commentary (lm-commentary))
+	(maintainer (mapconcat #'concat (lm-maintainer) ", "))
+	(created    (lm-creation-date))
+	(modified   (lm-last-modified-date))
+	(version    (epackage-documentation-buffer-version-main)))
+    (list
+     (list 'summary summary)
+     (list 'version version)
+     (list 'created created)
+     (list 'modified modified)
+     (list 'copyright)			;FIXME
+     (list 'maintainer maintainer))))
+
 (defun epackage-documentation-header-string ()
-  "Make documentation header string.
+  "Return documentation header string from current buffer.
 Summary, Version, Maintainer etc."
-  (with-current-buffer (find-file-noselect (locate-library "epackage.el"))
-    (let ((summary (lm-summary))
-          (maintainer (car-safe (lm-maintainer)))
-          (version epackage-version-time))
-      (concat
-       "epackage.el -- " summary "\n\n"
-       "Version   : " version "\n"
-       "Maintainer: " (or maintainer "") "\n"
-       "\n"))))
+  (let* ((list       (epackage-documentation-buffer-main))
+	 (summary    (epackage-asscoc 'summary list))
+	 (version    (epackage-asscoc 'version list))
+	 (maintainer (epackage-asscoc 'maintainer list)))
+    (concat
+     "epackage.el -- " (or summary "") "\n\n"
+     "Version   : " (or version "") "\n"
+     "Maintainer: " (or maintainer "") "\n"
+     "\n")))
+
+(defun epackage-documentation-by-lisp-file (file buffer)
+  "Display documentation of Emacs Lisp FILE in BUFFER."
+  (let ((file (locate-library "epackage.el"))
+	str)
+    (finder-commentary "epackage.el")
+    (setq str (with-current-buffer epackage--finder-commentary-buffer
+		(buffer-string)))
+    (with-current-buffer (setq buffer (get-buffer-create buffer))
+      (erase-buffer)
+      (insert str)
+      (with-current-buffer (find-file-noselect file)
+	(setq str (epackage-documentation-header-string)))
+      (goto-char (point-min))
+      (insert str))
+  (kill-buffer epackage--finder-commentary-buffer)
+  buffer))
 
 ;;;###autoload
 (defun epackage-documentation ()
   "Display documentation."
   (interactive)
-  (let ((buffer (get-buffer epackage--doc-buffer)))
+  (let ((buffer (get-buffer epackage--doc-buffer))
+	(file "epackage.el"))
     (unless buffer
-      ;; See also lm-commentary
-      (finder-commentary "epackage.el")
-      (with-current-buffer epackage--finder-commentary-buffer
-        (let ((str (buffer-string))
-              (buffer (get-buffer-create epackage--doc-buffer)))
-          (with-current-buffer buffer
-            (insert str)
-            (goto-char (point-min))
-            (insert (epackage-documentation-header-string)))))
-      (kill-buffer epackage--finder-commentary-buffer))
-    (display-buffer buffer)))
+      (epackage-documentation-by-lisp-file
+       (or (locate-library file)
+	   (epackage-error "Can't file from load-path: %s" file))
+       epackage--doc-buffer))
+    (display-buffer (get-buffer epackage--doc-buffer))))
 
 ;;;###autoload
 (defun epackage-manager ()

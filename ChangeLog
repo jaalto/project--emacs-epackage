@@ -15,6 +15,18 @@
 	(epackage-config-delete-all): Return list of deleted files.
 	(epackage-cmd-clean-package): Check nothing to clean.
 	(epackage-cmd-upgrade-package): Improve message.
+	(epackage-initialize): Always call `epackage-cmd-build-sources-list'.
+	(epackage-documentation-header-string): Add arg FILE.
+	(epackage-documentation): pass FILE to
+	`epackage-documentation-header-string'.
+	(epackage-asscoc): New.
+	(epackage-documentation-from-file-main): New.
+	(epackage-documentation-header-string): Use
+	`epackage-documentation-from-file-main'.
+	(epackage-documentation-buffer-version-main): New.
+	(epackage-documentation-buffer-version-defconst): New.
+	(epackage-documentation-by-lisp-file): New.
+	(epackage-documentation): Rewrite.
 
 2010-12-12 Mon  Jari Aalto  <jari.aalto@cante.net>
 
