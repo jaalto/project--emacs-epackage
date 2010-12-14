@@ -459,17 +459,18 @@
 ;;     The *-compile.el
 ;;
 ;;      This file contains Emacs Lisp command to byte compile the
-;;	extension. It is assumed that the called has arranged
-;;	`load-path' to include all relevant local paths for
-;;	compilation. The file is run at the root directory of the
-;;	extention. The cyte compilation is activated as soon as the
-;;	file is evaluated. This file shuld be namespace clean: that is,
-;;	it must keep defined variables and functions in the extension's
-;;	namespace prefix; `EXTENSION-*'. An exmaple for simple extension
-;;	consisting of two files:
+;;	extension. The file is run at the root directory of the
+;;	extention with `load-path' set to include all the relevant
+;;	directories. Wvaluating the file must run all byte compilation
+;;	commands. All the variables and function defined here must
+;;	have `PACKAGE-*' prefix to keep the Emacs namespace clean. An
+;;	exmaple for simple extension consisting of two files:
 ;;
 ;;	    (dolist (file '("foo-lib.el" "foo.el"))
 ;;	      (byte-compile-file file))
+;;
+;;	*Exception:* packages that only have a single *.el file do not
+;;	need to define this file.
 ;;
 ;;     The *-examples.el
 ;;
@@ -938,6 +939,7 @@
 ;;; Change Log:
 
 (eval-when-compile
+  (autoload 'lm-version "lisp-mnt")
   (autoload 'lm-summary "lisp-mnt")
   (autoload 'lm-commentary "lisp-mnt")
   (autoload 'lm-creation-date "lisp-mnt")
@@ -948,7 +950,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1214.1841"
+(defconst epackage-version-time "2010.1214.1936"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1402,12 +1404,6 @@ Return nil of there is nothing to remove .i.e. the result wold be \"/\"."
   "Location of `epackage--directory-name-conf'."
   (epackage-directory-conf))
 
-(defsubst epackage-file-name-compose (name)
-  "Return path to NAME in epackage directory."
-  (format "%s/%s"
-          (epackage-directory-root)
-          name))
-
 (defsubst epackage-file-name-loader-boot ()
   "Return path to boot loader file."
   (format "%s/%s"
@@ -1430,7 +1426,7 @@ Return nil of there is nothing to remove .i.e. the result wold be \"/\"."
   "Returnfile name under PACCKAGE directory with PATH added.
 An exmaple: (epackage-file-name-compose \"foo\" \"foo.el\")."
   (format "%s%s"
-	  (epath-directory-packagess)
+	  (epackage-directory-packages)
           (if (string= "" path)
               ""
             (concat "/" path))))
@@ -1503,7 +1499,7 @@ If SECURITY is non-nil, signal error if
   (with-temp-buffer
     (insert-file-contents-literally file)
     ;; FIXME: Implement SECURITY
-    (eval-current-buffer)))
+    (eval-buffer)))
 
 (defmacro epackage-push (x place)
   "A close `push' CL library macro equivalent: (push X PLACE)."
@@ -1604,6 +1600,18 @@ or whose path name matches EXCLUDE."
         (epackage-push elt list)
         (epackage-directory-recursive-list elt list exclude))))
     list))
+
+(defun epackage-lisp-file-list (list)
+  "Return list of *.e files from LIST or directories."
+  (let (ret
+	files)
+    (dolist (dir list)
+      (setq files (directory-files
+		   dir
+                   'full-path
+                   "\\.el$"))
+      (setq ret (append ret files)))
+    ret))
 
 (defsubst epackage-directory-recursive-list-default (dir list)
   "Return all directories under DIR recursively to LIST.
@@ -2026,12 +2034,12 @@ If VERBOSE is non-nil, display progress message."
       (epackage-verbose-message "Combining files %s" elt)
       (insert "###file: " file "\n")
       (insert-file-contents-literally elt))
-    (epackage-verbose-message "Write files %s" elt)
-    (goto-char (point-min))
-    (unless (re-search-forward "^[^#\r\n]+://" nil t)
-      (epackage-error
-	"Can't see any Git repository URLs: %s" list))
-    (write-region (point-min) (point-max) file)))
+    (epackage-with-message (format "Write file %s" file)
+	(goto-char (point-min))
+      (unless (re-search-forward "^[^#\r\n]+://" nil t)
+	(epackage-error
+	  "Can't see any Git repository URLs: %s" list))
+      (write-region (point-min) (point-max) file))))
 
 (defun epackage-build-sources-list (&optional verbose)
   "Build list of available packages; the yellow pages.
@@ -2069,7 +2077,7 @@ If VERBOSE is non-nil, display progress message."
      ((eq elt 'autoload)
       (epackage-cmd-autoload-package package verbose))
      ((eq elt 'compile)
-      (epackage-byte-compile-package-maybe package))
+      (epackage-byte-compile-package-main package))
      ((eq elt 'enable)
       (epackage-cmd-enable-package package verbose)))))
 
@@ -2226,22 +2234,19 @@ Those that are not installed in `epackage-directory-install'."
 If VERBOSE is non-nil, display informational message."
   (epackage-with-package-info-file package
     (epackage-with-buffer-info
-      (erase buffer)
+      (erase-buffer)
       (insert (epackage-file-content-as-string file))
       (display-buffer (current-buffer)))))
 
 (defun epackage-loader-file-insert-header ()
   "Insert header comments."
   (insert
-   (format
     "\
 ;; Epackge boot file -- automatically generated
 ;;
 ;; Do not modify. Changes done here will be lost.
 
-"
-    (file-name-sans-extension
-     (epackage-file-name-loader-boot)))))
+"))
 
 (defsubst epackage-loader-file-insert-footer ()
   "Insert Footer."
@@ -2339,40 +2344,88 @@ If VERBOSE is non-nil, display progress message."
     (unless (file-exists-p file)
       (epackage-loader-file-generate-load-path-main verbose))))
 
+(defun epackage-byte-compile-default-maybe (dir-list &optional verbose)
+  "If PACKAGE contains single *.el, byte compile it.
+If VERBOSE is non-nil, display progress message."
+  )
+
+;; epackage-lisp-file-list
+
 (defsubst epackage-loader-file-byte-compile-maybe (&optional verbose)
   "Check `epackage--byte-compile-loader-file' and byte compile.
 If VERBOSE is non-nil, display progress message."
   (when epackage--loader-file-boot-byte-compile-flag
     (epackage-loader-file-byte-compile verbose)))
 
-(defun epackage-byte-compile-package (package &optional verbose)
-  "Run byte compile on PACKAGE.
-If VERBOSE is non-nil, display progress message."
-  (let ((file (epackage-directory-packages-control-file package 'compile)))
-    (if (not (file-exists-p file))
-	(epackage-error "Byte compile not supported. Missing %s" file)
-      (let ((load-path load-path)	; Make a copy
-	    (dir (epackage-directory-package-root package))
-	    list)
-	(setq list (epackage-directory-recursive-list
-		    dir list epackage--directory-exclude-regexp))
-	(dolist (elt list)
-	  (epackage-push elt load-path))
-	(epackage-loader-file-generate-load-path-maybe)
-	(epackage-eval-file (epackage-file-name-loader-load-path))
-	(epackage-verbose-message "byte compile with %s" file)
-	(epackage-eval-file file)
-	(when verbose
-	  (epackage-with-byte-compile-buffer
-	   (display-buffer (current-buffer))))))))
+(defun epackage-byte-compile-package-guess (package &optional verbose)
+  "Run byte compile on PACKAGE only if it contains one file.
+If VERBOSE is non-nil, display progress message.
 
-(defun epackage-byte-compile-package-maybe (package &optional verbose)
-  "Run byte compile on PACKAGE if compilation in package is supported.
-If VERBOSE is non-nil, display progress message."
+Return:
+  non-nil if byte compile was run."
+  (let ((load-path load-path)
+	(dir (epackage-directory-package-root package))
+	list
+	files
+	file)
+    (setq list (epackage-directory-recursive-list
+		dir
+		list
+		(concat epackage--directory-exclude-regexp
+			"\\|/" epackage--directory-name)))
+    ;; FIXME: we assume the single file is not in a subdirectory
+    (when (and (eq 1 (length list))
+	       (eq 1 (length (setq files (epackage-lisp-file-list list)))))
+      (setq file (car files))
+      (dolist (elt list)
+	(epackage-push elt load-path))
+      (epackage-loader-file-generate-load-path-maybe)
+      (epackage-verbose-message "byte compile %s" file)
+      (byte-compile-file file)
+      (when verbose
+	(epackage-with-byte-compile-buffer
+	  (display-buffer (current-buffer))))
+      t)))
+
+(defun epackage-byte-compile-package-standard (package &optional verbose)
+  "Run byte compile on PACKAGE with standard epacage compile file.
+If VERBOSE is non-nil, display progress message.
+
+Note: No error checking about existence of
+`epackage-directory-packages-control-file' is done."
+  (let ((load-path load-path)
+	(file (epackage-directory-packages-control-file package 'compile))
+	(dir (epackage-directory-package-root package))
+	list)
+    (setq list (epackage-directory-recursive-list
+		dir
+		list
+		(concat epackage--directory-exclude-regexp
+			"\\|/" epackage--directory-name)))
+    (dolist (elt list)
+      (epackage-push elt load-path))
+    (epackage-loader-file-generate-load-path-maybe)
+    (epackage-eval-file (epackage-file-name-loader-load-path))
+    (epackage-verbose-message "byte compile with %s" file)
+    (epackage-eval-file file)
+    (when verbose
+      (epackage-with-byte-compile-buffer
+	(display-buffer (current-buffer))))
+    t))
+
+(defun epackage-byte-compile-package-main (package &optional verbose)
+  "Run byte compile PACKAGE, if possible.
+If VERBOSE is non-nil, display progress message.
+Return:
+  non-nil if byte compile was run."
   (let ((file (epackage-directory-packages-control-file package 'compile)))
-    (if (not file)
-	(epackage-message "Compile not supported. Missing %s" file)
-      (epackage-byte-compile-package package verbose))))
+    (cond
+     ((file-exists-p file)
+      (epackage-byte-compile-package-standard package verbose))
+     ((epackage-byte-compile-package-guess package verbose))
+     (t
+      (epackage-verbose-message "Byte compile not supported. Missing %s" file)
+      nil))))
 
 ;;;###autoload
 (defun epackage-loader-file-generate-boot (&optional verbose)
@@ -2380,7 +2433,7 @@ If VERBOSE is non-nil, display progress message."
 If VERBOSE is non-nil, display progress message."
   (interactive
    (list 'interactive))
-  (epackage-loader-file-generate-load-path)
+  (epackage-loader-file-generate-load-path-main)
   (let ((file (epackage-file-name-loader-boot)))
     (epackage-with-message verbose "Generating boot loader"
       (with-temp-buffer
@@ -2770,7 +2823,7 @@ If VERBOSE is non-nil, display progress message."
               package)
     (cond
      ((epackage-package-downloaded-p package)
-      (epackage-byte-compile-package-maybe package verbose))
+      (epackage-byte-compile-package-main package verbose))
     (t
      (if (eq verbose 'interactive)
 	 (epackage-message
@@ -3207,7 +3260,7 @@ Summary, Version, Maintainer etc."
   (let ((package (epackage-cmd-select-package "Info for package: ")))
     (epackage-cmd-package-check-macro
 	package
-	verbose
+	'interactive
 	(format "PACKAGE name \"%s\" is invalid for display command"
 		package)
     (cond

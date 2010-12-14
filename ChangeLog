@@ -2,6 +2,7 @@
 
 	* epackage.el
 	(top level): Document *-compile.el in "Epackage specification.
+	Add `lm-version' autoload.
 	(epackage-cmd-display-package-info): New.
 	(epackage--buffer-doc): Rename. Was `epackage--doc-buffer'.
 	(epackage--buffer-info): New.
@@ -121,6 +122,16 @@
 	`epackage-batch-ui-byte-compile-package'.
 	(epackage--byte-compile-buffer-name): Check Emacs 24.1 variable
 	`byte-compile-log-buffer'.
+	(epackage-lisp-file-list): New.
+	(epackage-byte-compile-package-standard): New.
+	(epackage-byte-compile-package-guess): New.
+	(epackage-byte-compile-package-main): New.
+	(epackage-byte-compile-package-maybe): Remove.
+	(epackage-eval-file): Use `eval-buffer'.
+	(epackage-file-name-compose): Correct to use
+	`epackage-directory-packages'.
+	(epackage-pkg-info-display): Correct all to `erase-buffer'.
+	(epackage-loader-file-insert-header): Remove `format'.
 
 2010-12-13 Mon  Jari Aalto  <jari.aalto@cante.net>
 
