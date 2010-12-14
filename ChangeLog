@@ -134,6 +134,11 @@
 	(epackage-loader-file-insert-header): Remove `format'.
 	(epackage-batch-ui-menu): Move `epackage-initialize' call
 	after debug is active.
+	(epackage-pkg-info-field-read): New.
+	(epackage-pkg-info-documentation): New.
+	(epackage-cmd-display-package-documentation): New.
+	(epackage-batch-ui-display-package-documentation): New.
+	(epackage-with-package-info-file): Correct macro.
 
 2010-12-13 Mon  Jari Aalto  <jari.aalto@cante.net>
 

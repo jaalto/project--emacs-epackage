@@ -615,8 +615,20 @@
 ;;
 ;;    Commentary
 ;;
-;;	This field cntains single Emacs Lisp file name which contains
-;;	documentation suitable for `M-x' `finder-commentary'.
+;;	This field contains path, relative to epackage root directory,
+;;	to single Emacs Lisp file which contains documentation
+;;	suitable for `M-x' `finder-commentary'. In order to find
+;;	documentation, this field must exist even for single Emacs
+;;	Lisp file epackages. Extension developers should study
+;;	*lm-maint.el* and function `lm-commentary'. The documentation
+;;	read is encloded in the extension file between tags:
+;;
+;;	    ;;; Commentary:
+;;
+;;	    ;;; <documentation>
+;;	    ;;; <...>
+;;
+;;	    ;;; Change Log:
 ;;
 ;;    Compat
 ;;
@@ -950,11 +962,12 @@
   (autoload 'lm-last-modified-date "lisp-mnt")
   (autoload 'lm-maintainer "lisp-mnt")
   (autoload 'dired-make-relative-symlink "dired-x")
+  (autoload 'mail-fetch-field "mail-utils")
   (autoload 'url-http-parse-response "url"))
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1214.2005"
+(defconst epackage-version-time "2010.1214.2104"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1277,6 +1290,7 @@ e       Install standard (e)nable configuration from epackage
 E       Uninstall standard enable configuration from epackage
 g       Get sources list; update the yellow page data
 i	Display (i)nfo file of epackage
+I	Display documentation of extension.
 l       List installed epackages
 L       List downloaded epackages
 n       List (n)ot installed epackages
@@ -1304,6 +1318,7 @@ q       Quit"
     (?E epackage-barch-ui-disable-package)
     (?g epackage-batch-ui-download-sources-list)
     (?i epackage-batch-ui-display-package-info)
+    (?I epackage-batch-ui-display-package-documentation)
     (?l epackage-batch-ui-list-installed-packages)
     (?L epackage-batch-ui-list-downloaded-packages)
     (?n epackage-batch-ui-list-not-installed-packages)
@@ -1814,11 +1829,13 @@ Create `epackage--buffer-info' for BODY if it doe snot exists."
 (put 'epackage-with-package-info-file 'edebug-form-spec '(body))
 (defmacro epackage-with-package-info-file (package &rest body)
   "Run BODY if `epackage--package-info-file' of PACKAGE exist.
-Signal error if it doesn't. Variable `file' is bound during BODY."
-  `(let ((file (epackage-file-name-package-info package)))
-     (unless (file-exists-p file)
-       (epackage-error "Info file does not exist: %s" file))
-     ,@body))
+Signal error if it doesn't. Variable `file' is bound during BODY.
+Variable `info-file' is bound during macro."
+  `(let ((info-file (epackage-file-name-package-info ,package)))
+     (unless (file-exists-p info-file)
+       (epackage-error "Info file does not exist: %s" info-file))
+     (with-current-buffer (find-file-noselect info-file)
+       ,@body)))
 
 (put 'epackage-with-sources-list 'lisp-indent-function 0)
 (put 'epackage-with-sources-list 'edebug-form-spec '(body))
@@ -2233,9 +2250,36 @@ Those that are not installed in `epackage-directory-install'."
         (epackage-push package list)))
     (nreverse list)))
 
-(defun epackage-pkg-info-display (package verbose)
-  "Display local PACKAGE information file in another buffer.
-If VERBOSE is non-nil, display informational message."
+(defsubst epackage-pkg-info-field-read (package field)
+  "Read PACKAGE's info file and return FIELD."
+  (epackage-with-package-info-file package
+    (mail-fetch-field field)))
+
+(defsubst epackage-pkg-info-field-commentary (package)
+  "Read PACKAGE's infor file and return Commentary: field."
+  (epackage-with-package-info-file package
+    (mail-fetch-field "Commentary")))
+
+(defun epackage-pkg-info-documentation (package &optional verbose)
+  "Display local PACKAGE documentation in another buffer.
+If VERBOSE is non-nil, display progress message.
+Return:
+  file name of documentation or nil."
+  (let ((file (epackage-pkg-info-field-commentary package))
+	path)
+    (when file
+      (setq path (format "%s/%s"
+			 (epackage-directory-package-root package)
+			 file))
+      ;; FIXME: Do not move cursor. Just display buffer.
+      (let ((buffer (current-buffer)))
+	(finder-commentary path)
+	(pop-to-buffer buffer)
+	path))))
+
+(defun epackage-pkg-info-display (package &optional verbose)
+  "Display local PACKAGE information in another buffer.
+If VERBOSE is non-nil, display progress message."
   (epackage-with-package-info-file package
     (epackage-with-buffer-info
       (erase-buffer)
@@ -2790,6 +2834,30 @@ See `epackage--download-action-list'."
       epackage--download-action-list)))
 
 ;;;###autoload
+(defun epackage-cmd-display-package-documentation (package &optional verbose)
+  "Display local PACKAGE documentation.
+If VERBOSE is non-nil, display progress message."
+  (interactive
+   (list (epackage-cmd-select-package "Display package documentation: ")
+         'interactive))
+  (epackage-cmd-package-check-macro
+      package
+      verbose
+      (format "PACKAGE name \"%s\" is invalid for documentation command"
+              package)
+    (cond
+     ((epackage-package-downloaded-p package)
+      (epackage-pkg-info-documentation package verbose))
+    (t
+     (if (eq verbose 'interactive)
+	 (epackage-message
+	   "Displaying documentation ignored. Package not downloaded: %s"
+	   package)
+	(epackage-message
+	  "Can't display documentation. Package not downloaded: %s"
+	  package))))))
+
+;;;###autoload
 (defun epackage-cmd-display-package-info (package &optional verbose)
   "Display local PACKAGE info.
 If VERBOSE is non-nil, display progress message."
@@ -2807,7 +2875,7 @@ If VERBOSE is non-nil, display progress message."
     (t
      (if (eq verbose 'interactive)
 	 (epackage-message
-	   "Display ignored. Package not downloaded: %s"
+	   "Displaying info ignored. Package not downloaded: %s"
 	   package)
 	(epackage-message
 	  "Can't display info. Package not downloaded: %s"
@@ -3157,6 +3225,7 @@ Summary, Version, Maintainer etc."
      "Maintainer: " (or maintainer "") "\n"
      "\n")))
 
+;; FIXME: Maybe use lm-commentary
 (defun epackage-documentation-by-lisp-file (file buffer)
   "Display documentation of Emacs Lisp FILE in BUFFER."
   (let ((file (locate-library "epackage.el"))
@@ -3276,6 +3345,31 @@ Summary, Version, Maintainer etc."
      (t
       (epackage-message "Can't display info. Package not downloaded: %s"
 			package))))))
+
+;;;###autoload
+(defun epackage-batch-ui-display-package-documentation ()
+  "Display downloaded extension's documentation."
+  (interactive)
+  (let ((package (epackage-cmd-select-package "Display package documentation: ")))
+    (epackage-cmd-package-check-macro
+	package
+	'interactive
+	(format "PACKAGE name \"%s\" is invalid for documentation command"
+		package)
+    (cond
+     ((epackage-package-downloaded-p package)
+      (let* ((file (epackage-pkg-info-field-commentary package))
+	     (path (format "%s/%s"
+			   (epackage-directory-package-root package)
+			   file)))
+	(if (not file)
+	    (epackage-message
+	      "Missing 'Commentary:' field in epackage info file")
+	  (message (lm-commentary path)))))
+     (t
+      (epackage-message
+	"Can't documentation . Package not downloaded: %s"
+	package))))))
 
 ;;;###autoload
 (defun epackage-batch-ui-loader-file-generate ()
