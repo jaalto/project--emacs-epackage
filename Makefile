@@ -33,6 +33,7 @@ help:
 	@echo "---------------------"
 	@grep '^# .*-' Makefile | sed 's,# ,,' | sort
 
+# clean - Delete file that can be generated and backup files
 clean:
 	rm -f *.elc *[#~] *.bak
 
