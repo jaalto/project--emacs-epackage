@@ -220,32 +220,35 @@
 ;;          modifies Emacs environment.
 ;;      o   _A_, Deactivate. Uninstall activate configuration for package.
 ;;      o   b, Generate boot loader.
-;;      o   B, Byte compile package.
+;;      o   B, Byte compile boot loader.
 ;;      o   _c_, Clean package's configuration files (whole uninstall).
 ;;      o   _d_, Download package.
 ;;      o   D, run `dired' on package installation directory.
-;;      o   e, edit package's *info* file.
-;;      o   E, email upstream, the package author (maintainer). You can
 ;;          as for new wish list features, report bugs etc.
 ;;      o   g, Get yellow page data. Update package sources list.
-;;      o   _i_, Install standard configuration for package.
-;;      o   _I_, Uninstall standard configuration for package.
-;;      o   l<key>, list command: available, installed, downloaded, enabled,
-;;          activated, autoloaded, not-installed.
+;;      o   _e_, Enable standard configuration for package.
+;;      o   _E_, Disable standard configuration for package.
+;;      o   l<key>, (l)ist: available, installed, downloaded, enabled,
+;;          activated, autoloaded and not-installed packages.
 ;;      o   m, mark package (for command install or remove).
-;;      o   M, send mail to person who is the maintainer of epackage
-;;          for this utility. You can send requests to fix
-;;          packaging or update contents of the 'info' file if some
-;;          of the information in no up to date.
 ;;      o   _o_, Install autoload configuration for package.
 ;;      o   _r_, Remove; delete package physically from local disk.
 ;;      o   s<key>, sort command. Change listing by several criterias.
 ;;      o   u, upgrade package to newer version.
 ;;      o   U, upgrade all packages
-;;          TODO: unmark (install, purge, remove) ?
 ;;      o   v<key>, view command. E.g (a)activation file, (i)info file.
 ;;      o   q, quit. Run `bury-buffer'.
 ;;      o   x, execute (install, purge, remove).
+;;
+;;	Planned:
+;;
+;;      o   byte compile package.
+;;      o   edit package's *info* file.
+;;      o   email upstream, the package author (maintainer). You can
+;;      o   send mail to person who is the maintainer of epackage
+;;          for this utility. You can send requests to fix
+;;          packaging or update contents of the 'info' file if some
+;;          of the information in no up to date.
 ;;
 ;;      The package state is shows with following status indicators:
 ;;
@@ -925,7 +928,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1213.1934"
+(defconst epackage-version-time "2010.1214.1140"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1058,6 +1061,10 @@ This directory contains control files from packages.")
   "Name of official yellow pages file that lists available packages.
 Do not touch. See variable `epackage--sources-list-url'.")
 
+(defvar epackage--pkg-info-file-name "info"
+  "Name of information file of epackage.
+Do not touch. See variable `epackage--sources-list-url'.")
+
 (defvar epackage--sources-file-name-main "sources.lst"
   "Name of the combined yellow pages file that lists available packages.
 Do not touch. See variables `epackage--sources-list-url'
@@ -1100,8 +1107,11 @@ Ff FILENAME sarts with '-', then the package name is prefixed to
 the FILENAME. Say package name 'foo' is prefixed with '-install'
 producing 'foo-install.el.")
 
-(defvar epackage--doc-buffer "*Epackage documentation*"
+(defvar epackage--buffer-doc "*Epackage documentation*"
   "Buffer displayed by `epackage-doscumentation'.")
+
+(defvar epackage--buffer-info "*Epackage info*"
+  "Buffer displayed by `epackage-pkg-info-display'.")
 
 (defvar epackage--finder-commentary-buffer "*Finder-package*"
   "Buffer name of call `finder-commentary'.")
@@ -1123,16 +1133,18 @@ Set by function `epackage-initialize'. Do not touch.")
 a       Install activate configuration; modifies Emacs environment.
 A       Deactivate. Uninstall activate configuration
 b       Generate boot loader.
+B	Byte compile boot loader.
 c       Clean package's configuration files (whole uninstall).
 d       Download package.
-g       Get yellow page data. Update package sources list.
-i       Install standard configuration for package.
-I       Uninstall standard configuration for package.
+e       Install standard configuration for package.
+E       Uninstall standard configuration for package.
+g       Get sources list; update the yellow page data.
+i	Display (i)nfo file of package.
 l       List installed packages.
 L       List downloaded packages.
-n       List not installed packages.
-o       Install autoload configuration for package.
-p       List available packages in yellow pages.
+n       List (n)ot installed packages.
+o       Install aut(o)load configuration for package.
+p       List available (p)ackages in sources list.
 r       Remove; delete package physically from local disk.
 u       Upgrade package. Download new updates.
 U       Upgrade all packages.
@@ -1143,13 +1155,14 @@ q       Quit."
 (defconst epackage--batch-ui-menu-actions
   '((?a epackage-cmd-activate-package)
     (?b epackage-batch-ui-loader-file-generate)
-;;    (?B epackage-batch-ui-loader-file-byte-compile) ;; FIXME, byte cmpile package
+    (?B epackage-batch-ui-loader-file-byte-compile)
     (?A epackage-batch-ui-deactivate-package)
     (?c epackage-batch-ui-clean-package)
     (?d epackage-batch-ui-download-package)
+    (?e epackage-batch-ui-enable-package)
+    (?E epackage-barch-ui-disable-package)
     (?g epackage-batch-ui-download-sources-list)
-    (?i epackage-batch-ui-enable-package)
-    (?I epackage-barch-ui-disable-package)
+    (?i epackage-batch-ui-display-package-info)
     (?l epackage-batch-ui-list-installed-packages)
     (?L epackage-batch-ui-list-downloaded-packages)
     (?n epackage-batch-ui-list-not-installed-packages)
@@ -1167,39 +1180,48 @@ Use from command line:
   Emacs --batch -Q -l ./epackage.el -f epackage-batch-ui-menu")
 
 (defconst epackage--batch-ui-menu-help "\
+In a nutshell
+-------------
+To install some package: (d)ownload, (e)enable, (b)oot loader generate, (q)uit.
+
 Packages management
 -------------------
 download        Download package to disk. No install whatsoever.
 
-upgrade         Get new updates for package(s).
+upgrade         Get updates for epackage.
+
+info		Show downloaded epackage's information file.
+		Use command \"List available (p)ackages\" prior download.
 
 install         Several choices:
                 * autoload. Install only minimal functions
                   that will be available in autoload state only.
                   If you want to configure everything manually in
                   ~/.emacs startup file, use this (for experts).
-                * install standard = enable only autoload code.
-                  The opposite is uninstall = disable.
-                * activate = install hooks, bindings and the like.
-                  Posisbly modifies Emacs setup.
+                * standard = enable only autoload code.
+                  The opposite is disable.
+                * activate = install file that provides hooks, bindings
+                  and the like. Possibly modifies Emacs setup.
                   The opposite is deactivate.
 
 clean           Delete all install configuration files. Package
-                will not be available for later use. M-x etc.
-                calls are not there any longer.
+                will not be available for later use. M-x calls
+                are no longer available,
 
-remove          Physically remove configuration files and pakkage
-                from download directory
+remove          Physically remove configuration files and package
+                from download directory. The opposite of download.
 
 Other actions
 -------------
-generate        Write a boot loader that contains all packages'
-                configurations in one file. This is intended to be
-                loaded from ~/.emacs. Must be generated/updated
-                after each package management change.
+boot loader     Write boot loader that contains all packages'
+                configurations in one file. Must be generated/updated
+                after each package management change. This is intended to be
+                loaded from ~/.emacs with
 
-get             Get Yellow pages data. This updated package sources
-                list file to know about new available packages."
+		(load \"~/.emacs.d/epackage/00conf/epackage-loader\" 'noerr)
+
+get		Get package sources list Yellow Pages data. This updates
+                the list of available packages."
   "UI menu help.")
 
 (defsubst epackage-file-name-basename (dir)
@@ -1254,7 +1276,7 @@ Return nil of there is nothing to remove .i.e. the result wold be \"/\"."
           epackage--loader-file))
 
 (defsubst epackage-file-name-package-compose (package)
-  "Return VCS directory for PACKAGE."
+  "Return download directory for PACKAGE."
   (format "%s/%s%s"
           (epackage-directory-root)
           epackage--directory-name-pkg
@@ -1263,7 +1285,7 @@ Return nil of there is nothing to remove .i.e. the result wold be \"/\"."
             (concat "/" package))))
 
 (defsubst epackage-directory-packages ()
-  "Return VCS directory."
+  "Return package root directory."
   (epackage-file-name-package-compose ""))
 
 (defsubst epackage-directory-install ()
@@ -1272,10 +1294,16 @@ Return nil of there is nothing to remove .i.e. the result wold be \"/\"."
           (epackage-directory-root)
           epackage--directory-name-install))
 
-(defsubst epackage-file-name-vcs-package-control-directory (package)
+(defsubst epackage-directory-package-control (package)
   "Return control directory of PACKAGE."
   (let ((root (epackage-file-name-package-compose package)))
     (format "%s/%s" root epackage--package-control-directory)))
+
+(defsubst epackage-file-name-package-info (package)
+  "Return path to `epackage--pkg-info-file-name' of PACKAGE."
+  (format "%s/%s"
+          (epackage-directory-package-control package)
+	  epackage--pkg-info-file-name))
 
 (defsubst epackage-file-name-nondirectory (dir)
   "Return last component in DIR.
@@ -1287,6 +1315,12 @@ Examples:
     (setq dir (expand-file-name dir)))
   (if (string-match "/\\([^/]+\\)/?$" dir)
       (match-string-no-properties 1 dir)))
+
+(defun epackage-file-content-as-string (file)
+  "Return content of FILE as string."
+    (with-temp-buffer
+      (insert-file-contents file)
+      (buffer-string)))
 
 (put 'epackage-ignore-errors 'lisp-indent-function 0)
 (put 'epackage-ignore-errors 'edebug-form-spec '(body))
@@ -1375,7 +1409,7 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
 (defun epackage-directory-packages-control-file (package type)
   "Return PACKAGE control file of TYPE.
 The TYPE is car of list `epackage--layout-mapping'."
-  (let ((dir (epackage-file-name-vcs-package-control-directory package))
+  (let ((dir (epackage-directory-package-control package))
         (file (nth 1 (assq type epackage--layout-mapping))))
     (if (not file)
         (epackage-error "[ERROR] Unknown TYPE argument '%s'" type)
@@ -1435,12 +1469,20 @@ The TYPE is car of list `epackage--layout-mapping'."
         file)))
 
 (defun epackage-package-downloaded-p (package)
-  "Check if PACKAGE has been downloaded."
+  "Return download directory if PACKAGE has been downloaded."
   (unless (epackage-string-p package)
     (epackage-error "arg 'package' is not a string."))
   (let ((dir (epackage-file-name-package-compose package)))
     (if (file-directory-p dir)
         dir)))
+
+(defun epackage-package-info-p (package)
+  "Return path to `epackage--pkg-info-file-name' of PACKAGE if it exists."
+  (unless (epackage-string-p package)
+    (epackage-error "arg 'package' is not a string."))
+  (let ((file (epackage-file-name-package-info package)))
+    (if (file-exists-p file)
+        file)))
 
 (defsubst epackage-directory-sources-list ()
   "Return sources list build directory; the yellow pages.
@@ -1536,6 +1578,24 @@ location of `epackage--sources-file-name-official'."
          (buffer-file-coding-system 'no-conversion)
          write-file-functions
          after-save-hook)
+     ,@body))
+
+(put 'epackage-with-buffer-info 'lisp-indent-function 0)
+(put 'epackage-with-buffer-info 'edebug-form-spec '(body))
+(defmacro epackage-with-buffer-info (&rest body)
+  "Run BODY in `epackage--buffer-info'.
+Create `epackage--buffer-info' for BODY if it doe snot exists."
+  `(with-current-buffer (get-buffer-create epackage--buffer-info)
+     ,@body))
+
+(put 'epackage-with-package-info-file 'lisp-indent-function 1)
+(put 'epackage-with-package-info-file 'edebug-form-spec '(body))
+(defmacro epackage-with-package-info-file (package &rest body)
+  "Run BODY if `epackage--package-info-file' of PACKAGE exist.
+Signal error if it doesn't. Variable `file' is bound during BODY."
+  `(let ((file (epackage-file-name-package-info package)))
+     (unless (file-exists-p file)
+       (epackage-error "Info file does not exist: %s" file))
      ,@body))
 
 (put 'epackage-with-sources-list 'lisp-indent-function 0)
@@ -1952,6 +2012,15 @@ Those that are not installed in `epackage-directory-install'."
         (epackage-push package list)))
     (nreverse list)))
 
+(defun epackage-pkg-info-display (package verbose)
+  "Display local PACKAGE information file in another buffer.
+If VERBOSE is non-nil, display informational message."
+  (epackage-with-package-info-file package
+    (epackage-with-buffer-info
+      (erase buffer)
+      (insert (epackage-file-content-as-string file))
+      (display-buffer (current-buffer)))))
+
 (defun epackage-loader-file-insert-header ()
   "Insert header comments."
   (insert
@@ -2278,7 +2347,7 @@ Return package name or nil."
 (put 'epackage-cmd-package-check-macro 'edebug-form-spec '(body))
 (defmacro epackage-cmd-package-check-macro
   (package verbose message &rest body)
-  "Check PACKAGE, VERBOSE. If nok, display/signal error MESSAGE. If ok, run BODY."
+  "Check PACKAGE, be VERBOSE. If nok, display/signal MESSAGE. If ok, run BODY."
   `(cond
     ((or (null package) ;User pressed RETURN to not select any.
          (and (stringp package)
@@ -2296,13 +2365,37 @@ Return package name or nil."
      (epackage-error ,message))))
 
 ;;;###autoload
+(defun epackage-cmd-display-package-info (package &optional verbose)
+  "Display local PACKAGE info.
+If VERBOSE is non-nil, display progress message."
+  (interactive
+   (list (epackage-cmd-select-package "Display epackage info: ")
+         'interactive))
+  (epackage-cmd-package-check-macro
+      package
+      verbose
+      (format "PACKAGE name \"%s\" is invalid for display command"
+              package)
+    (cond
+     ((epackage-package-downloaded-p package)
+      (epackage-pkg-info-display package verbose))
+    (t
+     (if (eq verbose 'interactive)
+	 (epackage-message "Display ignored. Package not downloaded: %s"
+			    package)
+	(epackage-message "Can't display info. Package not downloaded: %s"
+			  package))))))
+
+;;;###autoload
 (defun epackage-cmd-autoload-package (package &optional verbose)
   "Autoload PACKAGE.
 If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Autoload epackage: ")
          'interactive))
-  (epackage-cmd-package-check-macro package verbose
+  (epackage-cmd-package-check-macro
+      package
+      verbose
       (format "PACKAGE name \"%s\" is invalid for autoload command"
               package)
     (cond
@@ -2322,7 +2415,9 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Enable epackage: ")
          'interactive))
-  (epackage-cmd-package-check-macro package verbose
+  (epackage-cmd-package-check-macro
+      package
+      verbose
       (format "package name \"%s\" is invalid for enable command"
               package)
     (cond
@@ -2343,7 +2438,9 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Disable epackage: ")
          'interactive))
-  (epackage-cmd-package-check-macro package verbose
+  (epackage-cmd-package-check-macro
+      package
+      verbose
       (format "package name \"%s\" is invalid for disable command"
               package)
     (let ((file (epackage-file-name-install-compose package 'enable)))
@@ -2364,7 +2461,9 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Activate epackage: ")
          'interactive))
-  (epackage-cmd-package-check-macro package verbose
+  (epackage-cmd-package-check-macro
+      package
+      verbose
       (epackage-message "package name \"%s\" is invalid for activate command"
                         package)
     (cond
@@ -2386,7 +2485,9 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Deactivate epackage: ")
          'interactive))
-  (epackage-cmd-package-check-macro package verbose
+  (epackage-cmd-package-check-macro
+      package
+      verbose
       (epackage-error "package name \"%s\" is invalid for deactivate command"
                       package)
     (let ((file (epackage-file-name-install-compose package 'activate)))
@@ -2407,7 +2508,9 @@ If VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Disable epackage: ")
          'interactive))
-  (epackage-cmd-package-check-macro package verbose
+  (epackage-cmd-package-check-macro
+      package
+      verbose
       (epackage-error "package name \"%s\" is invalid for clean command"
                       package)
     (let ((list (epackage-config-delete-all package verbose)))
@@ -2610,14 +2713,14 @@ Summary, Version, Maintainer etc."
 (defun epackage-documentation ()
   "Display documentation."
   (interactive)
-  (let ((buffer (get-buffer epackage--doc-buffer))
+  (let ((buffer (get-buffer epackage--buffer-doc))
 	(file "epackage.el"))
     (unless buffer
       (epackage-documentation-by-lisp-file
        (or (locate-library file)
 	   (epackage-error "Can't file from load-path: %s" file))
-       epackage--doc-buffer))
-    (display-buffer (get-buffer epackage--doc-buffer))))
+       epackage--buffer-doc))
+    (display-buffer (get-buffer epackage--buffer-doc))))
 
 ;;;###autoload
 (defun epackage-manager ()
@@ -2686,6 +2789,28 @@ Summary, Version, Maintainer etc."
       (if description
           (message "%-25s %s" package description)
         (message package)))))
+
+;;; Command line UI
+
+;;;###autoload
+(defun epackage-batch-ui-display-package-info ()
+  "Display downloaded package's information file."
+  (interactive)
+  (let ((package (epackage-cmd-select-package "Info for package: ")))
+    (epackage-cmd-package-check-macro
+	package
+	verbose
+	(format "PACKAGE name \"%s\" is invalid for display command"
+		package)
+    (cond
+     ((epackage-package-downloaded-p package)
+      (let ((file (epackage-file-name-package-info package)))
+	(if (not file)
+	    (epackage-message "Broken epackage. Missing file: %s" file)
+	  (message (epackage-file-content-as-string file)))))
+     (t
+      (epackage-message "Can't display info. Package not downloaded: %s"
+			package))))))
 
 ;;;###autoload
 (defun epackage-batch-ui-loader-file-generate ()
@@ -2799,19 +2924,19 @@ Summary, Version, Maintainer etc."
       (message "All available packages for download:")
       (epackage-batch-list-package-summamry list))))
 
-;;;###autoload
+;;; Command line batch commands
+;;; emacs -Q --batch -f <command> <args>
+
 (defun epackage-batch-enable-package ()
   "Run `epackage-cmd-enable-package' for command line args."
   (epackage-batch-ignore-errors-macro
    (epackage-cmd-enable-package elt 'verbose)))
 
-;;;###autoload
 (defun epackage-batch-disable-package ()
   "Run `epackage-cmd-enable-package' for command line args."
   (epackage-batch-ignore-errors-macro
    (epackage-cmd-enable-package elt 'verbose)))
 
-;;;###autoload
 (defun epackage-batch-activate-package ()
   "Run `epackage-cmd-enable-package' for command line args."
   (epackage-batch-ignore-errors-macro

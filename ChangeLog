@@ -1,3 +1,23 @@
+2010-12-14 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-cmd-display-package-info): New.
+	(epackage--buffer-doc): Rename. Was `epackage--doc-buffer'.
+	(epackage--buffer-info): New.
+	(epackage-with-buffer-info): New.
+	(epackage-pkg-info-display): New.
+	(epackage--pkg-info-file-name): New.
+	(epackage-directory-package-control): Rename. Was
+	`epackage-file-name-vcs-package-control-directory'.
+	(epackage-file-name-package-info): New.
+	(epackage-package-info-p): New.
+	(epackage-file-content-as-string): New.
+	(epackage-pkg-info-display): New.
+	(epackage-with-package-info-file): New.
+	(epackage--batch-ui-menu-actions): Rename i, I commands to e, E.
+	Add command i to display package info.
+	(epackage--batch-ui-menu-help): Update.
+	(epackage-batch-ui-display-package-info): New.
+
 2010-12-13 Mon  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-build-sources-list): New.
