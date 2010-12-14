@@ -948,7 +948,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1214.1839"
+(defconst epackage-version-time "2010.1214.1841"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1261,30 +1261,30 @@ Set by function `epackage-initialize'. Do not touch.")
   "If non-nil, activate debug.")
 
 (defconst epackage--batch-ui-menu-string "\
-a       Install activate configuration; modifies Emacs environment.
+a       Install activate configuration; modifies Emacs environment
 A       Deactivate. Uninstall activate configuration
-b       Generate boot loader.
-B	Byte compile epackage.
-c       Clean install configuration files (whole uninstall).
-d       Download epackage.
-e       Install standard (e)nable configuration from epackage.
-E       Uninstall standard enable configuration from epackage.
-g       Get sources list; update the yellow page data.
-i	Display (i)nfo file of epackage.
-l       List installed epackages.
-L       List downloaded epackages.
-n       List (n)ot installed epackages.
-o       Install aut(o)load configuration from epackage.
-p       List available (p)ackages in sources list.
-r       Remove; delete package physically from local disk.
+b       Generate boot loader
+B	Byte compile epackage
+c       Clean install configuration files (whole uninstall)
+d       Download epackage
+e       Install standard (e)nable configuration from epackage
+E       Uninstall standard enable configuration from epackage
+g       Get sources list; update the yellow page data
+i	Display (i)nfo file of epackage
+l       List installed epackages
+L       List downloaded epackages
+n       List (n)ot installed epackages
+o       Install aut(o)load configuration from epackage
+p       List available (p)ackages in sources list
+r       Remove; delete package physically from local disk
 t	Ac(t)ion toggle: after every download, install (e)nable configuration
 T	Ac(t)ion toggle: after every download, install (a)ctivate configuration
-u       Upgrade epackage. Download new updates.
-U       Upgrade all epackages.
-y	B(y)te compile epackaged extension.
-Y	Action toggle: after every download, b(y)te compile epackage.
+u       Upgrade epackage. Download new updates
+U       Upgrade all epackages
+y	B(y)te compile epackaged extension
+Y	Action toggle: after every download, b(y)te compile epackage
 ?       Help.
-q       Quit."
+q       Quit"
   "UI menu to run epackage from command line.")
 
 (defconst epackage--batch-ui-menu-actions
