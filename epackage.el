@@ -950,7 +950,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1214.1936"
+(defconst epackage-version-time "2010.1214.1942"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2034,7 +2034,7 @@ If VERBOSE is non-nil, display progress message."
       (epackage-verbose-message "Combining files %s" elt)
       (insert "###file: " file "\n")
       (insert-file-contents-literally elt))
-    (epackage-with-message (format "Write file %s" file)
+    (epackage-with-message verbose (format "Write file %s" file)
 	(goto-char (point-min))
       (unless (re-search-forward "^[^#\r\n]+://" nil t)
 	(epackage-error
@@ -3494,11 +3494,12 @@ Package activation type after download:%s"
 ;;;###autoload
 (defun epackage-batch-ui-menu ()
   "Present an UI to run basic command."
-  (epackage-initialize 'verbose)
-  (let ((vc-handled-backends nil)
+  (let (debug-ignored-errors
+	(debug-on-error t)
+	(vc-handled-backends nil)
         (loop t)
         choice)
-    (setq debug-on-error t)
+    (epackage-initialize 'verbose)
     (setq epackage--debug nil)
     (while loop
       (epackage--batch-ui-menu-header)

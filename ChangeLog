@@ -132,6 +132,8 @@
 	`epackage-directory-packages'.
 	(epackage-pkg-info-display): Correct all to `erase-buffer'.
 	(epackage-loader-file-insert-header): Remove `format'.
+	(epackage-batch-ui-menu): Move `epackage-initialize' call
+	after debug is active.
 
 2010-12-13 Mon  Jari Aalto  <jari.aalto@cante.net>
 
