@@ -75,6 +75,7 @@
 	(epackage-cmd-download-action-compile-toggle): New.
 	(epackage-batch-ui-download-action-enable-toggle): New.
 	(epackage-batch-ui-download-action-activate-toggle): New.
+	(epackage-cmd-download-package): Call `epackage-run-action-list'.
 
 2010-12-13 Mon  Jari Aalto  <jari.aalto@cante.net>
 

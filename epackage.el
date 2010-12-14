@@ -943,7 +943,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1214.1341"
+(defconst epackage-version-time "2010.1214.1347"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2905,7 +2905,8 @@ If VERBOSE is non-nil, display progress messages."
       (epackage-message "No packages selected for install.")
     (if (epackage-package-downloaded-p package)
         (epackage-message "Skip, package already downloaded: %s" package)
-      (epackage-download-package package verbose))))
+      (epackage-download-package package verbose)
+      (epackage-run-action-list package verbose))))
 
 ;;;###autoload
 (defun epackage-initialize (&optional verbose)
@@ -3105,18 +3106,6 @@ Summary, Version, Maintainer etc."
 			package))))))
 
 ;;;###autoload
-(defun epackage-batch-ui-download-action-enable-toggle ()
-  "Call `epackage-cmd-download-action-enable-toggle'."
-  (interactive)
-  (call-interactively 'epackage-cmd-download-action-enable-toggle))
-
-;;;###autoload
-(defun epackage-batch-ui-download-action-activate-toggle ()
-  "Call `epackage-cmd-download-action-activate-toggle'."
-  (interactive)
-  (call-interactively 'epackage-cmd-download-action-activate-toggle))
-
-;;;###autoload
 (defun epackage-batch-ui-loader-file-generate ()
   "Call `epackage-loader-file-generate'."
   (interactive)
@@ -3127,24 +3116,6 @@ Summary, Version, Maintainer etc."
   "Call `epackage-loader-file-byte-compile'."
   (interactive)
   (call-interactively 'epackage-loader-file-byte-compile))
-
-;;;###autoload
-(defun epackage-batch-ui-upgrade-package ()
-  "Call `epackage-cmd-upgrade-package'."
-  (interactive)
-  (call-interactively 'epackage-cmd-upgrade-package))
-
-;;;###autoload
-(defun epackage-batch-ui-upgrade-all-packages ()
-  "Call `epackage-cmd-upgrade-all-packages'."
-  (interactive)
-  (call-interactively 'epackage-cmd-upgrade-all-packages))
-
-;;;###autoload
-(defun epackage-batch-ui-download-sources-list ()
-  "Call `epackage-cmd-download-sources-list'."
-  (interactive)
-  (call-interactively 'epackage-cmd-download-sources-list))
 
 ;;;###autoload
 (defun epackage-batch-ui-autoload-package ()
@@ -3171,6 +3142,24 @@ Summary, Version, Maintainer etc."
   (call-interactively 'epackage-cmd-deactivate-package))
 
 ;;;###autoload
+(defun epackage-batch-ui-download-action-enable-toggle ()
+  "Call `epackage-cmd-download-action-enable-toggle'."
+  (interactive)
+  (call-interactively 'epackage-cmd-download-action-enable-toggle))
+
+;;;###autoload
+(defun epackage-batch-ui-download-action-activate-toggle ()
+  "Call `epackage-cmd-download-action-activate-toggle'."
+  (interactive)
+  (call-interactively 'epackage-cmd-download-action-activate-toggle))
+
+;;;###autoload
+(defun epackage-batch-ui-download-sources-list ()
+  "Call `epackage-cmd-download-sources-list'."
+  (interactive)
+  (call-interactively 'epackage-cmd-download-sources-list))
+
+;;;###autoload
 (defun epackage-batch-ui-download-package ()
   "Call `epackage-cmd-download-package'."
   (interactive)
@@ -3187,6 +3176,18 @@ Summary, Version, Maintainer etc."
   "Call `epackage-cmd-remove-package'."
   (interactive)
   (call-interactively 'epackage-cmd-remove-package))
+
+;;;###autoload
+(defun epackage-batch-ui-upgrade-package ()
+  "Call `epackage-cmd-upgrade-package'."
+  (interactive)
+  (call-interactively 'epackage-cmd-upgrade-package))
+
+;;;###autoload
+(defun epackage-batch-ui-upgrade-all-packages ()
+  "Call `epackage-cmd-upgrade-all-packages'."
+  (interactive)
+  (call-interactively 'epackage-cmd-upgrade-all-packages))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-downloaded-packages ()
