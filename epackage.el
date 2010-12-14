@@ -357,13 +357,14 @@
 ;;          epackage/               Under epackage--root-directory
 ;;          |
 ;;          +-- 00coonf/
-;;          |   epackage-loader.el  One big boot file
-;;	    |   sources.lst	   Package sources
+;;          |   epackage-loader.el     For user. One big boot file-
+;;          |   epackage-load-path.el  Internal. Used during byte-compile.
+;;	    |   sources.lst	       Internal. Package sources.
 ;;          |
 ;;          +-- 00install/	   Extension "install" files
 ;;          |   *-<type>.el	   autoloads, install, activate...
 ;;          |
-;;          +--packages/           Version control repositories.
+;;          +--packages/           Version control repositories
 ;;             |
 ;;             +-- 00sources/      Yellow pages: list of available packages
 ;;             +-- package/        Downloaded package
@@ -947,7 +948,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1214.1715"
+(defconst epackage-version-time "2010.1214.1748"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1062,8 +1063,8 @@ during hook. The TYPE is one of `epackage--layout-mapping'."
   :type  'hook
   :group 'epackage)
 
-(defcustom epackage--loader-file-byte-compile-flag t
-  "*Non-nil means to byte compile `epackage--loader-file'.
+(defcustom epackage--loader-file-boot-byte-compile-flag t
+  "*Non-nil means to byte compile `epackage--loader-file-boot'.
 When non-nil, After calling `epackage-loader-file-generate', file
 returned by `epackage-file-name-loader-file' is byte compiled."
   :type  'boolean
@@ -1181,11 +1182,16 @@ Do not touch. See variable `epackage--sources-list-url'.")
 Do not touch. See variables `epackage--sources-list-url'
 and `epackage--sources-file-list'.")
 
-(defvar epackage--loader-file "epackage-loader.el"
+(defvar epackage--loader-file-boot "epackage-loader.el"
   "File that contains package enabling and activation code.
 Use function `epackage-file-name-loader-file' for full path name.
 Make fle with `epackage-loader-file-generate'.
-See also variable `epackage--loader-file-byte-compile-flag'.")
+See also variable `epackage--loader-file-boot-byte-compile-flag'.")
+
+(defvar epackage--loader-file-load-path "epackage-load-path.el"
+  "File that contains `load-path' definitions.
+Not a user file. This is used internally during byte compiling
+packages.")
 
 (defvar epackage--package-control-directory "epackage"
   "Name of directory inside VCS controlled package.")
@@ -1396,11 +1402,17 @@ Return nil of there is nothing to remove .i.e. the result wold be \"/\"."
           (epackage-directory-root)
           name))
 
-(defsubst epackage-file-name-loader-file ()
+(defsubst epackage-file-name-loader-boot ()
   "Return path to boot loader file."
   (format "%s/%s"
           (epackage-directory-loader)
-          epackage--loader-file))
+          epackage--loader-file-boot))
+
+(defsubst epackage-file-name-loader-load-path ()
+  "Return path to `load-path' loader file."
+  (format "%s/%s"
+          (epackage-directory-loader)
+          epackage--loader-file-load-path))
 
 (defsubst epackage-directory-packages ()
   "Return top level directory of downloaded packages."
@@ -1476,6 +1488,16 @@ Return `epackage--download-action-list'."
 (defsubst epackage-layout-mapping-file (type)
   "Return nth 1 of TYPE listed in `epackage--layout-mapping'."
   (nth 1 (assq type epackage--layout-mapping)))
+
+(defsubst epackage-eval-file (file &optional security)
+  "Evaluate FILE with optionally checking SECURITY.
+If SECURITY is non-nil, signal error if
+- GPG signature is missing at location <FILE>.gpg
+- GPG signature is invalid at location <FILE.gpg."
+  (with-temp-buffer
+    (insert-file-contents-literally file)
+    ;; FIXME: Implement SECURITY
+    (eval-current-buffer)))
 
 (defmacro epackage-push (x place)
   "A close `push' CL library macro equivalent: (push X PLACE)."
@@ -2032,34 +2054,6 @@ If VERBOSE is non-nil, display progress message."
 	     (list (epackage-file-name-sources-list-official))))
     (run-hooks 'epackage--build-sources-list-hook)))
 
-(defun epackage-byte-compile-package (package &optional verbose)
-  "Run byte compile on PACKAGE.
-If VERBOSE is non-nil, display progress message."
-  (let ((file (epackage-directory-packages-control-file package 'compile)))
-    (if (not (file-exists-p file))
-	(epackage-error "Byte compile not supported. Missing %s" file)
-      (let ((load-path load-path)	; Make a copy
-	    (dir (epackage-directory-package-root package))
-	    list)
-	(setq list (epackage-directory-recursive-list
-		    dir list epackage--directory-exclude-regexp))
-	(dolist (elt list)
-	  (epackage-push elt load-path))
-	(epackage-verbose-message "byte compile with %s" file)
-	(with-temp-buffer
-	  ;; This contains all the commands to byte compile the file.
-	  (insert-file-contents-literally file)
-	  ;; FIXME: Security? Trust level of Git repositories?
-	  (eval-current-buffer))))))
-
-(defun epackage-byte-compile-package-maybe (package &optional verbose)
-  "Run byte compile on PACKAGE if compilation in package is supported.
-If VERBOSE is non-nil, display progress message."
-  (let ((file (epackage-directory-packages-control-file package 'compile)))
-    (if (not file)
-	(epackage-message "Compile not supported. Missing %s" file)
-      (epackage-byte-compile-package package verbose))))
-
 (defun epackage-run-action-list (package &optional verbose)
   "Run PACKAGE actions listed in `epackage--download-action-list'.
 If VERBOSE is non-nil, display progress message."
@@ -2242,12 +2236,10 @@ If VERBOSE is non-nil, display informational message."
 ;; Epackge boot file -- automatically generated
 ;;
 ;; Do not modify. Changes done here will be lost.
-;; Add following to your ~/.emacs to use this file:
-;;   (load-file \"%s\")
 
 "
     (file-name-sans-extension
-     (epackage-file-name-loader-file)))))
+     (epackage-file-name-loader-boot)))))
 
 (defsubst epackage-loader-file-insert-footer ()
   "Insert Footer."
@@ -2259,7 +2251,7 @@ If VERBOSE is non-nil, display informational message."
 "
            (file-name-sans-extension
             (file-name-nondirectory
-             (epackage-file-name-loader-file))))))
+             (epackage-file-name-loader-boot))))))
 
 (defun epackage-loader-insert-file-path-list-by-path (path)
   "Insert `load-path' definitions to `current-buffer' from PATH."
@@ -2301,44 +2293,94 @@ If VERBOSE is non-nil, display informational message."
     (if (file-exists-p file)
         (insert-file-contents-literally file))))
 
+(defsubst epackage-loader-file-insert-load-path ()
+  "Insert Epackage loader boot commands: header and`load-path'."
+  (epackage-loader-file-insert-header)
+  (epackage-loader-file-insert-path-list))
+
 (defsubst epackage-loader-file-insert-main ()
   "Insert Epackage loader boot commands to current point."
-  (epackage-loader-file-insert-header)
-  (epackage-loader-file-insert-path-list)
+  (epackage-loader-file-insert-load-path)
   (epackage-loader-file-insert-install-code)
   (epackage-loader-file-insert-footer))
 
 (defun epackage-loader-file-byte-compile (&optional verbose)
-  "Byte compile `epackage-file-name-loader-file'.
+  "Byte compile `epackage-file-name-loader-boot'.
 If VERBOSE is non-nil, display progress message."
   (interactive
    (list 'interactive))
-  (let ((file (epackage-file-name-loader-file)))
+  (let ((file (epackage-file-name-loader-boot)))
     (cond
      ((file-exists-p file)
       (byte-compile-file file))
      (verbose
       (epackage-message "No boot loader file generated to byte compile.")))))
 
-(defsubst epackage-loader-file-byte-compile-maybe (&optional verbose)
-  "Check `epackage--byte-compile-loader-file' and byte compile.
-If VERBOSE is non-nil, display progress message."
-  (when epackage--loader-file-byte-compile-flag
-    (epackage-loader-file-byte-compile verbose)))
-
-(defun epackage-loader-file-generate (&optional verbose)
-  "Generate main loader for all installed or activated packages.
+;;; Note really meant for user, but anyways....
+;;;###autoload
+(defun epackage-loader-file-generate-load-path-main (&optional verbose)
+  "Generate `load-path' loader for all installed or activated packages.
 If VERBOSE is non-nil, display progress message."
   (interactive
    (list 'interactive))
-  (let ((file (epackage-file-name-loader-file)))
+  (let ((file (epackage-file-name-loader-load-path)))
+    (with-temp-buffer
+      (epackage-loader-file-insert-load-path)
+      (epackage-loader-insert-file-path-list-by-path
+       (epackage-directory-install))
+      (write-region (point-min) (point-max) file))))
+
+(defun epackage-loader-file-generate-load-path-maybe (&optional verbose)
+  "Generate `epackage-file-name-loader-load-path' file if not exists.
+If VERBOSE is non-nil, display progress message."
+  (let ((file (epackage-file-name-loader-load-path)))
+    (unless (file-exists-p file)
+      (epackage-loader-file-generate-load-path-main verbose))))
+
+(defsubst epackage-loader-file-byte-compile-maybe (&optional verbose)
+  "Check `epackage--byte-compile-loader-file' and byte compile.
+If VERBOSE is non-nil, display progress message."
+  (when epackage--loader-file-boot-byte-compile-flag
+    (epackage-loader-file-byte-compile verbose)))
+
+(defun epackage-byte-compile-package (package &optional verbose)
+  "Run byte compile on PACKAGE.
+If VERBOSE is non-nil, display progress message."
+  (let ((file (epackage-directory-packages-control-file package 'compile)))
+    (if (not (file-exists-p file))
+	(epackage-error "Byte compile not supported. Missing %s" file)
+      (let ((load-path load-path)	; Make a copy
+	    (dir (epackage-directory-package-root package))
+	    list)
+	(setq list (epackage-directory-recursive-list
+		    dir list epackage--directory-exclude-regexp))
+	(dolist (elt list)
+	  (epackage-push elt load-path))
+	(epackage-loader-file-generate-load-path-maybe)
+	(epackage-eval-file (epackage-file-name-loader-load-path))
+	(epackage-verbose-message "byte compile with %s" file)
+	(epackage-eval-file file)))))
+
+(defun epackage-byte-compile-package-maybe (package &optional verbose)
+  "Run byte compile on PACKAGE if compilation in package is supported.
+If VERBOSE is non-nil, display progress message."
+  (let ((file (epackage-directory-packages-control-file package 'compile)))
+    (if (not file)
+	(epackage-message "Compile not supported. Missing %s" file)
+      (epackage-byte-compile-package package verbose))))
+
+;;;###autoload
+(defun epackage-loader-file-generate-boot (&optional verbose)
+  "Generate boot loader for all installed or activated packages.
+If VERBOSE is non-nil, display progress message."
+  (interactive
+   (list 'interactive))
+  (epackage-loader-file-generate-load-path)
+  (let ((file (epackage-file-name-loader-boot)))
     (epackage-with-message verbose "Generating boot loader"
-      (with-current-buffer (find-file-noselect file)
-        (delete-region (point-min) (point-max))
+      (with-temp-buffer
         (epackage-loader-file-insert-main)
-        (write-region (point-min)
-                      (point-max)
-                      (epackage-file-name-loader-file))
+        (write-region (point-min) (point-max) file)
         (set-buffer-modified-p nil)
         (kill-buffer (current-buffer)))
       (epackage-loader-file-byte-compile-maybe verbose))))
@@ -3181,9 +3223,9 @@ Summary, Version, Maintainer etc."
 
 ;;;###autoload
 (defun epackage-batch-ui-loader-file-generate ()
-  "Call `epackage-loader-file-generate'."
+  "Call `epackage-loader-file-generate-boot'."
   (interactive)
-  (call-interactively 'epackage-loader-file-generate))
+  (call-interactively 'epackage-loader-file-generate-boot))
 
 ;;;###autoload
 (defun epackage-batch-ui-loader-file-byte-compile ()

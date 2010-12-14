@@ -98,6 +98,14 @@
 	(epackage-error): Remove `edebug-form-spec'.
 	(epackage-warn): Remove `edebug-form-spec'.
 	(epackage-message): Remove `edebug-form-spec'.
+	(epackage--loader-file-load-path): New.
+	(epackage-file-name-loader-load-path): New.
+	(epackage-loader-file-generate-load-path): New.
+	(epackage-loader-file-insert-header): Edit message.
+	(epackage-loader-file-insert-load-path): New.
+	(epackage-loader-file-generate-boot): Call
+	`epackage-loader-file-generate-load-path'.
+	(epackage-eval-file): New.
 
 2010-12-13 Mon  Jari Aalto  <jari.aalto@cante.net>
 
