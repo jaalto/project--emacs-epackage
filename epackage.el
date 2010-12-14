@@ -948,7 +948,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1214.1748"
+(defconst epackage-version-time "2010.1214.1757"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1238,8 +1238,11 @@ producing 'foo-install.el.")
 (defvar epackage--buffer-info "*Epackage info*"
   "Buffer displayed by `epackage-pkg-info-display'.")
 
-(defvar epackage--finder-commentary-buffer "*Finder-package*"
+(defconst epackage--finder-commentary-buffer-name "*Finder-package*"
   "Buffer name of call `finder-commentary'.")
+
+(defconst epackage--byte-compile-buffer-name "*Compile-Log*"
+  "Buffer name of byte compilation results.")
 
 (defvar epackage--initialize-flag nil
   "Non-nil means that package has been initialized.
@@ -1546,6 +1549,14 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
   "Run BODY if variable `epackage--debug' is non-nil."
   `(when epackage--debug
      ,@body))
+
+(put 'epackage-with-byte-compile-buffer 'lisp-indent-function 0)
+(put 'epackage-with-byte-compile-buffer 'ebyte-compile-buffer-form-spec '(body))
+(defmacro epackage-with-byte-compile-buffer (&rest body)
+  "Run BODY if variable `epackage--byte-compile-buffer' is non-nil."
+  `(if (get-buffer epackage--byte-compile-buffer-name)
+       (with-current-buffer (get-buffer epackage--byte-compile-buffer-name)
+	 ,@body)))
 
 (put 'epackage-with-verbose 'lisp-indent-function 0)
 (put 'epackage-with-verbose 'edebug-form-spec '(body))
@@ -2359,7 +2370,10 @@ If VERBOSE is non-nil, display progress message."
 	(epackage-loader-file-generate-load-path-maybe)
 	(epackage-eval-file (epackage-file-name-loader-load-path))
 	(epackage-verbose-message "byte compile with %s" file)
-	(epackage-eval-file file)))))
+	(epackage-eval-file file)
+	(epackage-with-verbose
+	  (epackage-with-byte-compile-buffer
+	   (display-buffer (current-buffer))))))))
 
 (defun epackage-byte-compile-package-maybe (package &optional verbose)
   "Run byte compile on PACKAGE if compilation in package is supported.
@@ -3106,7 +3120,7 @@ Summary, Version, Maintainer etc."
   (let ((file (locate-library "epackage.el"))
 	str)
     (finder-commentary "epackage.el")
-    (setq str (with-current-buffer epackage--finder-commentary-buffer
+    (setq str (with-current-buffer epackage--finder-commentary-buffer-name
 		(buffer-string)))
     (with-current-buffer (setq buffer (get-buffer-create buffer))
       (erase-buffer)
@@ -3115,7 +3129,7 @@ Summary, Version, Maintainer etc."
 	(setq str (epackage-documentation-header-string)))
       (goto-char (point-min))
       (insert str))
-  (kill-buffer epackage--finder-commentary-buffer)
+  (kill-buffer epackage--finder-commentary-buffer-name)
   buffer))
 
 ;;;###autoload

@@ -106,6 +106,10 @@
 	(epackage-loader-file-generate-boot): Call
 	`epackage-loader-file-generate-load-path'.
 	(epackage-eval-file): New.
+	(epackage--byte-compile-buffer): New.
+	(epackage--finder-commentary-buffer-name): Rename. Was
+	`epackage--finder-commentary-buffer'. Set to defconst.
+	(epackage-with-byte-compile-buffer): New.
 
 2010-12-13 Mon  Jari Aalto  <jari.aalto@cante.net>
 
