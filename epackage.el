@@ -948,7 +948,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1214.1805"
+(defconst epackage-version-time "2010.1214.1837"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1241,7 +1241,10 @@ producing 'foo-install.el.")
 (defconst epackage--finder-commentary-buffer-name "*Finder-package*"
   "Buffer name of call `finder-commentary'.")
 
-(defconst epackage--byte-compile-buffer-name "*Compile-Log*"
+(defconst epackage--byte-compile-buffer-name
+  (or (and (boundp 'byte-compile-log-buffer) ;Emacs 24.1
+	   byte-compile-log-buffer)
+      "*Compile-Log*")
   "Buffer name of byte compilation results.")
 
 (defvar epackage--initialize-flag nil
@@ -1287,7 +1290,7 @@ q       Quit."
 (defconst epackage--batch-ui-menu-actions
   '((?a epackage-cmd-activate-package)
     (?b epackage-batch-ui-loader-file-generate)
-    (?B epackage-batch-ui-loader-file-byte-compile)
+    (?B epackage-batch-ui-byte-compile-package)
     (?A epackage-batch-ui-deactivate-package)
     (?c epackage-batch-ui-clean-package)
     (?d epackage-batch-ui-download-package)

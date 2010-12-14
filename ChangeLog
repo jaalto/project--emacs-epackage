@@ -116,6 +116,11 @@
 	(epackage-config-delete-action): Use `epackage-verbose-message'.
 	(epackage-config-delete-all): Use `epackage-verbose-message'.
 	(epackage-require-directories): Use `epackage-verbose-message'.
+	(epackage--batch-ui-menu-actions): Change B command from
+	`epackage-batch-ui-loader-file-byte-compile' to
+	`epackage-batch-ui-byte-compile-package'.
+	(epackage--byte-compile-buffer-name): Check Emacs 24.1 variable
+	`byte-compile-log-buffer'.
 
 2010-12-13 Mon  Jari Aalto  <jari.aalto@cante.net>
 
