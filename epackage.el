@@ -948,7 +948,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1214.1837"
+(defconst epackage-version-time "2010.1214.1839"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1264,7 +1264,7 @@ Set by function `epackage-initialize'. Do not touch.")
 a       Install activate configuration; modifies Emacs environment.
 A       Deactivate. Uninstall activate configuration
 b       Generate boot loader.
-B	Byte compile boot loader.
+B	Byte compile epackage.
 c       Clean install configuration files (whole uninstall).
 d       Download epackage.
 e       Install standard (e)nable configuration from epackage.
