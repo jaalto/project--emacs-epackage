@@ -76,6 +76,28 @@
 	(epackage-batch-ui-download-action-enable-toggle): New.
 	(epackage-batch-ui-download-action-activate-toggle): New.
 	(epackage-cmd-download-package): Call `epackage-run-action-list'.
+	(epackage-directory-packages): Rewrite.
+	(epackage-file-name-package-compose): Rewrite.
+	(epackage-directory-package-root): New.
+	(epackage-byte-compile-package): Implement.
+	(epackage-cmd-build-sources-list): update message.
+	(epackage-directory-list): Adjust docstring. Add arg EXCLUDE.
+	Remove `epackage--directory-exclude-regexp'.
+	(epackage-directory-recursive-list-default): New.
+	(epackage-loader-insert-file-path-list-by-path): Change to
+	`epackage-directory-recursive-list-default'.
+	(epackage--directory-exclude-regexp): Remove
+	`epackage--directory-name'.
+	(epackage--directory-exclude-regexp): Use `regexp-opt'.
+	(epackage-cmd-byte-compile-package): New.
+	(epackage-batch-ui-byte-compile-package): New.
+	(epackage-batch-ui-loader-file-byte-compile): New.
+	(epackage-batch-ui-download-action-compile-toggle): New.
+	(epackage-push): Remove `edebug-form-spec'.
+	(epackage-asscoc): Remove `edebug-form-spec'.
+	(epackage-error): Remove `edebug-form-spec'.
+	(epackage-warn): Remove `edebug-form-spec'.
+	(epackage-message): Remove `edebug-form-spec'.
 
 2010-12-13 Mon  Jari Aalto  <jari.aalto@cante.net>
 
