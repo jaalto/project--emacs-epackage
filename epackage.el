@@ -967,7 +967,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1214.2104"
+(defconst epackage-version-time "2010.1214.2116"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -3361,11 +3361,15 @@ Summary, Version, Maintainer etc."
       (let* ((file (epackage-pkg-info-field-commentary package))
 	     (path (format "%s/%s"
 			   (epackage-directory-package-root package)
-			   file)))
+			   file))
+	     str)
 	(if (not file)
 	    (epackage-message
 	      "Missing 'Commentary:' field in epackage info file")
-	  (message (lm-commentary path)))))
+	  (if (setq str (lm-commentary path))
+	      (message str)
+	    (epackage-message
+	      "No standard 'Commentary:' section found in %s"path)))))
      (t
       (epackage-message
 	"Can't documentation . Package not downloaded: %s"
