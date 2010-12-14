@@ -566,6 +566,7 @@
 ;;          Homepage:
 ;;          Wiki: http://www.emacswiki.org/emacs/<page name>
 ;;          X-<Field>-<Name>: [anything]
+;;	    Commentary: <single *.el file>
 ;;          *Description: <short one line>
 ;;           [<Longer description>]
 ;;           .
@@ -591,6 +592,7 @@
 ;;          Vcs-Password:
 ;;          Homepage:
 ;;          Wiki: http://www.emacswiki.org/emacs/HideLines
+;;	    Commentary: hide-lines.el
 ;;          Description: Hide or preserve all matching lines in buffer
 ;;           Main command [C-u] M-x hide-lines to hide or show matching lines.
 ;;           With prefix argument, the corresponding lines are preserved while
@@ -610,6 +612,11 @@
 ;;      issue tracker of upstream project. Note: send packaging
 ;;      problems or update requests to the extension's epackage
 ;;      `Maintainer'.
+;;
+;;    Commentary
+;;
+;;	This field cntains single Emacs Lisp file name which contains
+;;	documentation suitable for `M-x' `finder-commentary'.
 ;;
 ;;    Compat
 ;;
@@ -947,7 +954,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1214.1959"
+(defconst epackage-version-time "2010.1214.2005"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
