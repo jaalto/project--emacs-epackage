@@ -110,6 +110,12 @@
 	(epackage--finder-commentary-buffer-name): Rename. Was
 	`epackage--finder-commentary-buffer'. Set to defconst.
 	(epackage-with-byte-compile-buffer): New.
+	(epackage-with-verbose): Remove.
+	(epackage-upgrade-package): Simplify by using
+	`epackage-with-message'.
+	(epackage-config-delete-action): Use `epackage-verbose-message'.
+	(epackage-config-delete-all): Use `epackage-verbose-message'.
+	(epackage-require-directories): Use `epackage-verbose-message'.
 
 2010-12-13 Mon  Jari Aalto  <jari.aalto@cante.net>
 

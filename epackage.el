@@ -948,7 +948,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1214.1757"
+(defconst epackage-version-time "2010.1214.1805"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1558,18 +1558,11 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
        (with-current-buffer (get-buffer epackage--byte-compile-buffer-name)
 	 ,@body)))
 
-(put 'epackage-with-verbose 'lisp-indent-function 0)
-(put 'epackage-with-verbose 'edebug-form-spec '(body))
-(defmacro epackage-with-verbose (&rest body)
-  "If variable `verbose' is non-nil, run BODY."
-  `(when verbose
-     ,@body))
-
 (put 'epackage-verbose-message 'lisp-indent-function 0)
 (put 'epackage-verbose-message 'edebug-form-spec '(body))
 (defmacro epackage-verbose-message (&rest args)
   "If variable `verbose' is non-nil, call `message' with ARGS."
-  `(epackage-with-verbose
+  `(when verbose
      (epackage-message ,@args)))
 
 (put 'epackage-with-message 'lisp-indent-function 2)
@@ -1999,18 +1992,15 @@ If VERBOSE is non-nil, display progress message."
     (unless url
       (epackage-error "No download URL for package '%s'" package))
     (let ((dir (epackage-directory-package-root package)))
-      (epackage-with-verbose
-        (epackage-message "Upgrading package: %s..." package))
-      (unless (epackage-git-master-p package)
-        (epackage-fatal
-          `,(concat
-             "Can't upgrade. "
-             "Branch name is not \"master\" in '%s'. "
-             "Possibly changed manually or invalid package.")
-          dir))
-      (epackage-git-command-pull dir verbose)
-      (epackage-with-verbose
-        (epackage-message "Upgrading package: %s...done" package)))))
+      (epackage-with-message verbose (format "Upgrading package %s" package)
+	(unless (epackage-git-master-p package)
+	  (epackage-fatal
+	    `,(concat
+	       "Can't upgrade. "
+	       "Branch name is not \"master\" in '%s'. "
+	       "Possibly changed manually or invalid package.")
+	    dir))
+	(epackage-git-command-pull dir verbose)))))
 
 (defun epackage-upgrade-sources-list (&optional verbose)
   "Update list of available packages; the yellow pages.
@@ -2146,8 +2136,7 @@ If VERBOSE is non-nil, display progress message.
 TYPE is car of `epackage--layout-mapping'."
   (let ((file (epackage-file-name-install-compose package type)))
     (when (file-exists-p file)
-      (epackage-with-verbose
-        (epackage-message "Delete %s" file))
+      (epackage-verbose-message "Delete %s" file)
       (delete-file file)
       (run-hooks 'epackage--install-config-delete-type-hook))))
 
@@ -2166,9 +2155,8 @@ Return:
                    t))
       (when (file-exists-p file)
 	(setq list (cons list file))
-        (epackage-with-verbose
-          (epackage-message "Delete %s" file))
-          (delete-file file)))
+	(epackage-verbose-message "Delete %s" file)
+	(delete-file file)))
     (if list
 	(run-hooks 'epackage--install-config-delete-all-hook))
     list))
@@ -2371,7 +2359,7 @@ If VERBOSE is non-nil, display progress message."
 	(epackage-eval-file (epackage-file-name-loader-load-path))
 	(epackage-verbose-message "byte compile with %s" file)
 	(epackage-eval-file file)
-	(epackage-with-verbose
+	(when verbose
 	  (epackage-with-byte-compile-buffer
 	   (display-buffer (current-buffer))))))))
 
@@ -2485,8 +2473,7 @@ If VERBOSE is non-nil, display progress message."
                 (epackage-directory-install)
                 (epackage-directory-loader)))
     (unless (file-directory-p dir)
-      (epackage-with-verbose
-        (epackage-message "Making directory %s ..." dir))
+      (epackage-verbose-message "Making directory %s ..." dir)
       (make-directory dir))))
 
 (defun epackage-require-main (&optional verbose)
@@ -2585,8 +2572,7 @@ If invalid, return list of problems:
   "Download sources list file, the yellow pages.
 If VERBOSE is non-nil, display progress message."
   (if (epackage-sources-list-p)
-      (epackage-with-verbose
-        (epackage-message "Sources list already exists."))
+      (epackage-verbose-message "Sources list already exists.")
     (let ((dir (epackage-sources-list-official-directory)))
       (epackage-git-command-clone
        epackage--sources-list-url dir verbose))))
@@ -2856,8 +2842,7 @@ If VERBOSE is non-nil, display progress message."
     (let ((file (epackage-file-name-install-compose package 'enable)))
       (cond
        ((file-exists-p file)
-        (epackage-with-verbose
-          (epackage-message "Delete %s" file))
+	(epackage-verbose-message "Delete %s" file)
         (delete-file file)
 	(run-hooks 'epackage--install-disabled-hook))
        (verbose
@@ -2908,8 +2893,7 @@ If VERBOSE is non-nil, display progress message."
     (let ((file (epackage-file-name-install-compose package 'activate)))
       (cond
        ((file-exists-p file)
-        (epackage-with-verbose
-          (epackage-message "Delete %s" file))
+	(epackage-verbose-message "Delete %s" file)
         (delete-file file)
 	(run-hooks 'epackage--install-deactivate-hook))
        (verbose
@@ -2951,13 +2935,11 @@ If VERBOSE is non-nil, display progress message."
   (let ((dir (epackage-package-downloaded-p package)))
     (if (not dir)
 	;; FIXME: check verbose?
-        (epackage-with-verbose
-          (epackage-message
-	    "Remove ignored. Package not downloaded: %s"
-	    package))
+	(epackage-verbose-message
+	  "Remove ignored. Package not downloaded: %s"
+	  package)
       (epackage-config-delete-all package verbose)
-      (epackage-with-verbose
-        (epackage-message "Delete directory %s" dir))
+      (epackage-verbose-message "Remove directory %s" dir)
       (delete-directory dir 'recursive)
       (run-hooks 'epackage--install-remove-hook))))
 
