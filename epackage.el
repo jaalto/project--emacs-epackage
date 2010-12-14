@@ -967,7 +967,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1214.2116"
+(defconst epackage-version-time "2010.1214.2118"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2283,7 +2283,7 @@ If VERBOSE is non-nil, display progress message."
   (epackage-with-package-info-file package
     (epackage-with-buffer-info
       (erase-buffer)
-      (insert (epackage-file-content-as-string file))
+      (insert (epackage-file-content-as-string info-file))
       (display-buffer (current-buffer)))))
 
 (defun epackage-loader-file-insert-header ()
