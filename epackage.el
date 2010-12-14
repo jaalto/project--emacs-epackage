@@ -947,7 +947,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1214.1710"
+(defconst epackage-version-time "2010.1214.1715"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2704,10 +2704,12 @@ If VERBOSE is non-nil, display progress message."
       (epackage-pkg-info-display package verbose))
     (t
      (if (eq verbose 'interactive)
-	 (epackage-message "Display ignored. Package not downloaded: %s"
-			    package)
-	(epackage-message "Can't display info. Package not downloaded: %s"
-			  package))))))
+	 (epackage-message
+	   "Display ignored. Package not downloaded: %s"
+	   package)
+	(epackage-message
+	  "Can't display info. Package not downloaded: %s"
+	  package))))))
 
 ;;;###autoload
 (defun epackage-cmd-byte-compile-package (package &optional verbose)
@@ -2726,10 +2728,12 @@ If VERBOSE is non-nil, display progress message."
       (epackage-byte-compile-package-maybe package verbose))
     (t
      (if (eq verbose 'interactive)
-	 (epackage-message "Byte compile ignored. Package not downloaded: %s"
-			    package)
-	(epackage-message "Can't byte compile. Package not downloaded: %s"
-			  package))))))
+	 (epackage-message
+	   "Byte compile ignored. Package not downloaded: %s"
+	   package)
+	(epackage-message
+	  "Can't byte compile. Package not downloaded: %s"
+	  package))))))
 
 ;;;###autoload
 (defun epackage-cmd-autoload-package (package &optional verbose)
@@ -2748,10 +2752,12 @@ If VERBOSE is non-nil, display progress message."
       (epackage-config-install-autoload package verbose))
     (t
      (if (eq verbose 'interactive)
-	 (epackage-message "Autoload install ignored. Package not downloaded: %s"
-			    package)
-	(epackage-message "Can't autoload install. Package not downloaded: %s"
-			  package))))))
+	 (epackage-message
+	   "Autoload install ignored. Package not downloaded: %s"
+	   package)
+	(epackage-message
+	  "Can't autoload install. Package not downloaded: %s"
+	  package))))))
 
 ;;;###autoload
 (defun epackage-cmd-enable-package (package &optional verbose)
@@ -2772,10 +2778,12 @@ If VERBOSE is non-nil, display progress message."
       (run-hooks 'epackage--install-enable-hook))
      (t
       (if (eq verbose 'interactive)
-	  (epackage-message "Enable ignored. Package not downloaded: %s"
-			    package)
-	(epackage-message "Can't enable. Package not downloaded: %s"
-			  package))))))
+	  (epackage-message
+	    "Enable ignored. Package not downloaded: %s"
+	    package)
+	(epackage-message
+	  "Can't enable. Package not downloaded: %s"
+	  package))))))
 
 ;;;###autoload
 (defun epackage-cmd-disable-package (package &optional verbose)
@@ -2811,8 +2819,9 @@ If VERBOSE is non-nil, display progress message."
   (epackage-cmd-package-check-macro
       package
       verbose
-      (epackage-message "package name \"%s\" is invalid for activate command"
-                        package)
+      (epackage-message
+	"package name \"%s\" is invalid for activate command"
+	package)
     (cond
      ((epackage-package-downloaded-p package)
       (epackage-config-install-autoload package verbose)
@@ -2823,8 +2832,9 @@ If VERBOSE is non-nil, display progress message."
 	  (epackage-message
 	    "Activate install ignored. Package not downloaded: %s"
 	    package)
-	(epackage-message "Can't activate install. Package not downloaded: %s"
-			  package))))))
+	(epackage-message
+	  "Can't activate install. Package not downloaded: %s"
+	  package))))))
 
 ;;;###autoload
 (defun epackage-cmd-deactivate-package (package &optional verbose)
@@ -2836,8 +2846,9 @@ If VERBOSE is non-nil, display progress message."
   (epackage-cmd-package-check-macro
       package
       verbose
-      (epackage-error "package name \"%s\" is invalid for deactivate command"
-                      package)
+      (epackage-error
+	"package name \"%s\" is invalid for deactivate command"
+	package)
     (let ((file (epackage-file-name-install-compose package 'activate)))
       (cond
        ((file-exists-p file)
@@ -2860,8 +2871,9 @@ If VERBOSE is non-nil, display progress message."
   (epackage-cmd-package-check-macro
       package
       verbose
-      (epackage-error "package name \"%s\" is invalid for clean command"
-                      package)
+      (epackage-error
+	"package name \"%s\" is invalid for clean command"
+	package)
     (let ((list (epackage-config-delete-all package verbose)))
       (cond
        (list
@@ -2884,8 +2896,9 @@ If VERBOSE is non-nil, display progress message."
     (if (not dir)
 	;; FIXME: check verbose?
         (epackage-with-verbose
-          (epackage-message "Remove ignored. Package not downloaded: %s"
-                            package))
+          (epackage-message
+	    "Remove ignored. Package not downloaded: %s"
+	    package))
       (epackage-config-delete-all package verbose)
       (epackage-with-verbose
         (epackage-message "Delete directory %s" dir))
