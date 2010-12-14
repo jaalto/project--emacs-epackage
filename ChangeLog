@@ -1,6 +1,8 @@
 2010-12-14 Tue  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-cmd-display-package-info): New.
+	* epackage.el
+	(top level): Document *-compile.el in "Epackage specification.
+	(epackage-cmd-display-package-info): New.
 	(epackage--buffer-doc): Rename. Was `epackage--doc-buffer'.
 	(epackage--buffer-info): New.
 	(epackage-with-buffer-info): New.
@@ -17,6 +19,62 @@
 	Add command i to display package info.
 	(epackage--batch-ui-menu-help): Update.
 	(epackage-batch-ui-display-package-info): New.
+	(epackage--install-autoload-hook): New.
+	(epackage--install-enable-hook): New.
+	(epackage--install-disable-hook): New.
+	(epackage--install-activate-hook): New.
+	(epackage--install-deactivate-hook): New.
+	(epackage-config-install-autoload): Add hook.
+	(epackage--install-config-delete-hook): New.
+	(epackage--install-config-delete-all-hook): New.
+	(epackage-config-delete-all): Add hook.
+	(epackage--install-type-hook): New.
+	(epackage-config-install-action): Add hook.
+	(epackage-cmd-enable-package): Add hook.
+	(epackage-cmd-disable-package): Add hook.
+	(epackage-cmd-activate-package): Add hook.
+	(epackage-cmd-deactivate-package): Add hook.
+	(epackage-cmd-clean-package): Add hook.
+	(epackage--install-clean-hook): New.
+	(epackage--install-download-hook): New.
+	(epackage--install-remove-hook): New.
+	(epackage-download-package): Add hook.
+	(epackage--initialize-hook): New.
+	(epackage-initialize): Run hook.
+	(epackage--build-sources-list-hook): New.
+	(epackage-build-sources-list): Add hook.
+	(epackage--download-action-list): New.
+	(epackage--layout-mapping): Add `compile'.
+	(epackage-download-action-enable): New.
+	(epackage-download-action-disable): New.
+	(epackage-cmd-download-action-enable-on): New.
+	(epackage-cmd-download-action-enable-off): New.
+	(epackage-cmd-download-action-activate-on): New.
+	(epackage-cmd-download-action-activate-off): New.
+	(epackage-cmd-download-action-autoload-on): New.
+	(epackage-cmd-download-action-autoload-off): New.
+	(epackage-cmd-download-action-compile-on): New.
+	(epackage-cmd-download-action-compile-off): New.
+	(defgroup epackage): Lowercase group name.
+	(epackage--batch-ui-menu-string): Document t, T.
+	(epackage--batch-ui-menu-actions): New user command to turn
+	on/off automatic enable install of package after download.
+	(epackage-cmd-download-action-display-status): devel Nre.
+	(epackage-download-package): Update docstring.
+	(epackage-layout-mapping-file): New.
+	(epackage-directory-packages-control-file): Use
+	`epackage-layout-mapping-file'.
+	(epackage-byte-compile-package): New.
+	(epackage-byte-compile-package-maybe): New.
+	(epackage-run-action-list): New.
+	(epackage--batch-ui-menu-header): Show
+	`epackage--download-action-list'.
+	(epackage-cmd-download-action-activate-toggle): New.
+	(epackage-cmd-download-action-autoload-toggle): New.
+	(epackage-cmd-download-action-enable-toggle): New.
+	(epackage-cmd-download-action-compile-toggle): New.
+	(epackage-batch-ui-download-action-enable-toggle): New.
+	(epackage-batch-ui-download-action-activate-toggle): New.
 
 2010-12-13 Mon  Jari Aalto  <jari.aalto@cante.net>
 

@@ -455,6 +455,21 @@
 ;;
 ;;          (provide 'PACKAGE-autoloads)
 ;;
+;;     The *-compile.el
+;;
+;;      This file contains Emacs Lisp command to byte compile the
+;;	extension. It is assumed that the called has arranged
+;;	`load-path' to include all relevant local paths for
+;;	compilation. The file is run at the root directory of the
+;;	extention. The cyte compilation is activated as soon as the
+;;	file is evaluated. This file shuld be namespace clean: that is,
+;;	it must keep defined variables and functions in the extension's
+;;	namespace prefix; `EXTENSION-*'. An exmaple for simple extension
+;;	consisting of two files:
+;;
+;;	    (dolist (file '("foo-lib.el" "foo.el"))
+;;	      (byte-compile-file file))
+;;
 ;;     The *-examples.el
 ;;
 ;;	This file contans anything the upstream may have explained in
@@ -928,7 +943,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1214.1140"
+(defconst epackage-version-time "2010.1214.1341"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -940,23 +955,115 @@
       (memq window-system '(win32 w32 mswindows)))
   "Non-nil under Windows, DOS operating system."))
 
-(defgroup Epackage nil
+(defgroup epackage nil
   "Distributed Emacs Lisp package system (DELPS)."
 ;  :link '(function-link view-mode)
 ;  :link '(custom-manual "(emacs)Misc File Ops")
   :group 'tools)
 
+(defcustom epackage--download-action-list nil
+  "*Install TYPE of actions to run after package download.
+The TYPE can be of of:
+
+  activate
+  autoload
+  enable
+  compile
+
+The order of TYPEs in list is not significant. For more information
+about install TYPEs, refer to \\[epackage-documentation].
+
+An example. The following would automatically compile and enable
+package after download:
+
+  '(compile enable)
+
+The TYPEs recognized are subset of `epackage--layout-mapping'."
+  :type  '(list symbol)  ;; FIXME, list names of symbols
+  :group 'epackage)
+
 (defcustom epackage--load-hook nil
   "*Hook run when file has been loaded."
   :type  'hook
-  :group 'Epackage)
+  :group 'epackage)
+
+(defcustom epackage--initialize-hook nil
+  "*Hook run after function `epackage-initialize' is run."
+  :type  'hook
+  :group 'epackage)
+
+(defcustom epackage--install-autoload-hook nil
+  "*Hook run when epackage is autoloaded."
+  :type  'hook
+  :group 'epackage)
+
+(defcustom epackage--install-enable-hook nil
+  "*Hook run when epackage is enabeled."
+  :type  'hook
+  :group 'epackage)
+
+(defcustom epackage--install-disable-hook nil
+  "*Hook run when epackage is disabled."
+  :type  'hook
+  :group 'epackage)
+
+(defcustom epackage--install-activate-hook nil
+  "*Hook run when epackage is activated."
+  :type  'hook
+  :group 'epackage)
+
+(defcustom epackage--install-deactivate-hook nil
+  "*Hook run when epackage is Deactivated."
+  :type  'hook
+  :group 'epackage)
+
+(defcustom epackage--install-clean-hook nil
+  "*Hook run when epackage is install is cleaned."
+  :type  'hook
+  :group 'epackage)
+
+(defcustom epackage-install-download-hook nil
+  "*Hook run when epackage is downloaded.
+Variable `package' is available."
+  :type  'hook
+  :group 'epackage)
+
+(defcustom epackage--install-remove-hook nil
+  "*Hook run when epackage is removed.
+Variable `package' is available."
+  :type  'hook
+  :group 'epackage)
+
+(defcustom epackage--install-type-hook nil
+  "*Hook run when epackage is installed.
+Variables `from' `to' and configuration `type' are available.
+The TYPE is one of `epackage--layout-mapping'."
+  :type  'hook
+  :group 'epackage)
+
+(defcustom epackage--install-config-delete-type-hook nil
+  "*Hook run when epackage install configuration is deleted.
+Variables `file' and configuration `type' are available.
+during hook. The TYPE is one of `epackage--layout-mapping'."
+  :type  'hook
+  :group 'epackage)
+
+(defcustom epackage--install-config-delete-all-hook nil
+  "*Hook run when epackage all install configuration is deleted."
+  :type  'hook
+  :group 'epackage)
+
+(defcustom epackage--build-sources-list-hook nil
+  "*Hook run after function `epackage-build-sources-list'."
+  :type  'hook
+  :group 'epackage)
 
 (defcustom epackage--loader-file-byte-compile-flag t
   "*Non-nil means to byte compile `epackage--loader-file'.
 When non-nil, After calling `epackage-loader-file-generate', file
 returned by `epackage-file-name-loader-file' is byte compiled."
   :type  'boolean
-  :group 'Epackage)
+  :group 'epackage)
 
 (defcustom epackage--sources-list-url
   "git://github.com/jaalto/project--emacs-epackage-sources-list.git"
@@ -981,7 +1088,7 @@ An example:
 This list is combined with user given list in
 variable `epackage--sources-file-list'."
   :type  'string
-  :group 'Epackage)
+  :group 'epackage)
 
 (defcustom epackage--sources-file-list nil
   "*List of files that are in the form of `epackage--sources-list-url'.
@@ -995,7 +1102,7 @@ The files listed will be combined before `epackage--sources-list-url'
 into a the main package sources list file whose path is returned
 by function `epackage-file-name-sources-list-main'."
   :type  '(list string)
-  :group 'Epackage)
+  :group 'epackage)
 
 (defvar epackage--sources-list-regexp
   `,(concat "^\\(%s\\)\\>"
@@ -1028,7 +1135,7 @@ The %s marks the package name.")
   "*Location of Lisp files. Typically ~/.emacs.d or ~/elisp.
 Directory should not contain a trailing slash."
   :type  'directory
-  :group 'Epackage)
+  :group 'epackage)
 
 (defvar epackage--symlink-support-flag
   (if epackage-w32-p
@@ -1096,6 +1203,7 @@ See also variable `epackage--loader-file-byte-compile-flag'.")
   '((activate  "-xactivate.el")
     (autoload  "-autoloads.el")
     (enable  "-install.el"  'required)
+    (compile  "-compile.el")
     (info  "info" 'required)
     (loaddefs  "-0loaddefs.el")
     (uninstall  "-uninstall.el"))
@@ -1136,8 +1244,8 @@ b       Generate boot loader.
 B	Byte compile boot loader.
 c       Clean package's configuration files (whole uninstall).
 d       Download package.
-e       Install standard configuration for package.
-E       Uninstall standard configuration for package.
+e       Install standard (e)nable configuration for package.
+E       Uninstall standard enable configuration for package.
 g       Get sources list; update the yellow page data.
 i	Display (i)nfo file of package.
 l       List installed packages.
@@ -1146,6 +1254,8 @@ n       List (n)ot installed packages.
 o       Install aut(o)load configuration for package.
 p       List available (p)ackages in sources list.
 r       Remove; delete package physically from local disk.
+t	Ac(t)ion toggle: after every download, install (e)nable configuration
+T	Ac(t)ion toggle: after every download, install (a)ctivate configuration
 u       Upgrade package. Download new updates.
 U       Upgrade all packages.
 ?       Help.
@@ -1168,6 +1278,8 @@ q       Quit."
     (?n epackage-batch-ui-list-not-installed-packages)
     (?o epackage-batch-ui-autoload-package)
     (?r epackage-batch-ui-remove-package)
+    (?t epackage-batch-ui-download-action-enable-toggle)
+    (?T epackage-batch-ui-download-action-activate-toggle)
     (?u epackage-batch-ui-upgrade-package)
     (?U epackage-batch-ui-upgrade-all-packages)
     (?p epackage-batch-ui-list-available-packages)
@@ -1316,11 +1428,26 @@ Examples:
   (if (string-match "/\\([^/]+\\)/?$" dir)
       (match-string-no-properties 1 dir)))
 
-(defun epackage-file-content-as-string (file)
+(defsubst epackage-file-content-as-string (file)
   "Return content of FILE as string."
     (with-temp-buffer
       (insert-file-contents file)
       (buffer-string)))
+
+(defsubst epackage-download-action-enable (action)
+  "Add ACTION to `epackage--download-action-list'.
+Return `epackage--download-action-list'."
+  (progn
+    (add-to-list 'epackage--download-action-list action)
+    epackage--download-action-list))
+
+(defsubst epackage-download-action-disable (action)
+  "Remove ACTION from `epackage--download-action-list'.
+Return `epackage--download-action-list'."
+  (progn
+    (setq epackage--download-action-list
+	  (delq action epackage--download-action-list))
+    epackage--download-action-list))
 
 (put 'epackage-ignore-errors 'lisp-indent-function 0)
 (put 'epackage-ignore-errors 'edebug-form-spec '(body))
@@ -1406,11 +1533,15 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
        (if ,verbose
            (epackage-message "%s" (concat ,message "...done"))))))
 
+(defsubst epackage-layout-mapping-file (type)
+  "Return nth 1 of TYPE listed in `epackage--layout-mapping'."
+  (nth 1 (assq type epackage--layout-mapping)))
+
 (defun epackage-directory-packages-control-file (package type)
   "Return PACKAGE control file of TYPE.
 The TYPE is car of list `epackage--layout-mapping'."
   (let ((dir (epackage-directory-package-control package))
-        (file (nth 1 (assq type epackage--layout-mapping))))
+        (file (epackage-layout-mapping-file type)))
     (if (not file)
         (epackage-error "[ERROR] Unknown TYPE argument '%s'" type)
       (cond
@@ -1848,16 +1979,51 @@ If VERBOSE is non-nil, display progress message."
     (epackage-combine-files
      (epackage-file-name-sources-list-main)
      (append epackage--sources-file-list
-	     (list (epackage-file-name-sources-list-official))))))
+	     (list (epackage-file-name-sources-list-official))))
+    (run-hooks 'epackage--build-sources-list-hook)))
+
+(defun epackage-byte-compile-package (package)
+  (let ((file (epackage-directory-packages-control-file package 'compile)))
+    (if (not file)
+	(epackage-error "Compile not supported. Missing %s" file)
+      ;; FIXME run byte compile
+      )))
+
+(defun epackage-byte-compile-package-maybe (package)
+  "Run byte compile on PACKAGE if compilation in package is supported."
+  (let ((file (epackage-directory-packages-control-file package 'compile)))
+    (if (not file)
+	(epackage-message "Compile not supported. Missing %s" file)
+      (epackage-byte-compile-package package))))
+
+(defun epackage-run-action-list (package &optional verbose)
+  "Run PACKAGE actions listed in `epackage--download-action-list'.
+If VERBOSE is non-nil, display progress message."
+  (dolist (elt epackage--download-action-list)
+    (epackage-verbose-message "package action: %s" elt)
+    (cond
+     ((eq elt 'activate)
+      (epackage-cmd-activate-package package verbose))
+     ((eq elt 'autoload)
+      (epackage-cmd-autoload-package package verbose))
+     ((eq elt 'compile)
+      (epackage-byte-compile-package-maybe package))
+     ((eq elt 'enable)
+      (epackage-cmd-enable-package package verbose)))))
 
 (defun epackage-download-package (package &optional verbose)
-  "Download PACKAGE to VCS directory.
-If VERBOSE is non-nil, display progress message."
+  "Download PACKAGE.
+If VERBOSE is non-nil, display progress message.
+
+Note: this is a lowlevel function. To respect
+`epackage--download-action-list', use `epackage-cmd-download-package'
+instead or call `epackage-download-package-run-actions'."
   (let ((url (epackage-sources-list-info-url package)))
     (unless url
       (epackage-error "No download URL for package '%s'" package))
     (let ((dir (epackage-file-name-package-compose package)))
-      (epackage-git-command-clone url dir verbose))))
+      (epackage-git-command-clone url dir verbose)
+      (run-hooks 'epackage--install-download-hook))))
 
 (defsubst epackage-enable-file (from to &optional noerr verbose)
   "Enable by copying or by symlinking file FROM TO.
@@ -1892,13 +2058,18 @@ TYPE is car of `epackage--layout-mapping'."
   (let ((from (epackage-directory-packages-control-file
                package type))
         (to (epackage-file-name-install-compose package type)))
-    (epackage-enable-file from to noerr verbose)))
+    (epackage-enable-file from to noerr verbose)
+    (run-hooks 'epackage--install-type-hook)))
 
 (defun epackage-config-install-autoload (package &optional verbose)
   "Install PACKAGE autoload files.
 If VERBOSE is non-nil, display progress message."
-  (or (epackage-config-install-action 'loaddefs package 'noerr)
-      (epackage-config-install-action 'autoload package nil verbose)))
+  (let ((status
+	 (or (epackage-config-install-action 'loaddefs package 'noerr)
+	     (epackage-config-install-action 'autoload package nil verbose))))
+    (when status
+      (run-hooks 'epackage--install-autoload-hook)
+      status)))
 
 (defun epackage-config-delete-action (type package &optional verbose)
   "Delete install configuration TYPE for PACKAGE.
@@ -1908,7 +2079,8 @@ TYPE is car of `epackage--layout-mapping'."
     (when (file-exists-p file)
       (epackage-with-verbose
         (epackage-message "Delete %s" file))
-      (delete-file file))))
+      (delete-file file)
+      (run-hooks 'epackage--install-config-delete-type-hook))))
 
 (defun epackage-config-delete-all (package &optional verbose)
   "Delete all install configuration files for PACKAGE.
@@ -1928,6 +2100,8 @@ Return:
         (epackage-with-verbose
           (epackage-message "Delete %s" file))
           (delete-file file)))
+    (if list
+	(run-hooks 'epackage--install-config-delete-all-hook))
     list))
 
 (defun epackage-directory-list (dir)
@@ -2365,6 +2539,116 @@ Return package name or nil."
      (epackage-error ,message))))
 
 ;;;###autoload
+(defun epackage-cmd-download-action-activate-on ()
+  "Automatically activate packages after download.
+See `epackage--download-action-list'."
+  (interactive)
+  (epackage-download-action-enable 'activate)
+  (epackage-message "Download action on: activate"))
+
+;;;###autoload
+(defun epackage-cmd-download-action-activate-off ()
+  "Do not activate packages after download.
+See `epackage--download-action-list'."
+  (interactive)
+  (epackage-download-action-disable 'activate)
+  (epackage-message "Download action off: activate"))
+
+;;;###autoload
+(defun epackage-cmd-download-action-activate-toggle ()
+  "Toggle automatic activation of packages after download.
+See `epackage--download-action-list'."
+  (interactive)
+  (if (memq 'activate epackage--download-action-list)
+      (epackage-cmd-download-action-activate-off)
+    (epackage-cmd-download-action-activate-on)))
+
+;;;###autoload
+(defun epackage-cmd-download-action-autoload-on ()
+  "Automatically autoload packages after download.
+See `epackage--download-action-list'."
+  (interactive)
+  (epackage-download-action-enable 'autoload)
+  (epackage-message "Download action on: autoload"))
+
+;;;###autoload
+(defun epackage-cmd-download-action-autoload-off ()
+  "Do not autoload packages after download.
+See `epackage--download-action-list'."
+  (interactive)
+  (epackage-download-action-disable 'autoload)
+  (epackage-message "Download action off: autoload"))
+
+;;;###autoload
+(defun epackage-cmd-download-action-autoload-toggle ()
+  "Toggle automatic autoload of packages after download.
+See `epackage--download-action-list'."
+  (interactive)
+  (if (memq 'autoload epackage--download-action-list)
+      (epackage-cmd-download-action-autoload-off)
+    (epackage-cmd-download-action-autoload-on)))
+
+;;;###autoload
+(defun epackage-cmd-download-action-enable-on ()
+  "Automatically enable packages after download.
+See `epackage--download-action-list'."
+  (interactive)
+  (epackage-download-action-enable 'enable)
+  (epackage-message "Download action on: enable"))
+
+;;;###autoload
+(defun epackage-cmd-download-action-enable-off ()
+  "Do not enable packages after download.
+See `epackage--download-action-list'."
+  (interactive)
+  (epackage-download-action-disable 'enable)
+  (epackage-message "Download action off: enable"))
+
+;;;###autoload
+(defun epackage-cmd-download-action-enable-toggle ()
+  "Toggle automatic enable of packages after download.
+See `epackage--download-action-list'."
+  (interactive)
+  (if (memq 'enable epackage--download-action-list)
+      (epackage-cmd-download-action-enable-off)
+    (epackage-cmd-download-action-enable-on)))
+
+;;;###autoload
+(defun epackage-cmd-download-action-compile-on ()
+  "Automatically compile packages after download.
+See `epackage--download-action-list'."
+  (interactive)
+  (epackage-download-action-enable 'compile)
+  (epackage-message "Download action on: compile"))
+
+;;;###autoload
+(defun epackage-cmd-download-action-compile-off ()
+  "Do not compile packages after download.
+See `epackage--download-action-list'."
+  (interactive)
+  (epackage-download-action-disable 'compile)
+  (epackage-message "Download action off: compile"))
+
+;;;###autoload
+(defun epackage-cmd-download-action-compile-toggle ()
+  "Toggle automatic compile of packages after download.
+See `epackage--download-action-list'."
+  (interactive)
+  (if (memq 'compile epackage--download-action-list)
+      (epackage-cmd-download-action-compile-off)
+    (epackage-cmd-download-action-compile-on)))
+
+;;;###autoload
+(defun epackage-cmd-download-action-display-status ()
+  "Show `epackage--download-action-list'."
+  (interactive)
+  (if (not epackage--download-action-list)
+      (epackage-message "No download actions set")
+    (epackage-message
+      "Download actions: %s"
+      epackage--download-action-list)))
+
+;;;###autoload
 (defun epackage-cmd-display-package-info (package &optional verbose)
   "Display local PACKAGE info.
 If VERBOSE is non-nil, display progress message."
@@ -2423,7 +2707,8 @@ If VERBOSE is non-nil, display progress message."
     (cond
      ((epackage-package-downloaded-p package)
       (epackage-config-install-autoload package verbose)
-      (epackage-config-install-action 'enable package nil verbose))
+      (epackage-config-install-action 'enable package nil verbose)
+      (run-hooks 'epackage--install-enable-hook))
      (t
       (if (eq verbose 'interactive)
 	  (epackage-message "Enable ignored. Package not downloaded: %s"
@@ -2448,7 +2733,8 @@ If VERBOSE is non-nil, display progress message."
        ((file-exists-p file)
         (epackage-with-verbose
           (epackage-message "Delete %s" file))
-        (delete-file file))
+        (delete-file file)
+	(run-hooks 'epackage--install-disabled-hook))
        (verbose
 	(epackage-message
 	  "Disable ignored. No enable files installed for package: %s"
@@ -2469,7 +2755,8 @@ If VERBOSE is non-nil, display progress message."
     (cond
      ((epackage-package-downloaded-p package)
       (epackage-config-install-autoload package verbose)
-      (epackage-config-install-action 'activate package nil verbose))
+      (epackage-config-install-action 'activate package nil verbose)
+      (run-hooks 'epackage--install-activate-hook))
      (t
       (if (eq verbose 'interactive)
 	  (epackage-message
@@ -2495,7 +2782,8 @@ If VERBOSE is non-nil, display progress message."
        ((file-exists-p file)
         (epackage-with-verbose
           (epackage-message "Delete %s" file))
-        (delete-file file))
+        (delete-file file)
+	(run-hooks 'epackage--install-deactivate-hook))
        (verbose
 	(epackage-message
 	  "Deactivate ignored. No activate files installed for package: %s"
@@ -2514,11 +2802,13 @@ If VERBOSE is non-nil, display progress message."
       (epackage-error "package name \"%s\" is invalid for clean command"
                       package)
     (let ((list (epackage-config-delete-all package verbose)))
-      (when (and (null list)
-		 verbose)
+      (cond
+       (list
+	(run-hooks 'epackage--install-clean-hook))
+       (verbose
 	(epackage-message
 	  "Nothing to clean. No files installed for package: %s"
-	  package))
+	  package)))
       list)))
 
 ;;;###autoload
@@ -2538,7 +2828,8 @@ If VERBOSE is non-nil, display progress message."
       (epackage-config-delete-all package verbose)
       (epackage-with-verbose
         (epackage-message "Delete directory %s" dir))
-      (delete-directory dir 'recursive))))
+      (delete-directory dir 'recursive)
+      (run-hooks 'epackage--install-remove-hook))))
 
 ;;;###autoload
 (defun epackage-cmd-upgrade-package (package &optional verbose)
@@ -2626,7 +2917,8 @@ If VERBOSE is non-nil, display progress message."
   (unless (epackage-sources-list-p)
     (epackage-cmd-download-sources-list verbose))
   (epackage-cmd-build-sources-list verbose)
-  (setq epackage--initialize-flag t))
+  (setq epackage--initialize-flag t)
+  (run-hooks 'epackage--initialize-hook))
 
 ;;;###autoload
 (defun epackage-version ()
@@ -2813,6 +3105,18 @@ Summary, Version, Maintainer etc."
 			package))))))
 
 ;;;###autoload
+(defun epackage-batch-ui-download-action-enable-toggle ()
+  "Call `epackage-cmd-download-action-enable-toggle'."
+  (interactive)
+  (call-interactively 'epackage-cmd-download-action-enable-toggle))
+
+;;;###autoload
+(defun epackage-batch-ui-download-action-activate-toggle ()
+  "Call `epackage-cmd-download-action-activate-toggle'."
+  (interactive)
+  (call-interactively 'epackage-cmd-download-action-activate-toggle))
+
+;;;###autoload
 (defun epackage-batch-ui-loader-file-generate ()
   "Call `epackage-loader-file-generate'."
   (interactive)
@@ -2997,11 +3301,14 @@ Summary, Version, Maintainer etc."
   (message "\
 ===================================================
 Epackage - Distributed Emacs Package System (DELPS)
+Version: %s <%s>
 ===================================================
-Version: %s
-Contact: %s"
+Package activation type after download:%s"
            epackage-version-time
-           epackage-maintainer))
+           epackage-maintainer
+	   (if epackage--download-action-list
+	       (format " %s" epackage--download-action-list)
+	     "")))
 
 ;;;###autoload
 (defun epackage-batch-ui-menu ()
