@@ -870,21 +870,18 @@
 ;;
 ;;      General
 ;;
-;;      o   > Add *-hook variables to command actions.
+;;	o   > Add finder-commentary support
 ;;      o   > Run health check for downloaded Epackage
-;;      o   > auto-byte-compile feature on package install (cnfigurable)
-;;      o   > Verify sources list file: No duplicate of same packages.
-;;      o   > Standard install by default enables (installs *-install).
-;;          Make this configurable what to do by default.
 ;;      o   > Dynamically search all *.el and *elc. When byte compiled,
 ;;          symlink those files as well.
-;;      o   > Download problem, broken link:
+;;      o   Download problem, broken link:
 ;;          => Offer mailing the Yellow pages maintainer about broken link
 ;;      o   What if user manually deletes directories? Left over config files?
+;;	o   On upgrade, how to deal with updated files and byte compilation?
 ;;
 ;;      REPO
 ;;
-;;	o   > Check validity of "git tag -l" and upstream/* against the
+;;	o  Check validity of "git tag -l" and upstream/* against the
 ;;	   speficifation. Two dashes etc.
 ;;
 ;;      o   Fetch, pull conflicts?
@@ -950,7 +947,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1214.1942"
+(defconst epackage-version-time "2010.1214.1959"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
