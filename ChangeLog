@@ -1,5 +1,7 @@
 2010-12-14 Tue  Jari Aalto  <jari.aalto@cante.net>
 
+	* Makefile (clean): New.
+
 	* epackage.el
 	(top level): Document *-compile.el in "Epackage specification.
 	Add `lm-version' autoload.

@@ -33,6 +33,9 @@ help:
 	@echo "---------------------"
 	@grep '^# .*-' Makefile | sed 's,# ,,' | sort
 
+clean:
+	rm -f *.elc *[#~] *.bak
+
 $(PACKAGE).elc: $(SRC)
 	$(BIN) --batch -Q -q -f batch-byte-compile $(SRC)
 
