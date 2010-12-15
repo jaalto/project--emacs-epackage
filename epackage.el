@@ -967,7 +967,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1214.2118"
+(defconst epackage-version-time "2010.1215.0638"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2258,7 +2258,9 @@ Those that are not installed in `epackage-directory-install'."
 (defsubst epackage-pkg-info-field-commentary (package)
   "Read PACKAGE's infor file and return Commentary: field."
   (epackage-with-package-info-file package
-    (mail-fetch-field "Commentary")))
+    (let ((value (mail-fetch-field "Commentary")))
+      (if (epackage-string-p value)
+	  value))))
 
 (defun epackage-pkg-info-documentation (package &optional verbose)
   "Display local PACKAGE documentation in another buffer.
@@ -3361,7 +3363,7 @@ Summary, Version, Maintainer etc."
       (let* ((file (epackage-pkg-info-field-commentary package))
 	     (path (format "%s/%s"
 			   (epackage-directory-package-root package)
-			   file))
+			   (or file "")))
 	     str)
 	(if (not file)
 	    (epackage-message

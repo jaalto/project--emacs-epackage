@@ -1,3 +1,10 @@
+2010-12-15 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-pkg-info-field-commentary): If
+	value is empty, return nil.
+	(epackage-batch-ui-display-package-documentation): Check
+	if file is empty.
+
 2010-12-14 Tue  Jari Aalto  <jari.aalto@cante.net>
 
 	* Makefile (clean): New.
