@@ -17,6 +17,10 @@
 	(epackage-pkg-lint-dir-structure): Add VERBOSE.
 	(epackage-pkg-lint-git-branches): Add VERBOSE.
 	(epackage-pkg-lint-dir-structure): Rewrite.
+	(epackage-fetch-field-description): New.
+	(epackage-cmd-select-package): add arg `list'.
+	(epackage-cmd-email-maintainer): New.
+	(epackage-mail-macro): New.
 
 2010-12-14 Tue  Jari Aalto  <jari.aalto@cante.net>
 

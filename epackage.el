@@ -541,7 +541,7 @@
 ;;      about the extension. The header field names are case
 ;;      insensitive; but if you use the default *get.sh*, it expects
 ;;      the Vcs-* field to be case-sensitive. Continued lines must be
-;;      indented; suggested indentation is 1 space. Required fields
+;;      indented with only 1 space. Required fields
 ;;      are marked with asterisk (*). In the long description
 ;;      part, new paragraphs are separated by a single dot(.)
 ;;      character on their own line. The layout of the `info' mirrors
@@ -602,9 +602,9 @@
 ;;
 ;;  Details of the info file fields
 ;;
-;;      Recommendations: Use one space to indent continued field.
-;;      Limit maximum line length to 80 characters. See variable
-;;      `fill-column'
+;;      Notes: Use one space to indent continued field. Limit maximum
+;;      line length to 80 characters. In Emacs, see variable
+;;      `fill-column' and set it to a little less, like 75.
 ;;
 ;;     Bugs
 ;;
@@ -967,7 +967,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1215.1505"
+(defconst epackage-version-time "2010.1215.1603"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1943,6 +1943,25 @@ If field is empty or does not exist, return nil."
     (if (epackage-string-p value)
 	value)))
 
+(defsubst epackage-fetch-field-description ()
+  "Return content of 'Description:' '(\"short desc\" \"long desc\").
+Remove 1 space indentation and paragraph separators(.) characters."
+  (let ((str (epackage-fetch-field "Description"))
+	short
+	long)
+    (if (string-match "^\\(.+\\)$" str)
+	(setq short (match-string 1 str)))
+    ;;  FIXME. We suppose the caret(^) does not appear in reglar text,
+    ;;  otherwise matching the continuing lines would present a more
+    ;;  challenging regexp.
+    (if (string-match "^\\( [^^]+\\)" str)
+	(setq long (match-string 1 str)))
+    ;; Remove one-space indentation
+    (setq long (replace-regexp-in-string "^ " "" long))
+    ;; Remove pragraph separators.
+    (setq long (replace-regexp-in-string "^\\.[ \t]*$" "" long))
+    (list short long)))
+
 (defsubst epackage-pkg-info-fetch-field (package field)
   "Like `mail-fetch-field', but return value only if it exists.
 If field is empty or does not exist, return nil."
@@ -2736,22 +2755,24 @@ If VERBOSE is non-nil, display progress message."
       (epackage-git-command-clone
        epackage--sources-list-url dir verbose))))
 
-(defun epackage-cmd-select-package (&optional message)
-  "Interactively select package with optional MESSAGE.
+(defun epackage-cmd-select-package (&optional message list)
+  "Interactively select package with optional MESSAGE from LIST.
 Return package name or nil."
   (let (package)
     (if (not (epackage-sources-list-p))
-        (epackage-message "%s"
-                          (substitute-command-keys
-                           `,(concat
-                              "Can't build package list. "
-                              "Run \\[epackage-cmd-download-sources-list]")))
+        (epackage-message
+	  "%s"
+	  (substitute-command-keys
+	   `,(concat
+	      "Can't build package list. "
+	      "Run \\[epackage-cmd-download-sources-list]")))
       (setq package
             (completing-read
              (if message
                  message
                "Select epackage: ")
-             (epackage-sources-list-info-pkg-list)
+	     (or list
+		 (epackage-sources-list-info-pkg-list))
              (not 'predicate)
              'require-match))
       (if (epackage-string-p package)
@@ -2777,6 +2798,23 @@ Return package name or nil."
      (epackage-message ,message))
     (t
      (epackage-error ,message))))
+
+(put 'epackage-mail-macro 'lisp-indent-function 1)
+(put 'epackage-mail-macro 'edebug-form-spec '(body))
+(defmacro epackage-mail-macro (buffer-name to &rest body)
+  "Compose mail in BUFFER-NAME, set TO and run BODY."
+  `(progn
+     (pop-to-buffer ,buffer-name)
+     (mail-setup
+      ,to
+      (not 'subject)
+      (not 'in-reply-to)
+      (not 'cc)
+      (not 'replybuffer)
+      (not 'actions))
+     ,@body))
+
+;;; User commands
 
 ;;;###autoload
 (defun epackage-cmd-download-action-activate-on ()
@@ -2887,6 +2925,47 @@ See `epackage--download-action-list'."
     (epackage-message
       "Download actions: %s"
       epackage--download-action-list)))
+
+
+;;;###autoload
+(defun epackage-cmd-email-maintainer (package &optional verbose)
+  "Email mainteiner of local PACKAGE.
+Mail can be sent only to downloaded (locally installed) packages.
+If VERBOSE is non-nil, display progress message."
+  (interactive
+   (let ((list (epackage-status-downloaded-packages)))
+     (cond
+      ((null list)
+       (epackage-message "Nowhere to send email, no downloaded packages")
+       (list nil 'interactive))
+      (t
+       (list
+	(epackage-cmd-select-package "Email maintainer of epackage: " list)
+	'interactive)))))
+  (epackage-cmd-package-check-macro
+      package
+      verbose
+      (format "PACKAGE name \"%s\" is invalid for mainteiner email command"
+              package)
+    (cond
+     ((epackage-package-downloaded-p package)
+      (let ((to (epackage-pkg-info-fetch-field package "Maintainer")))
+	(cond
+	 ((null to)
+	  (epackage-warn "No maintainer email available for epacakge %s"
+			 package))
+	 (t
+	  (epackage-mail-macro
+	      (format "*mail %s maintainer*" package)
+	    (epackage-pkg-info-fetch-field package "Maintainer"))))))
+    (t
+     (if (eq verbose 'interactive)
+	 (epackage-message
+	   "Maintainer email ignored. Package not downloaded: %s"
+	   package)
+	(epackage-message
+	  "Can't email maintainer. Package not downloaded: %s"
+	  package))))))
 
 ;;;###autoload
 (defun epackage-cmd-display-package-documentation (package &optional verbose)
