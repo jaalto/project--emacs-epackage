@@ -648,20 +648,29 @@
 ;;
 ;;     Depends (required)
 ;;
-;;      List of dependencies: Emacs flavor and additional packages
-;;      required. The version information is enclosed in parentheses
-;;      with comparison operators ">=" and "<=". A between range is
-;;      not defined. This field follows guidelines of
+;;      List of dependencies: Emacs flavor and packages required. The
+;;      Emacs flavor can have optional version information is enclosed
+;;      in parentheses with comparison operators ">=", "<=" and
+;;      logical "!". A between range is not defined. The ideas were
+;;      based on Debian package depends guidelines described at
 ;;      <http://www.debian.org/doc/debian-policy/ch-relationships.html>.
+;;      The logical *or* operator between Emacs flavors is vertical
+;;      bar "|".
 ;;
 ;;      In case an extension works only with certain version of Emacs,
 ;;      this information should be written to the end of
 ;;      `Description'. (which see). Old packages that are not updated
 ;;      to work for latest Emacs releases are candidate for removal
-;;      from a epackage archive's yellow pages. An example how to use
-;;      the field:
+;;      from a epackage archive's yellow pages. Examples:
 ;;
-;;              Depends: emacs (>= 22.2) | xemacs (>= 20)
+;;          Depends: emacs, cedet, bytecomp
+;;          Depends: emacs (>= 22.2) | xemacs (>= 20), cedet, bytecomp
+;;
+;;	To mark that package dows not work in XEmacs, use "!". The
+;;	version parameter is ignored in logical *not*, parenhesis are
+;;	still required:
+;;
+;;          Depends: emacs (>= 22.2), xemacs (!), cedet, bytecomp
 ;;
 ;;     Description (required)
 ;;
@@ -883,6 +892,17 @@
 ;;          ;; This command also upgrades the yellow pages file
 ;;          epackage-batch-ui-download-sources-list
 ;;
+;; Development notes
+;;
+;;	This extension was written in Emacs 23, but it may work in
+;;	Emacs 22 (2007) although that has not been tested. No support
+;;	for older Emacs versions is on the chart. Enjoying real life,
+;;	work and other Open Source projects where I participate in and
+;;	which maintain, take their share. For those reasons I have to
+;;	regret that I will not be having resources to port or support
+;;	this utility to XEmacs. Please sned patches if you take the
+;;	code to ride in XEmacs.
+;;
 ;; TODO
 ;;
 ;;      [Within groups, sorted by priority. ">" under work]
@@ -967,7 +987,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1215.1632"
+(defconst epackage-version-time "2010.1215.2327"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -986,24 +1006,44 @@
   :group 'tools)
 
 (defcustom epackage--download-action-list nil
-  "*Install TYPE of actions to run after package download.
-The TYPE can be of of:
+  "*TYPE of actions to run after package download.
+The order of TYPEs in list is not significant. The \"install\"
+TYPE can be of of following. For more information about install
+TYPEs, refer to \\[epackage-documentation].
 
   activate
   autoload
   enable
   compile
 
-The order of TYPEs in list is not significant. For more information
-about install TYPEs, refer to \\[epackage-documentation].
+To install also dependant packages, add following:
+
+  depeds
+
+See also variable `epackage--depends-mode'.
 
 An example. The following would automatically compile and enable
 package after download:
 
-  '(compile enable)
-
-The TYPEs recognized are subset of `epackage--layout-mapping'."
+  '(compile enable)."
   :type  '(list symbol)  ;; FIXME, list names of symbols
+  :group 'epackage)
+
+(defcustom epackage--depends-handling 'warn
+  "*How to treat package depends. The default is 'warn.
+Possible values:
+
+  'warn		Warn about unsatisfied depends
+  'error	Signal error on unsatisfied depends (refuses to install)
+  nil		Do nothing. do not check depends. Useful if you just want
+		to download package to local disk.
+
+This variable has no effect without `epackage--download-action-list'
+which see."
+  :type  '(choice
+           (const warn)
+           (const error)
+           (const nil))
   :group 'epackage)
 
 (defcustom epackage--load-hook nil
@@ -1120,7 +1160,7 @@ In here you can list additional package repositories.
 
 An example:
 
-  '(\"~/.emacs.d/my/packages.lst\")
+  '(\"~/.emacs.d/my/epackage-private-repo.lst\")
 
 The files listed will be combined before `epackage--sources-list-url'
 into a the main package sources list file whose path is returned
@@ -1396,6 +1436,81 @@ get		Get package sources list Yellow Pages data. This updates
                 the list of available packages."
   "UI menu help.")
 
+(defmacro epackage-push (x place)
+  "A close `push' CL library macro equivalent: (push X PLACE)."
+  `(setq ,place (cons ,x ,place)))
+
+(defmacro epackage-asscoc (key list)
+  "Access of KEY in LIST and return its value.
+An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
+  `(nth 1 (assoc ,key ,list)))
+
+(defmacro epackage-fatal (format &rest args)
+  "Call `error' with FORMAT and ARGS. Mark message with FATAL tag."
+  `(error (concat "Epackage: [FATAL] " ,format) ,@args))
+
+(defmacro epackage-error (format &rest args)
+  "Call `error' with FORMAT and ARGS. mark message with ERROR tag."
+  `(error (concat "Epackage: [ERROR] " ,format) ,@args))
+
+(defmacro epackage-warn (format &rest args)
+  "Call `message' with FORMAT and ARGS. Mark message with WARN tag."
+  `(message (concat "Epackage: [WARN] " ,format) ,@args))
+
+(defmacro epackage-message (format &rest args)
+  "Call `message' with FORMAT and ARGS."
+  `(message (concat "Epackage: " ,format) ,@args))
+
+(put 'epackage-ignore-errors 'lisp-indent-function 0)
+(put 'epackage-ignore-errors 'edebug-form-spec '(body))
+(defmacro epackage-ignore-errors (&rest body)
+  "Run BODY and ignore errors. Like CL `ignore-errors'."
+  `(condition-case error
+       (progn
+         ,@body)
+     (error)))                          ;variable test, not a function call
+
+(put 'epackage-with-w32 'lisp-indent-function 0)
+(put 'epackage-with-w32 'edebug-form-spec '(body))
+(defmacro epackage-with-w32 (&rest body)
+  "Run BODY in Windows like operating system."
+  `(when epackage-w32-p
+     ,@body))
+
+(put 'epackage-with-debug 'lisp-indent-function 0)
+(put 'epackage-with-debug 'edebug-form-spec '(body))
+(defmacro epackage-with-debug (&rest body)
+  "Run BODY if variable `epackage--debug' is non-nil."
+  `(when epackage--debug
+     ,@body))
+
+(put 'epackage-with-byte-compile-buffer 'lisp-indent-function 0)
+(put 'epackage-with-byte-compile-buffer 'ebyte-compile-buffer-form-spec '(body))
+(defmacro epackage-with-byte-compile-buffer (&rest body)
+  "Run BODY if variable `epackage--byte-compile-buffer' is non-nil."
+  `(if (get-buffer epackage--byte-compile-buffer-name)
+       (with-current-buffer (get-buffer epackage--byte-compile-buffer-name)
+	 ,@body)))
+
+(put 'epackage-verbose-message 'lisp-indent-function 0)
+(put 'epackage-verbose-message 'edebug-form-spec '(body))
+(defmacro epackage-verbose-message (&rest args)
+  "If variable `verbose' is non-nil, call `message' with ARGS."
+  `(when verbose
+     (epackage-message ,@args)))
+
+(put 'epackage-with-message 'lisp-indent-function 2)
+(put 'epackage-with-message 'edebug-form-spec '(body))
+(defmacro epackage-with-message (verbose message &rest body)
+  "If VERBOSE, display MESSAGE before and after (\"..done\") BODY."
+  `(progn
+     (if ,verbose
+         (epackage-message "%s" (concat ,message "...")))
+     (prog1
+         ,@body
+       (if ,verbose
+           (epackage-message "%s" (concat ,message "...done"))))))
+
 (defsubst epackage-file-name-basename (dir)
   "Like `file-name-nondirectory' but always return last component of DIR.
 An example:  /path/to/  => to"
@@ -1531,81 +1646,6 @@ If SECURITY is non-nil, signal error if
     (insert-file-contents-literally file)
     ;; FIXME: Implement SECURITY
     (eval-buffer)))
-
-(defmacro epackage-push (x place)
-  "A close `push' CL library macro equivalent: (push X PLACE)."
-  `(setq ,place (cons ,x ,place)))
-
-(defmacro epackage-asscoc (key list)
-  "Access of KEY in LIST and return its value.
-An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
-  `(nth 1 (assoc ,key ,list)))
-
-(defmacro epackage-fatal (format &rest args)
-  "Call `error' with FORMAT and ARGS. Mark message with FATAL tag."
-  `(error (concat "Epackage: [FATAL] " ,format) ,@args))
-
-(defmacro epackage-error (format &rest args)
-  "Call `error' with FORMAT and ARGS. mark message with ERROR tag."
-  `(error (concat "Epackage: [ERROR] " ,format) ,@args))
-
-(defmacro epackage-warn (format &rest args)
-  "Call `message' with FORMAT and ARGS. Mark message with WARN tag."
-  `(message (concat "Epackage: [WARN] " ,format) ,@args))
-
-(defmacro epackage-message (format &rest args)
-  "Call `message' with FORMAT and ARGS."
-  `(message (concat "Epackage: " ,format) ,@args))
-
-(put 'epackage-ignore-errors 'lisp-indent-function 0)
-(put 'epackage-ignore-errors 'edebug-form-spec '(body))
-(defmacro epackage-ignore-errors (&rest body)
-  "Run BODY and ignore errors. Like CL `ignore-errors'."
-  `(condition-case error
-       (progn
-         ,@body)
-     (error)))                          ;variable test, not a function call
-
-(put 'epackage-with-w32 'lisp-indent-function 0)
-(put 'epackage-with-w32 'edebug-form-spec '(body))
-(defmacro epackage-with-w32 (&rest body)
-  "Run BODY in Windows like operating system."
-  `(when epackage-w32-p
-     ,@body))
-
-(put 'epackage-with-debug 'lisp-indent-function 0)
-(put 'epackage-with-debug 'edebug-form-spec '(body))
-(defmacro epackage-with-debug (&rest body)
-  "Run BODY if variable `epackage--debug' is non-nil."
-  `(when epackage--debug
-     ,@body))
-
-(put 'epackage-with-byte-compile-buffer 'lisp-indent-function 0)
-(put 'epackage-with-byte-compile-buffer 'ebyte-compile-buffer-form-spec '(body))
-(defmacro epackage-with-byte-compile-buffer (&rest body)
-  "Run BODY if variable `epackage--byte-compile-buffer' is non-nil."
-  `(if (get-buffer epackage--byte-compile-buffer-name)
-       (with-current-buffer (get-buffer epackage--byte-compile-buffer-name)
-	 ,@body)))
-
-(put 'epackage-verbose-message 'lisp-indent-function 0)
-(put 'epackage-verbose-message 'edebug-form-spec '(body))
-(defmacro epackage-verbose-message (&rest args)
-  "If variable `verbose' is non-nil, call `message' with ARGS."
-  `(when verbose
-     (epackage-message ,@args)))
-
-(put 'epackage-with-message 'lisp-indent-function 2)
-(put 'epackage-with-message 'edebug-form-spec '(body))
-(defmacro epackage-with-message (verbose message &rest body)
-  "If VERBOSE, display MESSAGE before and after (\"..done\") BODY."
-  `(progn
-     (if ,verbose
-         (epackage-message "%s" (concat ,message "...")))
-     (prog1
-         ,@body
-       (if ,verbose
-           (epackage-message "%s" (concat ,message "...done"))))))
 
 (defun epackage-directory-list (dir &optional exclude)
   "Return all directories under DIR.
@@ -1943,7 +1983,7 @@ If field is empty or does not exist, return nil."
     (if (epackage-string-p value)
 	value)))
 
-(defsubst epackage-fetch-field-description ()
+(defun epackage-fetch-field-description ()
   "Return content of 'Description:' '(\"short desc\" \"long desc\").
 Remove 1 space indentation and paragraph separators(.) characters."
   (let ((str (epackage-fetch-field "Description"))
@@ -1962,11 +2002,82 @@ Remove 1 space indentation and paragraph separators(.) characters."
     (setq long (replace-regexp-in-string "^\\.[ \t]*$" "" long))
     (list short long)))
 
+(defun epackage-depends-parse-collect ()
+  "Collect items from buffer prepared by `epackage-depends-parse-buffer'.
+
+Return:
+    '((PACKAGE [OP] [VERSION]) ...)
+
+Examples:
+    '((emacs \">=\" \"22\"))
+    '((xemacs \"!\" nil))."
+  (let ((regexp
+	 `,(concat
+	    "\\([a-z][^ ,|!()<>=\t\r\n(]+\\)"
+	    "\\(?:[ \t]*"
+	    "([ \t]*"
+	    "\\(\\(?:!\\|>=\\|<=\\)\\)"	;open paren, item 1
+	    "[ \t]*"
+	    "\\([^)]*\\))"		;close paren, item 2
+	    "\\)?"))
+	list
+	value)
+    (goto-char (point-min))
+    (while (re-search-forward regexp nil t)
+      (setq value (match-string-no-properties 3))
+      (epackage-push
+	(list (match-string-no-properties 1)
+	      (match-string-no-properties 2)
+	      (if (and (stringp value)
+		       (string= "" value))
+		  nil
+		value))
+	list))
+    list))
+
+(defsubst epackage-depends-parse-buffer-prepare ()
+  "Arrange all depends entries on their own lines."
+  (goto-char (point-min))
+  (while (re-search-forward "[ \t\r\n]*,[ \t\r\n]*" nil t)
+    (replace-match "\n"))
+  (goto-char (point-min))
+  ;; NOTE: We may use "\n" as field separator. The 1st line must have it.
+  (insert "\n"))
+
+(defsubst epackage-depends-parse-buffer ()
+  "Parse depends from current buffer. Nothing else must be there.
+See `epackage-depends-parse-collect' for returned value format."
+  ;; put items on their own lines
+  (epackage-depends-parse-buffer-prepare)
+  (epackage-depends-parse-collect))
+
+(defsubst epackage-depends-parse-string (string)
+  "Parse depends STRING.
+See `epackage-depends-parse-collect' for returned value format."
+  (with-temp-buffer
+   (insert str)
+   (epackage-depends-parse-buffer)))
+
+(defsubst epackage-fetch-field-depends ()
+  "Return preformatted content of 'Depends:' field.
+See `epackage-depends-parse-collect' for returned value format."
+  (let ((str (epackage-fetch-field "Depends")))
+    (if (stringp str)
+	(epackage-depends-parse-string str))))
+
 (defsubst epackage-pkg-info-fetch-field (package field)
-  "Like `mail-fetch-field', but return value only if it exists.
+  "Read PACKAGE and raw information from FIELD.
+Like `mail-fetch-field', but return value only if it exists.
 If field is empty or does not exist, return nil."
   (epackage-with-package-info-file package
     (epackage-fetch-field field)))
+
+(defsubst epackage-pkg-info-fetch-field-depends (package)
+  "Read PACKAGE and information field 'Depends:' (preformatted).
+Like `mail-fetch-field', but return value only if it exists.
+See `epackage-depends-parse-collect' for returned value format."
+  (epackage-with-package-info-file package
+    (epackage-fetch-field-depends)))
 
 (defsubst epackage-git-branch-list-master-p (list)
   "Return non-nil if current branch LIST indicates master as current branch."
@@ -2096,14 +2207,15 @@ If VERBOSE is non-nil, display progress message."
 If VERBOSE is non-nil, display progress message."
   (with-temp-buffer
     (dolist (elt list)
-      (epackage-verbose-message "Combining files %s" elt)
+      (goto-char (point-max))
+      (epackage-verbose-message "Combining sources list file %s" elt)
       (insert "###file: " file "\n")
       (insert-file-contents-literally elt))
-    (epackage-with-message verbose (format "Write file %s" file)
-	(goto-char (point-min))
+    (epackage-with-message
+	verbose (format "Write master sources list file %s" file)
       (unless (re-search-forward "^[^#\r\n]+://" nil t)
 	(epackage-error
-	  "Can't see any Git repository URLs: %s" list))
+	  "Can't see any Git repository URLs: %s" elt))
       (write-region (point-min) (point-max) file))))
 
 (defun epackage-build-sources-list (&optional verbose)
@@ -2131,6 +2243,105 @@ If VERBOSE is non-nil, display progress message."
 	     (list (epackage-file-name-sources-list-official))))
     (run-hooks 'epackage--build-sources-list-hook)))
 
+(defun epackage-download-package (package &optional verbose)
+  "Download PACKAGE.
+If VERBOSE is non-nil, display progress message.
+
+Note: this is a lowlevel function. To respect
+`epackage--download-action-list', use `epackage-cmd-download-package'
+instead or call `epackage-download-package-run-actions' after this."
+  (let ((url (epackage-sources-list-info-url package)))
+    (unless url
+      (epackage-error "No download URL for package '%s'" package))
+    (let ((dir (epackage-directory-package-root package)))
+      (epackage-git-command-clone url dir verbose)
+      (run-hooks 'epackage--install-download-hook))))
+
+(defsubst epackage-pkg-depends-verify-emacs (depends)
+  "Check DEPENDS whose format match `epackage-depends-parse-collect'.
+Check only items \"emacs\" or \"xemacs\".
+Return list memebr that does not satisfy depends."
+  (let* ((emacs  (assoc "emacs" depends))
+	 (xemacs (assoc "xemacs" depends))
+	 (flavor (if (featurep 'emacs)
+		     emacs
+		   xemacs))
+	 op
+	 after
+	 ret)
+    ;; Check Eamcs flavor requirement
+    (when (and flavor
+	       (setq version (nth 2 flavor)))
+      (setq op (nth 1 flavor))
+      (setq after (string< version emacs-version ))  ;; A < B   i.e   B > A
+      (cond
+       ((string= op ">=")
+	(if (not (or after
+		     (string= emacs-version version)))
+	    flavor))
+       ((string= op "<=")
+	(if (not (or (not after)
+		     (string= emacs-version version)))
+	    flavor))
+       ((string= op "!")
+	flavor)))))
+
+(defun epackage-pkg-depends-verify-main (depends)
+  "Check DEPENDS whose format match `epackage-depends-parse-collect'.
+Return back depends that are not met."
+  (let (package
+	tmp
+	ret)
+    (if (setq tmp (epackage-pkg-depends-verify-emacs depends))
+	(epackage-push tmp ret))
+    (when depends
+      (let ((downloaded (epackage-status-downloaded-packages)))
+	(dolist (elt depends)
+	  (setq package (nth 0 elt))
+	  (if (not (string-match "^\\x?emacs$" package))
+	      (if (not (or (member package downloaded)
+			   (locate-library package)))
+		  (epackage-push elt ret))))))
+    ret))
+
+(defun epackage-pkg-depends-resolve (package &optional verbose)
+  "Strudy PACKAGE 'Depends:' return list of packges to download.
+If VERBOSE is non-nil, display progress message."
+  (let* ((deps (epackage-pkg-info-fetch-field-depends package))
+	 (missing (epackage-pkg-depends-verify-main deps))
+	 (emacs  (or (member "emacs" missing)
+		     (member "xemacs" missing)))
+	 ret)
+    (if emacs
+	(cond
+	 ((eq 'warn epackage--depends-mode)
+	  (epackage-warn "Missing required dependency: %s" emacs))
+	 ((eq 'error epackage--depends-mode)
+	  (epackage-error "Missing required dependency: %s" emacs))))
+    (if missing
+	(let (package)
+	  (dolist (elt missing)
+	    (setq package (nth 0 elt))
+	    ;; Skip Emacs version depends. Handled already.
+	    (unless (string-match "^\\x?emacs$" package)
+	      (if (not (epackage-sources-list-info-url package))
+		  (cond
+		   ((eq 'warn epackage--depends-mode)
+		    (epackage-warn "Downloading required dependency: %s" elt))
+		   ((eq 'error epackage--depends-mode)
+		    (epackage-error "Missing required dependency: %s" elt)))
+		(epackage-push package ret))))))
+    ret))
+
+(defun epackage-pkg-depends-satisfy (depends &optional verbose)
+  "Resolve package DEPENDS by downloading more packages as needed.
+If VERBOSE is non-nil, display progress message."
+  (let ((missing (epackage-pkg-depends-resolve package verbose)))
+    ;; This is recursive, since we're initially called through
+    ;; epackage-run-action-list
+    (dolist (elt missing)
+      (epackage-cmd-download-package elt verbose))))
+
 (defun epackage-run-action-list (package &optional verbose)
   "Run PACKAGE actions listed in `epackage--download-action-list'.
 If VERBOSE is non-nil, display progress message."
@@ -2144,21 +2355,9 @@ If VERBOSE is non-nil, display progress message."
      ((eq elt 'compile)
       (epackage-byte-compile-package-main package))
      ((eq elt 'enable)
-      (epackage-cmd-enable-package package verbose)))))
-
-(defun epackage-download-package (package &optional verbose)
-  "Download PACKAGE.
-If VERBOSE is non-nil, display progress message.
-
-Note: this is a lowlevel function. To respect
-`epackage--download-action-list', use `epackage-cmd-download-package'
-instead or call `epackage-download-package-run-actions'."
-  (let ((url (epackage-sources-list-info-url package)))
-    (unless url
-      (epackage-error "No download URL for package '%s'" package))
-    (let ((dir (epackage-directory-package-root package)))
-      (epackage-git-command-clone url dir verbose)
-      (run-hooks 'epackage--install-download-hook))))
+      (epackage-cmd-enable-package package verbose))
+     ((eq elt 'depends)
+      (epackage-pkg-depends-satisfy package verbose)))))
 
 (defsubst epackage-enable-file (from to &optional noerr verbose)
   "Enable by copying or by symlinking file FROM TO.
@@ -2817,101 +3016,126 @@ Return package name or nil."
 ;;; User commands
 
 ;;;###autoload
-(defun epackage-cmd-download-action-activate-on ()
+(defun epackage-cmd-download-action-activate-on (&optional verbose)
   "Automatically activate packages after download.
 See `epackage--download-action-list'."
-  (interactive)
+  (interactive (list 'interactive))
   (epackage-download-action-enable 'activate)
   (epackage-message "Download action on: activate"))
 
 ;;;###autoload
-(defun epackage-cmd-download-action-activate-off ()
+(defun epackage-cmd-download-action-activate-off (&optional verbose)
   "Do not activate packages after download.
 See `epackage--download-action-list'."
-  (interactive)
+  (interactive (list 'interactive))
   (epackage-download-action-disable 'activate)
-  (epackage-message "Download action off: activate"))
+  (epackage-verbose-message "Download action off: activate"))
 
 ;;;###autoload
-(defun epackage-cmd-download-action-activate-toggle ()
+(defun epackage-cmd-download-action-activate-toggle (&optional verbose)
   "Toggle automatic activation of packages after download.
 See `epackage--download-action-list'."
-  (interactive)
+  (interactive (list 'interactive))
   (if (memq 'activate epackage--download-action-list)
       (epackage-cmd-download-action-activate-off)
     (epackage-cmd-download-action-activate-on)))
 
 ;;;###autoload
-(defun epackage-cmd-download-action-autoload-on ()
+(defun epackage-cmd-download-action-autoload-on (&optional verbose)
   "Automatically autoload packages after download.
 See `epackage--download-action-list'."
-  (interactive)
+  (interactive (list 'interactive))
   (epackage-download-action-enable 'autoload)
-  (epackage-message "Download action on: autoload"))
+  (epackage-verbose-message "Download action on: autoload"))
 
 ;;;###autoload
-(defun epackage-cmd-download-action-autoload-off ()
+(defun epackage-cmd-download-action-autoload-off (&optional verbose)
   "Do not autoload packages after download.
 See `epackage--download-action-list'."
-  (interactive)
+  (interactive (list 'interactive))
   (epackage-download-action-disable 'autoload)
-  (epackage-message "Download action off: autoload"))
+  (epackage-verbose-message "Download action off: autoload"))
 
 ;;;###autoload
-(defun epackage-cmd-download-action-autoload-toggle ()
+(defun epackage-cmd-download-action-autoload-toggle (&optional verbose)
   "Toggle automatic autoload of packages after download.
 See `epackage--download-action-list'."
-  (interactive)
+  (interactive (list 'interactive))
   (if (memq 'autoload epackage--download-action-list)
       (epackage-cmd-download-action-autoload-off)
     (epackage-cmd-download-action-autoload-on)))
 
 ;;;###autoload
-(defun epackage-cmd-download-action-enable-on ()
+(defun epackage-cmd-download-action-depends-on (&optional verbose)
+  "Install depends packages after download.
+See `epackage--download-action-list'."
+  (interactive (list 'interactive))
+  (epackage-download-action-enable 'depends)
+  (epackage-verbose-message "Download action on: depends"))
+
+;;;###autoload
+(defun epackage-cmd-download-action-depends-off (&optional verbose)
+  "Do not install depends packages after download.
+See `epackage--download-action-list'."
+  (interactive (list 'interactive))
+  (epackage-download-action-disable 'depends)
+  (epackage-verbose-message "Download action off: depends"))
+
+;;;###autoload
+(defun epackage-cmd-download-action-depends-toggle (&optional verbose)
+  "Toggle depends install of packages after download.
+See `epackage--download-action-list'."
+  (interactive (list 'interactive))
+  (if (memq 'depends epackage--download-action-list)
+      (epackage-cmd-download-action-depends-off)
+    (epackage-cmd-download-action-depends-on)))
+
+;;;###autoload
+(defun epackage-cmd-download-action-enable-on (&optional verbose)
   "Automatically enable packages after download.
 See `epackage--download-action-list'."
-  (interactive)
+  (interactive (list 'interactive))
   (epackage-download-action-enable 'enable)
-  (epackage-message "Download action on: enable"))
+  (epackage-verbose-message "Download action on: enable"))
 
 ;;;###autoload
-(defun epackage-cmd-download-action-enable-off ()
+(defun epackage-cmd-download-action-enable-off (&optional verbose)
   "Do not enable packages after download.
 See `epackage--download-action-list'."
-  (interactive)
+  (interactive (list 'interactive))
   (epackage-download-action-disable 'enable)
-  (epackage-message "Download action off: enable"))
+  (epackage-verbose-message "Download action off: enable"))
 
 ;;;###autoload
-(defun epackage-cmd-download-action-enable-toggle ()
+(defun epackage-cmd-download-action-enable-toggle (&optional verbose)
   "Toggle automatic enable of packages after download.
 See `epackage--download-action-list'."
-  (interactive)
+  (interactive (list 'interactive))
   (if (memq 'enable epackage--download-action-list)
       (epackage-cmd-download-action-enable-off)
     (epackage-cmd-download-action-enable-on)))
 
 ;;;###autoload
-(defun epackage-cmd-download-action-compile-on ()
+(defun epackage-cmd-download-action-compile-on (&optional verbose)
   "Automatically compile packages after download.
 See `epackage--download-action-list'."
-  (interactive)
+  (interactive (list 'interactive))
   (epackage-download-action-enable 'compile)
-  (epackage-message "Download action on: compile"))
+  (epackage-verbose-message "Download action on: compile"))
 
 ;;;###autoload
-(defun epackage-cmd-download-action-compile-off ()
+(defun epackage-cmd-download-action-compile-off (&optional verbose)
   "Do not compile packages after download.
 See `epackage--download-action-list'."
-  (interactive)
+  (interactive (list 'interactive))
   (epackage-download-action-disable 'compile)
-  (epackage-message "Download action off: compile"))
+  (epackage-verbose-message "Download action off: compile"))
 
 ;;;###autoload
-(defun epackage-cmd-download-action-compile-toggle ()
+(defun epackage-cmd-download-action-compile-toggle (&optional verbose)
   "Toggle automatic compile of packages after download.
 See `epackage--download-action-list'."
-  (interactive)
+  (interactive (list 'interactive))
   (if (memq 'compile epackage--download-action-list)
       (epackage-cmd-download-action-compile-off)
     (epackage-cmd-download-action-compile-on)))
@@ -2925,7 +3149,6 @@ See `epackage--download-action-list'."
     (epackage-message
       "Download actions: %s"
       epackage--download-action-list)))
-
 
 ;;;###autoload
 (defun epackage-cmd-email-maintainer (package &optional verbose)
@@ -3227,50 +3450,6 @@ If VERBOSE is non-nil, display progress message."
       list)))
 
 ;;;###autoload
-(defun epackage-cmd-remove-package (package &optional verbose)
-  "Physically remove PACKAGE and its configuration files from disk.
-If VERBOSE is non-nil, display progress message."
-  (interactive
-   (list (epackage-cmd-select-package "Remove epackage: ")
-         'interactive))
-  (epackage-cmd-disable-package package verbose)
-  (let ((dir (epackage-package-downloaded-p package)))
-    (if (not dir)
-	;; FIXME: check verbose?
-	(epackage-verbose-message
-	  "Remove ignored. Package not downloaded: %s"
-	  package)
-      (epackage-config-delete-all package verbose)
-      (epackage-verbose-message "Remove directory %s" dir)
-      (delete-directory dir 'recursive)
-      (run-hooks 'epackage--install-remove-hook))))
-
-;;;###autoload
-(defun epackage-cmd-upgrade-package (package &optional verbose)
-  "Upgrade PACKAGE by downloading new code.
-Install new configurations if package has been enabled.
-If VERBOSE is non-nil, display progress messages."
-  (interactive
-   (list (epackage-cmd-select-package "Upgrade epackage: ")
-         'interactive))
-  (cond
-   ((not (epackage-string-p package))
-    (epackage-message "No epackage selected for upgrade."))
-   ((not (epackage-package-downloaded-p package))
-    (epackage-message "Package not downloaded: %s" package))
-   ((not (epackage-git-master-p package))
-    (epackage-message
-     "Upgrade ignored. Locally modified. Branch is not \"master\" in %s"
-     (epackage-directory-package-root package)))
-   (t
-    (epackage-upgrade-package package verbose)
-    ;; FIXME: Add post-processing
-    ;; - New files in epackage/*
-    ;; - Auto-install, auto-activate?
-    ;; - obsolete 00control/* files ?
-    )))
-
-;;;###autoload
 (defun epackage-cmd-upgrade-all-packages (&optional verbose)
   "Upgrade all downloaded packages.
 Install new configurations if package has been enabled.
@@ -3321,6 +3500,50 @@ If VERBOSE is non-nil, display progress messages."
         (epackage-message "Skip, package already downloaded: %s" package)
       (epackage-download-package package verbose)
       (epackage-run-action-list package verbose))))
+
+;;;###autoload
+(defun epackage-cmd-remove-package (package &optional verbose)
+  "Physically remove PACKAGE and its configuration files from disk.
+If VERBOSE is non-nil, display progress message."
+  (interactive
+   (list (epackage-cmd-select-package "Remove epackage: ")
+         'interactive))
+  (epackage-cmd-disable-package package verbose)
+  (let ((dir (epackage-package-downloaded-p package)))
+    (if (not dir)
+	;; FIXME: check verbose?
+	(epackage-verbose-message
+	  "Remove ignored. Package not downloaded: %s"
+	  package)
+      (epackage-config-delete-all package verbose)
+      (epackage-verbose-message "Remove directory %s" dir)
+      (delete-directory dir 'recursive)
+      (run-hooks 'epackage--install-remove-hook))))
+
+;;;###autoload
+(defun epackage-cmd-upgrade-package (package &optional verbose)
+  "Upgrade PACKAGE by downloading new code.
+Install new configurations if package has been enabled.
+If VERBOSE is non-nil, display progress messages."
+  (interactive
+   (list (epackage-cmd-select-package "Upgrade epackage: ")
+         'interactive))
+  (cond
+   ((not (epackage-string-p package))
+    (epackage-message "No epackage selected for upgrade."))
+   ((not (epackage-package-downloaded-p package))
+    (epackage-message "Package not downloaded: %s" package))
+   ((not (epackage-git-master-p package))
+    (epackage-message
+     "Upgrade ignored. Locally modified. Branch is not \"master\" in %s"
+     (epackage-directory-package-root package)))
+   (t
+    (epackage-upgrade-package package verbose)
+    ;; FIXME: Add post-processing
+    ;; - New files in epackage/*
+    ;; - Auto-install, auto-activate?
+    ;; - obsolete 00control/* files ?
+    )))
 
 ;;;###autoload
 (defun epackage-initialize (&optional verbose)

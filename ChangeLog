@@ -1,3 +1,27 @@
+2010-12-15 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-cmd-download-action-depends-on): New.
+	(epackage-cmd-download-action-depends-off): New.
+	(epackage-cmd-download-action-depends-toggle): New.
+	(epackage-combine-files): Save new content to `point-max'
+	not `point-min'. This preserves file listing order.
+	(epackage-cmd-download-action-activate-off): Add verbose.
+	(epackage-cmd-download-action-activate-toggle): Add verbose.
+	(epackage-cmd-download-action-autoload-on): Add verbose.
+	(epackage-cmd-download-action-autoload-off): Add verbose.
+	(epackage-cmd-download-action-autoload-toggle): Add verbose.
+	(epackage-cmd-download-action-depends-on): Add verbose.
+	(epackage-cmd-download-action-depends-off): Add verbose.
+	(epackage-cmd-download-action-depends-toggle): Add verbose.
+	(epackage-cmd-download-action-enable-on): Add verbose.
+	(epackage-cmd-download-action-enable-off): Add verbose.
+	(epackage-cmd-download-action-enable-toggle): Add verbose.
+	(epackage-cmd-download-action-compile-on): Add verbose.
+	(epackage-cmd-download-action-compile-off): Add verbose.
+	(epackage-cmd-download-action-compile-toggle): Add verbose.
+	(epackage-pkg-info-fetch-field-depends): New.
+	(epackage-depends-parse-buffer-prepare): New.
+
 2010-12-15 Wed  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-pkg-info-field-commentary): If
@@ -22,6 +46,16 @@
 	(epackage-cmd-email-maintainer): New.
 	(epackage-mail-macro): New.
 	(epackage-cmd-email-upstream): New.
+	(epackage--download-action-list): Add TYPE `depends'.
+	(epackage-fetch-field-depends): New.
+	(epackage-depends-parse-string): New.
+	(epackage-depends-parse-buffer): New.
+	(epackage-depends-parse-collect): New.
+	(epackage--depends-handling): New.
+	(epackage-pkg-depends-resolve): New.
+	(epackage-pkg-depends-verify): New.
+	(epackage-pkg-depends-verify-main): New.
+	(epackage-pkg-depends-verify-main): New.
 
 2010-12-14 Tue  Jari Aalto  <jari.aalto@cante.net>
 
