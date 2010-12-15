@@ -554,8 +554,8 @@
 ;;          *Depends: emacs (>= 20)
 ;;          Status: [ <keyword> ...]
 ;;          Compat: [ <epackage version> ]
-;;          Maintainer: [ <epackage maintainer email> ]
-;;          *Email: [ First Last <firts.last@example.com ]
+;;          *Maintainer: First Last <first.last@example.com>
+;;          *Email: First Last <first.last@example.com>
 ;;          Bugs: [ URL ]
 ;;          Vcs-Type:
 ;;          Vcs-Url:
@@ -674,11 +674,11 @@
 ;;
 ;;     Email
 ;;
-;;      The Upstream developer's email address(es). Multiple
+;;      The Upstream developer's name and email address(es). Multiple
 ;;      developers are separated by commas. The role can be expressed
 ;;      in RFC 2822 comment-parenthesis. An example:
 ;;
-;;              Email: John doe (Author) <jdoe@example.com>,
+;;              Email: John Doe (Author) <jdoe@example.com>,
 ;;               Joe Average (Co-developer) <jave@example.com>
 ;;
 ;;     Homepage
@@ -713,11 +713,11 @@
 ;;
 ;;     Maintainer
 ;;
-;;      This extension's epackage maintainer. The person who made this
-;;      extension available in epackage format. If this field is
-;;      missing, then the upstream (`Email') is assumed to be the
-;;      packager. It is always desirable that upstream, who develops
-;;      the extension also provides the software in epackage format.
+;;      This extension's epackage maintainer. Format is the same as in
+;;      *Email* field. Contains the name and address of the person who
+;;      made this extension available in epackage format. If the
+;;      upstream is also the epackage mainainer, the content of this
+;;      field is identical to *Email* field.
 ;;
 ;;     Package (required)
 ;;
@@ -967,7 +967,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1215.0638"
+(defconst epackage-version-time "2010.1215.1505"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1192,6 +1192,9 @@ This directory contains control files from packages.")
   "Name of official yellow pages file that lists available packages.
 Do not touch. See variable `epackage--sources-list-url'.")
 
+(defvar epackage--package-control-directory "epackage"
+  "Name of directory inside VCS controlled package.")
+
 (defvar epackage--pkg-info-file-name "info"
   "Name of information file of epackage.
 Do not touch. See variable `epackage--sources-list-url'.")
@@ -1211,9 +1214,6 @@ See also variable `epackage--loader-file-boot-byte-compile-flag'.")
   "File that contains `load-path' definitions.
 Not a user file. This is used internally during byte compiling
 packages.")
-
-(defvar epackage--package-control-directory "epackage"
-  "Name of directory inside VCS controlled package.")
 
 (defconst epackage--directory-exclude-regexp
   (concat
@@ -1235,6 +1235,18 @@ packages.")
   "Regexp to exclude dirctory names.
 See 'epackage-directory-recursive-list-default'.")
 
+(defconst epackage--info-layout-mapping
+  '(("Package" "[a-z0-9-]+")
+    ("Section" "[a-z]+")
+    ("Depends" "[a-z0-9-]+")
+    ("Maintainer" "[^ \t+r\n]+@[^ \t+r\n]+")
+    ("Email" "[^ \t+r\n]+@[^ \t+r\n]+")
+    ("Description" "[^ \t+r\n]+"))
+
+  "Required fields and test regexp for `epackage--pkg-info-file-name'.
+Format is:
+  '((FIELD CONTENT-TEST-REGEXP) ...).")
+
 (defconst epackage--layout-mapping
   '((activate  "-xactivate.el")
     (autoload  "-autoloads.el")
@@ -1243,9 +1255,9 @@ See 'epackage-directory-recursive-list-default'.")
     (info  "info" 'required)
     (loaddefs  "-0loaddefs.el")
     (uninstall  "-uninstall.el"))
-  "File name mappings under epackage/ directory.
+  "File type and its mappings in `epackage--package-control-directory'.
 Format is:
-  '((TYPE . FILENAME [REQUIRED-FLAG]) ...)
+  '((TYPE  FILENAME [REQUIRED-FLAG]) ...)
 
 Ff FILENAME sarts with '-', then the package name is prefixed to
 the FILENAME. Say package name 'foo' is prefixed with '-install'
@@ -1924,6 +1936,19 @@ If VERBOSE is non-nil, display progress message."
            (mapconcat #'concat (list ,@args) " ")
            ,dir))))
 
+(defsubst epackage-fetch-field (field)
+  "Like `mail-fetch-field', but return value only if it exists.
+If field is empty or does not exist, return nil."
+  (let ((value (mail-fetch-field field)))
+    (if (epackage-string-p value)
+	value)))
+
+(defsubst epackage-pkg-info-fetch-field (package field)
+  "Like `mail-fetch-field', but return value only if it exists.
+If field is empty or does not exist, return nil."
+  (epackage-with-package-info-file package
+    (epackage-fetch-field field)))
+
 (defsubst epackage-git-branch-list-master-p (list)
   "Return non-nil if current branch LIST indicates master as current branch."
   (string-match
@@ -2250,24 +2275,12 @@ Those that are not installed in `epackage-directory-install'."
         (epackage-push package list)))
     (nreverse list)))
 
-(defsubst epackage-pkg-info-field-read (package field)
-  "Read PACKAGE's info file and return FIELD."
-  (epackage-with-package-info-file package
-    (mail-fetch-field field)))
-
-(defsubst epackage-pkg-info-field-commentary (package)
-  "Read PACKAGE's infor file and return Commentary: field."
-  (epackage-with-package-info-file package
-    (let ((value (mail-fetch-field "Commentary")))
-      (if (epackage-string-p value)
-	  value))))
-
 (defun epackage-pkg-info-documentation (package &optional verbose)
   "Display local PACKAGE documentation in another buffer.
 If VERBOSE is non-nil, display progress message.
 Return:
   file name of documentation or nil."
-  (let ((file (epackage-pkg-info-field-commentary package))
+  (let ((file (epackage-pkg-info-fetch-field package "Commentary"))
 	path)
     (when file
       (setq path (format "%s/%s"
@@ -2615,7 +2628,36 @@ If VERBOSE is non-nil, display progress message."
         (write-region (point) (point-max) file)
         (kill-buffer (current-buffer))))))
 
-(defun epackage-pkg-lint-git-branches (dir)
+(defun epackage-pkg-lint-info-buffer (&optional verbose)
+  "Check validity of info in current buffer.
+If VERBOSE is non-nil, display progress message."
+  (let ((status t)
+	field
+	value
+	regexp)
+    (dolist (elt epackage--info-layout-mapping)
+      (setq field  (nth 0 elt)
+	    regexp (nth 1 elt)
+	    value  (epackage-fetch-field field))
+      (cond
+       ((not (stringp value))
+	(if verbose
+	    (epackage-warn "Missing required field: %s" field))
+	(setq status nil))
+       ((not (string-match regexp value))
+	(if verbose
+	    (epackage-warn "Required field syntax error: %s => '%s'"
+			   field value))
+	(setq status nil))))
+    status))
+
+(defun epackage-pkg-lint-info-file (file &optional verbose)
+  "Check validity of info FILE.
+If VERBOSE is non-nil, display progress message."
+  (with-current-buffer (find-file-noselect file)
+    (epackage-pkg-lint-info-buffer)))
+
+(defun epackage-pkg-lint-git-branches (dir &optional verbose)
   "Check validity Git branches of package in DIR.
 If valid, return list of required branches."
   (let ((list (epackage-git-command-branch-list
@@ -2630,48 +2672,59 @@ If valid, return list of required branches."
     (if (eq (length branches) 2)
         branches)))
 
-(defun epackage-pkg-lint-dir-structure (dir)
-  "Check validity directories of package in DIR.
-The base name of DIR is the package name. An example:
+(defun epackage-pkg-lint-dir-structure (dir &optional verbose)
+  "Check valid directories of package in DIR.
+If VERBOSE is non-nil, display progress message.
+The base name of DIR is takes as the package name. An example:
 
   ~/.emacs.d/epackage/package/foo  => foo is package name.
 
-If valid, return list of required or optional files."
+Return:
+    t  if valid."
   (let ((package (epackage-file-name-nondirectory dir))
-        invalid
-        list)
+	(status t)
+        list
+	name
+	required
+	path)
     (dolist (elt epackage--layout-mapping)
-      (unless invalid
-        (let* ((name (nth 1 elt))
-               (required (nth 2 elt))
-               (path (format "%s%s/%s%s"
-                             (file-name-as-directory dir)
-                             epackage--directory-name
-                             package
-                             name)))
-          (cond
-           (required
-            (if (file-exists-p path)
-                (epackage-push path list)
-              (setq invalid path)))
-           (t
-            (if (file-exists-p path)
-                (epackage-push path list)))))))
-    list))
+      (setq name     (nth 1 elt)
+	    required (nth 2 elt)
+	    path     (format "%s%s/%s%s"
+			     (file-name-as-directory dir)
+			     epackage--directory-name
+			     package
+			     name))
+	(when (and required
+		   (not (file-exists-p path)))
+	  (if verbose
+	      (epackage-warn "Missing required file: %s" path))
+	  (setq status nil)))
+    status))
 
 (defun epackage-pkg-lint-main (dir)
   "Check validity of package in DIR.
 If invalid, return list of problems:
   'dir      Missing `epackage--directory-name'
   'files    Missing required `epackage--layout-mapping'.
+  'info     Missing required fields in info file.
   'git      Missing required Git branches: upstream, master."
-  (let (list)
+  (let (list
+	file)
     (if (not (epackage-directory-p dir))
         (epackage-push 'dir list)
       (unless (epackage-pkg-lint-git-branches dir)
         (epackage-push 'git list))
       (unless (epackage-pkg-lint-dir-structure dir)
-        (epackage-push 'files list)))
+        (epackage-push 'files list))
+      (setq file
+	    (format "%s%s/%s"
+		    (file-name-as-directory dir)
+		    epackage--package-control-directory
+		    epackage--pkg-info-file-name))
+      (when (and (file-exists-p file)
+		 (not (epackage-pkg-lint-info-file file)))
+	(epackage-push 'info list)))
     list))
 
 (defun epackage-download-sources-list (&optional verbose)

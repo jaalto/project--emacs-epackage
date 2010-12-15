@@ -4,6 +4,19 @@
 	value is empty, return nil.
 	(epackage-batch-ui-display-package-documentation): Check
 	if file is empty.
+	(epackage-pkg-info-field-read): Remove.
+	(epackage-pkg-info-field-commentary): Remove.
+	(epackage-pkg-info-fetch-field): New.
+	(epackage-fetch-field): New.
+	(epackage-pkg-lint-main): Add INFO file check.
+	(epackage-pkg-lint-info-file): New.
+	(epackage--info-layout-mapping): New.
+	(epackage--layout-mapping): Update docstring.
+	(epackage-pkg-lint-info-file): New.
+	(epackage-pkg-lint-info-buffer): New.
+	(epackage-pkg-lint-dir-structure): Add VERBOSE.
+	(epackage-pkg-lint-git-branches): Add VERBOSE.
+	(epackage-pkg-lint-dir-structure): Rewrite.
 
 2010-12-14 Tue  Jari Aalto  <jari.aalto@cante.net>
 
