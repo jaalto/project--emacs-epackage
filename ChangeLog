@@ -21,6 +21,7 @@
 	(epackage-cmd-select-package): add arg `list'.
 	(epackage-cmd-email-maintainer): New.
 	(epackage-mail-macro): New.
+	(epackage-cmd-email-upstream): New.
 
 2010-12-14 Tue  Jari Aalto  <jari.aalto@cante.net>
 

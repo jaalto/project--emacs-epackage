@@ -967,7 +967,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1215.1603"
+(defconst epackage-version-time "2010.1215.1632"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2929,8 +2929,8 @@ See `epackage--download-action-list'."
 
 ;;;###autoload
 (defun epackage-cmd-email-maintainer (package &optional verbose)
-  "Email mainteiner of local PACKAGE.
-Mail can be sent only to downloaded (locally installed) packages.
+  "Email maintainer of local PACKAGE.
+Mail address can only be read from downloaded (locally installed) packages.
 If VERBOSE is non-nil, display progress message."
   (interactive
    (let ((list (epackage-status-downloaded-packages)))
@@ -2945,7 +2945,7 @@ If VERBOSE is non-nil, display progress message."
   (epackage-cmd-package-check-macro
       package
       verbose
-      (format "PACKAGE name \"%s\" is invalid for mainteiner email command"
+      (format "PACKAGE name \"%s\" is invalid for maintainer email command"
               package)
     (cond
      ((epackage-package-downloaded-p package)
@@ -2956,8 +2956,8 @@ If VERBOSE is non-nil, display progress message."
 			 package))
 	 (t
 	  (epackage-mail-macro
-	      (format "*mail %s maintainer*" package)
-	    (epackage-pkg-info-fetch-field package "Maintainer"))))))
+	      (format "*mail epackage %s maintainer*" package)
+	    to)))))
     (t
      (if (eq verbose 'interactive)
 	 (epackage-message
@@ -2965,6 +2965,46 @@ If VERBOSE is non-nil, display progress message."
 	   package)
 	(epackage-message
 	  "Can't email maintainer. Package not downloaded: %s"
+	  package))))))
+
+;;;###autoload
+(defun epackage-cmd-email-upstream (package &optional verbose)
+  "Email upstream of local PACKAGE.
+Mail address can only be read from downloaded (locally installed) packages.
+If VERBOSE is non-nil, display progress message."
+  (interactive
+   (let ((list (epackage-status-downloaded-packages)))
+     (cond
+      ((null list)
+       (epackage-message "Nowhere to send email, no downloaded packages")
+       (list nil 'interactive))
+      (t
+       (list
+	(epackage-cmd-select-package "Email upstream of epackage: " list)
+	'interactive)))))
+  (epackage-cmd-package-check-macro
+      package
+      verbose
+      (format "PACKAGE name \"%s\" is invalid for upstream email command"
+              package)
+    (cond
+     ((epackage-package-downloaded-p package)
+      (let ((to (epackage-pkg-info-fetch-field package "Email")))
+	(cond
+	 ((null to)
+	  (epackage-warn "No upstram email available for epacakge %s"
+			 package))
+	 (t
+	  (epackage-mail-macro
+	      (format "*mail epackage %s upstream*" package)
+	    to)))))
+    (t
+     (if (eq verbose 'interactive)
+	 (epackage-message
+	   "Upstream email ignored. Package not downloaded: %s"
+	   package)
+	(epackage-message
+	  "Can't email upstream. Package not downloaded: %s"
 	  package))))))
 
 ;;;###autoload
