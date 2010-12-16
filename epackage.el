@@ -1079,7 +1079,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1216.1246"
+(defconst epackage-version-time "2010.1216.1252"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2526,31 +2526,6 @@ If optional VERBOSE is non-nil, display progress message."
     (dolist (elt missing)
       (epackage-push elt epackage--depends-satisfy-running)
       (epackage-cmd-download-package elt verbose))))
-
-(defun epackage-run-action-list (package &optional verbose)
-  "Run PACKAGE actions listed in `epackage--download-action-list'.
-If optional VERBOSE is non-nil, display progress message."
-  (let ((list (sort epackage--download-action-list
-                    (lambda (a b)
-                      (string<
-                       (symbol-name a)
-                       (symbol-name b))))))
-    (dolist (elt list)
-      (epackage-verbose-message "package action: %s" elt)
-      ;; Development note: keep the list in alphabetical "run" order
-      (cond
-       ((eq elt 'activate)
-        (epackage-cmd-activate-package package verbose))
-       ((eq elt 'autoload)
-        (epackage-cmd-autoload-package package verbose))
-       ((eq elt 'compile)
-        (epackage-byte-compile-package-main package))
-       ((eq elt 'enable)
-        (epackage-cmd-enable-package package verbose))
-       ((eq elt 'lint)
-        (epackage-pkg-lint-package package verbose))
-       ((eq elt 'package-depends)
-        (epackage-pkg-depends-satisfy package verbose))))))
 
 (defsubst epackage-enable-file (from to &optional noerr verbose)
   "Enable by copying or by symlinking file FROM TO.
@@ -4371,6 +4346,31 @@ Package activation type after download:%s"
         (message epackage--batch-ui-menu-help))
        (t
         (message "** Unknown menu selection: %s" choice))))))
+
+(defun epackage-run-action-list (package &optional verbose)
+  "Run PACKAGE actions listed in `epackage--download-action-list'.
+If optional VERBOSE is non-nil, display progress message."
+  (let ((list (sort epackage--download-action-list
+                    (lambda (a b)
+                      (string<
+                       (symbol-name a)
+                       (symbol-name b))))))
+    (dolist (elt list)
+      (epackage-verbose-message "package action: %s" elt)
+      ;; Development note: keep the list in alphabetical "run" order
+      (cond
+       ((eq elt 'activate)
+        (epackage-cmd-activate-package package verbose))
+       ((eq elt 'autoload)
+        (epackage-cmd-autoload-package package verbose))
+       ((eq elt 'compile)
+        (epackage-byte-compile-package-main package))
+       ((eq elt 'enable)
+        (epackage-cmd-enable-package package verbose))
+       ((eq elt 'lint)
+        (epackage-pkg-lint-package package verbose))
+       ((eq elt 'package-depends)
+        (epackage-pkg-depends-satisfy package verbose))))))
 
 ;;;###autoload
 (defalias 'epackage 'epackage-manager)
