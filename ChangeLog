@@ -25,6 +25,7 @@
 	(epackage-cmd-download-action-lint-on): New.
 	(epackage-cmd-download-action-lint-off): New.
 	(epackage-cmd-download-action-lint-toggle): New.
+	(epackage-pkg-lint-info-file): Check "Package" field.
 
 2010-12-15 Thu  Jari Aalto  <jari.aalto@cante.net>
 

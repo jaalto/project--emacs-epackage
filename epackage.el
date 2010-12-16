@@ -1079,7 +1079,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1216.0949"
+(defconst epackage-version-time "2010.1216.1050"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -3031,13 +3031,13 @@ If optional VERBOSE is non-nil, display progress message."
             value  (epackage-fetch-field field))
       (cond
        ((not (stringp value))
-        (if verbose
-            (epackage-warn "Lint - missing required field: %s" field))
+	(epackage-verbose-message
+	  "[ERROR] Lint - missing required field: %s" field)
         (setq status nil))
        ((not (string-match regexp value))
-        (if verbose
-            (epackage-warn "Lint - required field syntax error: %s => '%s'"
-                           field value))
+	(epackage-verbose-message
+	  "[WARN] Lint - required field syntax error: %s => '%s'"
+	  field value)
         (setq status nil))))
     status))
 
@@ -3045,7 +3045,17 @@ If optional VERBOSE is non-nil, display progress message."
   "Check validity of info FILE.
 If optional VERBOSE is non-nil, display progress message."
   (with-current-buffer (find-file-noselect file)
-    (epackage-pkg-lint-info-buffer verbose)))
+    (let* ((dir (epackage-file-name-directory-previous
+		 (file-name-directory file)))
+	   (name (epackage-file-name-basename dir))
+	   (package (epackage-fetch-field "Package")))
+      (when (and verbose
+	       (stringp package)
+	       (not (string= package name)))
+	(epackage-verbose-message
+	 "[WARN] Lint - field Package does not match directory name: %s, %s"
+	 package name))
+    (epackage-pkg-lint-info-buffer verbose))))
 
 (defun epackage-pkg-lint-git-branches (dir &optional verbose)
   "Check validity Git branches of package in DIR.
@@ -3067,9 +3077,11 @@ If valid, return list of required branches."
     (if verbose
         (cond
          ((null master)
-          (epackage-warn "Lint - missing required branch: master"))
+          (epackage-verbose-message
+	    "[ERROR] Lint - missing required git branch: master"))
          ((null upstream)
-          (epackage-warn "Lint - missing required branch: upstream"))))
+          (epackage-verbose-message
+	    "[ERROR] Lint - missing required git branch: upstream"))))
     (if (and master upstream)
         (list master upstream))))
 
@@ -3103,12 +3115,12 @@ Return:
                            name)))
       (when (and required
                  (not (file-exists-p path)))
-        (if verbose
-            (epackage-warn "Lint - missing required file: %s" path))
+	(epackage-verbose-message
+	  "[ERROR] Lint - missing required file: %s" path)
         (setq status nil)))
     status))
 
-;; FIXME: Write output to separate buffer.
+;;;###autoload
 (defun epackage-pkg-lint-directory (dir &optional verbose)
   "Check validity of package in DIR.
 If optional VERBOSE is non-nil, display progress message.
@@ -3116,24 +3128,36 @@ If optional VERBOSE is non-nil, display progress message.
 If invalid, return list of classified problems:
   'dir      Missing `epackage--directory-name'
   'files    Missing required `epackage--layout-mapping'.
-  'info     Missing required fields in info file.
+  'info     Missing file or required fields in info file.
   'git      Missing required Git branches: upstream, master."
-  (let (list
-        file)
-    (if (not (epackage-directory-p dir))
-        (epackage-push 'dir list)
-      (unless (epackage-pkg-lint-git-branches dir verbose)
-        (epackage-push 'git list))
+  (interactive "DLint epackage directory: ")
+  (if (interactive-p)
+      (setq verbose 'interactive))
+  (let ((edir (format "%s%s"
+		      (file-name-as-directory dir)
+		      epackage--directory-name))
+	list)
+    (unless (epackage-pkg-lint-git-branches dir verbose)
+      (epackage-push 'git list))
+    (cond
+     ((not (file-directory-p edir))
+      (epackage-verbose-message "[FATAL] Lint - Missing directory: %s" edir)
+      (epackage-push 'dir list))
+     (t
       (unless (epackage-pkg-lint-dir-structure dir verbose)
         (epackage-push 'files list))
-      (setq file
-            (format "%s%s/%s"
-                    (file-name-as-directory dir)
-                    epackage--package-control-directory
-                    epackage--pkg-info-file-name))
-      (when (and (file-exists-p file)
-                 (not (epackage-pkg-lint-info-file file verbose)))
-        (epackage-push 'info list)))
+      (let ((file
+	     (format "%s%s/%s"
+		     (file-name-as-directory dir)
+		     epackage--package-control-directory
+		     epackage--pkg-info-file-name)))
+	(cond
+	 ((file-exists-p file)
+	  (unless (epackage-pkg-lint-info-file file verbose)
+	    (epackage-verbose-message "[FATAL] Lint - Missing file: %s" info)
+	    (epackage-push 'info list)))
+	 (t
+	  (epackage-push 'info list))))))
     list))
 
 ;;;###autoload
