@@ -26,6 +26,9 @@
 	(epackage-cmd-download-action-lint-off): New.
 	(epackage-cmd-download-action-lint-toggle): New.
 	(epackage-pkg-lint-info-file): Check "Package" field.
+	(epackage-config-delete-file): New.
+	(epackage-config-delete-action): Use `epackage-config-delete-file'.
+	(epackage-config-delete-all): Use `epackage-config-delete-file'.
 
 2010-12-15 Thu  Jari Aalto  <jari.aalto@cante.net>
 

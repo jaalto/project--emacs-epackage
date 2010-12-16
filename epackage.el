@@ -1079,7 +1079,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1216.1050"
+(defconst epackage-version-time "2010.1216.1054"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2569,15 +2569,21 @@ If optional VERBOSE is non-nil, display progress message."
       (run-hooks 'epackage--install-autoload-hook)
       status)))
 
+(defun epackage-config-delete-file (file)
+  "Delete FILE and remove fil buffer from Emacs.
+Check `file-exists-p'.
+Run `epackage--install-config-delete-type-hook'."
+  (when (file-exists-p file)
+    (epackage-verbose-message "Delete %s" file)
+    (delete-file file)
+    (run-hooks 'epackage--install-config-delete-type-hook)))
+
 (defun epackage-config-delete-action (type package &optional verbose)
   "Delete install configuration TYPE for PACKAGE.
 If optional VERBOSE is non-nil, display progress message.
 TYPE is car of `epackage--layout-mapping'."
   (let ((file (epackage-file-name-install-compose package type)))
-    (when (file-exists-p file)
-      (epackage-verbose-message "Delete %s" file)
-      (delete-file file)
-      (run-hooks 'epackage--install-config-delete-type-hook))))
+    (epackage-config-delete-file file)))
 
 (defun epackage-config-delete-all (package &optional verbose)
   "Delete all install configuration files for PACKAGE.
@@ -2595,7 +2601,7 @@ Return:
       (when (file-exists-p file)
         (setq list (cons list file))
         (epackage-verbose-message "Delete %s" file)
-        (delete-file file)))
+        (epackage-config-delete-file file)))
     (if list
         (run-hooks 'epackage--install-config-delete-all-hook))
     list))
