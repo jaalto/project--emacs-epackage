@@ -29,6 +29,11 @@
 	(epackage-config-delete-file): New.
 	(epackage-config-delete-action): Use `epackage-config-delete-file'.
 	(epackage-config-delete-all): Use `epackage-config-delete-file'.
+	(epackage-pkg-kill-buffer-force): New.
+	(epackage-pkg-buffer-list): New.
+	(epackage-kill-buffer): New.
+	(epackage-cmd-remove-package): Call
+	`epackage-pkg-kill-buffer-force'.
 
 2010-12-15 Thu  Jari Aalto  <jari.aalto@cante.net>
 

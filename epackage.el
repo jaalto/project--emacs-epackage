@@ -1079,7 +1079,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1216.1054"
+(defconst epackage-version-time "2010.1216.1246"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2389,6 +2389,34 @@ instead or call `epackage-download-package-run-actions' after this."
       (epackage-git-command-clone url dir verbose)
       (run-hooks 'epackage--install-download-hook))))
 
+(defun epackage-kill-buffer (list &optional verbose)
+  "Kill LIST of buffer, even if modified.
+If optional VERBOSE is non-nil, display progress message."
+  (dolist (buffer list)
+    (with-current-buffer buffer
+      (set-buffer-modified-p (not 'modified))
+      (epackage-verbose-message
+	"Kill buffer (forced) %s" buffer-file-name)
+      (kill-buffer (current-buffer)))))
+
+(defun epackage-pkg-buffer-list (package)
+  "Return list of opened file buffers of PACKAGE."
+  (let ((regexp (regexp-quote (epackage-directory-package-root package)))
+	name
+	list)
+    (dolist (buffer (buffer-list))
+      (when (and (setq name (buffer-file-name buffer))
+		 (string-match regexp name))
+	(epackage-push buffer list)))
+    list))
+
+(defsubst epackage-pkg-kill-buffer-force (package &optional verbose)
+  "Kill all PACKAGE file buffers, even if modified.
+If optional VERBOSE is non-nil, display progress message."
+  (epackage-kill-buffer
+   (epackage-pkg-buffer-list package)
+   verbose))
+
 (defsubst epackage-pkg-depends-verify-emacs (depends)
   "Check DEPENDS whose format match `epackage-depends-parse-collect'.
 Check only items \"emacs\" or \"xemacs\".
@@ -2570,8 +2598,7 @@ If optional VERBOSE is non-nil, display progress message."
       status)))
 
 (defun epackage-config-delete-file (file)
-  "Delete FILE and remove fil buffer from Emacs.
-Check `file-exists-p'.
+  "Delete FILE. Checks `file-exists-p'.
 Run `epackage--install-config-delete-type-hook'."
   (when (file-exists-p file)
     (epackage-verbose-message "Delete %s" file)
@@ -3830,9 +3857,18 @@ If optional VERBOSE is non-nil, display progress message."
         (epackage-verbose-message
           "Remove ignored. Package not downloaded: %s"
           package)
-      (epackage-config-delete-all package verbose)
-      (epackage-verbose-message "Remove directory %s" dir)
-      (delete-directory dir 'recursive)
+      ;; If files are ope and we: delete directory, download it
+      ;; again, the following happens:
+      ;;  "File info changed on disk.  Reread from disk into <file>? (y or n)"
+      ;;
+      ;; => We must kill all open buffers. FIXME: see if there is a variable
+      ;; to avoid or to work around the above question and avoid
+      ;; killing buffers.
+      (epackage-with-message verbose (format "Remove %s" package)
+	(epackage-config-delete-all package verbose)
+	(epackage-pkg-kill-buffer-force  package verbose)
+	(epackage-verbose-message "Remove directory %s" dir)
+	(delete-directory dir 'recursive))
       (run-hooks 'epackage--install-remove-hook))))
 
 ;;;###autoload
