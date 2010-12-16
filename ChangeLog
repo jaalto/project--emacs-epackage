@@ -1,3 +1,28 @@
+2010-12-16 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el
+	(top level): Write "Development notes: XEmacs, Depends". Improve
+	"Depends:" field documentation.
+	(epackage-pkg-depends-resolve): Mention epackage
+	name in messages.
+	(epackage-run-action-list): Add 'sort'.
+	(epackage-pkg-depends-rollback): New.
+	(epackage--depends-satisfy-running): New.
+	(epackage--download-action-list): Add action `xboot'. Rename
+	action `depends' to 'package-depends'.
+	(epackage-cmd-download-action-depends-handling): New user
+	command.
+	(epackage-pkg-lint-package): New.
+	(epackage-pkg-lint-info-file): Add verbose.
+	(epackage-pkg-lint-git-branches): Rewrite.
+	(epackage-url-retrieve-buffer): New.
+	(epackage-url-save-to-file): New.
+	(epackage-pkg-lint-package): New.
+	(epackage--buffer-lint): New.
+	(epackage-pkg-lint-dir-structure): Fix hadlling of file "info".
+	(epackage--download-action-list): Add TYPE lint.
+	(epackage-run-action-list): Add TYPE lint.
+
 2010-12-15 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-cmd-download-action-depends-on): New.
