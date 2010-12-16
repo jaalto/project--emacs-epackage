@@ -1079,7 +1079,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1216.0947"
+(defconst epackage-version-time "2010.1216.0949"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -3295,6 +3295,34 @@ See `epackage--download-action-list'."
     (epackage-cmd-download-action-autoload-on)))
 
 ;;;###autoload
+(defun epackage-cmd-download-action-compile-on (&optional verbose)
+  "Automatically compile packages after download.
+If optional VERBOSE is non-nil, display progress message.
+See `epackage--download-action-list'."
+  (interactive (list 'interactive))
+  (epackage-download-action-enable 'compile)
+  (epackage-verbose-message "Download action on: compile"))
+
+;;;###autoload
+(defun epackage-cmd-download-action-compile-off (&optional verbose)
+  "Do not compile packages after download.
+If optional VERBOSE is non-nil, display progress message.
+See `epackage--download-action-list'."
+  (interactive (list 'interactive))
+  (epackage-download-action-disable 'compile)
+  (epackage-verbose-message "Download action off: compile"))
+
+;;;###autoload
+(defun epackage-cmd-download-action-compile-toggle (&optional verbose)
+  "Toggle automatic compile of packages after download.
+If optional VERBOSE is non-nil, display progress message.
+See `epackage--download-action-list'."
+  (interactive (list 'interactive))
+  (if (memq 'compile epackage--download-action-list)
+      (epackage-cmd-download-action-compile-off)
+    (epackage-cmd-download-action-compile-on)))
+
+;;;###autoload
 (defun epackage-cmd-download-action-depends-on (&optional verbose)
   "Install depends packages after download.
 If optional VERBOSE is non-nil, display progress message.
@@ -3370,32 +3398,32 @@ See `epackage--download-action-list'."
     (epackage-cmd-download-action-enable-on)))
 
 ;;;###autoload
-(defun epackage-cmd-download-action-compile-on (&optional verbose)
-  "Automatically compile packages after download.
+(defun epackage-cmd-download-action-lint-on (&optional verbose)
+  "Automatically lint packages after download.
 If optional VERBOSE is non-nil, display progress message.
 See `epackage--download-action-list'."
   (interactive (list 'interactive))
-  (epackage-download-action-enable 'compile)
-  (epackage-verbose-message "Download action on: compile"))
+  (epackage-download-action-lint 'lint)
+  (epackage-verbose-message "Download action on: lint"))
 
 ;;;###autoload
-(defun epackage-cmd-download-action-compile-off (&optional verbose)
-  "Do not compile packages after download.
+(defun epackage-cmd-download-action-lint-off (&optional verbose)
+  "Do not lint packages after download.
 If optional VERBOSE is non-nil, display progress message.
 See `epackage--download-action-list'."
   (interactive (list 'interactive))
-  (epackage-download-action-disable 'compile)
-  (epackage-verbose-message "Download action off: compile"))
+  (epackage-download-action-disable 'lint)
+  (epackage-verbose-message "Download action off: lint"))
 
 ;;;###autoload
-(defun epackage-cmd-download-action-compile-toggle (&optional verbose)
-  "Toggle automatic compile of packages after download.
+(defun epackage-cmd-download-action-lint-toggle (&optional verbose)
+  "Toggle automatic lint of packages after download.
 If optional VERBOSE is non-nil, display progress message.
 See `epackage--download-action-list'."
   (interactive (list 'interactive))
-  (if (memq 'compile epackage--download-action-list)
-      (epackage-cmd-download-action-compile-off)
-    (epackage-cmd-download-action-compile-on)))
+  (if (memq 'lint epackage--download-action-list)
+      (epackage-cmd-download-action-lint-off)
+    (epackage-cmd-download-action-lint-on)))
 
 ;;;###autoload
 (defun epackage-cmd-download-action-display-status ()

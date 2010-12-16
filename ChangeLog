@@ -22,6 +22,9 @@
 	(epackage-pkg-lint-dir-structure): Fix hadlling of file "info".
 	(epackage--download-action-list): Add TYPE lint.
 	(epackage-run-action-list): Add TYPE lint.
+	(epackage-cmd-download-action-lint-on): New.
+	(epackage-cmd-download-action-lint-off): New.
+	(epackage-cmd-download-action-lint-toggle): New.
 
 2010-12-15 Thu  Jari Aalto  <jari.aalto@cante.net>
 
