@@ -147,11 +147,11 @@
 ;;
 ;;      [5] http://www.emacswiki.org/emacs/ELPA
 ;;
-;;  Epackage - the DVCS packaging system
+;;  Epackage - the DVCS packaging format
 ;;
 ;;      The DELPS epackages are in the form of distributed[1] git[2]
 ;;      version control repositories. The traditional packaging
-;;      methods, like ELPA[2], have previously relied on archives like
+;;      methods, like ELPA[3], have previously relied on archives like
 ;;      *.tar.gz to hold the code. In contrast, the DVCS approach
 ;;      offers interesting features over the traditional archive
 ;;      distribution approach:
@@ -1079,7 +1079,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1216.1252"
+(defconst epackage-version-time "2010.1216.2232"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1642,6 +1642,10 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
          ,@body
        (if ,verbose
            (epackage-message "%s" (concat ,message "...done"))))))
+
+(defsubst epackage-time ()
+  "Return ISO 8601 YYYY-MM-DD HH:MM:SS."
+  (format-time-string "%Y-%m-%d %H:%M:%S"))
 
 (defsubst epackage-file-name-basename (dir)
   "Like `file-name-nondirectory' but always return last component of DIR.
@@ -3181,24 +3185,30 @@ Return:
          'interactive))
   (let ((dir (epackage-directory-package-root package))
         point)
-    (unless dir
-      (epackage-error "Can't Lint. Package does not exist: %s" dir))
-    (prog1
-        (progn
-          (with-current-buffer epackage--buffer-emacs-messages
-            (setq point (point)))
-          (epackage-pkg-lint-directory dir verbose))
-      (when verbose
-        (let ((buffer (get-buffer-create epackage--buffer-lint)))
-          (with-current-buffer buffer
-            (insert (format "-- %s\n" dir)))
-          (with-current-buffer epackage--buffer-emacs-messages
-            ;; Start reading Lint messages
-            (goto-char point)
-            (while (re-search-forward "^Epackage:.+Lint - \\(.+\n\\)" nil t)
-              (append-to-buffer
-               buffer (match-beginning 1) (match-end 1)))
-          (display-buffer buffer)))))))
+    (if (or (not dir)
+	    (not (file-directory-p dir)))
+	(if verbose
+	    (epackage-message "Can't Lint. Package does not exist: %s" dir)
+	  (epackage-error "Can't Lint. Package does not exist: %s" dir))
+      (prog1				; else
+	  (progn
+	    (with-current-buffer epackage--buffer-emacs-messages
+	      (setq point (point)))
+	    (epackage-pkg-lint-directory dir verbose))
+	(when verbose
+	  (let ((buffer (get-buffer-create epackage--buffer-lint)))
+	    (with-current-buffer buffer
+	      (insert (format "-- Lint %s %s\n"
+			      (epackage-time)
+			      dir)))
+	    (with-current-buffer epackage--buffer-emacs-messages
+	      ;; Start reading Lint messages
+	      (goto-char point)
+	      (while (re-search-forward
+		      "^Epackage:.+Lint - \\(.+\n\\)" nil t)
+		(append-to-buffer
+		 buffer (match-beginning 1) (match-end 1)))
+	      (display-buffer buffer))))))))
 
 (defun epackage-download-sources-list (&optional verbose)
   "Download sources list file, the yellow pages.
@@ -4073,7 +4083,8 @@ Summary, Version, Maintainer etc."
 (defun epackage-batch-ui-display-package-documentation ()
   "Display downloaded extension's documentation."
   (interactive)
-  (let ((package (epackage-cmd-select-package "Display package documentation: ")))
+  (let ((package
+	 (epackage-cmd-select-package "Display package documentation: ")))
     (epackage-cmd-package-check-macro
         package
         'interactive

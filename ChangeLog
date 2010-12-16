@@ -34,6 +34,8 @@
 	(epackage-kill-buffer): New.
 	(epackage-cmd-remove-package): Call
 	`epackage-pkg-kill-buffer-force'.
+	(epackage-time): New.
+	(epackage-pkg-lint-package): Use `epackage-time'.
 
 2010-12-15 Thu  Jari Aalto  <jari.aalto@cante.net>
 
