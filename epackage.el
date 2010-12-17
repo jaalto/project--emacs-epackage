@@ -765,11 +765,11 @@
 ;;      packages can have the same name. Please notify upstream about
 ;;      the clash.
 ;;
-;;	Note: There may be exotically names extensions like "crypt++",
-;;	but the *epackage* name must not contains special characters
-;;	like "+". Name the epackage "crypt-plusplus" is nothing else
-;;	comes to mind or if upstream can't remove the special
-;;	characters.
+;;      Note: There may be exotically names extensions like "crypt++",
+;;      but the *epackage* name must not contains special characters
+;;      like "+". Name the epackage "crypt-plusplus" is nothing else
+;;      comes to mind or if upstream can't remove the special
+;;      characters.
 ;;
 ;;     Recommends
 ;;
@@ -817,7 +817,7 @@
 ;;      tested, this is the latest code). Value `broken' means that
 ;;      there are ports of problems or that it may not work in some
 ;;      Emacs version. Further information should be supplied in the
-;;	end of *Description:* field in section "BUGS" or similar.
+;;      end of *Description:* field in section "BUGS" or similar.
 ;;
 ;;     Vcs-Browser
 ;;
@@ -1021,7 +1021,6 @@
 ;;
 ;;      General
 ;;
-;;      o   Run health check for downloaded Epackage
 ;;      o   Download problem, broken link:
 ;;          => Offer mailing the Yellow page maintainer
 ;;      o   What if user manually deletes directories? Left over config files?
@@ -1029,8 +1028,8 @@
 ;;
 ;;      REPO
 ;;
-;;      o  Check validity of "git tag -l" and upstream/* against the
-;;         specification. Two dashes etc.
+;;	o   Check validity of "git tag -l" and upstream/* against the
+;;	    specification. Two dashes etc.
 ;;
 ;;      o   Better Fetch, pull conflict notifications. Now Git error.
 ;;
@@ -1094,7 +1093,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1217.0104"
+(defconst epackage-version-time "2010.1217.0105"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
