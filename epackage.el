@@ -925,7 +925,7 @@
 ;;          epackage-batch-ui-loader-file-generate
 ;;          epackage-batch-ui-loader-file-byte-compile
 ;;
-;;          ;; This command also upgrades the yellow pages file
+;;          ;; This command upgrades the yellow pages file
 ;;          epackage-batch-ui-download-sources-list
 ;;
 ;; Development notes
@@ -934,57 +934,55 @@
 ;;
 ;;      This extension was written in Emacs 23, but it may work in
 ;;      Emacs 22 (2007) although that has not been tested. No support
-;;      for older Emacs versions is on the chart. Enjoying real life,
-;;      work and other Open Source projects where I participate in and
-;;      which maintain, take their share. For those reasons I have to
-;;      regret that I will not be having resources to port or support
-;;      this utility to XEmacs. Please send patches if you take the
-;;      code to ride in XEmacs.
+;;      for older Emacs versions is on the chart. Real life, daily
+;;      work and my own other Open Source projects take their share. I
+;;      have to regret that I will not be having resources to port or
+;;      support this utility to XEmacs. Please send patches if you
+;;      take the code to ride in XEmacs.
 ;;
 ;;     Depends
 ;;
-;;      The *vertical* *bar*, OR-operator(|), is not really
-;;      implemented. The packages "emacs" and "xemacs" are treated
-;;      specifically and the effect of "|" is actually the same as if
-;;      it were written with comma:
+;;      The *OR-operator(|)*, is not really implemented. The packages
+;;      "emacs" and "xemacs" are treated specifically and the effect
+;;      of "|" is actually the same as if it were written with comma:
 ;;
 ;;          Depends: emacs (>= 22) | xemacs (> 21.3)
 ;;          Depends: emacs (>= 22), xemacs (> 21.3)
 ;;
-;;      Writing an algorithm for package depends clause that
-;;      understands variety of operations (>=, <=, !, |) is
+;;      Writing an algorithm for package depends clause that would
+;;      understand variety of operations (>=, <=, !, |) is
 ;;      challenging. Take for examples the Debian package depends
 ;;      guidelines described at
 ;;      <http://www.debian.org/doc/debian-policy/ch-relationships.html>
-;;      which ispired the syntax used. The Debian packaging system is
-;;      centralized, so it knows all the available packages and their
-;;      version numbers, and can therefore build the full depends
-;;      list and check if install is even possible. In contrast, the
-;;      epackages are *distributed* and the version information or
-;;      further depends can only be determined after the package has
-;;      been downloaded and reading the "Depends:" field. Because of
+;;      which was the source of inspiration forthe used syntax. The
+;;      Debian packaging system is centralized, so it has the
+;;      knowledge about all the available packages and their version
+;;      numbers. In Debian, then commands can build the full
+;;      dependency list and check if install is even possible. In
+;;      contrast, the epackage yellow pages refers to distributed
+;;      locations. The available versions or further depends
+;;      information can only be determined only after the package has
+;;      been downloaded by reading the "Depends:" field. Because of
 ;;      this, the distributed system:
 ;;
 ;;      o   Cannot know beforehand what epackages would be required for X
 ;;      o   Cannot know beforehand if it is possible to even install
-;;          package (to satisfy all depends).
-;;      o   Cannot ask for specific version of epackage, because the
+;;          package fully to satisfy all depends.
+;;      o   Cannot ask to install a specific version because the
 ;;          version information is only available *after* the package
-;;          has been downloaded.
-;;      o   Cannot directly know that updates are available.
-;;          Because the is no central place to read, each repository
-;;          would need to be checked separately (network perfomance
-;;          penalty). In daily use, run command "upgrade all"
-;;          periodically.
+;;          has been downloaded from the git tags.
+;;      o   Cannot easily know en masse to which packages updates
+;;          would be available. Because the is no central place to
+;;          read, each repository would need to be checked separately
+;;          (network perfomance penalty.
 ;;
-;;      In daily use these are not a problem in practise. If package X
-;;      requires Y, the Y will be downloaded. If Y further requires Z,
-;;      the Z will be downloaded etc. Somewhere at the chain the
-;;      downloads stop. It is just that no progress indicators
-;;      (item/count) can be presented to the user to tell how many
-;;      more packages there is to load. The nature of Emacs Lisp
-;;      packages is solo; there are only a few depends between
-;;      packages.
+;;      In daily use these are not in practice big problems. If
+;;      package X requires Y, the Y will be downloaded. If Y further
+;;      requires Z, the Z will be downloaded etc. Somewhere in the
+;;      chain the downloads stops. It is just that no progress
+;;      indicator can be presented to tell how many more packages
+;;      there is to load. Mots of the Emacs Lisp extensions are self
+;;      standing and have no external dependencies.
 ;;
 ;;      Regarding the requirement for specific version of the package
 ;;      in form of:
@@ -999,25 +997,24 @@
 ;;      case somewhere in the future Emacs modifies the `require' and
 ;;      relevant `load' calls to accept optional version argument. For
 ;;      now, as it has always been, the extension developers ensure
-;;      that the extensions will work together with the help of tests
-;;      like `boundp', `fboundp' and `featurep'. If an extension
-;;      breaks due to change in some other extension, it is best to
-;;      notify the original developer and get the code updated.
-;;      Compatibility problems between extensions are usually
-;;      temporary. In case there is no longer upstream developer to
-;;      fix things, the extension is best to be forgotten and removed
-;;      from epackages. Or, if you have the time and skills, you can
-;;      start maintaining an old extension and become the new
-;;      upstream.
+;;      that the extensions work together with the help of tests like
+;;      `boundp', `fboundp' and `featurep'. If an extension breaks due
+;;      to change in some other extension, it is best to notify the
+;;      original developer and get the code updated. Compatibility
+;;      problems between extensions are usually temporary. In case the
+;;      upstream developer is no longer there to to fix things, the
+;;      extension is best to be left forgotten and removed from
+;;      epackages Yellow Pages. Or, if you have the time and skills,
+;;      you can start maintaining an old extension to bring it new
+;;      life and becoming the new upstream.
 ;;
 ;;     Version
 ;;
-;;      Why is there no "Version:" field in the `info' file? There
-;;      would be no need for it. The Git repository has tags that
-;;      lists all versions of the package. It would be manula work to
-;;      manually keep the info::Version field in synch with the Git
-;;      repository. The "Version:" field may be introduced later if
-;;      it adds something that is essential.
+;;      Why is there no "Version:" field in the `info' file? The Git
+;;      repository is supposed to have tags for all upstream versions
+;;      of the package. It would be duplicate work to manually keep
+;;      the info::Version field in synch with the tags of Git
+;;      repository.
 ;;
 ;; TODO
 ;;
@@ -1049,6 +1046,8 @@
 ;;
 ;;      o   Git tags (versions of packages), where is this information kept?
 ;;          Affects GUI.
+;;
+;;	o   New updates available? Git polling mechanism with idle timers?
 ;;
 ;;      o   What if user has made local customizations?
 ;;          Branch != master. => leave if alone and mark it
@@ -1097,7 +1096,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1217.0111"
+(defconst epackage-version-time "2010.1217.0750"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
