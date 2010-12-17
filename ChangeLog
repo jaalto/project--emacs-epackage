@@ -1,5 +1,24 @@
 2010-12-17 Fri  Jari Aalto  <jari.aalto@cante.net>
 
+	* epackage.el (epackage-cmd-download-package): Correct mesages
+	to sat "download", not "install".
+	(epackage-cmd-download-package): Check download URL.
+	(epackage-cmd-download-sources-list): Call
+	`epackage-cmd-build-sources-list'.
+	(epackage-download-sources-list): Remove interactive and ###autoload.
+	(epackage-fetch-field-status): New.
+	(epackage-pkg-info-fetch-field-status): New.
+	(epackage-pkg-info-fetch-field-depends): New.
+	(epackage-pkg-info-fetch-field-status): New.
+	(epackage-pkg-info-status-p): New.
+	(epackage-pkg-info-status-unmaintained-p): New.
+	(epackage-pkg-info-status-emacs-p): New.
+	(epackage-pkg-info-status-broken-p): New.
+	(epackage-pkg-info-status-unsafe-p): New.
+	(epackage-cmd-download-package): Display warnings after
+	package download.
+	(epackage-pkg-info-status-warnings): New.
+
 	* README (Project details): Add link to manual.
 
 2010-12-16 Thu  Jari Aalto  <jari.aalto@cante.net>
@@ -9,7 +28,7 @@
 	"Depends:" field documentation.
 	(epackage-pkg-depends-resolve): Mention epackage
 	name in messages.
-	(epackage-run-action-list): Add 'sort'.
+	(epackage-run-action-list): Add `sort'.
 	(epackage-pkg-depends-rollback): New.
 	(epackage--depends-satisfy-running): New.
 	(epackage--download-action-list): Add action `xboot'. Rename

@@ -429,7 +429,7 @@
 ;;      the install parts safely together:
 ;;
 ;;              ls |
-;;		egrep -vi '00|clean|compile|configure|examples|uninstall' |
+;;              egrep -vi '00|clean|compile|configure|examples|uninstall' |
 ;;              xargs cat > PACKAGE-00.el
 ;;
 ;;     The *-0loaddefs.el
@@ -461,12 +461,12 @@
 ;;
 ;;     The *-clean.el
 ;;
-;;	This file contains command to remove files that can be
-;;	generated. It is used only with bigger packages that come with
-;;	a `Makefile' or `./configure' script. Mnemonic: "Same as if
-;;	you would run 'make clean'". Exception: the byte compiled
-;;	files do not need deleting. They will be deleted by
-;;	epackage.el prior calling this file.
+;;      This file contains command to remove files that can be
+;;      generated. It is used only with bigger packages that come with
+;;      a `Makefile' or `./configure' script. Mnemonic: "Same as if
+;;      you would run 'make clean'". Exception: the byte compiled
+;;      files do not need deleting. They will be deleted by
+;;      epackage.el prior calling this file.
 ;;
 ;;     The *-compile.el
 ;;
@@ -487,10 +487,10 @@
 ;;
 ;;     The *-configure.el
 ;;
-;;	This file contains command to configure the extension's build
-;;	system. It is used only with bigger packages that come with a
-;;	`Makefile' or `./configure' script. Mnemonic: "Same as if you would
-;;	invoke ./configure".
+;;      This file contains command to configure the extension's build
+;;      system. It is used only with bigger packages that come with a
+;;      `Makefile' or `./configure' script. Mnemonic: "Same as if you would
+;;      invoke ./configure".
 ;;
 ;;     The *-examples.el
 ;;
@@ -1027,6 +1027,20 @@
 ;;      you can start maintaining an old extension to bring it new
 ;;      life and becoming the new upstream.
 ;;
+;;     Depends and removing packages
+;;
+;;      The depends system was added to *ease* *installing* of
+;;      packages. But we can't have one without touching the other
+;;      issues: what if package is removed? Say package A requires
+;;      both B and C. Currently user has total control and can remove
+;;      package C and make A non-working. Nothing checks prevent
+;;      removing or disabling packages as one wishes. In order to do
+;;      the removals in a safe fashion, the dependency graphs of all
+;;      packages would need to be collected and maintained.
+;;
+;;      Indeed, writing a depends system is challenging. Currently this
+;;	software lacks dependency checks during package removals.
+;;
 ;;     Version
 ;;
 ;;      Why is there no "Version:" field in the `info' file? The Git
@@ -1066,7 +1080,7 @@
 ;;      o   Git tags (versions of packages), where is this information kept?
 ;;          Affects GUI.
 ;;
-;;	o   New updates available? Git polling mechanism with idle timers?
+;;      o   New updates available? Git polling mechanism with idle timers?
 ;;
 ;;      o   What if user has made local customizations?
 ;;          Branch != master. => leave if alone and mark it
@@ -1088,9 +1102,9 @@
 ;;      o   Rescan current information? (what is installed, what is not)
 ;;          => Keep cache? Or regenerate, or scan at startup every time?
 ;;
-;;	Extensions
+;;      Extensions
 ;;
-;;	o   Big packages that come with configure? What to do with them?
+;;      o   Big packages that come with configure? What to do with them?
 ;;
 ;;      Some day in the future:
 ;;
@@ -1103,6 +1117,9 @@
 ;;         What about security considerations? Is there any need, because
 ;;         these are Git repositories and maintainers should be trusted
 ;;         => possible solution: require detached GPG signing of *-compile.el
+;;	o  Package removal: present some analysis command to show what
+;;	   would happen if package X would be removed. Is other packages
+;;	   depending on X or can it be removed safely?
 
 ;;; Change Log:
 
@@ -1119,7 +1136,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1217.0815"
+(defconst epackage-version-time "2010.1217.1654"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2178,6 +2195,12 @@ Remove 1 space indentation and paragraph separators(.) characters."
     (setq long (replace-regexp-in-string "^\\.[ \t]*$" "" long))
     (list short long)))
 
+(defun epackage-fetch-field-status ()
+  "Return content of 'Status:'. Items are separated by spaces."
+  (let ((str (epackage-fetch-field "Status")))
+    (when str
+      (replace-regexp-in-string "[ \t\r\n]+" " " str))))
+
 (defun epackage-depends-parse-collect ()
   "Collect items from buffer prepared by `epackage-depends-parse-buffer'.
 
@@ -2243,17 +2266,68 @@ See `epackage-depends-parse-collect' for returned value format."
 
 (defsubst epackage-pkg-info-fetch-field (package field)
   "Read PACKAGE and raw information from FIELD.
-Like `mail-fetch-field', but return value only if it exists.
 If field is empty or does not exist, return nil."
   (epackage-with-package-info-file package
     (epackage-fetch-field field)))
 
 (defsubst epackage-pkg-info-fetch-field-depends (package)
   "Read PACKAGE and information field 'Depends:' (preformatted).
-Like `mail-fetch-field', but return value only if it exists.
 See `epackage-depends-parse-collect' for returned value format."
   (epackage-with-package-info-file package
     (epackage-fetch-field-depends)))
+
+(defsubst epackage-pkg-info-fetch-field-status (package)
+  "Read PACKAGE and information field 'Status:'."
+  (epackage-with-package-info-file package
+    (epackage-fetch-field-status)))
+
+(defsubst epackage-pkg-info-status-p (package regexp)
+  "Check if PACKAGE's status matches REGEXP.
+Return subexpression 1, or 0; the one that exists."
+  (let ((str (epackage-pkg-info-fetch-field-status package)))
+    (if (string-match regexp (or str ""))
+        (or (match-string-no-properties 1 str)
+            (match-string-no-properties 0 str)))))
+
+(defsubst epackage-pkg-info-status-unmaintained-p (package)
+  "Check if PACKAGE is marked unmaintained."
+  (epackage-pkg-info-status-p package "unmaintained"))
+
+(defsubst epackage-pkg-info-status-emacs-p (package)
+  "Check if PACKAGE is included in core Emacs."
+  (epackage-pkg-info-status-p
+   package "core-emacs-?\\([0-9.]+\\)?"))
+
+(defsubst epackage-pkg-info-status-broken-p (package)
+  "Check if PACKAGE is marked broken."
+  (epackage-pkg-info-status-p
+   package "broken"))
+
+(defsubst epackage-pkg-info-status-unsafe-p (package)
+  "Check if PACKAGE is marked broken."
+  (epackage-pkg-info-status-p
+   package "unsafe"))
+
+(defsubst epackage-pkg-info-status-warnings (package)
+  "Return warnings for package."
+  (let ((str (epackage-pkg-info-fetch-field-status package))
+        list
+        status)
+    (when str
+      (if (string-match "core[^ \t]+" str)
+          (epackage-push (match-string 0 str) list))
+      (if (string-match "unmaintained" str)
+          (epackage-push "unmaintained" list))
+      (if (string-match "broken" str)
+          (epackage-push "broken" list))
+      (if list
+          (setq status (mapconcat
+                        #'concat
+                        (sort list
+                              (lambda (a b)
+                                (string< a b)))
+                        " ")))
+      status)))
 
 (defsubst epackage-git-branch-list-master-p (list)
   "Return non-nil if current branch LIST indicates master as current branch."
@@ -3830,6 +3904,15 @@ If optional VERBOSE is non-nil, display progress messages."
             (epackage-cmd-upgrade-package elt verbose)))
       (epackage-verbose-message "No packages downloaded to upgrade"))))
 
+(defun epackage-cmd-build-sources-list (&optional verbose)
+  "Build sources list file.
+If optional VERBOSE is non-nil, display progress messages."
+  (if (epackage-sources-list-p)
+      (epackage-with-message verbose "Building package sources list"
+        (epackage-build-sources-list verbose))
+    (epackage-with-message verbose "Initializing package sources list"
+      (epackage-build-sources-list verbose))))
+
 ;;;###autoload
 (defun epackage-cmd-download-sources-list (&optional verbose)
   "Download or upgrade package list; the yellow pages of package repositories.
@@ -3837,36 +3920,35 @@ If optional VERBOSE is non-nil, display progress messages."
   (interactive
    (list 'interactive))
   (if (epackage-sources-list-p)
-      (epackage-with-message verbose "Upgrading package list"
-        (epackage-upgrade-sources-list verbose))
-    (epackage-with-message verbose "Wait, downloading package list"
-      (epackage-download-sources-list))))
-
-;;;###autoload
-(defun epackage-cmd-build-sources-list (&optional verbose)
-  "Build sources list file.
-If optional VERBOSE is non-nil, display progress messages."
-  (interactive
-   (list 'interactive))
-  (if (epackage-sources-list-p)
-      (epackage-with-message verbose "Building package sources list"
-        (epackage-build-sources-list verbose))
-    (epackage-with-message verbose "Initializing package sources list"
-      (epackage-build-sources-list))))
+      (epackage-with-message verbose "Upgrading sources list"
+        (epackage-upgrade-sources-list verbose)
+        (epackage-cmd-build-sources-list verbose))
+    (epackage-with-message verbose "Wait, downloading sources list"
+      (epackage-download-sources-list verbose))))
 
 ;;;###autoload
 (defun epackage-cmd-download-package (package &optional verbose)
   "Download PACKAGE, but do not install it.
 If optional VERBOSE is non-nil, display progress messages."
   (interactive
-   (list (epackage-cmd-select-package "Install epackage: ")
+   (list (epackage-cmd-select-package "Download epackage: ")
          'interactive))
   (if (not (epackage-string-p package))
-      (epackage-message "No packages selected for install.")
+      (epackage-message "No packages selected for download.")
     (if (epackage-package-downloaded-p package)
-        (epackage-message "Skip, package already downloaded: %s" package)
-      (epackage-download-package package verbose)
-      (epackage-run-action-list package verbose))))
+        (epackage-message "Ignore download. Already downloaded: %s" package)
+      (let ((url (epackage-sources-list-info-url package)))
+        (if (not url)
+            (epackage-message
+              "Abort download. No known URL for package: %s" package)
+          (epackage-download-package package verbose)
+          (epackage-run-action-list package verbose))
+        (when verbose
+          (let ((warnings (epackage-pkg-info-status-warnings package)))
+            (if warnings
+                (epackage-warn
+                 "package status %s: %s"
+                 package warnings))))))))
 
 ;;;###autoload
 (defun epackage-cmd-remove-package (package &optional verbose)
