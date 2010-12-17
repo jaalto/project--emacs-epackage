@@ -413,7 +413,9 @@
 ;;              info                  required: The information file
 ;;              PACKAGE-0loaddefs.el  optional: extracted ###autoload statements
 ;;              PACKAGE-autoloads.el  optional: autoload statements (manual)
+;;              PACKAGE-clean.el      optional: Code to run "make clean" equivalent
 ;;              PACKAGE-compile.el    optional: Code to byte compile the extension
+;;              PACKAGE-configure.el  optional: Code to run ./configure
 ;;              PACKAGE-examples.el   optional: Customization examples
 ;;              PACKAGE-install.el    required: Code to make the extension available
 ;;              PACKAGE-uninstall.el  optional: Code to remove the extension
@@ -424,9 +426,10 @@
 ;;      combined in a single loader file. Loading a single file is
 ;;      faster than spending time in loading small file along
 ;;      `load-path'. The alphabetic order makes it possible to combine
-;;      them safely together. Even on command line (for testing):
+;;      the install parts safely together:
 ;;
-;;              ls | egrep -vi '00|compile|examples|uninstall' | \
+;;              ls |
+;;		egrep -vi '00|clean|compile|configure|examples|uninstall' |
 ;;              xargs cat > PACKAGE-00.el
 ;;
 ;;     The *-0loaddefs.el
@@ -456,6 +459,15 @@
 ;;
 ;;          (provide 'PACKAGE-autoloads)
 ;;
+;;     The *-clean.el
+;;
+;;	This file contains command to remove files that can be
+;;	generated. It is used only with bigger packages that come with
+;;	a `Makefile' or `./configure' script. Mnemonic: "Same as if
+;;	you would run 'make clean'". Exception: the byte compiled
+;;	files do not need deleting. They will be deleted by
+;;	epackage.el prior calling this file.
+;;
 ;;     The *-compile.el
 ;;
 ;;      This file contains Emacs Lisp command to byte compile the
@@ -472,6 +484,13 @@
 ;;
 ;;      *Exception:* packages that only have a single *.el file do not
 ;;      need to define this file.
+;;
+;;     The *-configure.el
+;;
+;;	This file contains command to configure the extension's build
+;;	system. It is used only with bigger packages that come with a
+;;	`Makefile' or `./configure' script. Mnemonic: "Same as if you would
+;;	invoke ./configure".
 ;;
 ;;     The *-examples.el
 ;;
@@ -1069,6 +1088,10 @@
 ;;      o   Rescan current information? (what is installed, what is not)
 ;;          => Keep cache? Or regenerate, or scan at startup every time?
 ;;
+;;	Extensions
+;;
+;;	o   Big packages that come with configure? What to do with them?
+;;
 ;;      Some day in the future:
 ;;
 ;;      o   Verify Compatibility Level of downloaded epackage
@@ -1096,7 +1119,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1217.0750"
+(defconst epackage-version-time "2010.1217.0815"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
