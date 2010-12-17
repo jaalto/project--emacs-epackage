@@ -971,6 +971,11 @@
 ;;      o   Cannot ask for specific version of epackage, because the
 ;;          version information is only available *after* the package
 ;;          has been downloaded.
+;;      o   Cannot directly know that updates are available.
+;;          Because the is no central place to read, each repository
+;;          would need to be checked separately (network perfomance
+;;          penalty). In daily use, run command "upgrade all"
+;;          periodically.
 ;;
 ;;      In daily use these are not a problem in practise. If package X
 ;;      requires Y, the Y will be downloaded. If Y further requires Z,
@@ -1009,11 +1014,10 @@
 ;;
 ;;      Why is there no "Version:" field in the `info' file? There
 ;;      would be no need for it. The Git repository has tags that
-;;      announce all version of the package. There is no need to
-;;      manually keep in synch or update a separate "Version:" field
-;;      in `info' file in respect to upstream versions in the Git
+;;      lists all versions of the package. It would be manula work to
+;;      manually keep the info::Version field in synch with the Git
 ;;      repository. The "Version:" field may be introduced later if
-;;      adds something that is essential.
+;;      it adds something that is essential.
 ;;
 ;; TODO
 ;;
@@ -1028,8 +1032,8 @@
 ;;
 ;;      REPO
 ;;
-;;	o   Check validity of "git tag -l" and upstream/* against the
-;;	    specification. Two dashes etc.
+;;      o   Check validity of "git tag -l" and upstream/* against the
+;;          specification. Two dashes etc.
 ;;
 ;;      o   Better Fetch, pull conflict notifications. Now Git error.
 ;;
@@ -1093,7 +1097,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1217.0105"
+(defconst epackage-version-time "2010.1217.0111"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
