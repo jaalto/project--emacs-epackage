@@ -238,7 +238,7 @@
 ;;      o   U, upgrade all packages
 ;;      o   v<key>, view command. E.g (a)activation file, (i)info file.
 ;;      o   q, quit. Run `bury-buffer'.
-;;      o   x, execute (install, purge, remove).
+;;      o   x, execute marked (install, purge, remove).
 ;;
 ;;      Planned:
 ;;
@@ -250,70 +250,70 @@
 ;;          packaging or update contents of the 'info' file if some
 ;;          of the information in no up to date.
 ;;
-;;      The package state is shows with following status indicators:
+;;      The package state is shown with following status indicators:
 ;;
-;;      o   (A)ctivated. The package has been downloaded and code to
-;;          immediately activate the package has been taken into use.
-;;          This setting changes user's Emacs environment as defined
-;;          by the packager. The changes typically include modifying hook
-;;          to activate the package e.g. by file extension, adding
-;;          key bindings to activate the package etc. You might want
-;;          to use (v)iew command to see what exactly happens
-;;      o   (E)enabled. One step down from Activated state. Only interactive
+;;      o   *(A)ctivated*. The package has been downloaded and code to
+;;          immediately activate the package is in use. This setting
+;;          changes user's Emacs environment as defined by the
+;;          packager. The changes typically include modifying hooks to
+;;          activate the package e.g. by file extension, adding key
+;;          bindings to access new commands etc. You might want to
+;;          use (v)iew command to see what exactly happens.
+;;      o   *(E)enabled*. One step down from Activated state. Interactive
 ;;          functions and variables are provided in latent `autoload'
 ;;          state for user to call with `M-x' <function name>. User
-;;          configuration is not modified in any way.If you want full
-;;          control over package setup, set package to Enabled state
-;;          and add further code to Emacs startup file "/.emacs to
-;;          configure it
-;;      o   (I)installed. This is synonym for Downloaded. Package has
-;;          been fetched to local disk, but that is all. No setup
-;;          whatsoever.
+;;          configuration is not modified in any way. Some basic
+;;          setup changes like modifying `auto-mode-alist' to activate
+;;          modes for certain new file extensions may be provided.
+;;      o   *(a)autoloaded*. The package has been downloaded and code to
+;;          to provide autoloads to access package functions as been
+;;          installed. User can call features with `M-x' <function name>.
+;;          If you want full
+;;          control over package setup, set package to autoload state
+;;          and use `~/.emacs' Emacs startup file  to fully configure
+;;          the extension.
+;;      o   *(D)downloaded*. Package has been fetched to local disk,
+;;          but that is all. No setup whatsoever. Useful for complete
+;;          control and DIY setups.
 ;;      o   (u)unmaintained. The package has been flagged as unmaintained.
-;;      o   (b)uggy. The package contains remarks that it might be buggy
-;;          if installed.
+;;      o   (b)uggy. The package has been flagged to have problems if used.
 ;;      o   (c)ompiled. Package has been byte compiled.
-;;      o   (e)macs core. Package in included in latest core Emacs.
-;;      o   (x)emacs core. Package is included in latest core XEmacs.
+;;      o   (e)macs core. Package has been included in core Emacs.
+;;      o   (x)emacs core. Package has been already included in core XEmacs.
 ;;
-;;      Building the initial list of available packages takes some time
-;;      and this is done via open Internet connection. Install command
-;;      also requires an open Internet connection.
+;;      Building the initial list of available packages takes some
+;;      time at startup.
 ;;
-;;  The epackage system framework
+;;  The DELPS framework
 ;;
-;;      Quick links for developrs:
+;;      Quick links for developers:
 ;;
 ;;      o   https://github.com/jaalto/project--emacs-epackage-sources-list
 ;;      o   https://github.com/jaalto/project--emacs-epackage-template
 ;;
-;;      To explain how do all the pieces in this system go together,
-;;      lets take a look at the system overview. The system mirrors
-;;      the style of Debian packaging management. There are two
-;;      primary actors: (1) the epackage package maintainer and (2)
-;;      the upstream. These two can be the same person or two separate
-;;      persons.
+;;      The DELPS system was inspired by the Debian packaging
+;;      management. There are two primary actors: (1) the epackage
+;;      maintainer and (2) the upstream. These two can be the
+;;      same person or two separate persons. In the picture below:
 ;;
-;;      o   A = An Emacs user who wants to install new software
+;;      o   _A_ = An Emacs user who wants to install new software
 ;;      o   (Y)ellow pages = The sources list file that contains
 ;;          information about available epackages around the globe.
-;;      o   E = The epackage. Maintained by a person who has found an
+;;      o   _E_ = The epackage. Maintained by a person who has found an
 ;;          interesting utility and wrapped it in epackage format. He
 ;;          is the maintainer of epackaged software. He keeps
 ;;          track of new releases and makes new epackages periodically
 ;;          available. If the initial packager looses interest,
-;;          someone else can continue his work. He supplies the *url*
+;;          someone else can continue his work. He supplies the *URL*
 ;;          to the yellow pages to notify about availability of epackage.
-;;      o   U = Upstream. Person or team who wrote Emacs Lisp extension,
+;;      o   _U_ = Upstream. Person or team who wrote Emacs Lisp extension,
 ;;          the code or utility than enhances Emacs.
 ;;
-;;      The moving parts communicate like in picture below. In order
-;;      to find package, a yellow pages is consulted. It is seeded and
-;;      update by all the epackage maintainer that wish to make
-;;      epackages available. The user A does not need to know any
+;;      In order to find a package, the yellow pages is consulted. It is
+;;      seeded and update by all the epackage maintainers that wish to
+;;      make they work available. The user A does not need to know any
 ;;      details of this process; like in Debian, he installs an
-;;      epackage that is made newly available or which has been
-;;      updated and is upgradeable.
+;;      epackage or downloads upgrades to it.
 ;;
 ;;      o   The location of Yellow Pages is fixed (%).
 ;;      o   The location of E's and U's can be anywhere (*).
@@ -357,14 +357,14 @@
 ;;          epackage/               Under epackage--root-directory
 ;;          |
 ;;          +-- 00coonf/
-;;          |   epackage-loader.el     For user. One big boot file-
+;;          |   epackage-loader.el     For user. One big boot file.
 ;;          |   epackage-load-path.el  Internal. Used during byte-compile.
 ;;          |   sources.lst            Internal. Package sources.
 ;;          |
 ;;          +-- 00install/         Extension "install" files
 ;;          |   *-<type>.el        autoloads, install, activate...
 ;;          |
-;;          +--packages/           Version control repositories
+;;          +--packages/           Git DVCS repositories
 ;;             |
 ;;             +-- 00sources/      Yellow pages: list of available packages
 ;;             +-- package/        Downloaded package
@@ -391,7 +391,7 @@
 ;;          nicely by date. An example: `upstream/2009-12-31--0.3-devel'.
 ;;
 ;;      The same in pictures. The `master' contains merges from
-;;      `patches' and `upstream'.
+;;      `patches' and `upstream' branches:
 ;;
 ;;          patches        o - o (modifications; merged to master)
 ;;                       /
@@ -400,11 +400,11 @@
 ;;          master        o ---- o - =>         contains epackage/ directory
 ;;
 ;;      The epackage method borrows concept from Debian where a
-;;      separate control directory is used for package information.
+;;      separate control directory is used for packaging information.
 ;;      The directory name is `epackage/' and it is not configurable.
 ;;      The layout of an epackaged Emacs extension looks like:
 ;;
-;;          <PACKAGE, Emacs extension root dir>
+;;          <PACKAGE, the Emacs extension root dir>
 ;;          | <files and possible directories>
 ;;          |
 ;;          +- .git/                  Version control branches (see above)
@@ -414,7 +414,7 @@
 ;;              PACKAGE-0loaddefs.el  optional: extracted ###autoload statements
 ;;              PACKAGE-autoloads.el  optional: autoload statements (manual)
 ;;              PACKAGE-compile.el    optional: Code to byte compile the extension
-;;              PACKAGE-examples.el   optional: Custmization examples
+;;              PACKAGE-examples.el   optional: Customization examples
 ;;              PACKAGE-install.el    required: Code to make the extension available
 ;;              PACKAGE-uninstall.el  optional: Code to remove the extension
 ;;              PACKAGE-xactivate.el  optional: Code to activate the extension
@@ -431,10 +431,10 @@
 ;;
 ;;     The *-0loaddefs.el
 ;;
-;;      This file contains extracted ##autoload definitions. The file
+;;      This file contains extracted `##autoload' definitions. The file
 ;;      is usually automatically generated. The file does not modify
 ;;      user's environment. If extension does not contains any
-;;      `###autoload' definitions, the manually crafted *-install.el
+;;      `###autoload' definitions, the manually crafted `*-install.el'
 ;;      file can be used as a substitute. In case of missing
 ;;      `##autoload' stanzas, you're encouraged to contact upstream
 ;;      with a possible patch. The "zero" at the start of the name is
@@ -448,11 +448,11 @@
 ;;
 ;;      This file contains manually written `autoload' statements.
 ;;      This file acts as a backup if there is no `###auutoload'
-;;      definitions. Its purpose it to publish propective functions
-;;      (interactive or not) that might be called or used by the user.
-;;      Mnemonic: "if you load this file, you can write lisp code to
-;;      call the functions in the extension, or you can call
-;;      extension's interactive functions via M-x". The file ends in:
+;;      definitions. Its purpose it to publish prospective functions
+;;      (interactive or not) that might be called from programs or by
+;;      the user. Mnemonic: "if you load this file, you can write lisp
+;;      code to call the functions, or you can call extension's
+;;      interactive functions via `M-x'". The file ends in:
 ;;
 ;;          (provide 'PACKAGE-autoloads)
 ;;
@@ -460,11 +460,12 @@
 ;;
 ;;      This file contains Emacs Lisp command to byte compile the
 ;;      extension. The file is run at the root directory of the
-;;      extention with `load-path' set to include all the relevant
-;;      directories. Wvaluating the file must run all byte compilation
-;;      commands. All the variables and function defined here must
-;;      have `PACKAGE-*' prefix to keep the Emacs namespace clean. An
-;;      exmaple for simple extension consisting of two files:
+;;      extension with `load-path' set to include all the relevant
+;;      directories. Evaluating the file must byte compilation
+;;      everything needed. All the variables and functions defined here
+;;      must have `PACKAGE-*' prefix to keep the Emacs name space
+;;      clean. An exmaple for simple extension consisting of two
+;;      files:
 ;;
 ;;          (dolist (file '("foo-lib.el" "foo.el"))
 ;;            (byte-compile-file file))
@@ -474,38 +475,40 @@
 ;;
 ;;     The *-examples.el
 ;;
-;;      This file contans anything the upstream may have explained in
+;;      This file contains anything the upstream may have explained in
 ;;      the comments, or interesting snippets various users have found
-;;      useful to customize the extentiosn. It provides a showcase, or
-;;      scratchbook, to present anything that might be useful to be
+;;      useful to customize the extensions. It provides a showcase, or
+;;      scratch book, to present anything that might be useful to be
 ;;      put into `~/.emacs' startup file. Mnemonic: "Look examples in
-;;      this file for ideas how to take more out of the extension".
-;;      This file is _not_ intenede to be loaded and it should _not_
+;;      this file for ideas how to make more out of the extension".
+;;      This file is _not_ intended to be loadable and it must _not_
 ;;      contain any `provide' statements. In fact it is recommended that
-;;      any attempt to load this fle generates an error. The file starts
-;;      with:
+;;      any attempt to load this file generates an error. Add something
+;;      like this to the beginning of file:
 ;;
 ;;          (error "PACKAGE-examples.el is not a config file. Study the examples.")
 ;;
 ;;     The *-install.el
 ;;
-;;      This file is manually or automatically written. It publishes
-;;      user variables and interactive `M-x' functions in *autoload*
-;;      state. No modifications to user's Emacs setup is allowed. This
-;;      file is only necessary if extension does not contain proper
-;;      ###autoload statements. The *-install* in name refers to
-;;      installation, or availability for that matter, of interactive
-;;      functions. *Note:* try to avoid `require' or `load' commands
-;;      as much as possible; or delay their calls to the point where
-;;      user calls functions interactively. That helps keeping Emacs
-;;      startup fast and lean. Mnemonic: "if you load this file, you
-;;      can start calling extension's features". The file ends in:
+;;      This file publishes user variables and interactive `M-x'
+;;      functions in *autoload* state. It may contains conservative
+;;      changes to user's environment: those of modifying
+;;      `auto-mode-alist' or setting up hooks. The *-install* in name
+;;      refers to standard installation, or availability for that
+;;      matter, of interactive functions. *Note:* try to avoid
+;;      `require' or `load' commands as much as possible; or arrange
+;;      and delay their calls to the point where after user calls
+;;      functions interactively. That helps keeping Emacs startup fast
+;;      and lean. Mnemonic: "if you load this file, the extension is
+;;      up and ready to be used in your Emacs. You can start calling
+;;      extension's functions ot load new files that activate the
+;;      extension's features". The file ends in:
 ;;
 ;;          (provide 'PACKAGE-install)
 ;;
 ;;     The *-uninstall.el
 ;;
-;;      This file does the opposite of *-install.el and *-activate.el
+;;      This file does the opposite of `*-install.el' and `*-activate.el'
 ;;      It runs commands to remove the extension as if it has never
 ;;      been loaded. Due to the nature of Emacs, it is not really
 ;;      practical to completely try to uninstall the package. The
@@ -527,11 +530,11 @@
 ;;      features immediately in running Emacs. It is best that any
 ;;      custom settings, like variables and prefix keys, are defined
 ;;      in `~/.emacs' *before* this file gets loaded. As with
-;;      *-install.el, try to avoid `require' or `load' commands and
-;;      stick to `autoload'. Mnemonic: "If you load this file, the
+;;      `*-install.el', try to avoid any `require' or `load' commands
+;;      and stick to `autoload'. Mnemonic: "If you load this file, the
 ;;      bells and whistles are turned on". The "x" at the start of the
-;;      name is to help proper sorting ordering of all files. The file
-;;      ends in:
+;;      name is to help proper sorting ordering of configuration
+;;      files. The file ends in:
 ;;
 ;;          (provide 'PACKAGE-xactivate)
 ;;
@@ -541,12 +544,12 @@
 ;;      about the extension. The header field names are case
 ;;      insensitive; but if you use the default *get.sh*, it expects
 ;;      the Vcs-* field to be case-sensitive. Continued lines must be
-;;      indented with only 1 space. Required fields
-;;      are marked with asterisk (*). In the long description
-;;      part, new paragraphs are separated by a single dot(.)
-;;      character on their own line. The layout of the `info' mirrors
-;;      concepts of `control' file in Debian packaging system which is explained in
-;;      <http://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-Version>.
+;;      indented with only 1 space. Required fields are marked with
+;;      asterisk (*). In the long description part, new paragraphs are
+;;      separated by a single dot(.) character on their own line. The
+;;      layout of the `info' mirrors concepts of `control' file in
+;;      Debian packaging system which is explained in
+;;      <http://www.debian.org/doc/debian-policy/ch-controlfields.html>.
 ;;
 ;;          *Package: <unique name, all lowercase>
 ;;          *Section: <data | extensions | files | languages | mail | tools | M-x finder-list-keywords>
@@ -598,11 +601,11 @@
 ;;           With prefix argument, the corresponding lines are preserved while
 ;;           others are hidden.
 ;;           .
-;;           Note 2010-12-03 the code hasn't been touched since 2004.
+;;           Note: 2010-12-03 the code hasn't been touched since 2004.
 ;;
 ;;  Details of the info file fields
 ;;
-;;      Notes: Use one space to indent continued field. Limit maximum
+;;      Notes: Use one space to indent a continued field. Limit maximum
 ;;      line length to 80 characters. In Emacs, see variable
 ;;      `fill-column' and set it to a little less, like 75.
 ;;
@@ -613,26 +616,24 @@
 ;;      problems or update requests to the extension's epackage
 ;;      `Maintainer'.
 ;;
-;;    Commentary
+;;     Commentary
 ;;
 ;;      This field contains path, relative to epackage root directory,
 ;;      to single Emacs Lisp file which contains documentation
 ;;      suitable for `M-x' `finder-commentary'. In order to find
-;;      documentation, this field must exist even for single Emacs
-;;      Lisp file epackages. Extension developers should study
-;;      *lm-maint.el* and function `lm-commentary'. The documentation
-;;      read is encloded in the extension file between tags:
+;;      documentation, this field must exist even for epackages that
+;;      contain single Emacs Lisp file. Extension developers should
+;;      study core Emacs *lm-maint.el* and function `lm-commentary'.
+;;      The documentation read is enclosed in mentioned file between
+;;      tags:
 ;;
 ;;          ;;; Commentary:
-;;
-;;          ;;; <documentation>
-;;          ;;; <...>
 ;;
 ;;          ;;; Change Log:
 ;;
 ;;    Compat
 ;;
-;;      The compatibility level used in this epackage. The Epackage
+;;      The compatibility level used in the epackage. The Epackage
 ;;      format may change in time and this field indicates which the
 ;;      epackage layout version. If the value is missing or is empty,
 ;;      no specific compatibility level is required and latest is
@@ -643,70 +644,71 @@
 ;;     Conflicts
 ;;
 ;;      List of packages that must be removed before install can be
-;;      done. This field follow guidelines of
+;;      done. This field follows the guidelines of
 ;;      <http://www.debian.org/doc/debian-policy/ch-relationships.html>.
 ;;
 ;;     Depends (required)
 ;;
 ;;      List of dependencies in all lowercase: Emacs flavor and
-;;      external packages required. Do not list packages that are
-;;      included in core Emacs; that would be unnecessary and slow
-;;      down parsing. The Emacs flavor can have optional version
-;;      information enclosed in parenthesis using comparison operators
-;;      ">=", "<=" and logical "!". A between range is not defined.
-;;      The logical *or* operator works only between Emacs flavors and
-;;      is indicated with vertical bar "|".
+;;      external packages required. Listing packages that are included
+;;      in core Emacs would be unnecessary and slow down parsing. The
+;;      Emacs flavor can have an optional version information enclosed
+;;      in parenthesis using comparison operators ">=", "<=" and
+;;      logical "!". A between range is not defined. The logical *or*
+;;      operator works only between Emacs flavors and is indicated
+;;      with vertical bar "|".
 ;;
-;;      In case an extension works only with certain version of Emacs,
-;;      this information should be written to the end of
-;;      `Description'. (which see). Old packages that are not updated
-;;      to work for latest Emacs releases are candidate for removal
-;;      from a epackage archive's yellow pages. Examples:
+;;      In case an extension works only in imited versions of Emacs,
+;;      this information should be written to the end of `Description'
+;;      (which see). Old packages that are not updated to work for
+;;      latest Emacs releases are candidate for removal from the
+;;      official Epackage Yellow Pages sources list. Examples:
 ;;
-;;          Depends: emacs, cedet, bytecomp
-;;          Depends: emacs (>= 22.2) | xemacs (>= 20), cedet, bytecomp
+;;          Depends: emacs, foo
+;;          Depends: emacs (>= 22.2) | xemacs (>= 20), foo
 ;;
 ;;      To mark that package dows not work in XEmacs, use "!". The
 ;;      version parameter is ignored in logical *not*, parenhesis are
 ;;      still required:
 ;;
-;;          Depends: emacs (>= 22.2), xemacs (!), cedet, bytecomp
+;;          Depends: emacs (>= 22.2), xemacs (!), foo
 ;;
-;;      _Limitations_: The *vertical* *bar*, OR-operator(|), is not
-;;      general operator. It is only respected on the Emacs flavor
-;;      part. Using OR-operator anywhere else causes treating the
-;;      elments as required as if written "exension | extension" =>
-;;      "extenstion, extenstion".
+;;      _Limitations_: The *vertical* *bar*, OR-operator(|), is not in
+;;      general use. It is only respected on the Emacs flavor part.
+;;      Using OR-operator anywhere else causes treating the elments as
+;;      required as if written "exension | extension" => "extension,
+;;      extension".
 ;;
 ;;      The *version* *information* is a no-op anewhere else than
 ;;      Emacs flavor check. This kind of fine grained package
-;;      dependencies has never been in use with Emacs Lisp extenstion.
+;;      dependencies has never been in use with Emacs Lisp extension.
 ;;      There is no support for version numbers in Emacs Lisp commands
 ;;      `provide', `require', `load', `load-file' and `load-library'.
-;;      Extenstions typically check the avilable features with
+;;      Extensions typically check the available features with
 ;;      `boundp' and `fboundp' to see if they have the required
 ;;      environment. So don't write:
 ;;
-;;          Depends: emacs (>= 22.2), xemacs (!), cedet (>= 0.9)
-;;                                                      |
-;;                                       Will no tbe used
+;;          Depends: emacs (>= 22.2), xemacs (!), foo (>= 0.9)
+;;                                                    |
+;;                                     Will no tbe used
 ;;
 ;;      See also section "Development notes: depends".
 ;;
 ;;     Description (required)
 ;;
 ;;      The first line of this field is a concise description that
-;;      fits on maximum line length of 80 characters in order to
-;;      display "PACKAGE -- SHORT DESCRIPTION". The long description
-;;      is explained in paragraphs that are separated from each other
-;;      with a single (.) at its own line. The paragraphs are
-;;      recommended to be intended by one space.
+;;      fits on maximum line length of 80 characters; words
+;;      "Description: " included. The long description is explained
+;;      in following paragraphs. Parapgraphs are separated from each
+;;      other with a single dot(.) on their own lines. The paragraphs
+;;      are indented by one space.
 ;;
 ;;     Email
 ;;
-;;      The Upstream developer's name and email address(es). Multiple
-;;      developers are separated by commas. The role can be expressed
-;;      in RFC 2822 comment-parenthesis. An example:
+;;      The upstream developer's name and email address. Multiple
+;;      developers or alternative addresses are separated by commas.
+;;      The role can be expressed in RFC 2822 comment-parenthesis. An
+;;      example:
 ;;
 ;;              Email: John Doe (Author) <jdoe@example.com>,
 ;;               Joe Average (Co-developer) <jave@example.com>
@@ -718,40 +720,42 @@
 ;;      http://www.Sourceforge.com, http://Launchpad.net,
 ;;      http://Github.com, http://Bitbucket.com etc. The Freshmeat is
 ;;      especially good because it provides project information in
-;;      standardized manner. Through Freshmeat it is also possible to
-;;      browse related software and subscribe to announcements.
-;;      Freshmeat is also easy for the upstream developers to set up
-;;      because it requires no heavy project management; only links.
+;;      coherent manner. Through Freshmeat it is also possible to
+;;      browse related software and subscribe to project
+;;      announcements. Freshmeat is also easy for the upstream
+;;      developers to set up because it does not require heavy project
+;;      management; only links.
 ;;
-;;      In any case, the Homepage URL should not directly point to
-;;      developer's volatile personal homepage if there is alternative
-;;      choices. It is good idea to encourage "Garage" upstream
-;;      developers to set up their software at some project hosting
-;;      site because they include infrastructure for issue tracking.
-;;      For more information, see
+;;      In any case, the homepage URL should not directly point to the
+;;      developer's volatile personal homepage if there are
+;;      alternative choices. It is good idea to encourage "garage"
+;;      upstream developers to set up their software at some project
+;;      hosting site which encourage collaboration and provide
+;;      infrastructure e.g. for issue tracking. For more information,
+;;      see
 ;;      <http://en.wikipedia.org/wiki/Comparison_of_open_source_software_hosting_facilities>.
 ;;
 ;;     License
 ;;
-;;      If missing, the value is automatically assumed "GPL-2+". The valid
-;;      License abbreviations should follow list defined at
-;;      <http://wiki.debian.org/CopyrightFormat>. A special word "None"
-;;      should be used if the software has no license information in any of
-;;      the source files. Examples of valid license tokens:
+;;      The valid License abbreviations should follow list defined at
+;;      <http://wiki.debian.org/CopyrightFormat>. A special word
+;;      "None" should be used if the software has no license
+;;      information in any of the source files. Examples of valid
+;;      license tokens:
 ;;
 ;;              GPL-2, GPL-2+, GPL-3, GPL-3+, BSD, Apache-2.0
 ;;
 ;;     Maintainer
 ;;
-;;      This extension's epackage maintainer. Format is the same as in
+;;      The extension's epackage maintainer. Format is the same as in
 ;;      *Email* field. Contains the name and address of the person who
-;;      made this extension available in epackage format. If the
-;;      upstream is also the epackage mainainer, the content of this
+;;      made the extension available in epackage format. If the
+;;      upstream is also the epackage maintainer, the content of this
 ;;      field is identical to *Email* field.
 ;;
 ;;     Package (required)
 ;;
-;;      The name of the extension in all lowercase, satisfying regexp
+;;      The name of the epackage in all lowercase satisfying regexp
 ;;      "[a-z][a-z0-9-]+". Usually base name of the extension file or
 ;;      the canonical known name in case of bigger packages like
 ;;      "gnus". An example "html-helper-mode.el" => package name is
@@ -761,26 +765,33 @@
 ;;      packages can have the same name. Please notify upstream about
 ;;      the clash.
 ;;
+;;	Note: There may be exotically names extensions like "crypt++",
+;;	but the *epackage* name must not contains special characters
+;;	like "+". Name the epackage "crypt-plusplus" is nothing else
+;;	comes to mind or if upstream can't remove the special
+;;	characters.
+;;
 ;;     Recommends
 ;;
-;;      List of packages that current extension can support or take
-;;      advantage of. E.g this field would list package B if A can
-;;      take advantage of package B, but it is not a requirement to
-;;      install B for package A to work. This field is *not* used to
-;;      announce related packages. That information can be mentioned in
-;;      the end of `Description' in separate paragraph "SEE ALSO".
-;;      This field follow guidelines of
+;;      List of packages which the extension can support or take
+;;      advantage of. E.g. this field would list epackage B if A can
+;;      take advantage of package B. However it is not a requirement
+;;      to install B for package A to work. This field is *not* used
+;;      to announce related packages. That information can be
+;;      mentioned in the end of *Description* field in a separate
+;;      paragraph like "SEE ALSO". The *Recommends* field follows
+;;      guidelines of
 ;;      <http://www.debian.org/doc/debian-policy/ch-relationships.html#s-binarydeps>
 ;;
 ;;     Section (required)
 ;;
-;;      This field contains category for package. The valid keywords are
+;;      This field contains category keyword. The valid keywords are
 ;;      those listed in `M-x' `finder-list-keywords'.
 ;;
 ;;     Status
 ;;
-;;      This field lists information about the package. Each keyword
-;;      has a unique meaning. the allowed list:
+;;      This field lists succinct information about the package. Each
+;;      keyword has a unique meaning. the allowed list:
 ;;
 ;;          keyword := core-emacs[-NN.N]
 ;;                     | core-xemacs[-NN.N]
@@ -791,36 +802,38 @@
 ;;                     | unstable
 ;;                     | experimental
 ;;
-;;      The `core-*' values mark the package being included (or will
-;;      be) in the latest [X]Emacs. The optional NN.N announces in
-;;      which Emacs flavor the feature was included; e.g.
-;;      *core-emacs-22.1*. Value `unmaintained' means that the
+;;      The `core-*' values mark the extension or its features being
+;;      included (or will be) in the latest [X]Emacs. The optional
+;;      NN.N announces in which Emacs flavor the feature was included;
+;;      e.g. *core-emacs-22.1*. Value `unmaintained' means that the
 ;;      original developer has vanished or abandoned the project and
-;;      is no longer available for developing the package. Value
-;;      `unsafe' means that the not all the symbols are name space
-;;      clean (prefix-*), so some of the commands might clash with
-;;      existing ones. The current release status of package can be
-;;      indicated with term `stable' (no more actively developed, bugs
-;;      shaken out), `unstable' (package is in active development) and
-;;      `experimental' (no guarantees, not necessarily tested but this
-;;      is the latest code). Value `broken' means that package is
-;;      broken and does not work in some Emacs version (usually
-;;      latest).
+;;      is no longer available for contacting or further development.
+;;      Value `unsafe' means that the not all the symbols are name
+;;      space clean (prefix-*); meaning that some of the commands
+;;      might clash with existing ones. The current release status of
+;;      package can be indicated with terms `stable' (no more actively
+;;      developed, bugs shaken out), `unstable' (package is in active
+;;      development) or `experimental' (no guarantees, not necessarily
+;;      tested, this is the latest code). Value `broken' means that
+;;      there are ports of problems or that it may not work in some
+;;      Emacs version. Further information should be supplied in the
+;;	end of *Description:* field in section "BUGS" or similar.
 ;;
 ;;     Vcs-Browser
 ;;
-;;      The URL address to the version control browser of the repository.
-;;      This field follow guidelines of
+;;      The URL address to the version control browser of the upstream
+;;      repository. This field follows the guidelines of
 ;;      <http://www.debian.org/doc/developers-reference/best-pkging-practices.html#bpp-vcs>
 ;;
 ;;     Vcs-Type
 ;;
-;;      Version Control System type information. The value is the
-;;      lowercase name of the version control program; cvs, svn, bzr,
-;;      hg, git etc. A special value "http" can be used to signify
-;;      direct HTTP download. This field follow guidelines of
+;;      Version Control System type information of *Vcs-Browser*. The
+;;      value is the lowercase name of a version control program; cvs,
+;;      svn, bzr, hg, git etc. A special value "http" can be used to
+;;      signify direct HTTP download. This field follows the guidelines of
 ;;      <http://www.debian.org/doc/developers-reference/best-pkging-practices.html#bpp-vcs>.
-;;      An example of an Emacs extension hosted directly at a web page:
+;;      An example of an Emacs extension hosted directly at a web
+;;      page:
 ;;
 ;;          Vcs-Type: http
 ;;          Vcs-Url: http://www.emacswiki.org/emacs/download/vline.el
@@ -828,8 +841,8 @@
 ;;     Vcs-Url
 ;;
 ;;      The Version Control System repository URL without any options.
-;;      For CVS, this is the value of CVSROOT which includes also the
-;;      protocol name. This field follow guidelines of
+;;      For CVS, this is the value of `CVSROOT' which contains the
+;;      protocol name. This field follows the guidelines of
 ;;      <http://www.debian.org/doc/developers-reference/best-pkging-practices.html#bpp-vcs>.
 ;;      An example:
 ;;
@@ -849,32 +862,34 @@
 ;;
 ;;     Vcs-User
 ;;
-;;      The Version Control System repository's login name. In case the
-;;      repository cannot be accessed simply by visiting the `Vcs-Url' (or
-;;      in the case of CVS: pressing RETURN at login prompt), this is the
-;;      login name.
+;;      Login name used to access The Version Control System
+;;      repository. In case the repository cannot be accessed simply
+;;      by visiting the `Vcs-Url' (or in the case of CVS: pressing
+;;      RETURN at login prompt), this is the used login name;
+;;      typically `anonymous' or the like.
 ;;
 ;;     Vcs-Password
 ;;
-;;      The Version Control System repository's password. In some rare cases
-;;      a generic password, like "anonymous" to access repository, is needed.
+;;      Password for the Version Control System repository. In some
+;;      extremely rare cases a generic password, like "guest" to
+;;      access repository, may be needed.
 ;;
 ;;     Wiki
 ;;
-;;      This field points to extension page at
-;;      <http://www.emacswiki.org>. If extension does not yet have a
-;;      page yet, encourage upstream to create one.
+;;      This field points to extension page (or page that talks about
+;;      it) at <http://www.emacswiki.org>. If the extension does not
+;;      yet have a page, encourage upstream to create one.
 ;;
 ;;     X-*
 ;;
-;;      Any other custom field can be inserted using `X-*' field
-;;      notation. It is recommended that X-fields are listed at the bottom,
-;;      Just before `Description:' field.
+;;      Any other custom fields can be inserted by using the `X-*' field
+;;      notation. It is recommended that X-fields are listed at the
+;;      bottom, just before the *Description:* field.
 ;;
 ;;          X-Comment: <comment here>
 ;;          X-Upstream-Homepage: <URL>
 ;;
-;; Epackage Compatibility Levels
+;; Epackage compatibility levels
 ;;
 ;;      The latest epackage format is always described in section
 ;;      "Epackage specification" above. In here you can find list of
@@ -923,13 +938,13 @@
 ;;      work and other Open Source projects where I participate in and
 ;;      which maintain, take their share. For those reasons I have to
 ;;      regret that I will not be having resources to port or support
-;;      this utility to XEmacs. Please sned patches if you take the
+;;      this utility to XEmacs. Please send patches if you take the
 ;;      code to ride in XEmacs.
 ;;
 ;;     Depends
 ;;
 ;;      The *vertical* *bar*, OR-operator(|), is not really
-;;      implemented. The pacages "emacs" and "xemacs" are treated
+;;      implemented. The packages "emacs" and "xemacs" are treated
 ;;      specifically and the effect of "|" is actually the same as if
 ;;      it were written with comma:
 ;;
@@ -944,14 +959,14 @@
 ;;      which ispired the syntax used. The Debian packaging system is
 ;;      centralized, so it knows all the available packages and their
 ;;      version numbers, and can therefore build the full depends
-;;      lista and check if install is even possible. In contrast, the
+;;      list and check if install is even possible. In contrast, the
 ;;      epackages are *distributed* and the version information or
 ;;      further depends can only be determined after the package has
-;;      been downloaded and reading the "Depends:" field. Becasue of
+;;      been downloaded and reading the "Depends:" field. Because of
 ;;      this, the distributed system:
 ;;
 ;;      o   Cannot know beforehand what epackages would be required for X
-;;      o   Cannot know beforehand if it is posisble to even install
+;;      o   Cannot know beforehand if it is possible to even install
 ;;          package (to satisfy all depends).
 ;;      o   Cannot ask for specific version of epackage, because the
 ;;          version information is only available *after* the package
@@ -969,9 +984,9 @@
 ;;      Regarding the requirement for specific version of the package
 ;;      in form of:
 ;;
-;;          Depends: cedet (>= 0.9)
-;;                         |
-;;                         No-op. Will not be used
+;;          Depends: foo (>= 0.9)
+;;                       |
+;;                       No-op. Will not be used
 ;;
 ;;      Emacs extensions have never had any Perl like "use PACKAGE
 ;;      VERSION" statements, thus there is not much point of
@@ -984,7 +999,7 @@
 ;;      breaks due to change in some other extension, it is best to
 ;;      notify the original developer and get the code updated.
 ;;      Compatibility problems between extensions are usually
-;;      termporary. In case there is no longer upstream developer to
+;;      temporary. In case there is no longer upstream developer to
 ;;      fix things, the extension is best to be forgotten and removed
 ;;      from epackages. Or, if you have the time and skills, you can
 ;;      start maintaining an old extension and become the new
@@ -996,7 +1011,7 @@
 ;;      would be no need for it. The Git repository has tags that
 ;;      announce all version of the package. There is no need to
 ;;      manually keep in synch or update a separate "Version:" field
-;;      in `info' file in repect to upstream versions in the Git
+;;      in `info' file in respect to upstream versions in the Git
 ;;      repository. The "Version:" field may be introduced later if
 ;;      adds something that is essential.
 ;;
@@ -1015,7 +1030,7 @@
 ;;      REPO
 ;;
 ;;      o  Check validity of "git tag -l" and upstream/* against the
-;;         speficifation. Two dashes etc.
+;;         specification. Two dashes etc.
 ;;
 ;;      o   Better Fetch, pull conflict notifications. Now Git error.
 ;;
@@ -1079,7 +1094,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1216.2232"
+(defconst epackage-version-time "2010.1217.0104"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2400,18 +2415,18 @@ If optional VERBOSE is non-nil, display progress message."
     (with-current-buffer buffer
       (set-buffer-modified-p (not 'modified))
       (epackage-verbose-message
-	"Kill buffer (forced) %s" buffer-file-name)
+        "Kill buffer (forced) %s" buffer-file-name)
       (kill-buffer (current-buffer)))))
 
 (defun epackage-pkg-buffer-list (package)
   "Return list of opened file buffers of PACKAGE."
   (let ((regexp (regexp-quote (epackage-directory-package-root package)))
-	name
-	list)
+        name
+        list)
     (dolist (buffer (buffer-list))
       (when (and (setq name (buffer-file-name buffer))
-		 (string-match regexp name))
-	(epackage-push buffer list)))
+                 (string-match regexp name))
+        (epackage-push buffer list)))
     list))
 
 (defsubst epackage-pkg-kill-buffer-force (package &optional verbose)
@@ -3043,13 +3058,13 @@ If optional VERBOSE is non-nil, display progress message."
             value  (epackage-fetch-field field))
       (cond
        ((not (stringp value))
-	(epackage-verbose-message
-	  "[ERROR] Lint - missing required field: %s" field)
+        (epackage-verbose-message
+          "[ERROR] Lint - missing required field: %s" field)
         (setq status nil))
        ((not (string-match regexp value))
-	(epackage-verbose-message
-	  "[WARN] Lint - required field syntax error: %s => '%s'"
-	  field value)
+        (epackage-verbose-message
+          "[WARN] Lint - required field syntax error: %s => '%s'"
+          field value)
         (setq status nil))))
     status))
 
@@ -3058,15 +3073,15 @@ If optional VERBOSE is non-nil, display progress message."
 If optional VERBOSE is non-nil, display progress message."
   (with-current-buffer (find-file-noselect file)
     (let* ((dir (epackage-file-name-directory-previous
-		 (file-name-directory file)))
-	   (name (epackage-file-name-basename dir))
-	   (package (epackage-fetch-field "Package")))
+                 (file-name-directory file)))
+           (name (epackage-file-name-basename dir))
+           (package (epackage-fetch-field "Package")))
       (when (and verbose
-	       (stringp package)
-	       (not (string= package name)))
-	(epackage-verbose-message
-	 "[WARN] Lint - field Package does not match directory name: %s, %s"
-	 package name))
+               (stringp package)
+               (not (string= package name)))
+        (epackage-verbose-message
+         "[WARN] Lint - field Package does not match directory name: %s, %s"
+         package name))
     (epackage-pkg-lint-info-buffer verbose))))
 
 (defun epackage-pkg-lint-git-branches (dir &optional verbose)
@@ -3090,10 +3105,10 @@ If valid, return list of required branches."
         (cond
          ((null master)
           (epackage-verbose-message
-	    "[ERROR] Lint - missing required git branch: master"))
+            "[ERROR] Lint - missing required git branch: master"))
          ((null upstream)
           (epackage-verbose-message
-	    "[ERROR] Lint - missing required git branch: upstream"))))
+            "[ERROR] Lint - missing required git branch: upstream"))))
     (if (and master upstream)
         (list master upstream))))
 
@@ -3127,8 +3142,8 @@ Return:
                            name)))
       (when (and required
                  (not (file-exists-p path)))
-	(epackage-verbose-message
-	  "[ERROR] Lint - missing required file: %s" path)
+        (epackage-verbose-message
+          "[ERROR] Lint - missing required file: %s" path)
         (setq status nil)))
     status))
 
@@ -3146,9 +3161,9 @@ If invalid, return list of classified problems:
   (if (interactive-p)
       (setq verbose 'interactive))
   (let ((edir (format "%s%s"
-		      (file-name-as-directory dir)
-		      epackage--directory-name))
-	list)
+                      (file-name-as-directory dir)
+                      epackage--directory-name))
+        list)
     (unless (epackage-pkg-lint-git-branches dir verbose)
       (epackage-push 'git list))
     (cond
@@ -3159,17 +3174,17 @@ If invalid, return list of classified problems:
       (unless (epackage-pkg-lint-dir-structure dir verbose)
         (epackage-push 'files list))
       (let ((file
-	     (format "%s%s/%s"
-		     (file-name-as-directory dir)
-		     epackage--package-control-directory
-		     epackage--pkg-info-file-name)))
-	(cond
-	 ((file-exists-p file)
-	  (unless (epackage-pkg-lint-info-file file verbose)
-	    (epackage-verbose-message "[FATAL] Lint - Missing file: %s" info)
-	    (epackage-push 'info list)))
-	 (t
-	  (epackage-push 'info list))))))
+             (format "%s%s/%s"
+                     (file-name-as-directory dir)
+                     epackage--package-control-directory
+                     epackage--pkg-info-file-name)))
+        (cond
+         ((file-exists-p file)
+          (unless (epackage-pkg-lint-info-file file verbose)
+            (epackage-verbose-message "[FATAL] Lint - Missing file: %s" info)
+            (epackage-push 'info list)))
+         (t
+          (epackage-push 'info list))))))
     list))
 
 ;;;###autoload
@@ -3186,29 +3201,29 @@ Return:
   (let ((dir (epackage-directory-package-root package))
         point)
     (if (or (not dir)
-	    (not (file-directory-p dir)))
-	(if verbose
-	    (epackage-message "Can't Lint. Package does not exist: %s" dir)
-	  (epackage-error "Can't Lint. Package does not exist: %s" dir))
-      (prog1				; else
-	  (progn
-	    (with-current-buffer epackage--buffer-emacs-messages
-	      (setq point (point)))
-	    (epackage-pkg-lint-directory dir verbose))
-	(when verbose
-	  (let ((buffer (get-buffer-create epackage--buffer-lint)))
-	    (with-current-buffer buffer
-	      (insert (format "-- Lint %s %s\n"
-			      (epackage-time)
-			      dir)))
-	    (with-current-buffer epackage--buffer-emacs-messages
-	      ;; Start reading Lint messages
-	      (goto-char point)
-	      (while (re-search-forward
-		      "^Epackage:.+Lint - \\(.+\n\\)" nil t)
-		(append-to-buffer
-		 buffer (match-beginning 1) (match-end 1)))
-	      (display-buffer buffer))))))))
+            (not (file-directory-p dir)))
+        (if verbose
+            (epackage-message "Can't Lint. Package does not exist: %s" dir)
+          (epackage-error "Can't Lint. Package does not exist: %s" dir))
+      (prog1                            ; else
+          (progn
+            (with-current-buffer epackage--buffer-emacs-messages
+              (setq point (point)))
+            (epackage-pkg-lint-directory dir verbose))
+        (when verbose
+          (let ((buffer (get-buffer-create epackage--buffer-lint)))
+            (with-current-buffer buffer
+              (insert (format "-- Lint %s %s\n"
+                              (epackage-time)
+                              dir)))
+            (with-current-buffer epackage--buffer-emacs-messages
+              ;; Start reading Lint messages
+              (goto-char point)
+              (while (re-search-forward
+                      "^Epackage:.+Lint - \\(.+\n\\)" nil t)
+                (append-to-buffer
+                 buffer (match-beginning 1) (match-end 1)))
+              (display-buffer buffer))))))))
 
 (defun epackage-download-sources-list (&optional verbose)
   "Download sources list file, the yellow pages.
@@ -3850,10 +3865,10 @@ If optional VERBOSE is non-nil, display progress message."
       ;; to avoid or to work around the above question and avoid
       ;; killing buffers.
       (epackage-with-message verbose (format "Remove %s" package)
-	(epackage-config-delete-all package verbose)
-	(epackage-pkg-kill-buffer-force  package verbose)
-	(epackage-verbose-message "Remove directory %s" dir)
-	(delete-directory dir 'recursive))
+        (epackage-config-delete-all package verbose)
+        (epackage-pkg-kill-buffer-force  package verbose)
+        (epackage-verbose-message "Remove directory %s" dir)
+        (delete-directory dir 'recursive))
       (run-hooks 'epackage--install-remove-hook))))
 
 ;;;###autoload
@@ -4084,7 +4099,7 @@ Summary, Version, Maintainer etc."
   "Display downloaded extension's documentation."
   (interactive)
   (let ((package
-	 (epackage-cmd-select-package "Display package documentation: ")))
+         (epackage-cmd-select-package "Display package documentation: ")))
     (epackage-cmd-package-check-macro
         package
         'interactive
