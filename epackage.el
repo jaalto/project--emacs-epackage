@@ -717,10 +717,14 @@
 ;;
 ;;      The first line of this field is a concise description that
 ;;      fits on maximum line length of 80 characters; words
-;;      "Description: " included. The long description is explained
-;;      in following paragraphs. Parapgraphs are separated from each
-;;      other with a single dot(.) on their own lines. The paragraphs
-;;      are indented by one space.
+;;      "Description: " included. The long description should explain
+;;      the essential M-x commands to use the package. Like mentioning
+;;      M-x foo-mode or saying: "With standard install the mode is
+;;      activated if you load file ending to *.xxx" etc. The details
+;;      of an extension are explained in the following paragraphs
+;;      which are separated from each other with a single dot(.) on
+;;      their own lines. The long description's paragraphs are
+;;      indented by one space.
 ;;
 ;;     Email
 ;;
@@ -1136,7 +1140,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1217.1654"
+(defconst epackage-version-time "2010.1217.1700"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
