@@ -12,6 +12,7 @@
 	(epackage-cmd-upgrade-package): complete only downloaded
 	package list.
 	(epackage-cmd-upgrade-all-packages): Adjust return values.
+	(epackage-config-install-autoload): Use 'noerr.
 
 2010-12-17 Fri  Jari Aalto  <jari.aalto@cante.net>
 

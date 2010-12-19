@@ -1140,7 +1140,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1219.1336"
+(defconst epackage-version-time "2010.1219.1338"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2687,8 +2687,8 @@ TYPE is car of `epackage--layout-mapping'."
   "Install PACKAGE autoload files.
 If optional VERBOSE is non-nil, display progress message."
   (let ((status
-         (or (epackage-config-install-action 'loaddefs package 'noerr)
-             (epackage-config-install-action 'autoload package nil verbose))))
+         (or (epackage-config-install-action 'loaddefs package 'noerr verbose)
+             (epackage-config-install-action 'autoload package 'noerr verbose))))
     (when status
       (run-hooks 'epackage--install-autoload-hook)
       status)))
