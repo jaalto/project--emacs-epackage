@@ -11,6 +11,7 @@
 	(epackage-cmd-upgrade-all-packages): Move location.
 	(epackage-cmd-upgrade-package): complete only downloaded
 	package list.
+	(epackage-cmd-upgrade-all-packages): Adjust return values.
 
 2010-12-17 Fri  Jari Aalto  <jari.aalto@cante.net>
 

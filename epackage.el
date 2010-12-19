@@ -1140,7 +1140,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1219.1316"
+(defconst epackage-version-time "2010.1219.1317"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -4048,8 +4048,10 @@ If optional VERBOSE is non-nil, display progress messages."
     (if list
         (epackage-with-message verbose "Wait, upgrading all packages"
           (dolist (elt list)
-            (epackage-cmd-upgrade-package elt verbose)))
-      (epackage-verbose-message "No packages downloaded to upgrade"))))
+            (epackage-cmd-upgrade-package elt verbose))
+          t)
+      (epackage-verbose-message "No packages downloaded to upgrade")
+      nil)))
 
 ;;;###autoload
 (defun epackage-initialize (&optional verbose)
