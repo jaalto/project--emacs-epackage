@@ -1,3 +1,12 @@
+2010-12-19 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-cmd-enable-package): Send 'noerr
+	to `epackage-config-install-action'.
+	(epackage-config-install-action): Run `epackage--install-autoload-hook'
+	only on success.
+	(epackage-cmd-activate-package): Add error handling if activate
+	file is not present.
+
 2010-12-17 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-cmd-download-package): Correct mesages

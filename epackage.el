@@ -1,4 +1,4 @@
-;;; epackage.el --- Distributed Emacs Lisp package system (DELPS)
+;;; epackage.el --- Distributed Emacs Lisp Package System (DELPS)
 
 ;; This file is not part of Emacs
 
@@ -20,7 +20,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program. If not, see <http://www.gnu.org/licenses/>.
 ;;
-;; Visit <http://www.gnu.org/copyleft/gpl.html> for more information
+;; Visit <http://www.gnu.org/copyleft/gpl.html> for more information.
 
 ;; Depends:
 
@@ -642,7 +642,7 @@
 ;;      suitable for `M-x' `finder-commentary'. In order to find
 ;;      documentation, this field must exist even for epackages that
 ;;      contain single Emacs Lisp file. Extension developers should
-;;      study core Emacs *lm-maint.el* and function `lm-commentary'.
+;;      study core Emacs *lisp-mnt.el* and function `lm-commentary'.
 ;;      The documentation read is enclosed in mentioned file between
 ;;      tags:
 ;;
@@ -1043,7 +1043,7 @@
 ;;      packages would need to be collected and maintained.
 ;;
 ;;      Indeed, writing a depends system is challenging. Currently this
-;;	software lacks dependency checks during package removals.
+;;      software lacks dependency checks during package removals.
 ;;
 ;;     Version
 ;;
@@ -1121,9 +1121,9 @@
 ;;         What about security considerations? Is there any need, because
 ;;         these are Git repositories and maintainers should be trusted
 ;;         => possible solution: require detached GPG signing of *-compile.el
-;;	o  Package removal: present some analysis command to show what
-;;	   would happen if package X would be removed. Is other packages
-;;	   depending on X or can it be removed safely?
+;;      o  Package removal: present some analysis command to show what
+;;         would happen if package X would be removed. Is other packages
+;;         depending on X or can it be removed safely?
 
 ;;; Change Log:
 
@@ -1140,7 +1140,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1217.1700"
+(defconst epackage-version-time "2010.1219.1301"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2188,10 +2188,8 @@ Remove 1 space indentation and paragraph separators(.) characters."
         long)
     (if (string-match "^\\(.+\\)$" str)
         (setq short (match-string 1 str)))
-    ;;  FIXME. We suppose the caret(^) does not appear in reglar text,
-    ;;  otherwise matching the continuing lines would present a more
-    ;;  challenging regexp.
-    (if (string-match "^\\( [^^]+\\)" str)
+    ;; The \177 is just arbitrary code that will not appear in text.
+    (if (string-match "^\\( [^\177]+\\)" str)
         (setq long (match-string 1 str)))
     ;; Remove one-space indentation
     (setq long (replace-regexp-in-string "^ " "" long))
@@ -2681,8 +2679,9 @@ TYPE is car of `epackage--layout-mapping'."
   (let ((from (epackage-directory-packages-control-file
                package type))
         (to (epackage-file-name-install-compose package type)))
-    (epackage-enable-file from to noerr verbose)
-    (run-hooks 'epackage--install-type-hook)))
+    (when (epackage-enable-file from to noerr verbose)
+      (run-hooks 'epackage--install-type-hook)
+      t)))
 
 (defun epackage-config-install-autoload (package &optional verbose)
   "Install PACKAGE autoload files.
@@ -3786,8 +3785,10 @@ If optional VERBOSE is non-nil, display progress message."
     (cond
      ((epackage-package-downloaded-p package)
       (epackage-config-install-autoload package verbose)
-      (epackage-config-install-action 'enable package nil verbose)
-      (run-hooks 'epackage--install-enable-hook))
+      (if (epackage-config-install-action 'enable package 'noerr verbose)
+          (run-hooks 'epackage--install-enable-hook)
+        (epackage-message
+          "Broken epackage; contact maintainer. Cannot find enable file.")))
      (t
       (if (eq verbose 'interactive)
           (epackage-message
@@ -3836,8 +3837,10 @@ If optional VERBOSE is non-nil, display progress message."
     (cond
      ((epackage-package-downloaded-p package)
       (epackage-config-install-autoload package verbose)
-      (epackage-config-install-action 'activate package nil verbose)
-      (run-hooks 'epackage--install-activate-hook))
+      (if (epackage-config-install-action 'activate package 'noerr verbose)
+          (run-hooks 'epackage--install-activate-hook)
+        (epackage-message
+          "Activate ignored. Package does not have optional activate file.")))
      (t
       (if (eq verbose 'interactive)
           (epackage-message
