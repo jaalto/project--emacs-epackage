@@ -1140,7 +1140,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1219.1301"
+(defconst epackage-version-time "2010.1219.1316"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -3879,8 +3879,12 @@ If optional VERBOSE is non-nil, display progress message."
   "Clean all install configuration files of PACKAGE.
 If optional VERBOSE is non-nil, display progress message."
   (interactive
-   (list (epackage-cmd-select-package "Disable epackage: ")
-         'interactive))
+   (let ((list (epackage-status-downloaded-packages)))
+     (list
+      (if list
+          (epackage-cmd-select-package "Disable epackage: " list)
+        nil
+        'interactive))))
   (epackage-cmd-package-check-macro
       package
       verbose
@@ -3896,20 +3900,6 @@ If optional VERBOSE is non-nil, display progress message."
           "Nothing to clean. No files installed for package: %s"
           package)))
       list)))
-
-;;;###autoload
-(defun epackage-cmd-upgrade-all-packages (&optional verbose)
-  "Upgrade all downloaded packages.
-Install new configurations if package has been enabled.
-If optional VERBOSE is non-nil, display progress messages."
-  (interactive
-   (list 'interactive))
-  (let ((list (epackage-status-downloaded-packages)))
-    (if list
-        (epackage-with-message verbose "Wait, upgrading all packages"
-          (dolist (elt list)
-            (epackage-cmd-upgrade-package elt verbose)))
-      (epackage-verbose-message "No packages downloaded to upgrade"))))
 
 (defun epackage-cmd-build-sources-list (&optional verbose)
   "Build sources list file.
@@ -3958,16 +3948,45 @@ If optional VERBOSE is non-nil, display progress messages."
                  package warnings))))))))
 
 ;;;###autoload
+(defun epackage-cmd-lint-package (package &optional verbose)
+  "Lint, i.e. syntax check, PACKAGE.
+If optional VERBOSE is non-nil, display progress messages."
+  (interactive
+   (list (epackage-cmd-select-package "Lint epackage: ")
+         'interactive))
+  (if (not (epackage-string-p package))
+      (epackage-message "No packages selected for download.")
+    (if (epackage-package-downloaded-p package)
+        (epackage-message "Ignore download. Already downloaded: %s" package)
+      (let ((url (epackage-sources-list-info-url package)))
+        (if (not url)
+            (epackage-message
+              "Abort download. No known URL for package: %s" package)
+          (epackage-download-package package verbose)
+          (epackage-run-action-list package verbose))
+        (when verbose
+          (let ((warnings (epackage-pkg-info-status-warnings package)))
+            (if warnings
+                (epackage-warn
+                 "package status %s: %s"
+                 package warnings))))))))
+
+;;;###autoload
 (defun epackage-cmd-remove-package (package &optional verbose)
   "Physically remove PACKAGE and its configuration files from disk.
 If optional VERBOSE is non-nil, display progress message."
   (interactive
-   (list (epackage-cmd-select-package "Remove epackage: ")
-         'interactive))
-  (epackage-cmd-disable-package package verbose)
-  (let ((dir (epackage-package-downloaded-p package)))
+   (let ((list (epackage-status-downloaded-packages)))
+     (list
+      (if list
+          (epackage-cmd-select-package "Remove epackage: " list)
+        nil
+        'interactive))))
+  (if (stringp package)
+      (epackage-cmd-disable-package package verbose))
+  (let ((dir (and (stringp package)
+                  (epackage-package-downloaded-p package))))
     (if (not dir)
-        ;; FIXME: check verbose?
         (epackage-verbose-message
           "Remove ignored. Package not downloaded: %s"
           package)
@@ -3983,7 +4002,8 @@ If optional VERBOSE is non-nil, display progress message."
         (epackage-pkg-kill-buffer-force  package verbose)
         (epackage-verbose-message "Remove directory %s" dir)
         (delete-directory dir 'recursive))
-      (run-hooks 'epackage--install-remove-hook))))
+      (run-hooks 'epackage--install-remove-hook)
+      t)))
 
 ;;;###autoload
 (defun epackage-cmd-upgrade-package (package &optional verbose)
@@ -3991,11 +4011,18 @@ If optional VERBOSE is non-nil, display progress message."
 Install new configurations if package has been enabled.
 If optional VERBOSE is non-nil, display progress messages."
   (interactive
-   (list (epackage-cmd-select-package "Upgrade epackage: ")
-         'interactive))
+   (let ((list (epackage-status-downloaded-packages)))
+     (list
+      (if list
+          (epackage-cmd-select-package "Upgrade epackage: " list)
+        nil
+        'interactive))))
   (cond
+   ((and (eq verbose 'interactive)
+         (null package))
+    (epackage-message "No packages downloaded. Nothing to upgrade."))
    ((not (epackage-string-p package))
-    (epackage-message "No epackage selected for upgrade."))
+    (epackage-message "No package selected for upgrade."))
    ((not (epackage-package-downloaded-p package))
     (epackage-message "Package not downloaded: %s" package))
    ((not (epackage-git-master-p package))
@@ -4009,6 +4036,20 @@ If optional VERBOSE is non-nil, display progress messages."
     ;; - Auto-install, auto-activate?
     ;; - obsolete 00control/* files ?
     )))
+
+;;;###autoload
+(defun epackage-cmd-upgrade-all-packages (&optional verbose)
+  "Upgrade all downloaded packages.
+Install new configurations if package has been enabled.
+If optional VERBOSE is non-nil, display progress messages."
+  (interactive
+   (list 'interactive))
+  (let ((list (epackage-status-downloaded-packages)))
+    (if list
+        (epackage-with-message verbose "Wait, upgrading all packages"
+          (dolist (elt list)
+            (epackage-cmd-upgrade-package elt verbose)))
+      (epackage-verbose-message "No packages downloaded to upgrade"))))
 
 ;;;###autoload
 (defun epackage-initialize (&optional verbose)

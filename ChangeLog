@@ -6,6 +6,11 @@
 	only on success.
 	(epackage-cmd-activate-package): Add error handling if activate
 	file is not present.
+	(epackage-cmd-clean-package): Complete only downloaded packages.
+	Handle situation where no packages have been downloaded.
+	(epackage-cmd-upgrade-all-packages): Move location.
+	(epackage-cmd-upgrade-package): complete only downloaded
+	package list.
 
 2010-12-17 Fri  Jari Aalto  <jari.aalto@cante.net>
 
