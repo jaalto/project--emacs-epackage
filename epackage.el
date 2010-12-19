@@ -1140,7 +1140,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1219.1317"
+(defconst epackage-version-time "2010.1219.1336"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -3883,8 +3883,8 @@ If optional VERBOSE is non-nil, display progress message."
      (list
       (if list
           (epackage-cmd-select-package "Disable epackage: " list)
-        nil
-        'interactive))))
+        nil)
+      'interactive)))
   (epackage-cmd-package-check-macro
       package
       verbose
@@ -3980,8 +3980,8 @@ If optional VERBOSE is non-nil, display progress message."
      (list
       (if list
           (epackage-cmd-select-package "Remove epackage: " list)
-        nil
-        'interactive))))
+        nil)
+      'interactive)))
   (if (stringp package)
       (epackage-cmd-disable-package package verbose))
   (let ((dir (and (stringp package)
@@ -4015,8 +4015,8 @@ If optional VERBOSE is non-nil, display progress messages."
      (list
       (if list
           (epackage-cmd-select-package "Upgrade epackage: " list)
-        nil
-        'interactive))))
+        nil)
+      'interactive)))
   (cond
    ((and (eq verbose 'interactive)
          (null package))
@@ -4027,8 +4027,7 @@ If optional VERBOSE is non-nil, display progress messages."
     (epackage-message "Package not downloaded: %s" package))
    ((not (epackage-git-master-p package))
     (epackage-message
-     "Upgrade ignored. Locally modified. Branch is not \"master\" in %s"
-     (epackage-directory-package-root package)))
+     "Upgrade ignored. Locally modified. Branch is not \"master\" in %s"))
    (t
     (epackage-upgrade-package package verbose)
     ;; FIXME: Add post-processing
