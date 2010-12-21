@@ -64,6 +64,10 @@
 ;;  command line UI:
 ;;
 ;;      emacs --batch -Q -l /path/to/epackage.el -f epackage-batch-ui-menu
+;;
+;; WARNING: Make sure no *alias* commands override those of standard git
+;; commands in ~/.gitocnfig or this extension will not work correctly.
+;; Alias definitions that are not standard git commands are fine.
 
 ;;; Commentary:
 
@@ -905,7 +909,7 @@
 ;;      Additional arguments passed to VCS program after specifying
 ;;      the *Vcs-Url* E.g. CVS directories may need a specific module
 ;;      to check out. A setup like below would yield command: "cvs -d
-;;      <Vcs-Url> co -d <Package> <Vcs-Args>"
+;;      <Vcs-Url> co -d upstream <Vcs-Args>"
 ;;
 ;;          Vcs-Type: cvs
 ;;          Vcs-Url: :pserver:anonymous@example.com/reository/foo
@@ -939,6 +943,17 @@
 ;;
 ;;          X-Comment: <comment here>
 ;;          X-Upstream-Homepage: <URL>
+;;
+;;      If making the epackaging needs special treatment for the
+;;      extension, please document those in field like:
+;;
+;;              X-Development:
+;;               Before BBDB can be used, the autoloads file must be generated.
+;;               Run command:
+;;               .
+;;                  ./configure && make autoloads
+;;               .
+;;               And it will generate file lisp/bbdb-autoloads.el
 ;;
 ;; Epackage compatibility levels
 ;;
@@ -1155,6 +1170,8 @@
 
 ;;; Change Log:
 
+(require 'autorevert)
+
 (eval-when-compile
   (autoload 'lm-version "lisp-mnt")
   (autoload 'lm-summary "lisp-mnt")
@@ -1173,7 +1190,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1221.1212"
+(defconst epackage-version-time "2010.1221.2135"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2080,7 +2097,8 @@ location of `epackage--sources-file-name-official'."
          (format "No such directory %s" directory)))))
 
 (defun epackage-initialize-verify (&optional message)
-  "Signal error with MESSAGE if `epackage-initialize' has not been run."
+  "Signal error with MESSAGE if `epackage--initialize-flag' is non-nil.
+This means that `epackage-initialize' has not been run."
   (unless epackage--initialize-flag
     (epackage-error-initialize message)))
 
@@ -2420,11 +2438,17 @@ Return subexpression 1, or 0; the one that exists."
 (defsubst epackage-pkg-info-status-warnings (package)
   "Return warnings for package."
   (let ((str (epackage-pkg-info-fetch-field-status package))
+        core
         list
         status)
     (when str
-      (if (string-match "core[^ \t]+" str)
-          (epackage-push (match-string 0 str) list))
+      (when (string-match "core[^ \t]+" str)
+        ;; Already included in emacs?
+        ;; FIXME: Perhaps add version check
+        (setq core (match-string 0 str))
+        (if (and (featurep 'emacs)
+                 (string-match "^emacs" core))
+            (epackage-push core list)))
       (if (string-match "unmaintained" str)
           (epackage-push "unmaintained" list))
       (if (string-match "broken" str)
@@ -2490,7 +2514,78 @@ Return:
                        list))
       list)))
 
-(defun epackage-git-command-branch-parse-1 ()
+(defun epackage-git-command-status-parse-buffer-limit ()
+  "Return next limit point of 'status' section in current buffer.
+The limist are those of top level heading:
+
+    # Changes to be committed:
+    # Changed but not updated:
+    # Untracked files:
+
+See git-status(1)."
+  (save-excursion
+    (if (or (re-search-forward "^# Changes to be committed:" nil t)
+            (re-search-forward "^# Changed but not updated:" nil t)
+            (re-search-forward "^# Untracked files:" nil t))
+        (line-beginning-position)
+      (point-max))))
+
+(defun epackage-git-command-status-parse-generic (heading match)
+  "Search for HEADING regexp and if found, collect MATCH of level 1"
+  (let (list)
+    (when (re-search-forward heading nil t)
+      (let ((max (epackage-git-command-status-parse-buffer-limit)))
+        (while (re-search-forward match max t)
+          (epackage-push (match-string-no-properties 1) list)))
+      list)))
+
+(defsubst epackage-git-command-status-parse-buffer-modified ()
+  "Parse list of modified files from current point forward."
+  ;; # Changed but not updated:
+  ;; #   (us    e "git add <file>..." to update what will be committed)
+  ;; #   (use "git checkout -- <file>..." to discard
+  ;; #
+  ;; #    modified:   ChangeLog
+  (epackage-git-command-status-parse-generic
+   "^# Changed but not updated:"
+   "^#[ \t]+modified:[ \t]+\\(.*[^ \t\r\n]\\)"))
+
+(defsubst epackage-git-command-status-parse-buffer-untracked ()
+  "Parse list of untracked files from current point forward."
+  ;; # Untracked files:
+  ;; #   (use "git add <file>..." to include in what will be committed)
+  ;; #
+  ;; # doc/index.html
+  (epackage-git-command-status-parse-generic
+   "^# Untracked files:"
+   "^#\t+\\([^ \t\r\n].*\\)"))
+
+(defun epackage-git-command-status-parse-buffer-commit ()
+  "Parse list of untracked files from current point forward."
+  ;; # Changes to be committed:
+  ;; #   (use "git reset HEAD <file>..." to unstage)
+  ;; #
+  ;; # ChangeLog
+  (epackage-git-command-status-parse-generic
+   "^# Changes to be committed:"
+   "^#\t+\\([^ \t\r\n].*\\)"))
+
+(defsubst epackage-git-command-status-modified-parse-main ()
+  "Parse list of modified files from command output buffer."
+  (epackage-with-last-git-output
+    (epackage-git-command-status-parse-buffer-modified)))
+
+(defsubst epackage-git-command-status-untracked-parse-main ()
+  "Parse list of modified files from command output buffer."
+  (epackage-with-last-git-output
+    (epackage-git-command-status-parse-buffer-untracked)))
+
+(defsubst epackage-git-command-status-commit-parse-main ()
+  "Parse list of modified files from command output buffer."
+  (epackage-with-last-git-output
+    (epackage-git-command-status-parse-buffer-commit)))
+
+(defun epackage-git-command-branch-parse-buffer ()
   "Parse list of branches from current point forward."
   (let (list)
     (while (re-search-forward "^\\(\\*?\\) +\\([^ \t\r\n]*\\)" nil t)
@@ -2503,7 +2598,7 @@ Return:
 (defsubst epackage-git-command-branch-parse-main ()
   "Parse list of branched from command output buffer."
   (epackage-with-last-git-output
-    (epackage-git-command-branch-parse-1)))
+    (epackage-git-command-branch-parse-buffer)))
 
 (defun epackage-git-command-branch-list (dir &optional verbose arg)
   "In DIR, run in optional VERBOSE mode 'git branch [ARG]'.
@@ -2554,6 +2649,43 @@ If optional VERBOSE is non-nil, display progress message."
     (epackage-with-git-command dir-before verbose
       "clone" url name)))
 
+(defun epackage-git-command-status (dir &optional verbose)
+  "Run 'git status' in DIR.
+If optional VERBOSE is non-nil, display progress message."
+  (epackage-with-git-command dir verbose
+    "status"))
+
+(defun epackage-git-status-data (dir &optional verbose)
+  "Run epackage-git-command-status in DIR and return data.
+If optional VERBOSE is non-nil, display progress message.
+
+Return:
+
+    '((modified '(FILE ...))
+      (untracked '(FILE ...))
+      (commit '(FILE ...)))."
+  (epackage-git-command-status dir verbose)
+  (let (list
+        date)
+    (if (setq data (epackage-git-command-status-modified-parse-main))
+        (epackage-push (list 'modified data) list))
+    (if (setq data (epackage-git-command-status-untracked-parse-main))
+        (epackage-push (list 'untracked data) list))
+    (if (setq data (epackage-git-command-status-commit-parse-main))
+        (epackage-push (list 'commit data) list))
+    list))
+
+(defun epackage-git-status-clean-p (package)
+  "Return non-nil if PACKAGE's VCS directory is clean.
+No pending commits and no modified files."
+  (let ((dir (epackage-directory-package-root package))
+        list)
+    (when (file-directory-p dir)
+      (setq list (epackage-git-status-data dir))
+      (if (and (not (memq 'commit list))
+               (not (memq 'modified list)))
+          t))))
+
 (defun epackage-git-master-p (package)
   "Return non-nil if PACKAGE's VCS branch is master."
   (let ((dir (epackage-directory-package-root package)))
@@ -2575,6 +2707,13 @@ If optional VERBOSE is non-nil, display progress message."
                "Can't upgrade. "
                "Branch name is not \"master\" in '%s'; "
                "possibly changed manually or invalid package.")
+            dir))
+        (unless (epackage-git-status-clean-p package)
+          (epackage-fatal
+            `,(concat
+               "Can't upgrade. "
+               "Unclean status in '%s'; "
+               "possibly changed manually.")
             dir))
         (epackage-git-command-pull dir verbose)))))
 
@@ -2899,7 +3038,7 @@ Return:
          (match    (concat "\\(.+\\)" regexp))
          list)
     (epackage-initialize-verify
-     "Can't use `epackage--directory-name-install'.")
+      "Not initialized. Can't use epackage--directory-name-install")
     (dolist (elt (directory-files
                   dir
                   (not 'full-path)
@@ -2920,7 +3059,7 @@ Return:
   "Return list of packages in `epackage--directory-name-pkg'."
   (let ((dir (epackage-directory-packages))
         list)
-    (epackage-initialize-verify "Can't use `epackage--directory-name-pkg'")
+    (epackage-initialize-verify "Can't use epackage--directory-name-pkg")
     (dolist (elt (directory-files
                   dir
                   (not 'full-path)))
@@ -3459,8 +3598,10 @@ Return:
   (let ((url (epackage-sources-list-info-url package))
         (git (epackage-git-config-fetch-field package "remote.*origin" "url")))
     (cond
-     ((not (stringp url)))             ;FIXME: perhaps better handling
-     ((not (stringp git)))
+     ((not (stringp url))             ;FIXME: perhaps better handling
+      nil)
+     ((not (stringp git))
+      nil)
      ((not (string= url git))
       ;; Sources list is not in synch
       (epackage-verbose-message
@@ -4251,7 +4392,9 @@ If optional VERBOSE is non-nil, display progress message."
   (epackage-require-main verbose)
   (unless (epackage-sources-list-p)
     (epackage-cmd-download-sources-list verbose))
-  (epackage-sources-list-build verbose)
+  ;; There are few checks that need this
+  (let ((epackage--initialize-flag t))
+    (epackage-sources-list-build verbose))
   (setq epackage--initialize-flag t)
   (run-hooks 'epackage--initialize-hook))
 

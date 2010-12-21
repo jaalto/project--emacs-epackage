@@ -25,6 +25,19 @@
 	(epackage-recreate-package): New.
 	(epackage--download-action-list): Set default value to
 	'(enable package-depends).
+	(epackage-git-command-status): New.
+	(epackage-git-command-status-parse-buffer-modified): New.
+	(epackage-git-command-status-modified-parse-main): New.
+	(epackage-git-command-status-parse-buffer-untracked): New.
+	(epackage-git-command-status-parse-buffer-commit): New.
+	(epackage-git-command-status-untracked-parse-main): New.
+	(epackage-git-command-status-commit-parse-main): New.
+	(epackage-git-clean-state-p): New.
+	(epackage-git-status-data): New.
+	(epackage-git-command-status-parse-buffer-limit): New.
+	(epackage-git-command-status-parse-generic): New.
+	(epackage-upgrade-package): Check `epackage-git-status-clean-p'.
+	(epackage-pkg-info-status-warnings): Improve core-* check.
 
 2010-12-19 Sun  Jari Aalto  <jari.aalto@cante.net>
 
