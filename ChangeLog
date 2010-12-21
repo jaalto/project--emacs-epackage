@@ -1,3 +1,31 @@
+2010-12-21 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-with-package-info-file): Turn on
+	`auto-revert-mode'.
+	(epackage-turn-on-auto-revert-mode): New.
+	(epackage-with-sources-list): Call `epackage-turn-on-auto-revert-mode'.
+	(epackage-with-package-info-file): Call
+	`epackage-turn-on-auto-revert-mode'.
+	(epackage-with-git-config): Kill buffer after BODY.
+	(epackage-git-config-fetch-field): New.
+	(epackage-git-buffer-fetch-field): New.
+	(epackage-pkg-lint-git-url): New.
+	(epackage-pkg-lint-package): Call `epackage-pkg-lint-git-url'.
+	(epackage-with-buffer-emacs-messages): New.
+	(epackage-sources-list-build): Rename. Was
+	`epackage-cmd-build-sources-list'.
+	(epackage-sources-list-upgrade): Rename. Was
+	`epackage-upgrade-sources-list'.
+	(epackage-sources-list-initialize): Rename. Was
+	`epackage-build-sources-list'.
+	(epackage-pkg-lint-downloaded-git-url): New.
+	(epackage-sources-list-and-repositories-sync): New.
+	(epackage-sources-list-build): Call
+	`epackage-sources-list-and-repositories-sync'.
+	(epackage-recreate-package): New.
+	(epackage--download-action-list): Set default value to
+	'(enable package-depends).
+
 2010-12-19 Sun  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-cmd-enable-package): Send 'noerr
@@ -13,6 +41,9 @@
 	package list.
 	(epackage-cmd-upgrade-all-packages): Adjust return values.
 	(epackage-config-install-autoload): Use 'noerr.
+	(epackage-directory-package-git-root): New.
+	(epackage-directory-package-git-config): New.
+	(epackage-with-git-config): New.
 
 2010-12-17 Fri  Jari Aalto  <jari.aalto@cante.net>
 

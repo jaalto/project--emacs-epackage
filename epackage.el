@@ -284,6 +284,34 @@
 ;;      Building the initial list of available packages takes some
 ;;      time at startup.
 ;;
+;;  About Configuration
+;;
+;;    Private repositories
+;;
+;;      Private installed epackage repositories, or other sources, can
+;;      be defined into `epackage--sources-file-list'. The list of
+;;      files included in there will be combined with
+;;      `epackage--sources-list-url'. The order of the files matter:
+;;      the packages are read first-served basis. An example:
+;;
+;;          (setq epackage--sources-file-list
+;;                '("~/.emacs.d/epackage-local.lst"))
+;;
+;;      Say the *epackage-local.lst* lists package =foo= and file
+;;      pointed by `epackage--sources-list-url' also contains package
+;;      =foo=. Because the files will be combined,
+;;      *epackage-local.lst* will take precedence its package =foo=
+;;      will be used for download.
+;;
+;;    Automatic install of packages
+;;
+;;      The basic operation mode is just do action at a time to give user
+;;      full control of packages. In daily use it may be desireable
+;;      to byte compile package after they have been downloaded. Use this:
+;;
+;;          (require 'epackage)
+;;          (add-to-list 'epackage--download-action-list 'compile)
+;;
 ;;  The DELPS framework
 ;;
 ;;      Quick links for developers:
@@ -1138,9 +1166,14 @@
   (autoload 'mail-fetch-field "mail-utils")
   (autoload 'url-http-parse-response "url"))
 
+(eval-and-compile
+  (if (featurep 'xemacs)
+      (message
+       "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
+
 ;;; Code:
 
-(defconst epackage-version-time "2010.1219.1338"
+(defconst epackage-version-time "2010.1221.1212"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1158,15 +1191,17 @@
 ;  :link '(custom-manual "(emacs)Misc File Ops")
   :group 'tools)
 
-(defcustom epackage--download-action-list nil
+(defcustom epackage--download-action-list '(enable package-depeds)
   "*TYPE of actions to run after package download.
+Default value is: '(enable package-depeds)
+
 The order of TYPEs in list is not significant. The \"install\"
 TYPE can be of of following. For more information about install
 TYPEs, refer to \\[epackage-documentation].
 
-    activate
+    activate     ;; Will also turn on autoload
     autoload
-    enable
+    enable       ;; Will also turn on autoload
     compile
 
 To install also dependant packages, add:
@@ -1181,7 +1216,7 @@ To check package validity and colloect information in
 An example. The following would automatically compile and enable
 package after download and download all dpends for the package:
 
-  '(compile enable lint package-depends xboot).
+  '(compile enable lint package-depends).
 
 Note: the symbol names have been named so that when sorted, the
 actions can be run safely in order.
@@ -1478,7 +1513,10 @@ producing 'foo-install.el.")
 (defconst epackage--buffer-finder-commentary "*Finder-package*"
   "Buffer name of call `finder-commentary'.")
 
-(defvar epackage--buffer-emacs-messages "*Messages*"
+(defvar epackage--buffer-emacs-messages
+  (if (featurep 'xemacs)
+      "*Message-Log*"
+    "*Messages*")
   "Buffer name of Emacs messages.")
 
 (defconst epackage--byte-compile-buffer-name
@@ -1781,6 +1819,16 @@ An exmaple: (epackage-file-name-compose \"foo\" \"foo.el\")."
           epackage--directory-name-pkg
           package))
 
+(defsubst epackage-directory-package-git-root (package)
+  "Return root directory of PACKAGE Git control dir."
+  (format "%s/.git"
+          (epackage-directory-package-root package)))
+
+(defsubst epackage-directory-package-git-config (package)
+  "Return Git config file of PACKAGE."
+  (format "%s/config"
+          (epackage-directory-package-git-root package)))
+
 (defsubst epackage-directory-install ()
   "Return location of install configuration directory."
   (format "%s/%s"
@@ -2048,6 +2096,41 @@ location of `epackage--sources-file-name-official'."
            "Run \\[epackage-initialize]")
         epackage--program-git)))))
 
+(defsubst epackage-turn-on-auto-revert-mode ()
+  "Activate `auto-revert-mode' on current file buffer."
+  (when (and (not global-auto-revert-mode)
+             (buffer-file-name)
+             (not auto-revert-mode))
+    (auto-revert-mode 1)))
+
+(defun epackage-kill-buffer (list &optional verbose)
+  "Kill LIST of buffer, even if modified.
+If optional VERBOSE is non-nil, display progress message."
+  (dolist (buffer list)
+    (with-current-buffer buffer
+      (set-buffer-modified-p (not 'modified))
+      (epackage-verbose-message
+        "Kill buffer (forced) %s" buffer-file-name)
+      (kill-buffer (current-buffer)))))
+
+(defsubst epackage-pkg-kill-buffer-force (package &optional verbose)
+  "Kill all PACKAGE file buffers, even if modified.
+If optional VERBOSE is non-nil, display progress message."
+  (epackage-kill-buffer
+   (epackage-pkg-buffer-list package)
+   verbose))
+
+(defun epackage-pkg-buffer-list (package)
+  "Return list of opened file buffers of PACKAGE."
+  (let ((regexp (regexp-quote (epackage-directory-package-root package)))
+        name
+        list)
+    (dolist (buffer (buffer-list))
+      (when (and (setq name (buffer-file-name buffer))
+                 (string-match regexp name))
+        (epackage-push buffer list)))
+    list))
+
 (put 'epackage-with-directory 'lisp-indent-function 1)
 (put 'epackage-with-directory 'edebug-form-spec '(body))
 (defmacro epackage-with-directory (dir &rest body)
@@ -2066,6 +2149,13 @@ location of `epackage--sources-file-name-official'."
          after-save-hook)
      ,@body))
 
+(put 'epackage-with-buffer-emacs-messages 'lisp-indent-function 0)
+(put 'epackage-with-buffer-emacs-messages 'edebug-form-spec '(body))
+(defmacro epackage-with-buffer-emacs-messages (&rest body)
+  "Run BODY in `epackage--buffer-emacs-messages'."
+  `(with-current-buffer (get-buffer epackage--buffer-emacs-messages)
+     ,@body))
+
 (put 'epackage-with-buffer-info 'lisp-indent-function 0)
 (put 'epackage-with-buffer-info 'edebug-form-spec '(body))
 (defmacro epackage-with-buffer-info (&rest body)
@@ -2079,21 +2169,25 @@ Create `epackage--buffer-info' for BODY if it doe snot exists."
 (defmacro epackage-with-package-info-file (package &rest body)
   "Run BODY if `epackage--package-info-file' of PACKAGE exist.
 Signal error if it doesn't. Variable `file' is bound during BODY.
-Variable `info-file' is bound during macro."
+Variable `info-file' is bound during macro.
+Call `epackage-turn-on-auto-revert-mode'."
   `(let ((info-file (epackage-file-name-package-info ,package)))
      (unless (file-exists-p info-file)
        (epackage-error "Info file does not exist: %s" info-file))
      (with-current-buffer (find-file-noselect info-file)
+       (epackage-turn-on-auto-revert-mode)
        ,@body)))
 
 (put 'epackage-with-sources-list 'lisp-indent-function 0)
 (put 'epackage-with-sources-list 'edebug-form-spec '(body))
 (defmacro epackage-with-sources-list (&rest body)
-  "Run BODY in package list buffer."
+  "Run BODY in package list buffer.
+Call `epackage-turn-on-auto-revert-mode'."
   `(progn
      (epackage-sources-list-verify)
      (with-current-buffer
          (find-file-noselect (epackage-file-name-sources-list-main))
+       (epackage-turn-on-auto-revert-mode)
        ,@body)))
 
 (defsubst epackage-git-error-handler (&optional command)
@@ -2172,6 +2266,19 @@ If VERBOSE is non-nil, display progress message."
            "Running 'git %s' in %s ...done"
            (mapconcat #'concat (list ,@args) " ")
            ,dir))))
+
+(put 'epackage-with-git-config 'lisp-indent-function 1)
+(put 'epackage-with-git-config 'edebug-form-spec '(body))
+(defmacro epackage-with-git-config (package &rest body)
+  "Read Git 'config' of PACKAGE and run BODY.
+Kill buffer after BODY."
+  `(let ((config-file (epackage-directory-package-git-config package)))
+     (if (not (file-exists-p config-file))
+         (epackage-error "No Git config file: %s" config-file)
+       (prog1
+           (with-current-buffer (find-file-noselect config-file)
+             ,@body)
+         (kill-buffer (get-file-buffer config-file))))))
 
 (defsubst epackage-fetch-field (field)
   "Like `mail-fetch-field', but return value only if it exists.
@@ -2331,6 +2438,36 @@ Return subexpression 1, or 0; the one that exists."
                         " ")))
       status)))
 
+(defun epackage-git-buffer-fetch-field (tag field)
+  "Read configuration TAG.FIELD from current buffer.
+TAG is a regexp. An example
+
+  (epackage-git-buffer-fetch-field \"remote.*origin\" \"url\")
+
+Would match:
+
+\[remote \"origin\"]
+        url = git://example.com/package.git"
+  (goto-char (point-min))
+  (when (re-search-forward
+         (format "^[ \t]*\\[.*%s.*\\]" tag)
+         nil t)
+    ;; Stop at next TAG
+    (let ((max (or (save-excursion
+                     (if (re-search-forward "^[ \t]*\\[" nil t)
+                         (line-beginning-position)))
+                   (point-max))))
+      (when (re-search-forward
+             (format "^[ \t]*%s[ \t]*=[ \t]*\\(.*[^ \t\r\n]\\)"
+                     (regexp-quote field))
+             max t)
+        (match-string-no-properties 1)))))
+
+(defsubst epackage-git-config-fetch-field (package tag field)
+  "Read PACKAGE's configuration file: TAG.FIELD."
+  (epackage-with-git-config package
+    (epackage-git-buffer-fetch-field tag field)))
+
 (defsubst epackage-git-branch-list-master-p (list)
   "Return non-nil if current branch LIST indicates master as current branch."
   (string-match
@@ -2425,7 +2562,7 @@ If optional VERBOSE is non-nil, display progress message."
         (epackage-git-branch-list-master-p list)))))
 
 (defun epackage-upgrade-package (package &optional verbose)
-  "Upgrade PACKAGE in VCS directory.
+  "Upgrade PACKAGE.
 If optional VERBOSE is non-nil, display progress message."
   (let ((url (epackage-sources-list-info-url package)))
     (unless url
@@ -2436,12 +2573,48 @@ If optional VERBOSE is non-nil, display progress message."
           (epackage-fatal
             `,(concat
                "Can't upgrade. "
-               "Branch name is not \"master\" in '%s'. "
-               "Possibly changed manually or invalid package.")
+               "Branch name is not \"master\" in '%s'; "
+               "possibly changed manually or invalid package.")
             dir))
         (epackage-git-command-pull dir verbose)))))
 
-(defun epackage-upgrade-sources-list (&optional verbose)
+(defun epackage-recreate-package (package &optional verbose)
+  "Re-create PACKAGE by deleting old and downloading new.
+No error checking are done for PACKAGE."
+  (epackage-pkg-kill-buffer-force package verbose)
+  (let ((dir (epackage-package-downloaded-p package)))
+    (if dir
+        (delete-directory dir 'recursive)))
+  ;; FIX: handle possibly changed configuration files
+  (epackage-cmd-download-package package verbose))
+
+;; FIXME: should we run hooks like in epackage-cmd-remove-package
+(defun epackage-sources-list-and-repositories-sync (&optional verbose)
+  "Verify that URLs still match and rebuild package repositories if needed.
+If sources list URLs differ from current Git repositoriy 'origin'
+URLs, recreate each repository provided that they are
+still in pristine state."
+  (let (elt
+        package
+        dir)
+    (dolist (package (epackage-status-downloaded-packages))
+      (when (setq elt (epackage-pkg-lint-git-url package verbose))
+        (setq package (nth 0 elt)
+              dir     (epackage-directory-package-root package))
+        (epackage-verbose-message "Rebuild repository of %s" package)
+        (cond
+         ;; FIXME: should check if repository is not locally modified.
+         ((not (epackage-git-master-p package))
+          (epackage-message
+            `,(concat
+               "[WARN] Won't re-create due to changed source URL."
+               "Branch name is not \"master\" in %s; "
+               "possibly changed manually or invalid package repository.")
+            dir))
+         (t
+          (epackage-recreate-package package verbose)))))))
+
+(defun epackage-sources-list-upgrade (&optional verbose)
   "Update list of available packages; the yellow pages.
 If optional VERBOSE is non-nil, display progress message."
   (let ((dir (epackage-sources-list-official-directory)))
@@ -2470,7 +2643,7 @@ If optional VERBOSE is non-nil, display progress message."
           "Can't see any Git repository URLs: %s" elt))
       (write-region (point-min) (point-max) file))))
 
-(defun epackage-build-sources-list (&optional verbose)
+(defun epackage-sources-list-initialize (&optional verbose)
   "Build list of available packages; the yellow pages.
 If optional VERBOSE is non-nil, display progress message."
   (let ((dir (epackage-directory-sources-list))
@@ -2495,6 +2668,18 @@ If optional VERBOSE is non-nil, display progress message."
              (list (epackage-file-name-sources-list-official))))
     (run-hooks 'epackage--build-sources-list-hook)))
 
+(defun epackage-sources-list-build (&optional verbose)
+  "Build sources list file.
+If optional VERBOSE is non-nil, display progress messages.
+This fucntion is meant forinteractive use: the message differs
+if sources list has already been downloaded or not."
+  (if (epackage-sources-list-p)
+      (epackage-with-message verbose "Building package sources list"
+        (epackage-sources-list-initialize verbose))
+    (epackage-with-message verbose "Initializing package sources list"
+      (epackage-sources-list-initialize verbose)))
+  (epackage-sources-list-and-repositories-sync verbose))
+
 (defun epackage-download-package (package &optional verbose)
   "Download PACKAGE.
 If optional VERBOSE is non-nil, display progress message.
@@ -2508,34 +2693,6 @@ instead or call `epackage-download-package-run-actions' after this."
     (let ((dir (epackage-directory-package-root package)))
       (epackage-git-command-clone url dir verbose)
       (run-hooks 'epackage--install-download-hook))))
-
-(defun epackage-kill-buffer (list &optional verbose)
-  "Kill LIST of buffer, even if modified.
-If optional VERBOSE is non-nil, display progress message."
-  (dolist (buffer list)
-    (with-current-buffer buffer
-      (set-buffer-modified-p (not 'modified))
-      (epackage-verbose-message
-        "Kill buffer (forced) %s" buffer-file-name)
-      (kill-buffer (current-buffer)))))
-
-(defun epackage-pkg-buffer-list (package)
-  "Return list of opened file buffers of PACKAGE."
-  (let ((regexp (regexp-quote (epackage-directory-package-root package)))
-        name
-        list)
-    (dolist (buffer (buffer-list))
-      (when (and (setq name (buffer-file-name buffer))
-                 (string-match regexp name))
-        (epackage-push buffer list)))
-    list))
-
-(defsubst epackage-pkg-kill-buffer-force (package &optional verbose)
-  "Kill all PACKAGE file buffers, even if modified.
-If optional VERBOSE is non-nil, display progress message."
-  (epackage-kill-buffer
-   (epackage-pkg-buffer-list package)
-   verbose))
 
 (defsubst epackage-pkg-depends-verify-emacs (depends)
   "Check DEPENDS whose format match `epackage-depends-parse-collect'.
@@ -3289,14 +3446,52 @@ If invalid, return list of classified problems:
           (epackage-push 'info list))))))
     list))
 
+(defun epackage-pkg-lint-git-url (package &optional verbose)
+  "Check that Git 'origin' URL matches sources list.
+If optional VERBOSE is non-nil, display progress message.
+Existence of PACKAGE is not checked.
+
+Return:
+
+   In case there is are mismatched
+
+   '(PACKAGE SOURCES-URL GIT-URL)."
+  (let ((url (epackage-sources-list-info-url package))
+        (git (epackage-git-config-fetch-field package "remote.*origin" "url")))
+    (cond
+     ((not (stringp url)))             ;FIXME: perhaps better handling
+     ((not (stringp git)))
+     ((not (string= url git))
+      ;; Sources list is not in synch
+      (epackage-verbose-message
+        "[FATAL] Lint - URL in sources list and git config differ: %s vs, %s"
+        url git)
+      (list package url git))
+     (t
+      nil))))
+
+(defun epackage-pkg-lint-downloaded-git-url (package &optional verbose)
+  "Check each downloded package: that Git 'origin' URL matches sources list.
+If optional VERBOSE is non-nil, display progress message.
+
+Return prblems:
+    '((PACKAGE SOURCES-URL GIT-URL) ...)."
+  (let (list
+        elt)
+  (dolist (package (epackage-status-downloaded-packages))
+    (if (setq elt (epackage-pkg-lint-git-url package verbose))
+        (epacakge-push elt list)))
+  list))
+
 ;;;###autoload
 (defun epackage-pkg-lint-package (package &optional verbose)
   "Check validity of PACKAGE.
 If optional VERBOSE is non-nil, display progress message.
-With VERBOSE sisplay `epackage--buffer-lint'.
+With VERBOSE display `epackage--buffer-lint'.
 
 Return:
-    See function `epackage-pkg-lint-directory'."
+    See function `epackage-pkg-lint-directory' plus
+    value 'git-config if URL does not match sources list."
   (interactive
    (list (epackage-cmd-select-package "List package: ")
          'interactive))
@@ -3308,17 +3503,20 @@ Return:
             (epackage-message "Can't Lint. Package does not exist: %s" dir)
           (epackage-error "Can't Lint. Package does not exist: %s" dir))
       (prog1                            ; else
-          (progn
-            (with-current-buffer epackage--buffer-emacs-messages
+          (let (ret)
+            (epackage-with-buffer-emacs-messages
               (setq point (point)))
-            (epackage-pkg-lint-directory dir verbose))
+            (setq ret (epackage-pkg-lint-directory dir verbose))
+            (if (epackage-pkg-lint-git-url package verbose)
+                (epackage-push 'git-config ret))
+            ret)
         (when verbose
           (let ((buffer (get-buffer-create epackage--buffer-lint)))
             (with-current-buffer buffer
               (insert (format "-- Lint %s %s\n"
                               (epackage-time)
                               dir)))
-            (with-current-buffer epackage--buffer-emacs-messages
+            (epackage-with-buffer-emacs-messages
               ;; Start reading Lint messages
               (goto-char point)
               (while (re-search-forward
@@ -3901,15 +4099,6 @@ If optional VERBOSE is non-nil, display progress message."
           package)))
       list)))
 
-(defun epackage-cmd-build-sources-list (&optional verbose)
-  "Build sources list file.
-If optional VERBOSE is non-nil, display progress messages."
-  (if (epackage-sources-list-p)
-      (epackage-with-message verbose "Building package sources list"
-        (epackage-build-sources-list verbose))
-    (epackage-with-message verbose "Initializing package sources list"
-      (epackage-build-sources-list verbose))))
-
 ;;;###autoload
 (defun epackage-cmd-download-sources-list (&optional verbose)
   "Download or upgrade package list; the yellow pages of package repositories.
@@ -3918,10 +4107,10 @@ If optional VERBOSE is non-nil, display progress messages."
    (list 'interactive))
   (if (epackage-sources-list-p)
       (epackage-with-message verbose "Upgrading sources list"
-        (epackage-upgrade-sources-list verbose)
-        (epackage-cmd-build-sources-list verbose))
+        (epackage-sources-list-upgrade verbose))
     (epackage-with-message verbose "Wait, downloading sources list"
-      (epackage-download-sources-list verbose))))
+      (epackage-download-sources-list verbose)))
+  (epackage-sources-list-build verbose))
 
 ;;;###autoload
 (defun epackage-cmd-download-package (package &optional verbose)
@@ -3990,8 +4179,9 @@ If optional VERBOSE is non-nil, display progress message."
         (epackage-verbose-message
           "Remove ignored. Package not downloaded: %s"
           package)
-      ;; If files are ope and we: delete directory, download it
+      ;; If files are open and we delete a directory, clone it
       ;; again, the following happens:
+      ;;
       ;;  "File info changed on disk.  Reread from disk into <file>? (y or n)"
       ;;
       ;; => We must kill all open buffers. FIXME: see if there is a variable
@@ -3999,7 +4189,7 @@ If optional VERBOSE is non-nil, display progress message."
       ;; killing buffers.
       (epackage-with-message verbose (format "Remove %s" package)
         (epackage-config-delete-all package verbose)
-        (epackage-pkg-kill-buffer-force  package verbose)
+        (epackage-pkg-kill-buffer-force package verbose)
         (epackage-verbose-message "Remove directory %s" dir)
         (delete-directory dir 'recursive))
       (run-hooks 'epackage--install-remove-hook)
@@ -4061,7 +4251,7 @@ If optional VERBOSE is non-nil, display progress message."
   (epackage-require-main verbose)
   (unless (epackage-sources-list-p)
     (epackage-cmd-download-sources-list verbose))
-  (epackage-cmd-build-sources-list verbose)
+  (epackage-sources-list-build verbose)
   (setq epackage--initialize-flag t)
   (run-hooks 'epackage--initialize-hook))
 
