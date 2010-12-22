@@ -1191,7 +1191,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1222.1146"
+(defconst epackage-version-time "2010.1222.1153"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -4391,7 +4391,7 @@ If optional VERBOSE is non-nil, display progress message."
 (defun epackage-cmd-config-uninstall-package (package &optional verbose)
   "Run uninstall configuration of PACKAGE.
 If optional VERBOSE is non-nil, display progress message.
-This function also runs `epackage-cmd-clean-package'.
+To clean configuration files, run function `epackage-cmd-clean-package'.
 
 If uninstall file is provided, it usually clean cleans added functions
 from hooks and entries from `auto-mode-alist' etc.
@@ -4416,7 +4416,6 @@ environment. To clean those, reboot Emacs."
                  package 'uninstall)))
       (conf
        ((file-exists-p file)
-        (epackage-cmd-clean-package package verbose)
         (epackage-config-uninstall-invoke package verbose))
        (t
         (epackage-verbose-message
