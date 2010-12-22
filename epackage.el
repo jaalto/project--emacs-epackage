@@ -1191,7 +1191,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1222.0939"
+(defconst epackage-version-time "2010.1222.1009"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1858,7 +1858,7 @@ Return nil of there is nothing to remove .i.e. the result wold be \"/\"."
           epackage--directory-name-pkg))
 
 (defsubst epackage-file-name-compose (package path)
-  "Returnfile name under PACCKAGE directory with PATH added.
+  "Return file name under PACKAGE directory with PATH added.
 An exmaple: (epackage-file-name-compose \"foo\" \"foo.el\")."
   (format "%s%s"
           (epackage-directory-packages)
@@ -2152,7 +2152,7 @@ This means that `epackage-initialize' has not been run."
         epackage--program-git)))))
 
 (defsubst epackage-turn-on-auto-revert-mode ()
-  "Activate `auto-revert-mode' on current file buffer."
+  "Activate function `auto-revert-mode' on current file buffer."
   (when (and (boundp 'global-auto-revert-mode)
              (not global-auto-revert-mode)
              (buffer-file-name)
@@ -2224,7 +2224,7 @@ Create `epackage--buffer-info' for BODY if it doe snot exists."
 (put 'epackage-with-package-info-file 'lisp-indent-function 1)
 (put 'epackage-with-package-info-file 'edebug-form-spec '(body))
 (defmacro epackage-with-package-info-file (package &rest body)
-  "Run BODY if `epackage--package-info-file' of PACKAGE exist.
+  "For `epackage--package-info-file' of PACKAGE, run BODY.
 Signal error if it doesn't. Variable `file' is bound during BODY.
 Variable `info-file' is bound during macro.
 Call `epackage-turn-on-auto-revert-mode'."
@@ -2342,8 +2342,8 @@ Kill buffer after BODY."
 ;;; ............................................. &functions-info-file ...
 
 (defsubst epackage-fetch-field (field)
-  "Like `mail-fetch-field', but return value only if it exists.
-If field is empty or does not exist, return nil."
+  "Like `mail-fetch-field', but return FIELD's value only if it exists.
+If FIELD is empty or does not exist, return nil."
   (let ((value (mail-fetch-field field)))
     (if (epackage-string-p value)
         value)))
@@ -2452,7 +2452,7 @@ See `epackage-depends-parse-collect' for returned value format."
     (epackage-fetch-field-status)))
 
 (defsubst epackage-pkg-info-status-p (package regexp)
-  "Check if PACKAGE's status matches REGEXP.
+  "Check if PACKAGE's status match REGEXP.
 Return subexpression 1, or 0; the one that exists."
   (let ((str (epackage-pkg-info-fetch-field-status package)))
     (if (string-match regexp (or str ""))
@@ -2479,7 +2479,7 @@ Return subexpression 1, or 0; the one that exists."
    package "unsafe"))
 
 (defsubst epackage-pkg-info-status-warnings (package)
-  "Return warnings for package."
+  "Return warnings for PACKAGE."
   (let ((str (epackage-pkg-info-fetch-field-status package))
         core
         list
@@ -2567,7 +2567,7 @@ The limist are those of top level heading:
     # Changed but not updated:
     # Untracked files:
 
-See git-status(1)."
+See manual page of git-status(1)."
   (save-excursion
     (if (or (re-search-forward "^# Changes to be committed:" nil t)
             (re-search-forward "^# Changed but not updated:" nil t)
@@ -2576,7 +2576,7 @@ See git-status(1)."
       (point-max))))
 
 (defun epackage-git-command-status-parse-generic (heading match)
-  "Search for HEADING regexp and if found, collect MATCH of level 1"
+  "Search for HEADING regexp and if found, collect MATCH of level 1."
   (let (list)
     (when (re-search-forward heading nil t)
       (let ((max (epackage-git-command-status-parse-buffer-limit)))
@@ -2701,7 +2701,7 @@ If optional VERBOSE is non-nil, display progress message."
     "status"))
 
 (defun epackage-git-status-data (dir &optional verbose)
-  "Run epackage-git-command-status in DIR and return data.
+  "Run `epackage-git-command-status' in DIR and return data.
 If optional VERBOSE is non-nil, display progress message.
 
 Return:
@@ -2825,6 +2825,7 @@ If optional VERBOSE is non-nil, display progress message."
 
 (defun epackage-recreate-package (package &optional verbose)
   "Re-create PACKAGE by deleting old and downloading new.
+If optional VERBOSE is non-nil, display progress message.
 No error checking are done for PACKAGE."
   (epackage-pkg-kill-buffer-force package verbose)
   (let ((dir (epackage-package-downloaded-p package)))
@@ -2836,6 +2837,7 @@ No error checking are done for PACKAGE."
 ;; FIXME: should we run hooks like in epackage-cmd-remove-package
 (defun epackage-sources-list-and-repositories-sync (&optional verbose)
   "Verify that URLs still match and rebuild package repositories if needed.
+If optional VERBOSE is non-nil, display progress message.
 If sources list URLs differ from current Git repositoriy 'origin'
 URLs, recreate each repository provided that they are
 still in pristine state."
@@ -3101,7 +3103,8 @@ If optional VERBOSE is non-nil, display progress message."
       status)))
 
 (defun epackage-config-delete-file (file &optional verbose)
-  "Delete FILE. Checks `file-exists-p'.
+  "Delete FILE is file exists.
+If optional VERBOSE is non-nil, display progress message.
 Run `epackage--install-config-delete-type-hook'."
   (when (file-exists-p file)
     (epackage-verbose-message "Delete %s" file)
@@ -3276,7 +3279,7 @@ If optional VERBOSE is non-nil, display progress message."
 
 ;; epackage-lisp-file-list
 (defun epackage-byte-compile-default-maybe (dir-list &optional verbose)
-  "If PACKAGE contains single *.el, byte compile it.
+  "If there is only a single *.el file in PACKAGE, byte compile it.
 If optional VERBOSE is non-nil, display progress message."
   )
 
@@ -3287,7 +3290,7 @@ If optional VERBOSE is non-nil, display progress message."
     (epackage-loader-file-byte-compile verbose)))
 
 (defun epackage-byte-compile-package-guess (package &optional verbose)
-  "Run byte compile on PACKAGE only if it contains one file.
+  "Run byte compile on PACKAGE only if there is only a single Lisp file.
 If optional VERBOSE is non-nil, display progress message.
 
 Return:
@@ -3545,6 +3548,7 @@ If optional VERBOSE is non-nil, display progress message."
 
 (defun epackage-pkg-lint-git-branches (dir &optional verbose)
   "Check validity Git branches of package in DIR.
+If optional VERBOSE is non-nil, display progress message.
 If valid, return list of required branches."
   (let ((list (epackage-git-command-branch-list
                dir (not 'verbose) "-a"))
@@ -3647,7 +3651,7 @@ If invalid, return list of classified problems:
     list))
 
 (defun epackage-pkg-lint-git-url (package &optional verbose)
-  "Check that Git 'origin' URL matches sources list.
+  "Check that 'origin' URL of PACKAGE to match the one in sources list.
 If optional VERBOSE is non-nil, display progress message.
 Existence of PACKAGE is not checked.
 
@@ -3673,7 +3677,7 @@ Return:
       nil))))
 
 (defun epackage-pkg-lint-downloaded-git-url (package &optional verbose)
-  "Check each downloded package: that Git 'origin' URL matches sources list.
+  "Check each downloded PACKAGE: that Git 'origin' URL match sources list.
 If optional VERBOSE is non-nil, display progress message.
 
 Return prblems:
