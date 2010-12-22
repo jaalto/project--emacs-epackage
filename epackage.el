@@ -1191,7 +1191,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1222.1009"
+(defconst epackage-version-time "2010.1222.1010"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -3276,12 +3276,6 @@ If optional VERBOSE is non-nil, display progress message."
       (epackage-loader-file-generate-load-path-main verbose))))
 
 ;;; .......................................... &functions-byte-compile ...
-
-;; epackage-lisp-file-list
-(defun epackage-byte-compile-default-maybe (dir-list &optional verbose)
-  "If there is only a single *.el file in PACKAGE, byte compile it.
-If optional VERBOSE is non-nil, display progress message."
-  )
 
 (defsubst epackage-byte-compile-loader-file-maybe (&optional verbose)
   "Check `epackage--byte-compile-loader-file' and byte compile.

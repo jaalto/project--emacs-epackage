@@ -27,6 +27,7 @@
 	(epackage--loader-file-byte-compile-flag): Rename. Was
 	`epackage--loader-file-boot-byte-compile-flag'.
 	(epackage--sources-list-and-repository-sync-flag): New.
+	(epackage-byte-compile-default-maybe): Remove. Unused.
 
 2010-12-21 Tue  Jari Aalto  <jari.aalto@cante.net>
 
