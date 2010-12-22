@@ -49,6 +49,7 @@ doc:
 
 # install - There is no install. Manually copy *.el file to Emacs load-path
 install:
+	@echo "There is no install. Manually copy *.el file to Emacs load-path"
 
 # ui - Start command line package manager User Interface
 ui:
