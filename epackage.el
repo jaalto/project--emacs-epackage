@@ -141,7 +141,7 @@
 ;;
 ;;      The epackage system can co-exist with any other installation,
 ;;      like ELPA [4], as usual. User's standard Emacs startup files, like
-;;      `~/.emacs' are never modified.
+;;      `~/.emacs' are not modified.
 ;;
 ;;      [1] http://en.wikipedia.org/wiki/Advanced_Packaging_Tool
 ;;
@@ -1108,7 +1108,6 @@
 ;;      o   Download problem, broken link:
 ;;          => Offer mailing the Yellow page maintainer
 ;;      o   What if user manually deletes directories? Left over config files?
-;;      o   On upgrade, how to deal with updated files and byte compilation?
 ;;
 ;;      REPO
 ;;
@@ -1124,18 +1123,10 @@
 ;;          the user might want ot have a backup (*.b). Can we do that? What
 ;;          if a backup already exists?
 ;;
-;;      o   What to do if Yellow pages URL (repo) changes? See previous
-;;          bullet for suggested fix.
-;;
 ;;      o   Git tags (versions of packages), where is this information kept?
 ;;          Affects GUI.
 ;;
 ;;      o   New updates available? Git polling mechanism with idle timers?
-;;
-;;      o   What if user has made local customizations?
-;;          Branch != master. => leave if alone and mark it
-;;          "manual". User can deal with the merges and take full
-;;          responsibility. We could theoretically still run 'git fetch'.
 ;;
 ;;      GUI
 ;;
@@ -1158,6 +1149,7 @@
 ;;
 ;;      Some day in the future:
 ;;
+;;      o   Add TAB completion in epackage-info-mode-* for Status field.
 ;;      o   Verify Compatibility Level of downloaded epackage
 ;;      o   Handle Conflicts field
 ;;      o   Edit yellow pages catalog?
@@ -1194,7 +1186,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1222.1256"
+(defconst epackage-version-time "2010.1222.2342"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1437,6 +1429,83 @@ during hook. The TYPE is one of `epackage--layout-mapping'."
   "*Hook run after function `epackage-build-sources-list'."
   :type  'hook
   :group 'epackage)
+
+;;; ............................................. &variables-info-mode ...
+;;; No two-dash variables, see define-minor-mode
+
+(defcustom epackage-info-mode-text " eInfo"
+  "String to display in the mode line when Epackage Info Mode is active.
+
+\(When the string is not empty, make sure that it has a leading space.)"
+  :tag "Epackage Info Mode Text"
+  :group 'epackage
+  :type 'string)
+
+(defvar epackage-info-mode nil
+  "*Non-nil when Epackage Info Mode is active.
+Never set this variable directly, use the command
+`epackage-info-mode' instead.")
+
+(defcustom epackage-info-mode-hook nil
+  "Functions to run when Epackage Info Mode is called."
+  :tag "Epackage Info Hook"
+  :group 'epackage
+  :type 'hook)
+
+(defcustom epackage-info-mode-on-hook nil
+  "Functions to run when Epackage Info Mode is enabled."
+  :tag "Epackage Info Hook"
+  :group 'epackage
+  :type 'hook)
+
+(defcustom epackage-info-mode-off-hook nil
+  "Functions to run when Epackage Info Mode is disabled."
+  :tag "Epackage Info Hook"
+  :group 'epackage
+  :type 'hook)
+
+(defvar epackage-info-mode-map
+  (let ((map (make-sparse-keymap)))
+    ;; (set-keymap-parent map ...)
+    ;; Navigation in the document
+    (define-key map (kbd "C-a") 'epackage-info-mode-move-beginning-of-line)
+    (define-key map (kbd "C-c c") 'epackage-info-mode-cmd-url-commentary)
+    (define-key map (kbd "C-c d") 'epackage-info-mode-cmd-goto-description)
+    (define-key map (kbd "C-c h") 'epackage-info-mode-cmd-url-homepage)
+    (define-key map (kbd "C-c l") 'epackage-info-mode-cmd-lint)
+    (define-key map (kbd "C-c s") 'epackage-info-mode-cmd-goto-status)
+    (define-key map (kbd "C-c w") 'epackage-info-mode-cmd-url-wiki)
+    map)
+  "Keymap used by `epackage-info-mode'.")
+
+(easy-menu-define
+  epackage-info-mode-menu
+  epackage-info-mode-map
+  "Menu for Epackage Info mode."
+  '("eInfo"
+    ["Goto field Description" epackage-info-mode-cmd-goto-description]
+    ["Goto field Status" epackage-info-mode-cmd-goto-status]
+    ["Visit URL commentary" epackage-info-mode-cmd-url-commentary]
+    ["Visit URL homepage" epackage-info-mode-cmd-url-homepage]
+    ["Visit URL wiki" epackage-info-mode-cmd-url-wiki]
+    "----"
+    ["Lint epackage" epackage-info-mode-cmd-lint t] ))
+
+(defvar epackage-info-mode-font-lock-keywords
+  '(("^\\(Package\\): *\\(.*\\)"
+     (1 'font-lock-type-face)
+     (2 'font-lock-function-name-face nil t))
+    ("^\\(Description\\): *\\(.*\\)"
+     (1 'font-lock-type-face)
+     (2 'font-lock-function-name-face nil t))
+    ;; Required fields
+    ("^\\(Package\\|Section\\|Maintainer\\|Email\\|Description\\):"
+     1 'font-lock-type-face)
+    ("^\\(X-[^ \t\r\n]+\\):"
+     1 'font-lock-string-face)
+    ("^\\([^ \t\r\n]+\\):"
+     1 'font-lock-builtin-face))
+  "Keywords to hilight Epackage Info mode.")
 
 ;;; ............................................... &variables-private ...
 
@@ -2559,6 +2628,17 @@ Return subexpression 1, or 0; the one that exists."
   "Check if PACKAGE is marked broken."
   (epackage-pkg-info-status-p
    package "unsafe"))
+
+;; Autloaded because this is used in hook
+;;;###autoload
+(defun epackage-pkg-info-p ()
+  "Retrn non-nil if buffer file looks like `epackage--pkg-info-file-name'."
+  (and buffer-file-name
+       (string= (file-name-nondirectory buffer-file-name)
+                epackage--pkg-info-file-name)
+       (save-excursion
+         (goto-char (point-min))
+         (mail-fetch-field "Package"))))
 
 (defsubst epackage-pkg-info-status-warnings (package)
   "Return warnings for PACKAGE."
@@ -3782,17 +3862,51 @@ Return prblems:
         (epackage-push elt list)))
   list))
 
+(defun epackage-pkg-lint-results (point &optional display)
+  "Collect Lint results from `epackage--buffer-emacs-messages' at POINT forward.
+Optional DISPLAY show `epackage--buffer-lint'."
+  (let ((buffer (get-buffer-create epackage--buffer-lint)))
+    (with-current-buffer buffer
+      (insert (format "-- Lint %s %s\n"
+                      (epackage-time)
+                      dir)))
+    (epackage-with-buffer-emacs-messages
+      ;; Start reading Lint messages
+      (goto-char point)
+      (while (re-search-forward
+              "^Epackage:.+Lint - \\(.+\n\\)" nil t)
+        (append-to-buffer
+         buffer (match-beginning 1) (match-end 1)))
+      (if display
+          (display-buffer buffer)))))
+
+;;;###autoload
+(defun epackage-pkg-lint-directory-interactive (dir)
+  "Like `epackage-pkg-lint-directory' but show results."
+  (interactive "DEpackage Lint directory (root): ")
+  (if (or (not dir)
+          (not (file-directory-p dir)))
+      (epackage-error "Can't Lint. No director: %s" dir)
+    (let ((point (epackage-with-buffer-emacs-messages
+                   (point))))
+      (epackage-pkg-lint-directory dir)
+      (epackage-pkg-lint-results point 'display))))
+
 ;;;###autoload
 (defun epackage-pkg-lint-package (package &optional verbose)
-  "Check validity of PACKAGE.
+  "Check validity of epackage in DIR.
 If optional VERBOSE is non-nil, display progress message.
 With VERBOSE display `epackage--buffer-lint'.
+
+This function runs checks that are outside of scope of
+`epackage-pkg-lint-directory'. E.g. checking the sources list
+in respect to package.
 
 Return:
     See function `epackage-pkg-lint-directory' plus
     value 'git-config if URL does not match sources list."
   (interactive
-   (list (epackage-cmd-select-package "List package: ")
+   (list (epackage-cmd-select-package "Lint package: ")
          'interactive))
   (let ((dir (epackage-directory-package-root package))
         point)
@@ -3810,19 +3924,7 @@ Return:
                 (epackage-push 'git-config ret))
             ret)
         (when verbose
-          (let ((buffer (get-buffer-create epackage--buffer-lint)))
-            (with-current-buffer buffer
-              (insert (format "-- Lint %s %s\n"
-                              (epackage-time)
-                              dir)))
-            (epackage-with-buffer-emacs-messages
-              ;; Start reading Lint messages
-              (goto-char point)
-              (while (re-search-forward
-                      "^Epackage:.+Lint - \\(.+\n\\)" nil t)
-                (append-to-buffer
-                 buffer (match-beginning 1) (match-end 1)))
-              (display-buffer buffer))))))))
+          (epackage-pkg-lint-results point 'show))))))
 
 ;;; .................................................. &functions-misc ...
 
@@ -3893,6 +3995,132 @@ Return package name or nil."
       (not 'replybuffer)
       (not 'actions))
      ,@body))
+
+;;; ....................................................... &mode-info ...
+
+(defun epackage-info-mode-set-variables ()
+  "Define buffer local variables."
+  (set (make-local-variable 'paragraph-separate) "[ \t]*\\.[ \t]*$")
+  ;;  'Field:' starts a paragraph
+  (set (make-local-variable 'paragraph-start)
+       " [^ .\t\r\n]+:\\|[ \t]*\\.[ \t]*$")
+  (set (make-local-variable 'fill-prefix) " ")
+  (set (make-local-variable 'fill-column) 75))
+
+(defun epackage-info-mode-set-font-lock ()
+  "Define font-lock variable for buffer."
+  (set (make-local-variable 'font-lock-defaults)
+       '(epackage-info-mode-font-lock-keywords nil t nil nil)))
+
+;;;###autoload
+(define-minor-mode epackage-info-mode
+  "Toggle mode for editing `epackage--pkg-info-file-name'.
+
+With arg, turn mode on if and only if arg is positive.
+This is a minor mode that helps editing epackage control files."
+  :group 'epackage :lighter epackage-info-mode-text
+  (epackage-info-mode-set-variables)
+  (epackage-info-mode-set-font-lock)
+  (auto-fill-mode 1)
+  epackage-info-mode)
+
+;;;###autoload
+(defun turn-on-epackage-info-mode ()
+  "Turn on Epackage Info Mode."
+  (epackage-info-mode 1))
+
+;;;###autoload
+(defun turn-on-epackage-info-mode-maybe ()
+  "Turn on Epackage Info Mode if file looks like epackage 'info'."
+  (when (epackage-pkg-info-p)
+    (turn-on-epackage-info-mode)))
+
+;;;###autoload
+(defun turn-off-epackage-info-mode ()
+  "Turn off Epackage Info Mode."
+  (epackage-info-mode -1))
+
+(defun epackage-info-mode-cmd-goto-description ()
+  "Goto field 'Description:'."
+  (interactive)
+  (mail-position-on-field "Description" 'soft))
+
+(defun epackage-info-mode-cmd-goto-status ()
+  "Goto field 'Status:'."
+  (interactive)
+  (mail-position-on-field "Status" 'soft))
+
+(defun epackage-info-mode-cmd-url-homepage ()
+  "Visit Homepage."
+  (interactive)
+  (let ((url (epackage-fetch-field "Homepage")))
+    (if url
+        (browse-url url)
+      (epackage-message "No Homepage URL"))))
+
+(defun epackage-info-mode-cmd-url-wiki ()
+  "Visit Wikipage."
+  (interactive)
+  (let ((url (epackage-fetch-field "Wiki")))
+    (if url
+        (browse-url url)
+      (epackage-message "No Wiki URL"))))
+
+(defun epackage-info-mode-cmd-url-commentary ()
+  "Run `finder-commentary' on field 'Commentary:'."
+  (interactive)
+  (let ((file (epackage-fetch-field "Commentary")))
+    (if (not file)
+        (epackage-message "No Commentary field defined")
+      (let* ((root (epackage-file-name-directory-previous
+                    (file-name-directory buffer-file-name)))
+             (dir root)
+             (load-path load-path))
+        (when (string-match "/" file)
+          (setq dir (format "%s/%s"
+                            root
+                            file-name-directory file))
+          (stq file (file-name-nondirectory file)))
+        (epackage-push dir load-path)
+        (finder-commentary file)))))
+
+(defun epackage-info-mode-cmd-lint (dir)
+  "Lint epackage."
+  (interactive
+   (epackage-file-name-directory-previous
+    (file-name-directory buffer-file-name)))
+  (epackage-pkg-lint-directory-interactive dir))
+
+(defun epackage-info-mode-move-beginning-of-line ()
+  "Move to beginnig of field, or to the left margin if already there."
+  (interactive)
+  (let (para-start
+        field-start
+        field-space)
+    (save-excursion
+      ;; Check if the beginning of indented 'Description:' paragraph.
+      (setq para-start
+            (string-match "^[ \t]+$" (buffer-substring
+                                      (line-beginning-position)
+                                      (point))))
+      (goto-char (line-beginning-position))
+      (when (looking-at "^\\([^ \t\r\n]+:\\) *")
+        (setq field-start (match-end 1))
+        (setq field-space (match-end 0))))
+    (cond
+     ((and field-space
+           (> (point) field-space))
+      (goto-char field-space))
+     (t
+      ;; (move-to-left-margin)
+      (goto-char (line-beginning-position))
+      (if (and (not para-start)
+               (looking-at "^\\([ \t]+\\)[^ \t\r\n]"))
+          (goto-char (match-end 1)))))))
+
+
+;;;###autoload
+(add-hook 'find-file-hook 'turn-on-epackage-info-mode-maybe)
 
 ;;; ......................................... &functions-user-commands ...
 
@@ -4481,21 +4709,10 @@ If optional VERBOSE is non-nil, display progress messages."
    (list (epackage-cmd-select-package "Lint epackage: ")
          'interactive))
   (if (not (epackage-string-p package))
-      (epackage-message "No packages selected for download.")
-    (if (epackage-package-downloaded-p package)
-        (epackage-message "Ignore download. Already downloaded: %s" package)
-      (let ((url (epackage-sources-list-info-url package)))
-        (if (not url)
-            (epackage-message
-              "Abort download. No known URL for package: %s" package)
-          (epackage-download-package package verbose)
-          (epackage-run-action-list package verbose))
-        (when verbose
-          (let ((warnings (epackage-pkg-info-status-warnings package)))
-            (if warnings
-                (epackage-warn
-                 "package status %s: %s"
-                 package warnings))))))))
+      (epackage-message "No packages selected for Lint.")
+    (if (not (epackage-package-downloaded-p package))
+        (epackage-message "Ignore Lint. Not downloaded: %s" package)
+      (epackage-pkg-lint-package package verbose))))
 
 ;;;###autoload
 (defun epackage-cmd-remove-package (package &optional verbose)
@@ -4571,14 +4788,24 @@ Install new configurations if package has been enabled.
 If optional VERBOSE is non-nil, display progress messages."
   (interactive
    (list 'interactive))
-  (let ((list (epackage-status-downloaded-packages)))
-    (if list
-        (epackage-with-message verbose "Wait, upgrading all packages"
-          (dolist (elt list)
-            (epackage-cmd-upgrade-package elt verbose))
-          t)
+  (let ((list (epackage-status-downloaded-packages))
+        ;; Delay boot action until end.
+        (epackage--install-action-list epackage--install-action-list)
+        (boot (memq 'boot epackage--install-action-list)))
+    (if boot
+        (setq epackage--install-action-list
+              (delq 'boot epackage--install-action-list)))
+    (cond
+     (list
+      (epackage-with-message verbose "Wait, upgrading all packages"
+        (dolist (elt list)
+          (epackage-cmd-upgrade-package elt verbose)))
+      (if boot
+          (epackage-loader-file-generate-boot verbose))
+      t)
+     (t
       (epackage-verbose-message "No packages downloaded to upgrade")
-      nil)))
+      nil))))
 
 ;;;###autoload
 (defun epackage-initialize (&optional verbose)

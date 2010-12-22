@@ -1,3 +1,8 @@
+2010-12-23 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-cmd-upgrade-all-packages): Delay
+	`epackage--install-action-list' action "boot" until end.
+
 2010-12-22 Wed  Jari Aalto  <jari.aalto@cante.net>
 
 	* README (Project details, References): Add ripdoc, t2html.
@@ -51,6 +56,27 @@
 	(epackage-loader-insert-file-path-list-by-path): Simplify.
 	(epackage-directory-recursive-list-default): Add let.
 	(epackage-directory-recursive-lisp-files): New.
+	(turn-off-epackage-info-mode): New.
+	(turn-on-epackage-info-mode): New.
+	(epackage-info-mode): New.
+	(epackage-info-mode-text): New.
+	(epackage-info-mode): New.
+	(epackage-info-mode-hook): New.
+	(epackage-info-mode-on-hook): New.
+	(epackage-info-mode-off-hook): New.
+	(epackage-info-mode-map): New.
+	(epackage-cmd-lint-package): Rewrite.
+	(epackage-pkg-lint-results): New.
+	(epackage-pkg-lint-package): Use `epackage-pkg-lint-results'.
+	(epackage-pkg-lint-directory-interactive): New.
+	(epackage-pkg-info-p): New.
+	(epackage-info-mode-cmd-goto-status): New.
+	(epackage-info-mode-cmd-url-homepage): New.
+	(epackage-info-mode-cmd-url-wiki): New.
+	(epackage-info-mode-cmd-url-commentary): New.
+	(epackage-info-mode-set-variables): New.
+	(epackage-info-mode-move-beginning-of-line): New.
+	(epackage-info-mode-font-lock-keywords): New.
 
 2010-12-21 Tue  Jari Aalto  <jari.aalto@cante.net>
 
