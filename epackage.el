@@ -36,6 +36,9 @@
 ;;  Put this file along your Emacs-Lisp `load-path' and add following
 ;;  into your ~/.emacs startup file.
 ;;
+;;      ;; If you want to customize any of the epackages, like BBDB,
+;;      ;; do it *here*, before the following `load' command.
+;;
 ;;      ;; One big file to boot all installed packages
 ;;      ;; Automatically generated. Do not edit.
 ;;      (load "~/.emacs.d/epackage/00conf/epackage-loader" 'noerr)
@@ -573,19 +576,19 @@
 ;;
 ;;     The *-xactivate.el
 ;;
-;;      This file makes the extension immediately active in user's
-;;      environment. It can modify current environment by adding
-;;      functions to hooks, adding minor or major modes or arranging
-;;      key bindings so that when pressed, a feature is loaded and
-;;      activated. It may also loop through `buffer-list' to activate
-;;      features immediately in running Emacs. It is best that any
-;;      custom settings, like variables and prefix keys, are defined
-;;      in `~/.emacs' *before* this file gets loaded. As with
-;;      `*-install.el', try to avoid any `require' or `load' commands
-;;      and stick to `autoload'. Mnemonic: "If you load this file, the
-;;      bells and whistles are turned on". The "x" at the start of the
-;;      name is to help proper sorting ordering of configuration
-;;      files. The file ends in:
+;;      This file does the same as *-install.el, but it can do more.
+;;      Instead of being conservative, it boldly modify current
+;;      environment by adding functions to hooks, adding minor or
+;;      major modes or arranging key bindings so that when pressed, a
+;;      feature is loaded and activated. It may also loop through
+;;      `buffer-list' to activate features immediately in running
+;;      Emacs. It is best that any custom settings, like variables and
+;;      prefix keys, are defined in `~/.emacs' *before* this file gets
+;;      loaded. As with `*-install.el', try to avoid any `require' or
+;;      `load' commands and stick to `autoload'. Mnemonic: "If you
+;;      load this file, the bells and whistles are turned on". The "x"
+;;      at the start of the name is to help proper sorting ordering of
+;;      configuration files. The file ends in:
 ;;
 ;;          (provide 'PACKAGE-xactivate)
 ;;
@@ -1191,7 +1194,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1222.1240"
+(defconst epackage-version-time "2010.1222.1256"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
