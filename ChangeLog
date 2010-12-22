@@ -33,6 +33,17 @@
 	`epackage-kill-buffer-sources-list'.
 	(epackage-with-sources-list): Add `epackage-turn-on-auto-revert-mode'.
 	(epackage-kill-buffer-list): New.
+	(epackage--install-action-list): New.
+	(epackage-batch-ui-menu): Use `epackage--install-action-list'.
+	(epackage-download-action-install-p): New.
+	(epackage-download-action-activate-p): New.
+	(epackage-download-action-enable-p): New.
+	(epackage-config-install-handler): New.
+	(epackage-config-install-action): Call
+	`epackage-config-install-handler'.
+	(epackage-eval-file-safe): New.
+	(epackage-config-uninstall-invoke): New.
+	(epackage-cmd-config-uninstall-package): New.
 
 2010-12-21 Tue  Jari Aalto  <jari.aalto@cante.net>
 

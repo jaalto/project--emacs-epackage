@@ -1191,7 +1191,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1222.1035"
+(defconst epackage-version-time "2010.1222.1146"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1210,6 +1210,26 @@
   :group 'tools)
 
 ;;; ................................................ &variables-custom ...
+
+(defcustom epackage--install-action-list '(enable boot)
+  "*TYPE of actions to run after package is installed.
+Default value is: '(enable boot)
+
+What to do after package has been downloaded and user selects
+install of one of types: autoload, enabel, activate. Possible
+values are:
+
+    boot        Generate boot loader file
+    enable      Enable customizations immediately in currently running Emacs
+
+The `boot' means updating `epackage--loader-file-boot' after every install
+action. The `enable' means evaluating the configuration files immediately
+for currently running Emacs; i.e. to take the extension into use."
+  :type  '(choice
+           (const enable)
+           (const boot)
+           (const nil))
+  :group 'epackage)
 
 (defcustom epackage--download-action-list '(enable package-depeds)
   "*TYPE of actions to run after package download.
@@ -1806,6 +1826,19 @@ An example:  /path/to/  => to"
     (when (string-match "^.+/\\([^/]+\\)/?$" dir)
       (match-string 1 dir)))
 
+(defsubst epackage-download-action-activate-p ()
+  "Check `epackage--download-action-list' for activate."
+  (memq 'activate epackage--download-action-list))
+
+(defsubst epackage-download-action-enable-p ()
+  "Check `epackage--download-action-list' for enable."
+  (memq 'enable epackage--download-action-list))
+
+(defsubst epackage-download-action-install-p ()
+  "Check `epackage--download-action-list' for activate and enable."
+  (or (epackage-download-action-activate-p)
+      (epackage-download-action-enable-p)))
+
 (defsubst epackage-file-name-directory-previous (dir)
   "Return previous directory by removing one component from DIR.
 Return nil of there is nothing to remove .i.e. the result wold be \"/\"."
@@ -1945,6 +1978,22 @@ If SECURITY is non-nil, signal error if
     (insert-file-contents-literally file)
     ;; FIXME: Implement SECURITY
     (eval-buffer)))
+
+(defsubst epackage-eval-file-safe (file &optional security)
+  "Evaluate FILE. Optionally check SECURITY.
+See `epackage-eval-file' for SECURITY argument handling.
+
+Return:
+    non-nil on succes."
+  (condition-case error
+      (progn
+        (epackage-eval-file file)
+        t)
+    (error
+     (epackage-message
+       "[ERROR] Enable; Syntax error in %s: %s"
+       file (cdr error))
+     nil)))
 
 (defun epackage-directory-list (dir &optional exclude)
   "Return all directories under DIR.
@@ -3092,6 +3141,20 @@ Return:
     (epackage-error "Missing file: %s" from)
     nil)))
 
+(defun epackage-config-install-handler (type package &optional verbose)
+  "Run action of TYPE for PACKAGE. See `epackage--install-action-list'.
+FILE is the install configuration file.
+If optional VERBOSE is non-nil, display progress message."
+  (let ((actions epackage--install-action-list)
+        (file    (epackage-directory-packages-control-file
+                  package type)))
+    (when (file-exists-p file)
+      (cond
+       ((memq 'enable actions)
+        (epackage-eval-file-safe file))
+       ((memq 'boot actions)
+        (epackage-loader-file-generate-boot verbose))))))
+
 (defun epackage-config-install-action
   (type package &optional noerr verbose)
   "Run install of TYPE for PACKAGE.
@@ -3102,8 +3165,18 @@ TYPE is car of `epackage--layout-mapping'."
                package type))
         (to (epackage-file-name-install-compose package type)))
     (when (epackage-enable-file from to noerr verbose)
+      (epackage-config-install-handler type package verbose)
       (run-hooks 'epackage--install-type-hook)
       t)))
+
+(defun epackage-config-uninstall-invoke (package &optional verbose)
+  "Invoke uninstall file of PACKAGE if it exists.
+If optional VERBOSE is non-nil, display progress message."
+  (let ((file (epackage-directory-packages-control-file
+               package 'uninstall)))
+    (when (file-exists-p file)
+      (epackage-verbose-message "Run %s" file)
+      (epackage-eval-file-safe file))))
 
 (defun epackage-config-install-autoload (package &optional verbose)
   "Install PACKAGE autoload files.
@@ -4161,7 +4234,7 @@ If optional VERBOSE is non-nil, display progress message."
 
 ;;;###autoload
 (defun epackage-cmd-autoload-package (package &optional verbose)
-  "Autoload PACKAGE.
+  "Install PACKAGE as autoload.
 If optional VERBOSE is non-nil, display progress message."
   (interactive
    (list (epackage-cmd-select-package "Autoload epackage: ")
@@ -4313,6 +4386,42 @@ If optional VERBOSE is non-nil, display progress message."
           "Nothing to clean. No files installed for package: %s"
           package)))
       list)))
+
+;;;###autoload
+(defun epackage-cmd-config-uninstall-package (package &optional verbose)
+  "Run uninstall configuration of PACKAGE.
+If optional VERBOSE is non-nil, display progress message.
+This function also runs `epackage-cmd-clean-package'.
+
+If uninstall file is provided, it usually clean cleans added functions
+from hooks and entries from `auto-mode-alist' etc.
+
+Due to the nature of Emacs symbols, it is not really practial to
+try to unstall defined symbols (variables, functions) from runtime
+environment. To clean those, reboot Emacs."
+  (interactive
+   (let ((list (epackage-status-downloaded-packages)))
+     (list
+      (if list
+          (epackage-cmd-select-package "Run uninstall of epackage: " list)
+        nil)
+      'interactive)))
+  (epackage-cmd-package-check-macro
+      package
+      verbose
+      (epackage-error
+        "package name \"%s\" is invalid for uninstall command"
+        package)
+    (let ((file (epackage-directory-packages-control-file
+                 package 'uninstall)))
+      (conf
+       ((file-exists-p file)
+        (epackage-cmd-clean-package package verbose)
+        (epackage-config-uninstall-invoke package verbose))
+       (t
+        (epackage-verbose-message
+          "Ignore uninstall. No control file supplied in package: %s" package)
+        nil)))))
 
 ;;;###autoload
 (defun epackage-cmd-download-sources-list (&optional verbose)
@@ -4703,7 +4812,7 @@ Summary, Version, Maintainer etc."
 
 ;;;###autoload
 (defun epackage-batch-ui-byte-compile-package ()
-  "Call `epackage-cmd-autoload-package'."
+  "Call `epackage-cmd-byte-compile-package'."
   (interactive)
   (call-interactively 'epackage-cmd-byte-compile-package))
 
@@ -4910,13 +5019,18 @@ Package activation type after download:%s"
 ;;;###autoload
 (defun epackage-batch-ui-menu ()
   "Present an UI to run basic command."
-  (let (debug-ignored-errors
+  (let ((epackage--install-action-list epackage--install-action-list)
+        debug-ignored-errors
         (debug-on-error t)
         (vc-handled-backends nil)
         (loop t)
         choice)
     (epackage-initialize 'verbose)
     (setq epackage--debug nil)
+    ;;  This is from command line, no enable action is needed for
+    ;;  current Emacs
+    (setq epackage--install-action-list
+          (delq 'enable epackage--install-action-list))
     (while loop
       (epackage--batch-ui-menu-header)
       (message epackage--batch-ui-menu-string)
@@ -4941,22 +5055,34 @@ Package activation type after download:%s"
 (defun epackage-run-action-list (package &optional verbose)
   "Run PACKAGE actions listed in `epackage--download-action-list'.
 If optional VERBOSE is non-nil, display progress message."
-  (let ((list (sort epackage--download-action-list
-                    (lambda (a b)
-                      (string<
-                       (symbol-name a)
-                       (symbol-name b))))))
+  (let* ((actions epackage--download-action-list)
+         (list (sort actions
+                     (lambda (a b)
+                       (string<
+                        (symbol-name a)
+                        (symbol-name b)))))
+         (install-p (epackage-download-action-install-p))
+         (enable-p (epackage-download-action-enable-p)))
     (dolist (elt list)
       (epackage-verbose-message "package action: %s" elt)
       ;; Development note: keep the list in alphabetical "run" order
       (cond
        ((eq elt 'activate)
-        (epackage-cmd-activate-package package verbose))
+        (let ((epackage--download-action-list epackage--download-action-list))
+          ;; Don't generate boot loader... yet.
+          (if enable-p
+              (setq epackage--download-action-list nil))
+          (epackage-cmd-activate-package package verbose)))
        ((eq elt 'autoload)
-        (epackage-cmd-autoload-package package verbose))
+        (let ((epackage--download-action-list epackage--download-action-list))
+          ;; Don't generate boot loader... yet.
+          (if install-p
+              (setq epackage--download-action-list nil))
+          (epackage-cmd-autoload-package package verbose)))
        ((eq elt 'compile)
         (epackage-byte-compile-package-main package))
        ((eq elt 'enable)
+        ;; Only now possibly generate boot loader
         (epackage-cmd-enable-package package verbose))
        ((eq elt 'lint)
         (epackage-pkg-lint-package package verbose))
