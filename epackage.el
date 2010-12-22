@@ -1170,9 +1170,9 @@
 
 ;;; Change Log:
 
-(require 'autorevert)
-
 (eval-when-compile
+  (defvar auto-revert-mode)
+  (defvar global-auto-revert-mode)
   (autoload 'lm-version "lisp-mnt")
   (autoload 'lm-summary "lisp-mnt")
   (autoload 'lm-commentary "lisp-mnt")
@@ -1181,6 +1181,7 @@
   (autoload 'lm-maintainer "lisp-mnt")
   (autoload 'dired-make-relative-symlink "dired-x")
   (autoload 'mail-fetch-field "mail-utils")
+  (autoload 'mail-setup "sendmail")
   (autoload 'url-http-parse-response "url"))
 
 (eval-and-compile
@@ -1190,7 +1191,7 @@
 
 ;;; Code:
 
-(defconst epackage-version-time "2010.1221.2135"
+(defconst epackage-version-time "2010.1222.0827"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2116,8 +2117,10 @@ This means that `epackage-initialize' has not been run."
 
 (defsubst epackage-turn-on-auto-revert-mode ()
   "Activate `auto-revert-mode' on current file buffer."
-  (when (and (not global-auto-revert-mode)
+  (when (and (boundp 'global-auto-revert-mode)
+             (not global-auto-revert-mode)
              (buffer-file-name)
+             (boundp 'auto-revert-mode)
              (not auto-revert-mode))
     (auto-revert-mode 1)))
 
@@ -2381,7 +2384,7 @@ See `epackage-depends-parse-collect' for returned value format."
   "Parse depends STRING.
 See `epackage-depends-parse-collect' for returned value format."
   (with-temp-buffer
-   (insert str)
+   (insert string)
    (epackage-depends-parse-buffer)))
 
 (defsubst epackage-fetch-field-depends ()
@@ -2666,7 +2669,7 @@ Return:
       (commit '(FILE ...)))."
   (epackage-git-command-status dir verbose)
   (let (list
-        date)
+        data)
     (if (setq data (epackage-git-command-status-modified-parse-main))
         (epackage-push (list 'modified data) list))
     (if (setq data (epackage-git-command-status-untracked-parse-main))
@@ -2777,9 +2780,10 @@ If optional VERBOSE is non-nil, display progress message."
       (insert-file-contents-literally elt))
     (epackage-with-message
         verbose (format "Write master sources list file %s" file)
+      (goto-char (point-min))
       (unless (re-search-forward "^[^#\r\n]+://" nil t)
         (epackage-error
-          "Can't see any Git repository URLs: %s" elt))
+          "Can't find any Git repository URLs. Check files %s" list))
       (write-region (point-min) (point-max) file))))
 
 (defun epackage-sources-list-initialize (&optional verbose)
@@ -2844,12 +2848,13 @@ Return list memebr that does not satisfy depends."
                    xemacs))
          op
          after
+         version
          ret)
     ;; Check Eamcs flavor requirement
     (when (and flavor
                (setq version (nth 2 flavor)))
       (setq op (nth 1 flavor))
-      (setq after (string< version emacs-version ))  ;; A < B   i.e   B > A
+      (setq after (string< version emacs-version))  ;; A < B   i.e   B > A
       (cond
        ((string= op ">=")
         (if (not (or after
@@ -2933,8 +2938,8 @@ If optional VERBOSE is non-nil, display progress message."
                 (epackage-push package ret))))))
     ret))
 
-(defun epackage-pkg-depends-satisfy (depends &optional verbose)
-  "Resolve package DEPENDS by downloading more packages as needed.
+(defun epackage-pkg-depends-satisfy (package &optional verbose)
+  "Resolve depends of PACKAGE by downloading more packages as needed.
 If optional VERBOSE is non-nil, display progress message."
   (let ((missing (epackage-pkg-depends-resolve package verbose)))
     ;; This is recursive, since we're initially called through
@@ -2989,7 +2994,7 @@ If optional VERBOSE is non-nil, display progress message."
       (run-hooks 'epackage--install-autoload-hook)
       status)))
 
-(defun epackage-config-delete-file (file)
+(defun epackage-config-delete-file (file &optional verbose)
   "Delete FILE. Checks `file-exists-p'.
 Run `epackage--install-config-delete-type-hook'."
   (when (file-exists-p file)
@@ -3002,7 +3007,7 @@ Run `epackage--install-config-delete-type-hook'."
 If optional VERBOSE is non-nil, display progress message.
 TYPE is car of `epackage--layout-mapping'."
   (let ((file (epackage-file-name-install-compose package type)))
-    (epackage-config-delete-file file)))
+    (epackage-config-delete-file file verbose)))
 
 (defun epackage-config-delete-all (package &optional verbose)
   "Delete all install configuration files for PACKAGE.
@@ -3579,7 +3584,7 @@ If invalid, return list of classified problems:
         (cond
          ((file-exists-p file)
           (unless (epackage-pkg-lint-info-file file verbose)
-            (epackage-verbose-message "[FATAL] Lint - Missing file: %s" info)
+            (epackage-verbose-message "[FATAL] Lint - Missing file: %s" file)
             (epackage-push 'info list)))
          (t
           (epackage-push 'info list))))))
@@ -3621,7 +3626,7 @@ Return prblems:
         elt)
   (dolist (package (epackage-status-downloaded-packages))
     (if (setq elt (epackage-pkg-lint-git-url package verbose))
-        (epacakge-push elt list)))
+        (epackage-push elt list)))
   list))
 
 ;;;###autoload
@@ -3901,7 +3906,7 @@ See `epackage--download-action-list'."
 If optional VERBOSE is non-nil, display progress message.
 See `epackage--download-action-list'."
   (interactive (list 'interactive))
-  (epackage-download-action-lint 'lint)
+  (epackage-download-action-enable 'lint)
   (epackage-verbose-message "Download action on: lint"))
 
 ;;;###autoload
@@ -4358,7 +4363,8 @@ If optional VERBOSE is non-nil, display progress messages."
     (epackage-message "Package not downloaded: %s" package))
    ((not (epackage-git-master-p package))
     (epackage-message
-     "Upgrade ignored. Locally modified. Branch is not \"master\" in %s"))
+     "Upgrade ignored. Locally modified. Branch is not \"master\" in %s"
+     package))
    (t
     (epackage-upgrade-package package verbose)
     ;; FIXME: Add post-processing
@@ -4596,7 +4602,7 @@ Summary, Version, Maintainer etc."
                 package)
     (cond
      ((epackage-package-downloaded-p package)
-      (let* ((file (epackage-pkg-info-field-commentary package))
+      (let* ((file (epackage-pkg-info-documentation package))
              (path (format "%s/%s"
                            (epackage-directory-package-root package)
                            (or file "")))

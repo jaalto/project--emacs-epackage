@@ -1,3 +1,24 @@
+2010-12-22 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el
+	(top level): Don't require autorevert.el, forward declare its
+	variables. Add autoload for `mail-setup'.
+	(epackage-turn-on-auto-revert-mode): Check
+	variables with `boundp'.
+	(epackage-depends-parse-string): Correct variable name.
+	(epackage-git-status-data): Correct variable name.
+	(epackage-combine-files): Adjust message.
+	(epackage-pkg-depends-verify-emacs): Add `version' to let.
+	(epackage-pkg-depends-satisfy): Correct input args.
+	(epackage-config-delete-file): Add arg `verbose'.
+	(epackage-config-delete-action): Pass `verbose' forward.
+	(epackage-pkg-lint-directory): Correct variable.
+	(epackage-cmd-upgrade-package): Add missing arg for `message'.
+	(epackage-pkg-lint-downloaded-git-url): Correct function call.
+	(epackage-cmd-download-action-lint-on): Correct function call.
+	(epackage-batch-ui-display-package-documentation): Correct
+	function call.
+
 2010-12-21 Tue  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-with-package-info-file): Turn on
