@@ -27,11 +27,19 @@ Project details
 	- git[1], any version.
 	- Depends only on standard Emacs. Does not use external or
           "cl" libraries.
+	- For "make doc" to genrate documentation (same as "Manual" above),
+	  Perl utilities ripdoc[2] and t2html[3] are needed in PATH.
 
 References
 
 	[1] Git Distributed Version Control System (DVCS).
-	http://en.wikipedia.org/wiki/Git_(software)
+	    http://en.wikipedia.org/wiki/Git_(software)
+
+	[2] Extract documentation that follows Technical Text Format guidelines
+	    http://freshmeat.net/projects/perl-ripdoc
+
+	[3] Convert Technical Text Format into HTML
+	    http://freshmeat.net/projects/perl-text2html
 
 License
 
