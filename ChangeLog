@@ -28,6 +28,11 @@
 	`epackage--loader-file-boot-byte-compile-flag'.
 	(epackage--sources-list-and-repository-sync-flag): New.
 	(epackage-byte-compile-default-maybe): Remove. Unused.
+	(epackage-kill-buffer-sources-list): New.
+	(epackage-cmd-download-sources-list): Call
+	`epackage-kill-buffer-sources-list'.
+	(epackage-with-sources-list): Add `epackage-turn-on-auto-revert-mode'.
+	(epackage-kill-buffer-list): New.
 
 2010-12-21 Tue  Jari Aalto  <jari.aalto@cante.net>
 

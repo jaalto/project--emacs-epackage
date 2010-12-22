@@ -1191,7 +1191,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1222.1010"
+(defconst epackage-version-time "2010.1222.1035"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2160,20 +2160,26 @@ This means that `epackage-initialize' has not been run."
              (not auto-revert-mode))
     (auto-revert-mode 1)))
 
-(defun epackage-kill-buffer (list &optional verbose)
-  "Kill LIST of buffer, even if modified.
+(defun epackage-kill-buffer (buffer &optional verbose)
+  "Kill BUFFER, even if modified. Do nothing if BUFFER does not exist.
 If optional VERBOSE is non-nil, display progress message."
-  (dolist (buffer list)
+  (when (get-buffer buffer)
     (with-current-buffer buffer
       (set-buffer-modified-p (not 'modified))
       (epackage-verbose-message
         "Kill buffer (forced) %s" buffer-file-name)
       (kill-buffer (current-buffer)))))
 
+(defsubst epackage-kill-buffer-list (list &optional verbose)
+  "Kill LIST of buffer, even if modified.
+If optional VERBOSE is non-nil, display progress message."
+  (dolist (buffer list)
+    (epackage-kill-buffer buffer verbose)))
+
 (defsubst epackage-pkg-kill-buffer-force (package &optional verbose)
   "Kill all PACKAGE file buffers, even if modified.
 If optional VERBOSE is non-nil, display progress message."
-  (epackage-kill-buffer
+  (epackage-kill-buffer-list
    (epackage-pkg-buffer-list package)
    verbose))
 
@@ -2241,6 +2247,7 @@ Call `epackage-turn-on-auto-revert-mode'."
   "Run BODY in package list buffer.
 Call `epackage-turn-on-auto-revert-mode'."
   `(progn
+     (epackage-turn-on-auto-revert-mode)
      (epackage-sources-list-verify)
      (with-current-buffer
          (find-file-noselect (epackage-file-name-sources-list-main))
@@ -2833,6 +2840,12 @@ No error checking are done for PACKAGE."
         (delete-directory dir 'recursive)))
   ;; FIX: handle possibly changed configuration files
   (epackage-cmd-download-package package verbose))
+
+(defun epackage-kill-buffer-sources-list ()
+  "Kill sources list buffer."
+  (let ((buffer (get-file-buffer (epackage-file-name-sources-list-main))))
+    (if buffer
+        (epackage-kill-buffer buffer))))
 
 ;; FIXME: should we run hooks like in epackage-cmd-remove-package
 (defun epackage-sources-list-and-repositories-sync (&optional verbose)
@@ -4307,6 +4320,7 @@ If optional VERBOSE is non-nil, display progress message."
 If optional VERBOSE is non-nil, display progress messages."
   (interactive
    (list 'interactive))
+  (epackage-kill-buffer-sources-list)
   (if (epackage-sources-list-p)
       (epackage-with-message verbose "Upgrading sources list"
         (epackage-sources-list-upgrade verbose))
