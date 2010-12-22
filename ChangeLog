@@ -1,5 +1,9 @@
 2010-12-22 Wed  Jari Aalto  <jari.aalto@cante.net>
 
+	* README (Project details, References): Add ripdoc, t2html.
+
+	* Makefile (clean, install): adjust documentation strings.
+
 	* epackage.el
 	(top level): Don't require autorevert.el, forward declare its
 	variables. Add autoload for `mail-setup'.
