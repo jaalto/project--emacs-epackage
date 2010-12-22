@@ -1191,7 +1191,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1222.0851"
+(defconst epackage-version-time "2010.1222.0938"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1263,7 +1263,38 @@ which see."
            (const nil))
   :group 'epackage)
 
-(defcustom epackage--loader-file-boot-byte-compile-flag t
+(defcustom epackage--sources-list-and-repository-sync-flag t
+  "*Non-nil means to recreate any changed repositories.
+When this variable is non-nil, whenever `epackage-cmd-download-sources-list'
+is called, all the URLs in the list are matched against the
+git 'origin' URLs in respective downloaded repositories. If package's
+sources list URL differ from the repository on disk, the package will be
+deleted and downloaded again to keep it in synch.
+
+It's like this, the URLs point to different locations:
+
+    sources list        ---> A
+    (yellow pages)
+
+    downloaded          ---> B
+    package
+
+After the synchronization they point to the same loction:
+
+    sources list          -+-> A
+    (yellow pages)         |
+                           |
+    delete/re-downloaded  -+
+    package
+
+When non-nil, this verification takes place after every sources list update.")
+
+When non-nil, After calling `epackage-loader-file-generate', file
+returned by `epackage-file-name-loader-file' is byte compiled."
+  :type  'boolean
+  :group 'epackage)
+
+(defcustom epackage--loader-file-byte-compile-flag t
   "*Non-nil means to byte compile `epackage--loader-file-boot'.
 When non-nil, After calling `epackage-loader-file-generate', file
 returned by `epackage-file-name-loader-file' is byte compiled."
@@ -1465,11 +1496,11 @@ Do not touch. See variable `epackage--sources-list-url'.")
 Do not touch. See variables `epackage--sources-list-url'
 and `epackage--sources-file-list'.")
 
-(defvar epackage--loader-file-boot "epackage-loader.el"
+(defvar epackage--loader-file-name "epackage-loader.el"
   "File that contains package enabling and activation code.
 Use function `epackage-file-name-loader-file' for full path name.
 Make fle with `epackage-loader-file-generate'.
-See also variable `epackage--loader-file-boot-byte-compile-flag'.")
+See also variable `epackage--loader-file-byte-compile-flag'.")
 
 (defvar epackage--loader-file-load-path "epackage-load-path.el"
   "File that contains `load-path' definitions.
@@ -1815,7 +1846,7 @@ Return nil of there is nothing to remove .i.e. the result wold be \"/\"."
   "Return path to boot loader file."
   (format "%s/%s"
           (epackage-directory-loader)
-          epackage--loader-file-boot))
+          epackage--loader-file-name))
 
 (defsubst epackage-file-name-loader-load-path ()
   "Return path to `load-path' loader file."
@@ -2710,6 +2741,65 @@ No pending commits and no modified files."
       (let ((list (epackage-git-command-branch-list dir)))
         (epackage-git-branch-list-master-p list)))))
 
+;;; ................................................ &functions-status ...
+
+(defun epackage-config-status-of-packages (type)
+  "Return packages of TYPE of `epackage--layout-mapping'."
+  (let* ((dir      (epackage-directory-install))
+         (template (or (nth 1 (assq type epackage--layout-mapping))
+                       (error
+                        `,(concat
+                           "Invalid function arg TYPE: %s"
+                           "See `epackage--layout-mapping'.")
+                        type)))
+         (regexp   (concat (regexp-quote template) "$"))
+         (match    (concat "\\(.+\\)" regexp))
+         list)
+    (epackage-initialize-verify
+      "Not initialized. Can't use epackage--directory-name-install")
+    (dolist (elt (directory-files
+                  dir
+                  (not 'full-path)
+                  regexp))
+      (if (string-match match elt)
+          (add-to-list 'list (match-string 1 elt))))
+    (nreverse list)))
+
+(defsubst epackage-status-enabled-packages ()
+  "Return list of packages in `epackage-directory-install'."
+  (epackage-config-status-of-packages 'enable))
+
+(defsubst epackage-status-activated-packages ()
+  "Return list of packages in `epackage-directory-install'."
+  (epackage-config-status-of-packages 'activate))
+
+(defun epackage-status-downloaded-packages ()
+  "Return list of packages in `epackage--directory-name-pkg'."
+  (let ((dir (epackage-directory-packages))
+        list)
+    (epackage-initialize-verify "Can't use epackage--directory-name-pkg")
+    (dolist (elt (directory-files
+                  dir
+                  (not 'full-path)))
+      (unless (string-match "^00\\|\\." elt)
+        (add-to-list 'list elt)))
+    (nreverse list)))
+
+(defsubst epackage-status-installed-packages ()
+  "Return list of packages in `epackage-directory-install'."
+  (epackage-config-status-of-packages 'enable))
+
+(defun epackage-status-not-installed-packages ()
+  "Return list of packages in `epackage-directory-packages'.
+Those that are not installed in `epackage-directory-install'."
+  (let ((active (epackage-config-status-of-packages 'activate))
+        (downloaded (epackage-status-downloaded-packages))
+        list)
+    (dolist (package downloaded)
+      (unless (member package active)
+        (epackage-push package list)))
+    (nreverse list)))
+
 ;;; ............................................... &functions-package ...
 
 (defun epackage-upgrade-package (package &optional verbose)
@@ -2765,7 +2855,7 @@ still in pristine state."
          ((not (epackage-git-master-p package))
           (epackage-message
             `,(concat
-               "[WARN] Won't re-create due to changed source URL."
+               "[WARN] Won't re-create due to changed source URL. "
                "Branch name is not \"master\" in %s; "
                "possibly changed manually or invalid package repository.")
             dir))
@@ -2837,7 +2927,8 @@ if sources list has already been downloaded or not."
         (epackage-sources-list-initialize verbose))
     (epackage-with-message verbose "Initializing package sources list"
       (epackage-sources-list-initialize verbose)))
-  (epackage-sources-list-and-repositories-sync verbose))
+  (if epackage--sources-list-and-repository-sync-flag
+      (epackage-sources-list-and-repositories-sync verbose)))
 
 (defun epackage-download-package (package &optional verbose)
   "Download PACKAGE.
@@ -3048,65 +3139,6 @@ Return:
         (run-hooks 'epackage--install-config-delete-all-hook))
     list))
 
-;;; ................................................ &functions-status ...
-
-(defun epackage-config-status-of-packages (type)
-  "Return packages of TYPE of `epackage--layout-mapping'."
-  (let* ((dir      (epackage-directory-install))
-         (template (or (nth 1 (assq type epackage--layout-mapping))
-                       (error
-                        `,(concat
-                           "Invalid function arg TYPE: %s"
-                           "See `epackage--layout-mapping'.")
-                        type)))
-         (regexp   (concat (regexp-quote template) "$"))
-         (match    (concat "\\(.+\\)" regexp))
-         list)
-    (epackage-initialize-verify
-      "Not initialized. Can't use epackage--directory-name-install")
-    (dolist (elt (directory-files
-                  dir
-                  (not 'full-path)
-                  regexp))
-      (if (string-match match elt)
-          (add-to-list 'list (match-string 1 elt))))
-    (nreverse list)))
-
-(defsubst epackage-status-enabled-packages ()
-  "Return list of packages in `epackage-directory-install'."
-  (epackage-config-status-of-packages 'enable))
-
-(defsubst epackage-status-activated-packages ()
-  "Return list of packages in `epackage-directory-install'."
-  (epackage-config-status-of-packages 'activate))
-
-(defun epackage-status-downloaded-packages ()
-  "Return list of packages in `epackage--directory-name-pkg'."
-  (let ((dir (epackage-directory-packages))
-        list)
-    (epackage-initialize-verify "Can't use epackage--directory-name-pkg")
-    (dolist (elt (directory-files
-                  dir
-                  (not 'full-path)))
-      (unless (string-match "^00\\|\\." elt)
-        (add-to-list 'list elt)))
-    (nreverse list)))
-
-(defsubst epackage-status-installed-packages ()
-  "Return list of packages in `epackage-directory-install'."
-  (epackage-config-status-of-packages 'enable))
-
-(defun epackage-status-not-installed-packages ()
-  "Return list of packages in `epackage-directory-packages'.
-Those that are not installed in `epackage-directory-install'."
-  (let ((active (epackage-config-status-of-packages 'activate))
-        (downloaded (epackage-status-downloaded-packages))
-        list)
-    (dolist (package downloaded)
-      (unless (member package active)
-        (epackage-push package list)))
-    (nreverse list)))
-
 ;;; ............................................... &functions-display ...
 
 (defun epackage-pkg-info-documentation (package &optional verbose)
@@ -3254,7 +3286,7 @@ If optional VERBOSE is non-nil, display progress message."
 (defsubst epackage-byte-compile-loader-file-maybe (&optional verbose)
   "Check `epackage--byte-compile-loader-file' and byte compile.
 If optional VERBOSE is non-nil, display progress message."
-  (when epackage--loader-file-boot-byte-compile-flag
+  (when epackage--loader-file-byte-compile-flag
     (epackage-loader-file-byte-compile verbose)))
 
 (defun epackage-byte-compile-package-guess (package &optional verbose)

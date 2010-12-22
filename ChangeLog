@@ -22,6 +22,11 @@
 	(epackage-cmd-download-action-lint-on): Correct function call.
 	(epackage-batch-ui-display-package-documentation): Correct
 	function call.
+	(epackage--loader-file-name): Rename. Was
+	`epackage--loader-file-boot'.
+	(epackage--loader-file-byte-compile-flag): Rename. Was
+	`epackage--loader-file-boot-byte-compile-flag'.
+	(epackage--sources-list-and-repository-sync-flag): New.
 
 2010-12-21 Tue  Jari Aalto  <jari.aalto@cante.net>
 
