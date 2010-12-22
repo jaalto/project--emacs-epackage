@@ -4,8 +4,8 @@
 
 ;; Copyright (C)    2009-2011 Jari Aalto
 ;; Keywords:        tools
-;; Author:          Jari Aalto
-;; Maintainer:      Jari Aalto
+;; Author:          Jari Aalto <jari.aalto@cante.net>
+;; Maintainer:      Jari Aalto <jari.aalto@cante.net>
 
 ;; This program is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by the Free
@@ -1170,6 +1170,8 @@
 
 ;;; Change Log:
 
+;;; Code:
+
 (eval-when-compile
   (defvar auto-revert-mode)
   (defvar global-auto-revert-mode)
@@ -1189,9 +1191,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-;;; Code:
-
-(defconst epackage-version-time "2010.1222.0827"
+(defconst epackage-version-time "2010.1222.0851"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1208,6 +1208,8 @@
 ;  :link '(function-link view-mode)
 ;  :link '(custom-manual "(emacs)Misc File Ops")
   :group 'tools)
+
+;;; ................................................ &variables-custom ...
 
 (defcustom epackage--download-action-list '(enable package-depeds)
   "*TYPE of actions to run after package download.
@@ -1260,6 +1262,54 @@ which see."
            (const error)
            (const nil))
   :group 'epackage)
+
+(defcustom epackage--loader-file-boot-byte-compile-flag t
+  "*Non-nil means to byte compile `epackage--loader-file-boot'.
+When non-nil, After calling `epackage-loader-file-generate', file
+returned by `epackage-file-name-loader-file' is byte compiled."
+  :type  'boolean
+  :group 'epackage)
+
+(defcustom epackage--sources-list-url
+  "git://github.com/jaalto/project--emacs-epackage-sources-list.git"
+  "URL to the location of official available package list. The yellow pages.
+This is the Git repository that contains the canonical list of
+available packages.
+
+The included text file contains information about package names
+and their repository download URLs. Empty lines and comment on
+their own lines started with character '#' are ignored. There
+must be no leading whitespaces in front of PACKAGE-NAME.
+
+  # Comment
+  PACKAGE-NAME REPOSITORY-URL DESCRIPTION
+  PACKAGE-NAME REPOSITORY-URL DESCRIPTION
+  ...
+
+An example:
+
+  foo git://example.com/repository/foo.git
+
+This list is combined with user given list in
+variable `epackage--sources-file-list'."
+  :type  'string
+  :group 'epackage)
+
+(defcustom epackage--sources-file-list nil
+  "*List of files that are in the form of `epackage--sources-list-url'.
+In here you can list additional package repositories.
+
+An example:
+
+  '(\"~/.emacs.d/my/epackage-private-repo.lst\")
+
+The files listed will be combined before `epackage--sources-list-url'
+into a the main package sources list file whose path is returned
+by function `epackage-file-name-sources-list-main'."
+  :type  '(list string)
+  :group 'epackage)
+
+;;; ................................................. &variables-hooks ...
 
 (defcustom epackage--load-hook nil
   "*Hook run when file has been loaded."
@@ -1337,51 +1387,7 @@ during hook. The TYPE is one of `epackage--layout-mapping'."
   :type  'hook
   :group 'epackage)
 
-(defcustom epackage--loader-file-boot-byte-compile-flag t
-  "*Non-nil means to byte compile `epackage--loader-file-boot'.
-When non-nil, After calling `epackage-loader-file-generate', file
-returned by `epackage-file-name-loader-file' is byte compiled."
-  :type  'boolean
-  :group 'epackage)
-
-(defcustom epackage--sources-list-url
-  "git://github.com/jaalto/project--emacs-epackage-sources-list.git"
-  "URL to the location of official available package list. The yellow pages.
-This is the Git repository that contains the canonical list of
-available packages.
-
-The included text file contains information about package names
-and their repository download URLs. Empty lines and comment on
-their own lines started with character '#' are ignored. There
-must be no leading whitespaces in front of PACKAGE-NAME.
-
-  # Comment
-  PACKAGE-NAME REPOSITORY-URL DESCRIPTION
-  PACKAGE-NAME REPOSITORY-URL DESCRIPTION
-  ...
-
-An example:
-
-  foo git://example.com/repository/foo.git
-
-This list is combined with user given list in
-variable `epackage--sources-file-list'."
-  :type  'string
-  :group 'epackage)
-
-(defcustom epackage--sources-file-list nil
-  "*List of files that are in the form of `epackage--sources-list-url'.
-In here you can list additional package repositories.
-
-An example:
-
-  '(\"~/.emacs.d/my/epackage-private-repo.lst\")
-
-The files listed will be combined before `epackage--sources-list-url'
-into a the main package sources list file whose path is returned
-by function `epackage-file-name-sources-list-main'."
-  :type  '(list string)
-  :group 'epackage)
+;;; ............................................... &variables-private ...
 
 (defvar epackage--sources-list-regexp
   `,(concat "^\\(%s\\)\\>"
@@ -1684,6 +1690,8 @@ boot loader     Write boot loader that contains all packages'
 get             Get package sources list Yellow Pages data. This updates
                 the list of available packages."
   "UI menu help.")
+
+;;; ................................................ &functions-simple ...
 
 (defmacro epackage-push (x place)
   "A close `push' CL library macro equivalent: (push X PLACE)."
@@ -2211,6 +2219,8 @@ Call `epackage-turn-on-auto-revert-mode'."
        (epackage-turn-on-auto-revert-mode)
        ,@body)))
 
+;;; ........................................ &functions-git-primitives ...
+
 (defsubst epackage-git-error-handler (&optional command)
   "On Git error, show proces buffer and signal error incuding COMMAND."
   (display-buffer epackage--process-output)
@@ -2300,6 +2310,8 @@ Kill buffer after BODY."
            (with-current-buffer (find-file-noselect config-file)
              ,@body)
          (kill-buffer (get-file-buffer config-file))))))
+
+;;; ............................................. &functions-info-file ...
 
 (defsubst epackage-fetch-field (field)
   "Like `mail-fetch-field', but return value only if it exists.
@@ -2464,6 +2476,8 @@ Return subexpression 1, or 0; the one that exists."
                                 (string< a b)))
                         " ")))
       status)))
+
+;;; ................................................... &functions-git ...
 
 (defun epackage-git-buffer-fetch-field (tag field)
   "Read configuration TAG.FIELD from current buffer.
@@ -2696,6 +2710,8 @@ No pending commits and no modified files."
       (let ((list (epackage-git-command-branch-list dir)))
         (epackage-git-branch-list-master-p list)))))
 
+;;; ............................................... &functions-package ...
+
 (defun epackage-upgrade-package (package &optional verbose)
   "Upgrade PACKAGE.
 If optional VERBOSE is non-nil, display progress message."
@@ -2888,7 +2904,7 @@ Return back depends that are not met."
 (defun epackage-pkg-depends-rollback (&optional verbose)
   "Roll back according to `epackage--depends-satisfy-running'.
 If optional VERBOSE is non-nil, display progress message.
-See variable's documentation for mor einformation."
+See variable's documentation for more information."
   (when epackage--depends-satisfy-running
     (epackage-with-message verbose "Rollback depends"
       (let (package)
@@ -2947,6 +2963,8 @@ If optional VERBOSE is non-nil, display progress message."
     (dolist (elt missing)
       (epackage-push elt epackage--depends-satisfy-running)
       (epackage-cmd-download-package elt verbose))))
+
+;;; ................................................ &functions-config ...
 
 (defsubst epackage-enable-file (from to &optional noerr verbose)
   "Enable by copying or by symlinking file FROM TO.
@@ -3030,6 +3048,8 @@ Return:
         (run-hooks 'epackage--install-config-delete-all-hook))
     list))
 
+;;; ................................................ &functions-status ...
+
 (defun epackage-config-status-of-packages (type)
   "Return packages of TYPE of `epackage--layout-mapping'."
   (let* ((dir      (epackage-directory-install))
@@ -3087,6 +3107,8 @@ Those that are not installed in `epackage-directory-install'."
         (epackage-push package list)))
     (nreverse list)))
 
+;;; ............................................... &functions-display ...
+
 (defun epackage-pkg-info-documentation (package &optional verbose)
   "Display local PACKAGE documentation in another buffer.
 If optional VERBOSE is non-nil, display progress message.
@@ -3112,6 +3134,8 @@ If optional VERBOSE is non-nil, display progress message."
       (erase-buffer)
       (insert (epackage-file-content-as-string info-file))
       (display-buffer (current-buffer)))))
+
+;;; ................................................ &functions-loader ...
 
 (defun epackage-loader-file-insert-header ()
   "Insert header comments."
@@ -3219,14 +3243,15 @@ If optional VERBOSE is non-nil, display progress message."
     (unless (file-exists-p file)
       (epackage-loader-file-generate-load-path-main verbose))))
 
+;;; .......................................... &functions-byte-compile ...
+
+;; epackage-lisp-file-list
 (defun epackage-byte-compile-default-maybe (dir-list &optional verbose)
   "If PACKAGE contains single *.el, byte compile it.
 If optional VERBOSE is non-nil, display progress message."
   )
 
-;; epackage-lisp-file-list
-
-(defsubst epackage-loader-file-byte-compile-maybe (&optional verbose)
+(defsubst epackage-byte-compile-loader-file-maybe (&optional verbose)
   "Check `epackage--byte-compile-loader-file' and byte compile.
 If optional VERBOSE is non-nil, display progress message."
   (when epackage--loader-file-boot-byte-compile-flag
@@ -3316,7 +3341,7 @@ If optional VERBOSE is non-nil, display progress message."
         (write-region (point-min) (point-max) file)
         (set-buffer-modified-p nil)
         (kill-buffer (current-buffer)))
-      (epackage-loader-file-byte-compile-maybe verbose))))
+      (epackage-byte-compile-loader-file-maybe verbose))))
 
 (defun epackage-sources-list-info-parse-line (package)
   "Return list of PACKAGE fields described in `epackage--sources-list-url'.
@@ -3447,6 +3472,8 @@ If optional VERBOSE is non-nil, display progress message."
       (epackage-with-binary
         (write-region (point) (point-max) file)
         (kill-buffer (current-buffer))))))
+
+;;; .................................................. &functions-lint ...
 
 (defun epackage-pkg-lint-info-buffer (&optional verbose)
   "Check validity of info in current buffer.
@@ -3671,6 +3698,8 @@ Return:
                  buffer (match-beginning 1) (match-end 1)))
               (display-buffer buffer))))))))
 
+;;; .................................................. &functions-misc ...
+
 (defun epackage-download-sources-list (&optional verbose)
   "Download sources list file, the yellow pages.
 If optional VERBOSE is non-nil, display progress message."
@@ -3739,7 +3768,7 @@ Return package name or nil."
       (not 'actions))
      ,@body))
 
-;;; User commands
+;;; ......................................... &functions-user-commands ...
 
 ;;;###autoload
 (defun epackage-cmd-download-action-activate-on (&optional verbose)
@@ -4538,6 +4567,8 @@ Summary, Version, Maintainer etc."
 ;;      (define-key map "Hc" 'epackage-commentary)
 ;;      (define-key map "Hv" 'epackage-version))))
 
+;;; .............................................. &functions-batch-ui ...
+
 (put 'epackage-batch-macro 'lisp-indent-function 0)
 (put 'epackage-batch-macro 'edebug-form-spec '(body))
 (defmacro epackage-batch-macro (&rest body)
@@ -4566,8 +4597,6 @@ Summary, Version, Maintainer etc."
       (if description
           (message "%-25s %s" package description)
         (message package)))))
-
-;;; Command line UI
 
 ;;;###autoload
 (defun epackage-batch-ui-display-package-info ()
@@ -4896,8 +4925,9 @@ If optional VERBOSE is non-nil, display progress message."
 ;;;###autoload
 (defalias 'epackage 'epackage-manager)
 
-(add-hook  'epackage--mode-hook 'epackage-mode-define-keys)
 (provide   'epackage)
+
+(add-hook  'epackage--mode-hook 'epackage-mode-define-keys)
 (run-hooks 'epackage--load-hook)
 
-;;; epackage.el ends her
+;;; epackage.el ends here
