@@ -1191,7 +1191,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1222.1153"
+(defconst epackage-version-time "2010.1222.1240"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1526,8 +1526,6 @@ packages.")
 
 (defconst epackage--directory-exclude-regexp
   (concat
-   "/\\.\\.?$"
-   "\\|"
    (regexp-opt
     '("/RCS"
       "/rcs"
@@ -1539,6 +1537,14 @@ packages.")
       "/.hg"
       "/.darcs"
       "/.mtn"
+      "/images"
+      "/pics"
+      "/patches"
+      "/doc"
+      "/tex"
+      "/texinfo"
+      "/html"
+      "/test"
       ))
    "$")
   "Regexp to exclude dirctory names.
@@ -1995,14 +2001,20 @@ Return:
        file (cdr error))
      nil)))
 
+(defsubst epackage-directory-list-exclude-p (exclude dir)
+  "Check if EXLCUDE regexp match DIR."
+  ;; This fucntion exists so that you can point edebugger to it.
+  (string-match exclude dir))
+
 (defun epackage-directory-list (dir &optional exclude)
   "Return all directories under DIR.
 Optionally EXCLUDE matching directories."
   (let (list)
     (dolist (elt (directory-files dir 'full))
-      (when (and (file-directory-p elt)
-                 (and (stringp exclude)
-                      (not (string-match exclude elt))))
+      (when (and (not (string-match "/\\.\\.?$" elt))
+                 (file-directory-p elt)
+                 (or (not (stringp exclude))
+                     (not (epackage-directory-list-exclude-p exclude elt))))
         (epackage-push elt list)))
     list))
 
@@ -2032,16 +2044,27 @@ or whose path name matches EXCLUDE."
       (setq ret (append ret files)))
     ret))
 
-(defsubst epackage-directory-recursive-list-default (dir list)
-  "Return all directories under DIR recursively to LIST.
+(defsubst epackage-directory-recursive-list-default (dir)
+  "Return all directories under DIR recursively.
 Exclude directories than contain file .nosearch
 or which match `epackage--directory-exclude-regexp'
 and `epackage--directory-name'."
-  (epackage-directory-recursive-list
-   dir
-   list
-   (concat epackage--directory-exclude-regexp
-           "\\|/" epackage--directory-name)))
+  (let (list)
+    (epackage-directory-recursive-list
+     dir
+     list
+     (concat epackage--directory-exclude-regexp
+             "\\|/" epackage--directory-name "$"))))
+
+(defsubst epackage-directory-recursive-lisp-files (dir)
+  "Return all Emacs Lisp file directories under DIR recursively.
+See `epackage-directory-recursive-list-default' for more information."
+  (let (ret)
+    (dolist (elt (epackage-directory-recursive-list-default dir))
+      ;; Check remaining directories if they contain Emacs Lisp files."
+      (if (directory-files elt nil "\\.el$")
+          (epackage-push elt ret)))
+    ret))
 
 (defun epackage-directory-packages-control-file (package type)
   "Return PACKAGE control file of TYPE.
@@ -2840,6 +2863,8 @@ No pending commits and no modified files."
 
 (defsubst epackage-status-installed-packages ()
   "Return list of packages in `epackage-directory-install'."
+  ;; We don't care autoloads, because 'enable' installation is a
+  ;; REQUIREMENT for epackages.
   (epackage-config-status-of-packages 'enable))
 
 (defun epackage-status-not-installed-packages ()
@@ -3279,31 +3304,16 @@ If optional VERBOSE is non-nil, display progress message."
 
 (defun epackage-loader-insert-file-path-list-by-path (path)
   "Insert `load-path' definitions to `current-buffer' from PATH."
-  (let (list)
-    (dolist (dir (epackage-directory-recursive-list-default path list))
-      (insert (format
-               "(add-to-list 'load-path \"%s\")\n"
-               dir)))))
+  (dolist (dir (epackage-directory-recursive-lisp-files path))
+    (insert (format
+             "(add-to-list 'load-path \"%s\")\n"
+             dir))))
 
 (defun epackage-loader-file-insert-path-list () ;; FIXME w32
   "Insert `load-path' commands to `current-buffer'."
-  (let (name
-        package
-        list)
-    (dolist (file (directory-files
-                   (epackage-directory-install)
-                   'full-path
-                   "^.*-.*\\.el"
-                   t))
-      (setq name
-            (file-name-sans-extension
-             (file-name-nondirectory file)))
-      ;; package-name-autoloads => package-name
-      (setq package (replace-regexp-in-string  "-[^-]+$" "" name))
-      (unless (member package list)
-        (add-to-list 'list package)
-        (epackage-loader-insert-file-path-list-by-path
-         (epackage-directory-package-root package))))))
+  (dolist (package (epackage-status-installed-packages))
+    (epackage-loader-insert-file-path-list-by-path
+     (epackage-directory-package-root package))))
 
 (defun epackage-loader-file-insert-install-code ()
   "Insert package installation code into `current-buffer'."

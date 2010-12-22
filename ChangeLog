@@ -44,6 +44,13 @@
 	(epackage-eval-file-safe): New.
 	(epackage-config-uninstall-invoke): New.
 	(epackage-cmd-config-uninstall-package): New.
+	(epackage-loader-file-insert-path-list): Rewrite completely.
+	(epackage--directory-exclude-regexp): Add more entries.
+	(epackage-directory-list): Ignore "." and ".." directories.
+	(epackage-directory-list-exclude-p): New.
+	(epackage-loader-insert-file-path-list-by-path): Simplify.
+	(epackage-directory-recursive-list-default): Add let.
+	(epackage-directory-recursive-lisp-files): New.
 
 2010-12-21 Tue  Jari Aalto  <jari.aalto@cante.net>
 
