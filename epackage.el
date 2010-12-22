@@ -1191,7 +1191,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1222.0938"
+(defconst epackage-version-time "2010.1222.0939"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1287,10 +1287,7 @@ After the synchronization they point to the same loction:
     delete/re-downloaded  -+
     package
 
-When non-nil, this verification takes place after every sources list update.")
-
-When non-nil, After calling `epackage-loader-file-generate', file
-returned by `epackage-file-name-loader-file' is byte compiled."
+When non-nil, this verification takes place after every sources list update."
   :type  'boolean
   :group 'epackage)
 
