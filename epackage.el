@@ -1149,7 +1149,6 @@
 ;;
 ;;      Some day in the future:
 ;;
-;;      o   Add TAB completion in epackage-info-mode-*: Section, Status
 ;;      o   Verify Compatibility Level of downloaded epackage
 ;;      o   Handle Conflicts field
 ;;      o   Edit yellow pages catalog?
@@ -1191,7 +1190,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1223.0223"
+(defconst epackage-version-time "2010.1223.1706"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -4059,14 +4058,17 @@ Return package name or nil."
 (defun epackage-info-mode-pcomplete-arguments ()
   "Return pcomplete data."
   (save-excursion
-    (let* ((point (point))
-           (back  (search-backward-regexp "[ \t\n]" nil t))
-           (beg   (if back
-                      (+ back 1)
-                    point)))
-      (list (list "dummy"
-                  (buffer-substring-no-properties beg point))
-            (point-min) beg))))
+    (when (and (not (bobp))
+               ;; Previous char must not be space
+               (not (eq 32 (char-syntax (char-after (1- (point)))))))
+      (let* ((point (point))
+             (back  (search-backward-regexp "[ \t\n]" nil t))
+             (beg   (if back
+                        (+ back 1)
+                      point)))
+        (list (list "dummy"
+                    (buffer-substring-no-properties beg point))
+              (point-min) beg)))))
 
 (defun epackage-info-mode-pcomplete-default-completion ()
   "Run pcomplete on `package-info-mode-completions'."
@@ -4111,7 +4113,11 @@ Return package name or nil."
   "Toggle mode for editing `epackage--pkg-info-file-name'.
 
 With arg, turn mode on if and only if arg is positive.
-This is a minor mode that helps editing epackage control files."
+This is a minor mode that helps editing epackage control files.
+
+See TAB behavior in function description of `epackage-info-mode-tab'.
+
+\\{epackage-info-mode-map}"
   :group 'epackage :lighter epackage-info-mode-text
   (epackage-info-mode-set-variables)
   (epackage-info-mode-set-font-lock)
@@ -4236,13 +4242,39 @@ This is a minor mode that helps editing epackage control files."
           (goto-char (match-end 1)))))))
 
 (defun epackage-info-mode-tab ()
-  "Smart tab. Complete at certain fields."
+  "Smart tab. Complete at certain fields.
+If at field, move to value:
+
+   Field: Value         => Field: Value
+     *                            *
+     TAB
+
+In fields Status and License, complete word.
+
+   Status: un           => Status: unmaintained
+             *                                 *
+             TAB
+
+   License: G           => License: GPL-2+
+             *                            *
+             TAB
+
+In fields Status and License, if on space, show available
+completions:
+
+   License:
+            *
+            TAB
+
+Anywhere else, run `indent-for-tab-command'."
   (interactive)
-  (let ((case-fold-search t)
-        (point (point))
-        (field (epackage-field-name)))
+  (let* ((case-fold-search t)
+         (point (point))
+         (field (epackage-field-name))
+         (syntax (char-to-string (char-syntax (char-after (point)))))
+         (space-p (string= " " syntax)))
     ;; Field:
-    ;;   *                 <= point somewher in field name
+    ;;   *                 <= point somewhere in field name
     (cond
      ((and (looking-at "[^ \t\r\n]+: *")
            (setq point (match-end 0))
@@ -4255,12 +4287,28 @@ This is a minor mode that helps editing epackage control files."
            (string-match "status" field))
       (let ((package-info-mode-current-completions
              package-info-mode-status-completions))
-        (pcomplete)))
+        (cond
+         (space-p
+          (pcomplete)
+          (when (eq (point) point)        ;Not completed
+            (message
+             "Completions: %s"
+             (mapconcat #'concat package-info-mode-status-completions " "))))
+         (t
+          (forward-word 1)))))
      ((and (stringp field)
            (string-match "license" field))
       (let ((package-info-mode-current-completions
              package-info-mode-license-completions))
-        (pcomplete)))
+        (cond
+         (space-p
+          (pcomplete)
+          (when (eq (point) point)        ;Not completed
+            (message
+             "Completions: %s"
+             (mapconcat #'concat package-info-mode-license-completions " "))))
+         (t
+          (forward-word 1)))))
      (t
       (call-interactively 'indent-for-tab-command)))))
 
