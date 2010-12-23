@@ -1170,6 +1170,9 @@
 (eval-when-compile
   (defvar auto-revert-mode)
   (defvar global-auto-revert-mode)
+  (defvar pcomplete-parse-arguments-function)
+  (defvar pcomplete-default-completion-function)
+  (defvar whitespace-style)
   (autoload 'lm-version "lisp-mnt")
   (autoload 'lm-summary "lisp-mnt")
   (autoload 'lm-commentary "lisp-mnt")
@@ -1178,15 +1181,17 @@
   (autoload 'lm-maintainer "lisp-mnt")
   (autoload 'dired-make-relative-symlink "dired-x")
   (autoload 'mail-fetch-field "mail-utils")
+  (autoload 'mail-position-on-field "sendmail")
   (autoload 'mail-setup "sendmail")
-  (autoload 'url-http-parse-response "url"))
+  (autoload 'url-http-parse-response "url")
+  (autoload 'pcomplete-here "pcomplete"))
 
 (eval-and-compile
   (if (featurep 'xemacs)
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1223.0214"
+(defconst epackage-version-time "2010.1223.0223"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -3907,9 +3912,9 @@ Return prblems:
         (epackage-push elt list)))
   list))
 
-(defun epackage-pkg-lint-results (point &optional display)
+(defun epackage-pkg-lint-results (point dir &optional display)
   "Collect Lint results from `epackage--buffer-emacs-messages' at POINT forward.
-Optional DISPLAY show `epackage--buffer-lint'."
+Display DIR in heading. Optional DISPLAY show `epackage--buffer-lint'."
   (let ((buffer (get-buffer-create epackage--buffer-lint)))
     (with-current-buffer buffer
       (insert (format "-- Lint %s %s\n"
@@ -3935,7 +3940,7 @@ Optional DISPLAY show `epackage--buffer-lint'."
     (let ((point (epackage-with-buffer-emacs-messages
                    (point))))
       (epackage-pkg-lint-directory dir)
-      (epackage-pkg-lint-results point 'display))))
+      (epackage-pkg-lint-results point dir 'display))))
 
 ;;;###autoload
 (defun epackage-pkg-lint-package (package &optional verbose)
@@ -3969,7 +3974,7 @@ Return:
                 (epackage-push 'git-config ret))
             ret)
         (when verbose
-          (epackage-pkg-lint-results point 'show))))))
+          (epackage-pkg-lint-results point dir 'show))))))
 
 ;;; .................................................. &functions-misc ...
 
@@ -4191,8 +4196,8 @@ This is a minor mode that helps editing epackage control files."
         (when (string-match "/" file)
           (setq dir (format "%s/%s"
                             root
-                            file-name-directory file))
-          (stq file (file-name-nondirectory file)))
+                            (file-name-directory file)))
+          (setq file (file-name-nondirectory file)))
         (epackage-push dir load-path)
         (finder-commentary file)))))
 
@@ -4795,7 +4800,7 @@ environment. To clean those, reboot Emacs."
         package)
     (let ((file (epackage-directory-packages-control-file
                  package 'uninstall)))
-      (conf
+      (cond
        ((file-exists-p file)
         (epackage-config-uninstall-invoke package verbose))
        (t
