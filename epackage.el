@@ -612,7 +612,7 @@
 ;;          Status: [ <keyword> ...]
 ;;          Compat: [ <epackage version> ]
 ;;          *Maintainer: First Last <first.last@example.com>
-;;          *Email: First Last <first.last@example.com>
+;;          *Upstream: First Last <first.last@example.com>
 ;;          Bugs: [ URL ]
 ;;          Vcs-Type:
 ;;          Vcs-Url:
@@ -761,16 +761,6 @@
 ;;      their own lines. The long description's paragraphs are
 ;;      indented by one space.
 ;;
-;;     Email
-;;
-;;      The upstream developer's name and email address. Multiple
-;;      developers or alternative addresses are separated by commas.
-;;      The role can be expressed in RFC 2822 comment-parenthesis. An
-;;      example:
-;;
-;;              Email: John Doe (Author) <jdoe@example.com>,
-;;               Joe Average (Co-developer) <jave@example.com>
-;;
 ;;     Homepage
 ;;
 ;;      URL to the project's homepage. It is recommended to use
@@ -876,6 +866,16 @@
 ;;      there are ports of problems or that it may not work in some
 ;;      Emacs version. Further information should be supplied in the
 ;;      end of *Description:* field in section "BUGS" or similar.
+;;
+;;     Upstream
+;;
+;;      The upstream developer's name and email address. Multiple
+;;      developers or alternative addresses are separated by commas.
+;;      The role can be expressed in RFC 2822 comment-parenthesis. An
+;;      example:
+;;
+;;              Upstream: John Doe (Author) <jdoe@example.com>,
+;;               Joe Average (Co-developer) <jave@example.com>
 ;;
 ;;     Vcs-Browser
 ;;
@@ -1149,7 +1149,7 @@
 ;;
 ;;      Some day in the future:
 ;;
-;;      o   Add TAB completion in epackage-info-mode-* for Status field.
+;;      o   Add TAB completion in epackage-info-mode-*: Section, Status
 ;;      o   Verify Compatibility Level of downloaded epackage
 ;;      o   Handle Conflicts field
 ;;      o   Edit yellow pages catalog?
@@ -1186,22 +1186,22 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1222.2342"
+(defconst epackage-version-time "2010.1223.0214"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
   "Maintiner's email address.")
 
 (eval-and-compile                       ;We need this at runtim
-(defconst epackage-w32-p
-  (or (memq system-type '(ms-dos windows-nt))
-      (memq window-system '(win32 w32 mswindows)))
-  "Non-nil under Windows, DOS operating system."))
+  (defconst epackage-w32-p
+    (or (memq system-type '(ms-dos windows-nt))
+        (memq window-system '(win32 w32 mswindows)))
+    "Non-nil under Windows, DOS operating system."))
 
 (defgroup epackage nil
   "Distributed Emacs Lisp package system (DELPS)."
-;  :link '(function-link view-mode)
-;  :link '(custom-manual "(emacs)Misc File Ops")
+                                        ;  :link '(function-link view-mode)
+                                        ;  :link '(custom-manual "(emacs)Misc File Ops")
   :group 'tools)
 
 ;;; ................................................ &variables-custom ...
@@ -1468,11 +1468,14 @@ Never set this variable directly, use the command
   (let ((map (make-sparse-keymap)))
     ;; (set-keymap-parent map ...)
     ;; Navigation in the document
+    (define-key map "\t" 'epackage-info-mode-tab)
     (define-key map (kbd "C-a") 'epackage-info-mode-move-beginning-of-line)
     (define-key map (kbd "C-c c") 'epackage-info-mode-cmd-url-commentary)
     (define-key map (kbd "C-c d") 'epackage-info-mode-cmd-goto-description)
     (define-key map (kbd "C-c h") 'epackage-info-mode-cmd-url-homepage)
     (define-key map (kbd "C-c l") 'epackage-info-mode-cmd-lint)
+    (define-key map (kbd "C-c mm") 'epackage-info-mode-cmd-email-maintainer)
+    (define-key map (kbd "C-c mu") 'epackage-info-mode-cmd-email-upstream)
     (define-key map (kbd "C-c s") 'epackage-info-mode-cmd-goto-status)
     (define-key map (kbd "C-c w") 'epackage-info-mode-cmd-url-wiki)
     map)
@@ -1485,6 +1488,8 @@ Never set this variable directly, use the command
   '("eInfo"
     ["Goto field Description" epackage-info-mode-cmd-goto-description]
     ["Goto field Status" epackage-info-mode-cmd-goto-status]
+    ["Email maintainer" epackage-info-mode-cmd-email-maintainer]
+    ["Email upstream" epackage-info-mode-cmd-email-upstream]
     ["Visit URL commentary" epackage-info-mode-cmd-url-commentary]
     ["Visit URL homepage" epackage-info-mode-cmd-url-homepage]
     ["Visit URL wiki" epackage-info-mode-cmd-url-wiki]
@@ -1493,19 +1498,48 @@ Never set this variable directly, use the command
 
 (defvar epackage-info-mode-font-lock-keywords
   '(("^\\(Package\\): *\\(.*\\)"
-     (1 'font-lock-type-face)
-     (2 'font-lock-function-name-face nil t))
+     (1 'font-lock-keyword-face)
+     (2 'font-lock-type-face))
     ("^\\(Description\\): *\\(.*\\)"
-     (1 'font-lock-type-face)
-     (2 'font-lock-function-name-face nil t))
+     (1 'font-lock-keyword-face)
+     (2 'font-lock-type-face))
+    ;; If license if different from GPL, mark it with different color.
+    ("^\\(License\\): *\\([^ Gg\t\r\n]+\\)"
+     (1 'font-lock-doc-face t)
+     (2 'font-lock-warning-face t)
+     t)
+    ("^\\(Status\\): .*\\(unmaintained\\|broken\\)"
+     (1 'font-lock-doc-face t)
+     (2 'font-lock-warning-face t))
     ;; Required fields
-    ("^\\(Package\\|Section\\|Maintainer\\|Email\\|Description\\):"
-     1 'font-lock-type-face)
+    ("^\\(Package\\|Section\\|Maintainer\\|Upstream\\|Description\\):"
+     1 'font-lock-keyword-face)
     ("^\\(X-[^ \t\r\n]+\\):"
      1 'font-lock-string-face)
-    ("^\\([^ \t\r\n]+\\):"
+    ("^\\([A-Z][^ \t\r\n]+\\):"
      1 'font-lock-builtin-face))
   "Keywords to hilight Epackage Info mode.")
+
+(defconst package-info-mode-status-completions
+  '("core-emacs"                        ;XEmacs is not listed by purpose
+    "unmaintained"
+    "broken"
+    "unsafe"
+    "stable"
+    "unstable"
+    "experimental")
+  "List of completions for Status field.")
+
+(defvar package-info-mode-license-completions
+  '("GPL-2+"                        ;XEmacs is not listed by purpose
+    "GPL-3+"
+    "BSD"
+    "Apache-2.0"
+    "None")
+  "List of completions for License field.")
+
+(defvar package-info-mode-current-completions nil
+  "Set dynamically in `epackage-info-mode-tab'.")
 
 ;;; ............................................... &variables-private ...
 
@@ -2491,6 +2525,17 @@ Kill buffer after BODY."
          (kill-buffer (get-file-buffer config-file))))))
 
 ;;; ............................................. &functions-info-file ...
+
+(defsubst epackage-field-name ()
+  "Return field name near point."
+  (save-excursion
+    (when (or (re-search-backward "^\\([^:]+\\):" nil t)
+              (looking-at "^\\([^:]+\\):"))
+      (match-string-no-properties 1))))
+
+(defun epackage-narrow-to-field () ;; FIXME: implement
+  "Narrow the buffer to the header on the current line."
+  (error "Not implemented"))
 
 (defsubst epackage-fetch-field (field)
   "Like `mail-fetch-field', but return FIELD's value only if it exists.
@@ -3996,7 +4041,38 @@ Return package name or nil."
       (not 'actions))
      ,@body))
 
+(defsubst epackage-mail-buffer-name (package &optional string)
+  "Compose email buffer name from PACKAGE and optional STRING."
+  (format "*mail epackage %s%s*"
+          package
+          (if string
+              string
+            "")))
+
 ;;; ....................................................... &mode-info ...
+
+(defun epackage-info-mode-pcomplete-arguments ()
+  "Return pcomplete data."
+  (save-excursion
+    (let* ((point (point))
+           (back  (search-backward-regexp "[ \t\n]" nil t))
+           (beg   (if back
+                      (+ back 1)
+                    point)))
+      (list (list "dummy"
+                  (buffer-substring-no-properties beg point))
+            (point-min) beg))))
+
+(defun epackage-info-mode-pcomplete-default-completion ()
+  "Run pcomplete on `package-info-mode-completions'."
+  (pcomplete-here package-info-mode-current-completions))
+
+(defun epackage-info-mode-pcomplete-variables ()
+  "Set up pcomplete variables."
+  (set (make-local-variable 'pcomplete-parse-arguments-function)
+       'epackage-info-mode-pcomplete-arguments)
+  (set (make-local-variable 'pcomplete-default-completion-function)
+       'epackage-info-mode-pcomplete-default-completion))
 
 (defun epackage-info-mode-set-variables ()
   "Define buffer local variables."
@@ -4004,13 +4080,26 @@ Return package name or nil."
   ;;  'Field:' starts a paragraph
   (set (make-local-variable 'paragraph-start)
        " [^ .\t\r\n]+:\\|[ \t]*\\.[ \t]*$")
-  (set (make-local-variable 'fill-prefix) " ")
-  (set (make-local-variable 'fill-column) 75))
+  (setq fill-prefix " ")
+  (set (make-local-variable 'adaptive-fill-first-line-regexp)
+       "^[ \t]\\.?*$\\|^[ \t]*[#>*o][ \t]*")
+;;  (set (make-local-variable 'adaptive-fill-regexp)       "[ \t]*\\([#>*◦]+[ \t]*\\)*")
+  (set (make-local-variable 'adaptive-fill-mode) t)
+  ;; (setq left-margin 1)
+  (setq fill-column 75)
+  (setq indent-tabs-mode nil)
+  (set (make-local-variable 'tab-always-indent) nil)
+  (set (make-local-variable 'version-control) 'never)
+  (set (make-local-variable 'whitespace-style)
+       '(space-before-tab::tab tabs trailing lines-tail)))
 
 (defun epackage-info-mode-set-font-lock ()
   "Define font-lock variable for buffer."
   (set (make-local-variable 'font-lock-defaults)
-       '(epackage-info-mode-font-lock-keywords nil t nil nil)))
+       '(epackage-info-mode-font-lock-keywords nil t nil nil))
+  (if (or font-lock-mode
+          global-font-lock-mode)
+      (font-lock-fontify-buffer)))
 
 ;;;###autoload
 (define-minor-mode epackage-info-mode
@@ -4022,6 +4111,7 @@ This is a minor mode that helps editing epackage control files."
   (epackage-info-mode-set-variables)
   (epackage-info-mode-set-font-lock)
   (auto-fill-mode 1)
+  (whitespace-mode 1)
   epackage-info-mode)
 
 ;;;###autoload
@@ -4049,6 +4139,28 @@ This is a minor mode that helps editing epackage control files."
   "Goto field 'Status:'."
   (interactive)
   (mail-position-on-field "Status" 'soft))
+
+(defun epackage-info-mode-cmd-email-maintainer ()
+  "Compose mail to epackage maintainer."
+  (interactive)
+  (let ((package (epackage-fetch-field "Package"))
+        (email (epackage-fetch-field "Maintainer")))
+    (if email
+        (epackage-mail-macro
+            (epackage-mail-buffer-name package " maintainer")
+          email)
+      (epackage-message "No maintainer information to email to."))))
+
+(defun epackage-info-mode-cmd-email-upstream ()
+  "Compose mail to upstream of extension."
+  (interactive)
+  (let ((package (epackage-fetch-field "Package"))
+        (email (epackage-fetch-field "Upstream")))
+    (if email
+        (epackage-mail-macro
+            (epackage-mail-buffer-name package " maintainer")
+          email)
+      (epackage-message "No upstream information to email to."))))
 
 (defun epackage-info-mode-cmd-url-homepage ()
   "Visit Homepage."
@@ -4118,6 +4230,34 @@ This is a minor mode that helps editing epackage control files."
                (looking-at "^\\([ \t]+\\)[^ \t\r\n]"))
           (goto-char (match-end 1)))))))
 
+(defun epackage-info-mode-tab ()
+  "Smart tab. Complete at certain fields."
+  (interactive)
+  (let ((case-fold-search t)
+        (point (point))
+        (field (epackage-field-name)))
+    ;; Field:
+    ;;   *                 <= point somewher in field name
+    (cond
+     ((and (looking-at "[^ \t\r\n]+: *")
+           (setq point (match-end 0))
+           (save-excursion
+             (goto-char (line-beginning-position))
+             (looking-at "^[^ \t\r\n]+:")))
+      (goto-char point))
+     ;; Complete inside VALUE part of field
+     ((and (stringp field)
+           (string-match "status" field))
+      (let ((package-info-mode-current-completions
+             package-info-mode-status-completions))
+        (pcomplete)))
+     ((and (stringp field)
+           (string-match "license" field))
+      (let ((package-info-mode-current-completions
+             package-info-mode-license-completions))
+        (pcomplete)))
+     (t
+      (call-interactively 'indent-for-tab-command)))))
 
 ;;;###autoload
 (add-hook 'find-file-hook 'turn-on-epackage-info-mode-maybe)
@@ -4350,7 +4490,7 @@ If optional VERBOSE is non-nil, display progress message."
                          package))
          (t
           (epackage-mail-macro
-              (format "*mail epackage %s maintainer*" package)
+              (epackage-mail-buffer-name package " maintainer")
             to)))))
     (t
      (if (eq verbose 'interactive)

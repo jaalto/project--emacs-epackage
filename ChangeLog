@@ -2,6 +2,16 @@
 
 	* epackage.el (epackage-cmd-upgrade-all-packages): Delay
 	`epackage--install-action-list' action "boot" until end.
+	(epackage-mail-buffer-name): New.
+	(epackage-info-mode-cmd-email-maintainer): New.
+	(epackage-info-mode-cmd-email-upstream): New.
+	(package-info-mode-status-completions): New.
+	(epackage-info-mode-pcomplete-arguments): New.
+	(epackage-info-mode-pcomplete-default-completion): New.
+	(epackage-info-mode-pcomplete-variables): New.
+	(epackage-field-name): New.
+	(package-info-mode-current-completions): New.
+	(epackage-info-mode-tab): New.
 
 2010-12-22 Wed  Jari Aalto  <jari.aalto@cante.net>
 
