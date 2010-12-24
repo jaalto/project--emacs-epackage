@@ -1190,7 +1190,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1223.1706"
+(defconst epackage-version-time "2010.1224.0902"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1524,7 +1524,7 @@ Never set this variable directly, use the command
      1 'font-lock-builtin-face))
   "Keywords to hilight Epackage Info mode.")
 
-(defconst package-info-mode-status-completions
+(defconst epackage--info-mode-completions-status
   '("core-emacs"                        ;XEmacs is not listed by purpose
     "unmaintained"
     "broken"
@@ -1534,7 +1534,7 @@ Never set this variable directly, use the command
     "experimental")
   "List of completions for Status field.")
 
-(defvar package-info-mode-license-completions
+(defvar epackage--info-mode-completions-license
   '("GPL-2+"                        ;XEmacs is not listed by purpose
     "GPL-3+"
     "BSD"
@@ -1542,7 +1542,7 @@ Never set this variable directly, use the command
     "None")
   "List of completions for License field.")
 
-(defvar package-info-mode-current-completions nil
+(defvar epackage--info-mode-completions-current nil
   "Set dynamically in `epackage-info-mode-tab'.")
 
 ;;; ............................................... &variables-private ...
@@ -4072,7 +4072,7 @@ Return package name or nil."
 
 (defun epackage-info-mode-pcomplete-default-completion ()
   "Run pcomplete on `package-info-mode-completions'."
-  (pcomplete-here package-info-mode-current-completions))
+  (pcomplete-here epackage--info-mode-completions-current))
 
 (defun epackage-info-mode-pcomplete-variables ()
   "Set up pcomplete variables."
@@ -4083,16 +4083,18 @@ Return package name or nil."
 
 (defun epackage-info-mode-set-variables ()
   "Define buffer local variables."
-  (set (make-local-variable 'paragraph-separate) "[ \t]*\\.[ \t]*$")
-  ;;  'Field:' starts a paragraph
   (set (make-local-variable 'paragraph-start)
-       " [^ .\t\r\n]+:\\|[ \t]*\\.[ \t]*$")
-  (setq fill-prefix " ")
+       " [^ .\t\r\n]\\|[ \t]+\\.[ \t]*$")
+  (set (make-local-variable 'paragraph-separate) "[ \t]+\\.[ \t]*$")
+  ;;  'Field:' starts a paragraph
   (set (make-local-variable 'adaptive-fill-first-line-regexp)
-       "^[ \t]\\.?*$\\|^[ \t]*[#>*o][ \t]*")
-;;  (set (make-local-variable 'adaptive-fill-regexp)       "[ \t]*\\([#>*◦]+[ \t]*\\)*")
+       "[ \t]*\\.?*$\\|[ \t]*[#>*o][ \t]*")
+  (set (make-local-variable 'adaptive-fill-regexp)
+       "[ \t]+\\([#>*◦]+[ \t]*\\)*")
+  (set (make-local-variable 'tab-stop-list)
+       '(1 8 16 24 32 40 48 56 64 72 80 88 96 104 112 120))
   (set (make-local-variable 'adaptive-fill-mode) t)
-  ;; (setq left-margin 1)
+  (setq fill-prefix " ")
   (setq fill-column 75)
   (setq indent-tabs-mode nil)
   (set (make-local-variable 'tab-always-indent) nil)
@@ -4241,15 +4243,31 @@ See TAB behavior in function description of `epackage-info-mode-tab'.
                (looking-at "^\\([ \t]+\\)[^ \t\r\n]"))
           (goto-char (match-end 1)))))))
 
+(defun epackage-info-mode-pcomplete-list (list)
+  "Pcomplete LIST at current point or call `forward-word'."
+  (let* ((epackage--info-mode-completions-current list)
+         (pcomplete-default-completion-function #'ignore)
+         (syntax (char-to-string (char-syntax (char-after (point)))))
+         (space-p (string= " " syntax)))
+    (cond
+     (space-p
+      (pcomplete)
+      (when (eq (point) point)        ;Not completed
+        (message
+         "Completions: %s"
+         (mapconcat #'concat list " "))))
+     (t
+      (forward-word 1)))))
+
 (defun epackage-info-mode-tab ()
-  "Smart tab. Complete at certain fields.
+  "COntext sensitive tab. Complete at certain fields.
 If at field, move to value:
 
    Field: Value         => Field: Value
      *                            *
      TAB
 
-In fields Status and License, complete word.
+In fields 'Status' and' License', complete word.
 
    Status: un           => Status: unmaintained
              *                                 *
@@ -4259,20 +4277,21 @@ In fields Status and License, complete word.
              *                            *
              TAB
 
-In fields Status and License, if on space, show available
+In fields 'Status' and 'License', if on space, show available
 completions:
 
    License:
             *
             TAB
 
-Anywhere else, run `indent-for-tab-command'."
+In field 'Description', at beginning of line insert or move to
+indentation. Elsewhere run `indent-for-tab-command'.
+
+In other fields, run `forward-word'."
   (interactive)
-  (let* ((case-fold-search t)
-         (point (point))
-         (field (epackage-field-name))
-         (syntax (char-to-string (char-syntax (char-after (point)))))
-         (space-p (string= " " syntax)))
+  (let ((case-fold-search t)
+        (point (point))
+        (field (epackage-field-name)))
     ;; Field:
     ;;   *                 <= point somewhere in field name
     (cond
@@ -4285,32 +4304,22 @@ Anywhere else, run `indent-for-tab-command'."
      ;; Complete inside VALUE part of field
      ((and (stringp field)
            (string-match "status" field))
-      (let ((package-info-mode-current-completions
-             package-info-mode-status-completions))
-        (cond
-         (space-p
-          (pcomplete)
-          (when (eq (point) point)        ;Not completed
-            (message
-             "Completions: %s"
-             (mapconcat #'concat package-info-mode-status-completions " "))))
-         (t
-          (forward-word 1)))))
+      (epackage-info-mode-pcomplete-list
+       epackage--info-mode-completions-status))
      ((and (stringp field)
            (string-match "license" field))
-      (let ((package-info-mode-current-completions
-             package-info-mode-license-completions))
-        (cond
-         (space-p
-          (pcomplete)
-          (when (eq (point) point)        ;Not completed
-            (message
-             "Completions: %s"
-             (mapconcat #'concat package-info-mode-license-completions " "))))
-         (t
-          (forward-word 1)))))
+      (epackage-info-mode-pcomplete-list
+       epackage--info-mode-completions-license))
+     ((and (stringp field)
+           (not (string-match "description" field)))
+      (forward-word 1))
      (t
-      (call-interactively 'indent-for-tab-command)))))
+      (cond
+       ((and (bolp)
+             (looking-at "^[ \t]+"))
+        (goto-char (match-end 0)))
+       (t
+        (call-interactively 'indent-for-tab-command)))))))
 
 ;;;###autoload
 (add-hook 'find-file-hook 'turn-on-epackage-info-mode-maybe)

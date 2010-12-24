@@ -1,3 +1,12 @@
+2010-12-24 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage--info-mode-completions-status): Rename.
+	(epackage--info-mode-completions-license): Rename.
+	(epackage--info-mode-completions-current): Rename.
+	(epackage-info-mode-pcomplete-list): New.
+	(epackage-info-mode-set-variables): add `tab-stop-list'.
+	(epackage-info-mode-tab): Improve handling of 'Description:'.
+
 2010-12-23 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-cmd-upgrade-all-packages): Delay
