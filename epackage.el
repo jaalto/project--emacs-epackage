@@ -612,8 +612,9 @@
 ;;          Status: [ <keyword> ...]
 ;;          Compat: [ <epackage version> ]
 ;;          *Maintainer: First Last <first.last@example.com>
-;;          *Upstream: First Last <first.last@example.com>
 ;;          Bugs: [ URL ]
+;;          *Upstream: First Last <first.last@example.com>
+;;          Upstream-Bugs: [ URL ]
 ;;          Vcs-Type:
 ;;          Vcs-Url:
 ;;          Vcs-Args:
@@ -640,8 +641,9 @@
 ;;          Status: unmaintained
 ;;          Compat:
 ;;          Maintainer:
-;;          Email: Mark Hulme-Jones <ture@plig.net>
 ;;          Bugs:
+;;          Upstream: Mark Hulme-Jones <ture@plig.net>
+;;          Upstream-Bugs:
 ;;          Vcs-Type: http
 ;;          Vcs-Url: http://www.emacswiki.org/emacs/download/hide-lines.el
 ;;          Vcs-Browser:
@@ -665,10 +667,12 @@
 ;;
 ;;     Bugs
 ;;
-;;      URL to report bugs. This can be an email address or a link to
-;;      issue tracker of upstream project. Note: send packaging
-;;      problems or update requests to the extension's epackage
-;;      `Maintainer'.
+;;      URL to report epackaging issues of current extension. The URL
+;;      can be an email address or a link to an issue tracker. In case
+;;      the field is empty or missing, the `Maintainer' field is used.
+;;      Epackaging problmes that are candidate for bugs: update to newest
+;;      upstream release, update *Description* or other field, broken
+;;      URLs etc.
 ;;
 ;;     Commentary
 ;;
@@ -876,6 +880,12 @@
 ;;
 ;;              Upstream: John Doe (Author) <jdoe@example.com>,
 ;;               Joe Average (Co-developer) <jave@example.com>
+;;
+;;     Upstream-Bugs
+;;
+;;      URL to report issues of current extension. The URL can be an
+;;      email address or a link to an issue tracker. In case the field
+;;      is empty or missing, the `Upstream' field is used.
 ;;
 ;;     Vcs-Browser
 ;;
@@ -1190,7 +1200,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1224.0902"
+(defconst epackage-version-time "2010.1225.0935"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1472,7 +1482,7 @@ Never set this variable directly, use the command
   (let ((map (make-sparse-keymap)))
     ;; (set-keymap-parent map ...)
     ;; Navigation in the document
-    (define-key map "\t" 'epackage-info-mode-tab)
+    (define-key map "\t" 'epackage-info-mode-tab-command)
     (define-key map (kbd "C-a") 'epackage-info-mode-move-beginning-of-line)
     (define-key map (kbd "C-c c") 'epackage-info-mode-cmd-url-commentary)
     (define-key map (kbd "C-c d") 'epackage-info-mode-cmd-goto-description)
@@ -1542,8 +1552,13 @@ Never set this variable directly, use the command
     "None")
   "List of completions for License field.")
 
+(defvar epackage--info-mode-completions-section nil
+  "List of completions for Section field.
+This variable will be dynamically initialized  when used for the first
+time in `epackage-info-mode-tab-command'.")
+
 (defvar epackage--info-mode-completions-current nil
-  "Set dynamically in `epackage-info-mode-tab'.")
+  "Set dynamically in `epackage-info-mode-tab-command'.")
 
 ;;; ............................................... &variables-private ...
 
@@ -3694,6 +3709,23 @@ If optional VERBOSE is non-nil, display progress message."
   (epackage-require-git verbose)
   (epackage-require-directories verbose))
 
+(defun epackage-url-encode (string)
+  "Encode STRING suitable for URL."
+  ;; FIXME: This is simplistic. Should probebly use something
+  ;; already in Emacs; mmencode*.el or the like.
+  (let ((list
+         '((":" "%3A")
+           ("[+]" "%2B")
+           ("\"" "%22")
+           ("[ \t]+" "+")))
+        re
+        replace)
+    (dolist (elt list)
+      (setq re (nth 0 elt)
+            replace (nth 1 elt))
+      (setq string (replace-regexp-in-string re replace string)))
+    string))
+
 (defun epackage-url-http-parse-respons-error (&optional url)
   "On HTTP GET error, show reponse and signal error for optional URL."
   (let ((status (url-http-parse-response)))
@@ -4117,7 +4149,8 @@ Return package name or nil."
 With arg, turn mode on if and only if arg is positive.
 This is a minor mode that helps editing epackage control files.
 
-See TAB behavior in function description of `epackage-info-mode-tab'.
+See TAB behavior in various fields and positions in
+function description of `epackage-info-mode-tab-command'.
 
 \\{epackage-info-mode-map}"
   :group 'epackage :lighter epackage-info-mode-text
@@ -4246,7 +4279,6 @@ See TAB behavior in function description of `epackage-info-mode-tab'.
 (defun epackage-info-mode-pcomplete-list (list)
   "Pcomplete LIST at current point or call `forward-word'."
   (let* ((epackage--info-mode-completions-current list)
-         (pcomplete-default-completion-function #'ignore)
          (syntax (char-to-string (char-syntax (char-after (point)))))
          (space-p (string= " " syntax)))
     (cond
@@ -4259,7 +4291,32 @@ See TAB behavior in function description of `epackage-info-mode-tab'.
      (t
       (forward-word 1)))))
 
-(defun epackage-info-mode-tab ()
+(defun epackage-info-mode-tab-wiki ()
+  "Handle 'Wiki' field. See `epackage-info-mode-tab-command'."
+  (cond
+   ((and (not (bolp))
+         (eolp)
+         (string-match ":" (buffer-substring (- (point) 2) (point))))
+    (insert "http://www.emacswiki.org/emacs/")
+    (goto-char (line-end-position)))
+   ((and (not (bolp))
+         (eolp)
+         (string-match "/" (buffer-substring (- (point) 1) (point))))
+    (let ((search
+           "http://www.google.fi/search?hl=en&oe=UTF-8&num=100&q=")
+          (str (read-string "Google (empty = cancel): "
+                            "site:emacswiki.org ")))
+      (when (epackage-string-p str)
+        (browse-url (format "%s%s" search (epackage-url-encode str))))))
+   (t
+    (forward-word 1))))
+
+(defun epackage-info-mode-completions-section-initialize ()
+  "Initialize variable `epackage--info-mode-completions-section'."
+  (unless epackage--info-mode-completions-section
+    ))
+
+(defun epackage-info-mode-tab-command ()
   "COntext sensitive tab. Complete at certain fields.
 If at field, move to value:
 
@@ -4270,19 +4327,30 @@ If at field, move to value:
 In fields 'Status' and' License', complete word.
 
    Status: un           => Status: unmaintained
-             *                                 *
+             *
              TAB
 
    License: G           => License: GPL-2+
-             *                            *
+             *
              TAB
 
 In fields 'Status' and 'License', if on space, show available
 completions:
 
-   License:
-            *
+   License: *
             TAB
+
+In field 'Wiki' insert base URL, or offer Google search
+
+    Wiki: *             => Wiki: http://www.emacswiki.org/emacs/
+          TAB
+
+    Wiki: http://www.emacswiki.org/emacs/
+                                         *
+                                         TAB
+                                         Invokes Google Search
+
+In field 'Section', complete values of `finder-list-keywords'.
 
 In field 'Description', at beginning of line insert or move to
 indentation. Elsewhere run `indent-for-tab-command'.
@@ -4310,6 +4378,14 @@ In other fields, run `forward-word'."
            (string-match "license" field))
       (epackage-info-mode-pcomplete-list
        epackage--info-mode-completions-license))
+     ((and (stringp field)
+           (string-match "wiki" field))
+      (epackage-info-mode-tab-wiki))
+     ((and (stringp field)
+           (string-match "section" field))
+      (epackage-info-mode-completions-section-initialize)
+      (epackage-info-mode-pcomplete-list
+       epackage--info-mode-completions-section))
      ((and (stringp field)
            (not (string-match "description" field)))
       (forward-word 1))

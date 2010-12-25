@@ -1,3 +1,12 @@
+2010-12-25 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-url-encode): New.
+	(epackage-info-mode-tab-wiki): Add Google search.
+	(epackage-info-mode-pcomplete-list): Remove
+	`pcomplete-default-completion-function'.
+	(epackage--info-mode-completions-section): New.
+	(epackage-info-mode-completions-section-initialize): New.
+
 2010-12-24 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage--info-mode-completions-status): Rename.
@@ -6,6 +15,7 @@
 	(epackage-info-mode-pcomplete-list): New.
 	(epackage-info-mode-set-variables): add `tab-stop-list'.
 	(epackage-info-mode-tab): Improve handling of 'Description:'.
+	(epackage-info-mode-tab-wiki): New.
 
 2010-12-23 Thu  Jari Aalto  <jari.aalto@cante.net>
 
