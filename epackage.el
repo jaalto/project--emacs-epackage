@@ -1200,7 +1200,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1225.0935"
+(defconst epackage-version-time "2010.1225.0944"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -4280,7 +4280,8 @@ function description of `epackage-info-mode-tab-command'.
   "Pcomplete LIST at current point or call `forward-word'."
   (let* ((epackage--info-mode-completions-current list)
          (syntax (char-to-string (char-syntax (char-after (point)))))
-         (space-p (string= " " syntax)))
+         (space-p (string= " " syntax))
+         (point (point)))
     (cond
      (space-p
       (pcomplete)
