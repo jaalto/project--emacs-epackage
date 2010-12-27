@@ -1209,7 +1209,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1227.1315"
+(defconst epackage-version-time "2010.1227.1319"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1502,7 +1502,7 @@ Never set this variable directly, use the command
     (define-key map (kbd "C-c s") 'epackage-info-mode-cmd-goto-status)
     (define-key map (kbd "C-c w") 'epackage-info-mode-cmd-url-wiki)
     map)
-  "Keymap used by `epackage-info-mode'.")
+  "Keymap used by function `epackage-info-mode'.")
 
 (easy-menu-define
   epackage-info-mode-menu
@@ -1558,6 +1558,7 @@ Never set this variable directly, use the command
     "GPL-3+"
     "BSD"
     "Apache-2.0"
+    "Custom"
     "None")
   "List of completions for License field.")
 
@@ -2143,7 +2144,7 @@ Return:
      nil)))
 
 (defsubst epackage-directory-list-exclude-p (exclude dir)
-  "Check if EXLCUDE regexp match DIR."
+  "Check if EXCLUDE regexp match DIR."
   ;; This fucntion exists so that you can point edebugger to it.
   (string-match exclude dir))
 
@@ -3979,7 +3980,7 @@ Display DIR in heading. Optional DISPLAY show `epackage--buffer-lint'."
 
 ;;;###autoload
 (defun epackage-pkg-lint-directory-interactive (dir)
-  "Like `epackage-pkg-lint-directory' but show results."
+  "Like `epackage-pkg-lint-directory' but show results from DIR."
   (interactive "DEpackage Lint directory (root): ")
   (if (or (not dir)
           (not (file-directory-p dir)))
@@ -3991,7 +3992,7 @@ Display DIR in heading. Optional DISPLAY show `epackage--buffer-lint'."
 
 ;;;###autoload
 (defun epackage-pkg-lint-package (package &optional verbose)
-  "Check validity of epackage in DIR.
+  "Check validity of PACKAGE in DIR.
 If optional VERBOSE is non-nil, display progress message.
 With VERBOSE display `epackage--buffer-lint'.
 
@@ -4183,7 +4184,7 @@ function description of `epackage-info-mode-tab-command'.
 
 ;;;###autoload
 (defun turn-on-epackage-info-mode-maybe ()
-  "Turn on Epackage Info Mode if file looks like epackage 'info'."
+  "Turn on Epackage Info Mode if `epackage-pkg-info-p' return non-nil."
   (when (epackage-pkg-info-p)
     (turn-on-epackage-info-mode)))
 
@@ -4259,7 +4260,7 @@ function description of `epackage-info-mode-tab-command'.
         (finder-commentary file)))))
 
 (defun epackage-info-mode-cmd-lint (dir)
-  "Lint epackage."
+  "Lint epackage in DIR."
   (interactive
    (epackage-file-name-directory-previous
     (file-name-directory buffer-file-name)))

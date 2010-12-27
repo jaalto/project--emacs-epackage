@@ -4,6 +4,7 @@
 	'License-Text'.
 	(epackage-eval-file): Use `insert-file-contents', drop
 	(epackage-write-region): New.
+	(epackage--info-mode-completions-license): Add 'Custom'.
 
 	*-literally.
 	(epackage-combine-files): Use `insert-file-contents', drop
