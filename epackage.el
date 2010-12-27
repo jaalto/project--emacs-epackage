@@ -607,7 +607,8 @@
 ;;
 ;;          *Package: <unique name, all lowercase>
 ;;          *Section: <data | extensions | files | languages | mail | tools | M-x finder-list-keywords>
-;;          License: <GPL-[23]+ | BSD | Apache-2.0 | ... | None>
+;;          License: <GPL-[23]+ | BSD | Apache-2.0 | ... | Custom | None>
+;;          Licence-Text: <only, if license is "Custom">
 ;;          *Depends: emacs (>= 20)
 ;;          Status: [ <keyword> ...]
 ;;          Compat: [ <epackage version> ]
@@ -796,6 +797,12 @@
 ;;      license tokens:
 ;;
 ;;              GPL-2, GPL-2+, GPL-3, GPL-3+, BSD, Apache-2.0
+;;
+;;      If License is not any of the OSI known standard licenses
+;;      <http://www.opensource.org/licenses>, or if it contains
+;;      additional text to an existing licence, it must be labelled
+;;      "Custom". In that case, the full license text should be
+;;      included in field "License-Text".
 ;;
 ;;     Maintainer
 ;;
@@ -1200,7 +1207,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1225.0944"
+(defconst epackage-version-time "2010.1227.1259"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
