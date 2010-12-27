@@ -2,6 +2,14 @@
 
 	* epackage.el: (Spec): add 'Custom' to License. Add new field
 	'License-Text'.
+	(epackage-eval-file): Use `insert-file-contents', drop
+	(epackage-write-region): New.
+
+	*-literally.
+	(epackage-combine-files): Use `insert-file-contents', drop
+	*-literally.
+	(epackage-loader-file-insert-install-code): Use
+	`insert-file-contents', drop*-literally.
 
 2010-12-25 Sat  Jari Aalto  <jari.aalto@cante.net>
 

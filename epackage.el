@@ -662,9 +662,11 @@
 ;;
 ;;  Details of the info file fields
 ;;
-;;      Notes: Use one space to indent a continued field. Limit maximum
-;;      line length to 80 characters. In Emacs, see variable
-;;      `fill-column' and set it to a little less, like 75.
+;;      Notes: Use one space to indent a continued field. Limit
+;;      maximum line length to 80 characters. In Emacs, see variable
+;;      `fill-column' and set it to a little less, like 75. The *info*
+;;      file must be saved as UTF-8 in case it contains non-ASCII
+;;      characters.
 ;;
 ;;     Bugs
 ;;
@@ -1207,7 +1209,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1227.1259"
+(defconst epackage-version-time "2010.1227.1315"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1954,6 +1956,13 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
        (if ,verbose
            (epackage-message "%s" (concat ,message "...done"))))))
 
+(defsubst epackage-write-region (start end file)
+  "Like  'write-region' START END FILE; but disable backup etc."
+  (let ((backup-inhibited t)
+        (version-control 'never)
+        make-backup-files)
+    (write-region start end file)))
+
 (defsubst epackage-time ()
   "Return ISO 8601 YYYY-MM-DD HH:MM:SS."
   (format-time-string "%Y-%m-%d %H:%M:%S"))
@@ -2113,7 +2122,7 @@ If SECURITY is non-nil, signal error if
 - GPG signature is missing at location <FILE>.gpg
 - GPG signature is invalid at location <FILE.gpg."
   (with-temp-buffer
-    (insert-file-contents-literally file)
+    (insert-file-contents file)
     ;; FIXME: Implement SECURITY
     (eval-buffer)))
 
@@ -3123,14 +3132,14 @@ If optional VERBOSE is non-nil, display progress message."
       (goto-char (point-max))
       (epackage-verbose-message "Combining sources list file %s" elt)
       (insert "###file: " file "\n")
-      (insert-file-contents-literally elt))
+      (insert-file-contents elt))
     (epackage-with-message
         verbose (format "Write master sources list file %s" file)
       (goto-char (point-min))
       (unless (re-search-forward "^[^#\r\n]+://" nil t)
         (epackage-error
           "Can't find any Git repository URLs. Check files %s" list))
-      (write-region (point-min) (point-max) file))))
+      (epackage-write-region (point-min) (point-max) file))))
 
 (defun epackage-sources-list-initialize (&optional verbose)
   "Build list of available packages; the yellow pages.
@@ -3479,7 +3488,7 @@ If optional VERBOSE is non-nil, display progress message."
                  t))
     (goto-char (point-max))
     (if (file-exists-p file)
-        (insert-file-contents-literally file))))
+        (insert-file-contents file))))
 
 (defsubst epackage-loader-file-insert-load-path ()
   "Insert Epackage loader boot commands: header and`load-path'."
@@ -3516,7 +3525,7 @@ If optional VERBOSE is non-nil, display progress message."
       (epackage-loader-file-insert-load-path)
       (epackage-loader-insert-file-path-list-by-path
        (epackage-directory-install))
-      (write-region (point-min) (point-max) file))))
+      (epackage-write-region (point-min) (point-max) file))))
 
 (defun epackage-loader-file-generate-load-path-maybe (&optional verbose)
   "Generate `epackage-file-name-loader-load-path' file if not exists.
@@ -3614,7 +3623,7 @@ If optional VERBOSE is non-nil, display progress message."
     (epackage-with-message verbose "Generating boot loader"
       (with-temp-buffer
         (epackage-loader-file-insert-main)
-        (write-region (point-min) (point-max) file)
+        (epackage-write-region (point-min) (point-max) file)
         (set-buffer-modified-p nil)
         (kill-buffer (current-buffer)))
       (epackage-byte-compile-loader-file-maybe verbose))))
@@ -3763,7 +3772,7 @@ If optional VERBOSE is non-nil, display progress message."
       (epackage-error "Can't access url: %s" url))
     (with-current-buffer buffer
       (epackage-with-binary
-        (write-region (point) (point-max) file)
+        (epackage-write-region (point) (point-max) file)
         (kill-buffer (current-buffer))))))
 
 ;;; .................................................. &functions-lint ...
