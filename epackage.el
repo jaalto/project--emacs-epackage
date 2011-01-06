@@ -525,7 +525,10 @@
 ;;      This file contains command to configure the extension's build
 ;;      system. It is used only with bigger packages that come with a
 ;;      `Makefile' or `./configure' script. Mnemonic: "Same as if you would
-;;      invoke ./configure".
+;;      invoke ./configure". This file is only necessary of the provided *.el
+;;      files cannot be used "as is" to install the package. The `./configure'
+;;      may e.g. write loaddefs or autoloads or assemble package in a way
+;;	that produces the installable extension.
 ;;
 ;;     The *-examples.el
 ;;
@@ -577,18 +580,18 @@
 ;;     The *-xactivate.el
 ;;
 ;;      This file does the same as *-install.el, but it can do more.
-;;      Instead of being conservative, it boldly modify current
-;;      environment by adding functions to hooks, adding minor or
-;;      major modes or arranging key bindings so that when pressed, a
-;;      feature is loaded and activated. It may also loop through
-;;      `buffer-list' to activate features immediately in running
-;;      Emacs. It is best that any custom settings, like variables and
-;;      prefix keys, are defined in `~/.emacs' *before* this file gets
-;;      loaded. As with `*-install.el', try to avoid any `require' or
-;;      `load' commands and stick to `autoload'. Mnemonic: "If you
-;;      load this file, the bells and whistles are turned on". The "x"
-;;      at the start of the name is to help proper sorting ordering of
-;;      configuration files. The file ends in:
+;;      Instead of being conservative, it can modify current
+;;      environment by adding more custom functions to hooks or
+;;      arrange key bindings so that when pressed, a feature is loaded
+;;      and activated. It may also loop through `buffer-list' to
+;;      activate features immediately in running Emacs. It is best
+;;      that any custom settings, like variables and prefix keys, are
+;;      defined in `~/.emacs' *before* this file gets loaded. As with
+;;      `*-install.el', try to avoid any `require' or `load' commands
+;;      and stick to `autoload'. Mnemonic: "If you load this file, the
+;;      bells and whistles are turned on". The "x" at the start of the
+;;      name is to help proper sorting ordering of configuration
+;;      files. The file ends in:
 ;;
 ;;          (provide 'PACKAGE-xactivate)
 ;;
@@ -630,33 +633,31 @@
 ;;           [<Longer description>]
 ;;           .
 ;;           [<Longer description, next paragraph>]
-;;           .
-;;           [<Longer description, next paragraph>]
 ;;
 ;;      An example:
 ;;
-;;          Package: hide-lines
+;;          Package: test-package
 ;;          Section: tools
 ;;          License: None
 ;;          Depends: emacs (>= 21)
 ;;          Status: unmaintained
 ;;          Compat:
-;;          Maintainer:
+;;          Maintainer: Joe Average <joe@example.org>
 ;;          Bugs:
-;;          Upstream: Mark Hulme-Jones <ture@plig.net>
+;;          Upstream: John doe <jdoe@example.com>
 ;;          Upstream-Bugs:
 ;;          Vcs-Type: http
-;;          Vcs-Url: http://www.emacswiki.org/emacs/download/hide-lines.el
+;;          Vcs-Url: http://www.emacswiki.org/emacs/download/this-is-test-package.el
 ;;          Vcs-Browser:
 ;;          Vcs-User:
 ;;          Vcs-Password:
 ;;          Homepage:
-;;          Wiki: http://www.emacswiki.org/emacs/HideLines
-;;          Commentary: hide-lines.el
-;;          Description: Hide or preserve all matching lines in buffer
-;;           Main command [C-u] M-x hide-lines to hide or show matching lines.
-;;           With prefix argument, the corresponding lines are preserved while
-;;           others are hidden.
+;;          Wiki: http://www.emacswiki.org/emacs/TheTestPackage
+;;          Commentary: test-package.el
+;;          Description: Test package with various functions
+;;           Main command [C-u] M-x test-package to run various tests on the
+;;           lisp package. With a prefix argument, show also notes and more minor
+;;           details.
 ;;           .
 ;;           Note: 2010-12-03 the code hasn't been touched since 2004.
 ;;
@@ -1209,7 +1210,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2010.1227.1319"
+(defconst epackage-version-time "2011.0106.1143"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2565,7 +2566,7 @@ Kill buffer after BODY."
 (defsubst epackage-field-name ()
   "Return field name near point."
   (save-excursion
-    (when (or (re-search-backward "^\\([^:]+\\):" nil t)
+    (when (or (re-search-backward "^\\([^ \t\r\n]+\\):" nil t)
               (looking-at "^\\([^:]+\\):"))
       (match-string-no-properties 1))))
 
@@ -4140,8 +4141,10 @@ Return package name or nil."
        "[ \t]*\\.?*$\\|[ \t]*[#>*o][ \t]*")
   (set (make-local-variable 'adaptive-fill-regexp)
        "[ \t]+\\([#>*◦]+[ \t]*\\)*")
-  (set (make-local-variable 'tab-stop-list)
-       '(1 8 16 24 32 40 48 56 64 72 80 88 96 104 112 120))
+  (set (make-local-variable 'tab-stop-list) ;By 4
+       '(1 4 8 12 16 20 24 28 32 36 40 44
+	   48 52 56 60 64 68 72 76 80 84
+	   88 92 96 100 104 108 112 116 120))
   (set (make-local-variable 'adaptive-fill-mode) t)
   (setq fill-prefix " ")
   (setq fill-column 75)
@@ -4329,6 +4332,15 @@ function description of `epackage-info-mode-tab-command'.
    (t
     (forward-word 1))))
 
+(defun epackage-info-mode-tab-standard ()
+  "The normal tab for use in 'Description:' field."
+  (cond
+   ((and (bolp)
+	 (looking-at "^[ \t]+"))
+    (goto-char (match-end 0)))
+   (t
+    (tab-to-tab-stop))))
+
 (defun epackage-info-mode-completions-section-initialize ()
   "Initialize variable `epackage--info-mode-completions-section'."
   (unless epackage--info-mode-completions-section
@@ -4408,12 +4420,7 @@ In other fields, run `forward-word'."
            (not (string-match "description" field)))
       (forward-word 1))
      (t
-      (cond
-       ((and (bolp)
-             (looking-at "^[ \t]+"))
-        (goto-char (match-end 0)))
-       (t
-        (call-interactively 'indent-for-tab-command)))))))
+      (epackage-info-mode-tab-standard)))))
 
 ;;;###autoload
 (add-hook 'find-file-hook 'turn-on-epackage-info-mode-maybe)
