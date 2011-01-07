@@ -1213,7 +1213,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0107.1456"
+(defconst epackage-version-time "2011.0107.1458"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1643,6 +1643,7 @@ Do not touch. See variable `epackage--sources-list-url'.")
 (defvar epackage--package-control-directory "epackage"
   "Name of directory inside VCS controlled package.")
 
+;; Autoload due to `epackage-pkg-info-p'
 ;;;###autoload
 (defvar epackage--pkg-info-file-name "info"
   "Name of information file of epackage.
