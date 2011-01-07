@@ -1211,7 +1211,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0107.1453"
+(defconst epackage-version-time "2011.0107.1454"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -4125,7 +4125,7 @@ Return package name or nil."
   "Run pcomplete on `package-info-mode-completions'."
   (pcomplete-here epackage--info-mode-completions-current))
 
-(defun epackage-info-mode-pcomplete-variables ()
+(defun epackage-info-mode-set-pcomplete-variables ()
   "Set up pcomplete variables."
   (set (make-local-variable 'pcomplete-parse-arguments-function)
        'epackage-info-mode-pcomplete-arguments)
@@ -4177,7 +4177,7 @@ function description of `epackage-info-mode-tab-command'.
 \\{epackage-info-mode-map}"
   :group 'epackage :lighter epackage-info-mode-text
   (epackage-info-mode-set-variables)
-  (epackage-info-mode-pcomplete-variables)
+  (epackage-info-mode-set-pcomplete-variables)
   (epackage-info-mode-set-font-lock)
   (auto-fill-mode 1)
   (whitespace-mode 1)
