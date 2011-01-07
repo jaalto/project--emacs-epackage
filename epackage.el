@@ -1211,7 +1211,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0107.1059"
+(defconst epackage-version-time "2011.0107.1453"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -4147,6 +4147,7 @@ Return package name or nil."
            48 52 56 60 64 68 72 76 80 84
            88 92 96 100 104 108 112 116 120))
   (set (make-local-variable 'adaptive-fill-mode) t)
+  (set (make-local-variable 'colon-double-space) nil)
   (setq fill-prefix " ")
   (setq fill-column 75)
   (setq indent-tabs-mode nil)
@@ -4298,12 +4299,6 @@ function description of `epackage-info-mode-tab-command'.
                (looking-at "^\\([ \t]+\\)[^ \t\r\n]"))
           (goto-char (match-end 1)))))))
 
-;; (try-completion
-;;  "c" epackage--info-mode-completions-section)
-
-;; (all-completions
-;;  "" epackage--info-mode-completions-section)
-
 (defun epackage-info-mode-pcomplete-list (list)
   "Pcomplete LIST at current point or call `forward-word'."
   (let* ((epackage--info-mode-completions-current list)
@@ -4314,8 +4309,9 @@ function description of `epackage-info-mode-tab-command'.
          complete-list
          try)
     (when word
+      (setq word (symbol-name word))
       (setq complete-list (all-completions word list))
-      (setq try (try-completion word list))))
+      (setq try (try-completion word list)))
     (cond
      (space-p
       (cond
@@ -4324,6 +4320,9 @@ function description of `epackage-info-mode-tab-command'.
        ((and complete-list
              (not (eq (length word) (length try))))
         (insert (substring try (length word)))
+        (message
+         "Completions: %s" (mapconcat #'concat complete-list " ")))
+       (complete-list
         (message
          "Completions: %s" (mapconcat #'concat complete-list " ")))
        (t

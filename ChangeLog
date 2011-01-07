@@ -6,6 +6,7 @@
 	completion.
 	(epackage-info-mode): Call `epackage-info-mode-pcomplete-variables'.
 	(epackage-info-mode-pcomplete-list): Rewrite complete code.
+	(epackage-info-mode-set-variables): Set `colon-double-space'.
 
 2011-01-06  Jari Aalto  <jari.aalto@cante.net>
 
