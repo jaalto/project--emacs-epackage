@@ -1200,18 +1200,20 @@
   (autoload 'lm-last-modified-date "lisp-mnt")
   (autoload 'lm-maintainer "lisp-mnt")
   (autoload 'dired-make-relative-symlink "dired-x")
-  (autoload 'mail-fetch-field "mail-utils")
   (autoload 'mail-position-on-field "sendmail")
   (autoload 'mail-setup "sendmail")
   (autoload 'url-http-parse-response "url")
   (autoload 'pcomplete-here "pcomplete"))
+
+;;;###autoload
+(autoload 'mail-fetch-field "mail-utils")
 
 (eval-and-compile
   (if (featurep 'xemacs)
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0107.1454"
+(defconst epackage-version-time "2011.0107.1456"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1641,6 +1643,7 @@ Do not touch. See variable `epackage--sources-list-url'.")
 (defvar epackage--package-control-directory "epackage"
   "Name of directory inside VCS controlled package.")
 
+;;;###autoload
 (defvar epackage--pkg-info-file-name "info"
   "Name of information file of epackage.
 Do not touch. See variable `epackage--sources-list-url'.")
