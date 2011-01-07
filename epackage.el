@@ -528,7 +528,7 @@
 ;;      invoke ./configure". This file is only necessary of the provided *.el
 ;;      files cannot be used "as is" to install the package. The `./configure'
 ;;      may e.g. write loaddefs or autoloads or assemble package in a way
-;;	that produces the installable extension.
+;;      that produces the installable extension.
 ;;
 ;;     The *-examples.el
 ;;
@@ -1192,6 +1192,7 @@
   (defvar pcomplete-parse-arguments-function)
   (defvar pcomplete-default-completion-function)
   (defvar whitespace-style)
+  (defvar finder-known-keywords)
   (autoload 'lm-version "lisp-mnt")
   (autoload 'lm-summary "lisp-mnt")
   (autoload 'lm-commentary "lisp-mnt")
@@ -1210,7 +1211,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0106.1143"
+(defconst epackage-version-time "2011.0107.1059"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1565,7 +1566,7 @@ Never set this variable directly, use the command
 
 (defvar epackage--info-mode-completions-section nil
   "List of completions for Section field.
-This variable will be dynamically initialized  when used for the first
+This variable will be dynamically initialized when used for the first
 time in `epackage-info-mode-tab-command'.")
 
 (defvar epackage--info-mode-completions-current nil
@@ -4143,8 +4144,8 @@ Return package name or nil."
        "[ \t]+\\([#>*◦]+[ \t]*\\)*")
   (set (make-local-variable 'tab-stop-list) ;By 4
        '(1 4 8 12 16 20 24 28 32 36 40 44
-	   48 52 56 60 64 68 72 76 80 84
-	   88 92 96 100 104 108 112 116 120))
+           48 52 56 60 64 68 72 76 80 84
+           88 92 96 100 104 108 112 116 120))
   (set (make-local-variable 'adaptive-fill-mode) t)
   (setq fill-prefix " ")
   (setq fill-column 75)
@@ -4175,6 +4176,7 @@ function description of `epackage-info-mode-tab-command'.
 \\{epackage-info-mode-map}"
   :group 'epackage :lighter epackage-info-mode-text
   (epackage-info-mode-set-variables)
+  (epackage-info-mode-pcomplete-variables)
   (epackage-info-mode-set-font-lock)
   (auto-fill-mode 1)
   (whitespace-mode 1)
@@ -4296,19 +4298,37 @@ function description of `epackage-info-mode-tab-command'.
                (looking-at "^\\([ \t]+\\)[^ \t\r\n]"))
           (goto-char (match-end 1)))))))
 
+;; (try-completion
+;;  "c" epackage--info-mode-completions-section)
+
+;; (all-completions
+;;  "" epackage--info-mode-completions-section)
+
 (defun epackage-info-mode-pcomplete-list (list)
   "Pcomplete LIST at current point or call `forward-word'."
   (let* ((epackage--info-mode-completions-current list)
          (syntax (char-to-string (char-syntax (char-after (point)))))
          (space-p (string= " " syntax))
-         (point (point)))
+         (point (point))
+         (word (symbol-at-point))       ;Words with '-' characters
+         complete-list
+         try)
+    (when word
+      (setq complete-list (all-completions word list))
+      (setq try (try-completion word list))))
     (cond
      (space-p
-      (pcomplete)
-      (when (eq (point) point)        ;Not completed
+      (cond
+       ((eq 1 (length complete-list))
+        (pcomplete))
+       ((and complete-list
+             (not (eq (length word) (length try))))
+        (insert (substring try (length word)))
         (message
-         "Completions: %s"
-         (mapconcat #'concat list " "))))
+         "Completions: %s" (mapconcat #'concat complete-list " ")))
+       (t
+        (message
+         "Completions: %s" (mapconcat #'concat list " ")))))
      (t
       (forward-word 1)))))
 
@@ -4336,15 +4356,20 @@ function description of `epackage-info-mode-tab-command'.
   "The normal tab for use in 'Description:' field."
   (cond
    ((and (bolp)
-	 (looking-at "^[ \t]+"))
+         (looking-at "^[ \t]+"))
     (goto-char (match-end 0)))
    (t
     (tab-to-tab-stop))))
 
 (defun epackage-info-mode-completions-section-initialize ()
-  "Initialize variable `epackage--info-mode-completions-section'."
+  "Initialize variable `epackage--info-mode-completions-section'.
+The values are list of cars from `finder-known-keywords'."
   (unless epackage--info-mode-completions-section
-    ))
+    (require 'finder)
+    (setq epackage--info-mode-completions-section
+          (mapcar (lambda (elt)
+                    (symbol-name (car elt)))
+                  finder-known-keywords))))
 
 (defun epackage-info-mode-tab-command ()
   "COntext sensitive tab. Complete at certain fields.
@@ -4404,6 +4429,11 @@ In other fields, run `forward-word'."
            (string-match "status" field))
       (epackage-info-mode-pcomplete-list
        epackage--info-mode-completions-status))
+     ((and (stringp field)
+           (string-match "section" field))
+      (epackage-info-mode-completions-section-initialize)
+      (epackage-info-mode-pcomplete-list
+       epackage--info-mode-completions-section))
      ((and (stringp field)
            (string-match "license" field))
       (epackage-info-mode-pcomplete-list
