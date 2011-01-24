@@ -1,3 +1,27 @@
+2011-01-14 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-write-region): Add `backup-enable-predicate'.
+	(epackage-with-write-file): New.
+	(epackage-write-region): Rewrite.
+	(epackage-save-buffer): New.
+	(epackage-buffer-remove-whitespace-eol): New.
+	(epackage-with-command-line): devel
+	(epackage-file-name-add-suffix): devel
+	(epackage-directory-file-list): devel
+	(tinylisp-autoload-write-loaddefs-file): devel
+	(epackage-autoload-generate-loaddefs-file-list): devel
+	(epackage-batch-autoload-generate-loaddefs-file): devel
+	(epackage-autoload-generate-loaddefs-dir): devel
+	(epackage-batch-autoload-generate-loaddefs-dir): devel
+	(epackage-autoload-create-on-file): devel
+	(epackage-autoload-create-on-directory): devel
+	(epackage-autoload-loaddefs-create-maybe): devel
+	(epackage-autoload-loaddefs-dir-files): devel
+	(epackage-autoload-loaddefs-build-dir-1): devel
+	(epackage-autoload-loaddefs-build-dir): devel
+	(epackage-autoload-directories): devel
+	(epackage-autoload-loaddefs-build-recursive): devel
+
 2011-01-07 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-info-mode-completions-section-initialize):

@@ -1192,7 +1192,10 @@
   (defvar pcomplete-parse-arguments-function)
   (defvar pcomplete-default-completion-function)
   (defvar whitespace-style)
+  (defvar whitespace-trailing-regexp)
   (defvar finder-known-keywords)
+  (autoload 'generate-file-autoloads "autoload")
+  (autoload 'whitespace-replace-action "whitespace")
   (autoload 'lm-version "lisp-mnt")
   (autoload 'lm-summary "lisp-mnt")
   (autoload 'lm-commentary "lisp-mnt")
@@ -1213,7 +1216,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0107.1458"
+(defconst epackage-version-time "2011.0114.0920"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1227,8 +1230,8 @@
 
 (defgroup epackage nil
   "Distributed Emacs Lisp package system (DELPS)."
-                                        ;  :link '(function-link view-mode)
-                                        ;  :link '(custom-manual "(emacs)Misc File Ops")
+  ;;  :link '(function-link view-mode)
+  ;;  :link '(custom-manual "(emacs)Misc File Ops")
   :group 'tools)
 
 ;;; ................................................ &variables-custom ...
@@ -1963,12 +1966,33 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
        (if ,verbose
            (epackage-message "%s" (concat ,message "...done"))))))
 
+(put 'epackage-with-write-file 'lisp-indent-function 0)
+(put 'epackage-with-write-file 'edebug-form-spec '(body))
+(defmacro epackage-with-write-file (&rest body)
+  "Disable backup and run BODY."
+  `(let ((backup-inhibited t)
+         (backup-enable-predicate 'ignore)
+         (version-control 'never)
+         make-backup-files)
+     ,@body))
+
+(defsubst epackage-append-to-buffer (buffer string &optional begin)
+  "Append to BUFFER a STRING. Optionally at the BEGIN."
+  (with-current-buffer buffer
+    (if begin
+        (goto-char (point-min))
+      (goto-char (point-max)))
+    (insert string)))
+
 (defsubst epackage-write-region (start end file)
   "Like  'write-region' START END FILE; but disable backup etc."
-  (let ((backup-inhibited t)
-        (version-control 'never)
-        make-backup-files)
+  (epackage-with-write-file
     (write-region start end file)))
+
+(defsubst epackage-save-buffer ()
+  "Like 'save-buffer' FILE; but disable backup etc."
+  (epackage-with-write-file
+    (save-buffer)))
 
 (defsubst epackage-time ()
   "Return ISO 8601 YYYY-MM-DD HH:MM:SS."
@@ -2153,6 +2177,16 @@ Return:
   "Check if EXCLUDE regexp match DIR."
   ;; This fucntion exists so that you can point edebugger to it.
   (string-match exclude dir))
+
+(defun epackage-buffer-remove-whitespace-eol ()
+  "Clear end of line whitespaces from whole buffer. Including ^L."
+  (require 'whitespace) ;; Define whitespace-trailing-regexp
+  (let ((whitespace-trailing-regexp
+         (concat whitespace-trailing-regexp
+                 "\\|" (char-to-string ?\C-l) "$")))
+    (whitespace-replace-action
+     'delete-region (point-min) (point-max)
+     whitespace-trailing-regexp 1)))
 
 (defun epackage-directory-list (dir &optional exclude)
   "Return all directories under DIR.
@@ -3047,6 +3081,370 @@ Those that are not installed in `epackage-directory-install'."
       (unless (member package active)
         (epackage-push package list)))
     (nreverse list)))
+
+;;; ............................................. epackage development ...
+
+;; Copy of epackage-with-command-line
+(put 'epackage-with-command-line 'lisp-indent-function 0)
+(put 'epackage-with-command-line 'edebug-form-spec '(body))
+(defmacro epackage-with-command-line (&rest body)
+  "Loop `command-line-args-left', run BODY. Variable `item' is bound."
+  `(let ((debug-on-error t))
+     (dolist (item command-line-args-left)
+       ,@body)))
+
+;; Copy of tinylisp-file-name-add-suffix
+(defsubst epackage-file-name-add-suffix (file suffix)
+  "Convert FILE.EXT into FILE-SUFFIX.EXT."
+  (let ((ext (file-name-extension file)))
+    (format "%s-%s.%s"
+            (file-name-sans-extension file)
+            suffix
+            ext)))
+
+;; Copy of tinylisp-directory-file-list
+(defun epackage-directory-file-list (dir &optional exclude)
+  "Return list of Emacs Lisp files. Optionally EXCLUDE by regexp."
+  (let (list)
+    (dolist (elt (directory-files dir 'full "\\.el$"))
+      (when (or (null exclude)
+                (not (string-match exclude elt)))
+        (push elt list)))
+    list))
+
+;; Copy of tinylisp-autoload-write-loaddefs-file (simplified)
+(defun epackage-autoload-write-loaddefs-file (file dest &optional verbose)
+  "Write ###autoload from FILE to DEST. VERB.
+If optional VERBOSE is non-nil, display progress message."
+  (let ((generated-autoload-file dest))
+      (with-current-buffer (find-file-noselect dest)
+        (goto-char (point-max))
+        (let ((point (point)))
+          (generate-file-autoloads file)
+          ;;  was something inserted?
+          (cond
+           ((eq (point) point)
+            (if verbose
+                (epackage-message
+                  "[NOTE] No autoload definitions in %s" file)))
+           (t
+            ;; DVCS git does not like EOL whitespace or ^L
+            (epackage-buffer-remove-whitespace-eol)
+            (epackage-save-buffer)
+            (kill-buffer (current-buffer))))))))
+
+;; Copy of tinylisp-autoload-generate-loaddefs-file-list
+(defun epackage-autoload-generate-loaddefs-file-list
+  (file list &optional verbose)
+  "Generate to FILE all loaddefs from LIST of files.
+If optional VERBOSE is non-nil, display progress message."
+  (dolist (elt list)
+    (epackage-autoload-write-loaddefs-file elt file verbose)))
+
+;; Copy of tinylisp-batch-autoload-generate-loaddefs-file
+(defun epackage-batch-autoload-generate-loaddefs-file (&optional suffix)
+  "Call `epackage-autoload-write-loaddefs-file' for `command-line-args-left'.
+The first argument is the the destination file where loaddefs are stored."
+  (let (dest)
+    (epackage-with-command-line
+      (if dest
+          (epackage-autoload-write-loaddefs-file
+           item
+           dest
+           'verbose)
+        (setq dest item)))))
+
+;; Copy of tinylisp-autoload-generate-loaddefs-dir
+(defun epackage-autoload-generate-loaddefs-dir
+  (file dir &optional exclude verb)
+  "Generate loaddefs to FILE from DIR, optionally EXCLUDE by regexp.
+If VERB is non-nil, display verbose messages."
+  (interactive "DLoaddefs from dir\nsIgnore regexp: ")
+  (let ((regexp "-\\(?:loaddef\\|autoload\\).*\\.el")
+        list)
+    (if (and (stringp exclude)
+             (string-match "^[ \t\r\n]*$" exclude))
+        ;; Interactive, no answer. Use default.
+        (setq exclude regexp))
+    (when (setq list (epackage-directory-file-list dir exclude))
+      (if (file-exists-p file)
+          (delete-file file))
+      (epackage-autoload-generate-loaddefs-file-list
+       file
+       list
+       (or verb (interactive-p))))))
+
+;; Copy of tinylisp-batch-autoload-generate-loaddefs-dir
+(defun epackage-batch-autoload-generate-loaddefs-dir (&optional exclude)
+  "Call `epackage-autoload-generate-loaddefs-dir' for `command-line-args-left'.
+Optionally EXCLUDE files by regexp."
+  (epackage-with-command-line
+   (epackage-autoload-generate-loaddefs-dir
+    item
+    exclude)))
+
+;; Copy of ti::package-autoload-create-on-file
+(defun epackage-autoload-create-on-file
+  (file &optional buffer no-show no-desc no-path)
+  "Very simple autoload function generator out of FILE.
+Optionally put results to BUFFER. NO-SHOW does not show buffer.
+
+Note:
+
+  Doesn't recognize ###autoload tags
+  Reads only functions.
+
+Input:
+
+  FILE      Emasc Lisp file to read
+  BUFFER    Where to insert autoloads.
+  NO-SHOW   Do not show autoload buffer
+  NO-DESC   Do not include function description comments
+  NO-PATH   Do not include path location comment."
+  (interactive "fConstruct lisp autoloads from file: ")
+  (let ((fn     (file-name-nondirectory file))
+        (regexp `,(concat
+                   "^(\\("
+                   "defun[*]?"
+                   "\\|defmacro[*]?"
+                   "\\|defsubst"
+                   "\\|defun-maybe"
+                   "\\|defsubst-maybe"
+                   "\\|defmacro-maybe"
+                   "\\|define-compilation-mode"
+                   "\\|define-derived-mode"
+                   "\\|define-generic-mode"
+                   "\\|define-global-minor-mode"
+                   "\\|define-globalized-minor-mode"
+                   "\\|define-minor-mode"
+                   "\\|easy-mmode-define-global-mode"
+                   "\\|easy-mmode-define-minor-mode"
+                   "\\)"
+                   "[ \t]+\\([^ \t\n(]+\\)[ \t]*"))
+        list
+        args
+        func
+        type
+        str
+        iact
+        point
+        read-buffer
+        tmp)
+    (or buffer
+        (setq buffer (get-buffer-create (or buffer  "*Autoloads*"))))
+    ;;   We want to say (autoload 'func "pacakge" t t)
+    ;;   and not        (autoload 'func "pacakge.el" t t)
+    ;;   so that .elc files can be used.
+    (if (string-match "\\(.*\\).el" fn)
+        (setq fn (match-string 1 fn)))
+    (unless (setq read-buffer (find-buffer-visiting file))
+      (setq read-buffer (setq tmp (find-file file))))
+    (with-current-buffer read-buffer
+      ;; Can't use forward-sexp etc otherwise
+      (unless (string-match "lisp" (symbol-name major-mode))
+        (let (emacs-lisp-mode-hook) ;; Run no hooks
+          (if emacs-lisp-mode-hook  ;; Quiet ByteCompiler "unused var"
+              (setq emacs-lisp-mode-hook nil))
+          (emacs-lisp-mode)))
+      (unless no-path
+        (epackage-append-to-buffer
+         buffer
+         (format ";; %s\n" (file-name-nondirectory file)))
+        (epackage-append-to-buffer
+         buffer
+         (format ";; %s\n" file)))
+      (goto-char (point-min))
+      (while (re-search-forward regexp nil t)
+        (setq iact nil                  ;interactive flag
+              args nil
+              ;; match (match-string 0)
+              type (match-string 1)
+              func (match-string 2))
+        (when (and func
+                   (progn
+                     (goto-char (goto-char (match-end 0)))
+                     (when (search-forward "(" nil t)
+                       (setq point (point))
+                       (backward-char 1)
+                       (forward-sexp 1)
+                       (backward-char 1)
+                       (setq
+                        args
+                        (replace-regexp-in-string
+                         "[ \t]+" " "
+                         (subst-char-in-string
+                          ;;  Convert multiline args to one line.
+                          ?\n ?\ (buffer-substring point (point)) ))))))
+          (if (or (string-match "define.*mode" type)
+                  (re-search-forward
+                   "[ \t\n]+([ \t]*interactive"
+                   (save-excursion (end-of-defun) (point))
+                   t))
+              (setq iact "t"))
+          (cond
+           ((null args)
+            (setq args (format ";; %-36s <args not known>\n" func)))
+           ((string= args "")
+            (setq args (format ";; %s\n" func)))
+           ((> (length args) 32)
+            (setq args (format ";; %-15s %s\n" func args)))
+           (t
+            (setq args (format ";; %-36s %s\n" func args))))
+          (push (list func args) list)
+          ;; (autoload FUNCTION FILE &optional DOCSTRING INTERACTIVE TYPE)
+          (setq str (format "(autoload '%-36s %s \"\" %s%s)%s\n"
+                            func
+                            (format "\"%s\""
+                                    (file-name-sans-extension fn))
+                            (or iact "nil")
+                            (if (string-match "defmacro" type )
+                                " 'macro" "")
+                            (if (string= type "defsubst")
+                                (format ";;%s" type) "")))
+          (epackage-append-to-buffer buffer str)
+          (setq iact "t")))
+      (unless no-desc
+        (with-current-buffer buffer
+          (insert "\n")                   ;list arguments for functions.
+          (let (func args)
+            (dolist (elt list)
+              (setq func (nth 0 elt)
+                    args (nth 1 elt))
+              (if (and (stringp args)
+                       (string-match "[a-z]" args))
+                  (insert (format ";; %-35s %s\n" func args))
+                (insert (format ";; %s\n" func)))))))
+      (if tmp                          ;We loaded this to Emacs, remove it
+          (kill-buffer tmp))
+      (unless no-show
+        (pop-to-buffer buffer)
+        (goto-char (point-min)))
+      buffer)))
+
+;; copy of ti::package-autoload-create-on-directory
+(defun epackage-autoload-create-on-directory
+  (dir &optional buffer no-show no-desc)
+  "Create autoloads from lisp files in DIR.
+Optionally put results to BUFFER. NO-SHOW does not show buffer.
+
+Note:
+
+  Doesn't recognize ###autoload tags; reads only functions.
+
+Input:
+
+  See argument description in function `epackage-autoload-create-on-file'."
+  (let ((files (directory-files
+                dir
+                'full
+                "\\.el$")))
+    (dolist (file files)
+      (epackage-autoload-create-on-file file buffer no-show no-desc))))
+
+;; Copy of ti::package-autoload-loaddefs-create-maybe
+(defun epackage-autoload-loaddefs-create-maybe (file)
+  "Make sure `generated-autoload-file' exists for FILE."
+  (unless (file-exists-p file)
+    (let ((name (file-name-nondirectory file)))
+      (with-temp-buffer
+        (insert
+         (format ";;; %s -- " name)
+         "loaddef definitions\n"
+         ";;  Generate date: " (format-time-string "%Y-%m-%d" (current-time))
+         "\n\
+;;  This file is automatically generated. Do not Change."
+         "\n\n"
+         (format "\n(provide '%s)\n\n"
+                 (file-name-sans-extension (file-name-nondirectory name))))
+        (epackage-write-region (point-min) (point-max) file)))))
+
+;; Copy of ti::package-autoload-loaddefs-dir-files
+(defun epackage-autoload-loaddefs-dir-files (dir &optional regexp)
+  "Return from DIR .el files that do not matching REGEXP.
+TO-FILE is excluded from autoload search."
+  (let (ret)
+    (dolist (file (directory-files dir 'abs))
+      (when (and (not (file-directory-p file))
+                 (string-match "\.el$" file)
+                 (or  (null regexp)
+                      (not (string-match regexp file))))
+        (push file ret )))
+    ret))
+
+;; Copy of ti::package-autoload-loaddefs-build-dir-1
+(defun epackage-autoload-loaddefs-build-dir-1 (dir &optional regexp to-file)
+  "Build autoloads in DIR not matching REGEXP TO-FILE."
+  (let ((files (epackage-autoload-loaddefs-dir-files dir regexp)))
+    (when files
+      (let (auto-mode-alist
+            find-file-hook
+            write-file-functions
+            font-lock-mode
+            ;; buffer-auto-save-file-name
+            auto-save-hook
+            auto-save-default
+            (auto-save-interval 0)
+            (backup-inhibited t))
+        ;; These are byte compiler silencers
+        (if (null find-file-hook)
+            (setq find-file-hook nil))
+        (if (null auto-mode-alist)
+            (setq auto-mode-alist nil))
+        (if (null write-file-functions)
+            (setq write-file-functions nil))
+        (if (null font-lock-mode)
+            (setq font-lock-mode nil))
+        (if (null auto-save-hook)
+            (setq auto-save-hook nil))
+        (if (null auto-save-default)
+            (setq auto-save-default nil))
+        (if auto-save-interval
+            (setq auto-save-interval 0))
+        (if backup-inhibited
+            (setq backup-inhibited t))
+        (epackage-autoload-loaddefs-create-maybe to-file)
+        (dolist (file files)
+          (epackage-message "[INFO] Updated loaddefs %s => %s" dir to-file)
+          (update-file-autoloads file))))))
+
+;; Copy of ti::package-autoload-loaddefs-build-dir
+(defun epackage-autoload-loaddefs-build-dir
+  (dir to-file &optional regexp force)
+  "Build autoloads in DIR TO-FILE like like `update-file-autoloads' does.
+
+Input:
+
+  DIR       Directory
+  TO-FILE   The autoload file
+  REGEXP    Ignore files matching regexp.
+  FORCE     If non-nil, delete previous TO-FILE."
+  (let ((generated-autoload-file to-file) ;; See autoload.el, must be bound
+        (name          (file-name-nondirectory to-file))
+        (buffer        (find-buffer-visiting to-file))
+        load)
+    (unless generated-autoload-file ;; just byte compiler silencer.
+      (setq generated-autoload-file nil))
+    ;;  Exclude to-file from search.
+    (if regexp
+        (setq regexp (concat regexp "\\|" (regexp-quote name)))
+      (setq regexp (regexp-quote name)))
+    (when buffer
+      (kill-buffer buffer)
+      (setq load t))
+    (when (and force
+               (file-exists-p to-file))
+      (delete-file to-file))
+;;;    (dolist (file (ti::package-autoload-loaddefs-dir-files dir regexp))
+;;;      (message "TinyLib: loaddefs %s %s" generated-autoload-file file)
+;;;      (update-file-autoloads file))
+    (epackage-autoload-loaddefs-build-dir-1 dir regexp to-file)
+    (when (setq buffer (find-buffer-visiting to-file))
+      (with-current-buffer buffer
+        (let (buffer-auto-save-file-name
+              auto-save-default)
+          (save-buffer))))
+    (when load ;;  Reload, because buffer was in Emacs
+      (find-file-noselect to-file))))
 
 ;;; ............................................... &functions-package ...
 
