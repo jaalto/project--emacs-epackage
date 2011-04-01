@@ -1,3 +1,23 @@
+2011-04-01 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el: (Commentary): Fix various typos and improve
+	sentences.
+
+2011-01-31  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-whitespace-trailing-regexp): New.
+	(epackage-buffer-remove-whitespace-eol): Use
+	`epackage-whitespace-trailing-regexp'.
+	(epackage-autoload-generate-loaddefs-dir): Change order of
+	parameters DIR and FILE. Add interactive spec for FILE.
+	(epackage-autoload-write-loaddefs-file): Turn off `auto-save-mode'.
+	(epackage-devel-generate-autoloads): New.
+	(epackage-devel-generate-loaddefs): New.
+	(epackage-devel-compose-package): New.
+	(epackage-devel-template-directory): New.
+	(epackage-autoload-generate-loaddefs-dir): Adjust regexp: do not
+	require dash.
+
 2011-01-14 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-write-region): Add `backup-enable-predicate'.

@@ -130,18 +130,19 @@
 ;;      download, and activate them. There are several ways how to
 ;;      install packages. Select *autoload* install (no Emacs setup
 ;;      changes), *standard* install (= enabling), or *activation*
-;;      install (Emacs environment is changed). Later you can upgrade
-;;      packages. To get updates list of available packages, ask to
-;;      "get" the sources list "Yellow pages" that lists available Git
-;;      repositories.
+;;      install (the activation code can chnage Emacs environment).
+;;      Later you can upgrade packages. To get updates of available
+;;      packages, ask to "get" the sources list, the "Yellow pages",
+;;      that holds information about available Git repositories.
 ;;
-;;      If you're a developer who would like to make the extensions
+;;      If you're a developer who would like to make extensions
 ;;      available for others as epackages, that will require
-;;      familiarizing with the `git(1)'.
+;;      familiarizing with the `Git' distributed version control
+;;      system.
 ;;
-;;      The epackage system can co-exist with any other installation,
-;;      like ELPA [4], as usual. User's standard Emacs startup files, like
-;;      `~/.emacs' are not modified.
+;;      The epackage system can co-exist with any other installation
+;;      like ELPA [4]. User's standard Emacs startup files, like
+;;      `~/.emacs' are not modified in standard install.
 ;;
 ;;      [1] http://en.wikipedia.org/wiki/Advanced_Packaging_Tool
 ;;
@@ -179,15 +180,16 @@
 ;;
 ;;      Each Emacs extension is prepared for use with this system:
 ;;      upstream code is imported into a git repository, the epackage
-;;      system is installe don top of upstream code in separate
+;;      system is installed on top of upstream code in separate
 ;;      directory, the whole git repository is made available online
-;;      and add information about its availability is recorded to a
-;;      separate seources list yellow pages. The epackaging work can
-;;      be done by anyone who wants to set up a repository. It doesn't
-;;      necesarily need to be done by the original Emacs extension
-;;      author (upstream) who may not be familiar with the `git(1)'
-;;      program. For more information about the packaging, refer to
-;;      section "The epackage system framework ".
+;;      and information about the availability of new epackage is
+;;      recorded to a separate seources list file, aka the yellow
+;;      pages. The epackaging work can be done by anyone who wants to
+;;      set up a repository. It doesn't necesarily need to be done by
+;;      the original Emacs extension author (upstream) who may not be
+;;      familiar with the `Git' distributed version control system.
+;;      For more information about the packaging, refer to section
+;;      "The epackage system framework ".
 ;;
 ;;      [1] DVCS = Distributed Version Control System
 ;;          http://en.wikipedia.org/wiki/Distributed_revision_control
@@ -249,15 +251,15 @@
 ;;
 ;;      Planned:
 ;;
-;;      o   byte compile package.
 ;;      o   edit package's *info* file.
-;;      o   email upstream, the package author (maintainer). You can
-;;      o   send mail to person who is the maintainer of epackage
-;;          for this utility. You can send requests to fix
-;;          packaging or update contents of the 'info' file if some
-;;          of the information in no up to date.
+;;      o   email upstream to report a bug in the extension.
+;;	o   email epackage maintainer to report a packaging bug.
+;;          You can e.g. send a requests to update contents of the
+;;          'info' file as needed.
 ;;
-;;      The package state is shown with following status indicators:
+;;      Building the initial list of available packages takes some
+;;      time at startup. The package state is shown with following
+;;      status indicators:
 ;;
 ;;      o   *(A)ctivated*. The package has been downloaded and code to
 ;;          immediately activate the package is in use. This setting
@@ -272,14 +274,14 @@
 ;;          configuration is not modified in any way. Some basic
 ;;          setup changes like modifying `auto-mode-alist' to activate
 ;;          modes for certain new file extensions may be provided.
-;;      o   *(a)autoloaded*. The package has been downloaded and code to
+;;      o   *(a)utoloaded*. The package has been downloaded and code to
 ;;          to provide autoloads to access package functions as been
 ;;          installed. User can call features with `M-x' <function name>.
 ;;          If you want full
 ;;          control over package setup, set package to autoload state
 ;;          and use `~/.emacs' Emacs startup file  to fully configure
 ;;          the extension.
-;;      o   *(D)downloaded*. Package has been fetched to local disk,
+;;      o   *(D)ownloaded*. Package has been fetched to local disk,
 ;;          but that is all. No setup whatsoever. Useful for complete
 ;;          control and DIY setups.
 ;;      o   (u)unmaintained. The package has been flagged as unmaintained.
@@ -288,17 +290,14 @@
 ;;      o   (e)macs core. Package has been included in core Emacs.
 ;;      o   (x)emacs core. Package has been already included in core XEmacs.
 ;;
-;;      Building the initial list of available packages takes some
-;;      time at startup.
-;;
 ;;  About Configuration
 ;;
-;;    Private repositories
+;;     Private repositories
 ;;
 ;;      Private installed epackage repositories, or other sources, can
-;;      be defined into `epackage--sources-file-list'. The list of
-;;      files included in there will be combined with
-;;      `epackage--sources-list-url'. The order of the files matter:
+;;      be defined in variable `epackage--sources-file-list'. The list
+;;      of files included in there will be combined variable with
+;;      `epackage--sources-list-url'. The order of the entries matter:
 ;;      the packages are read first-served basis. An example:
 ;;
 ;;          (setq epackage--sources-file-list
@@ -307,14 +306,14 @@
 ;;      Say the *epackage-local.lst* lists package =foo= and file
 ;;      pointed by `epackage--sources-list-url' also contains package
 ;;      =foo=. Because the files will be combined,
-;;      *epackage-local.lst* will take precedence its package =foo=
+;;      *epackage-local.lst* will take precedence; its package =foo=
 ;;      will be used for download.
 ;;
-;;    Automatic install of packages
+;;     Automatic install of packages
 ;;
-;;      The basic operation mode is just do action at a time to give user
-;;      full control of packages. In daily use it may be desireable
-;;      to byte compile package after they have been downloaded. Use this:
+;;      The basic operation mode is to do one action at a time to give
+;;      user a full control. In daily use it may be desireable to byte
+;;      compile package after they have been downloaded. For that, use:
 ;;
 ;;          (require 'epackage)
 ;;          (add-to-list 'epackage--download-action-list 'compile)
@@ -344,14 +343,15 @@
 ;;      o   _U_ = Upstream. Person or team who wrote Emacs Lisp extension,
 ;;          the code or utility than enhances Emacs.
 ;;
-;;      In order to find a package, the yellow pages is consulted. It is
-;;      seeded and update by all the epackage maintainers that wish to
-;;      make they work available. The user A does not need to know any
+;;      In order to find a package, the yellow pages is consulted. It
+;;      is seeded and updated by the epackage maintainer that wish to
+;;      make his work available. The user A does not need to know any
 ;;      details of this process; like in Debian, he installs an
-;;      epackage or downloads upgrades to it.
+;;      epackage and periodically asks for upgrades.
 ;;
 ;;      o   The location of Yellow Pages is fixed (%).
-;;      o   The location of E's and U's can be anywhere (*).
+;;      o   The location of E's (epackage maintainer) and U's (upstream)
+;;          can be anywhere (*).
 ;;      o   The E and U can be the same person (the upstream).
 ;;
 ;;                      %               *               *
@@ -360,9 +360,9 @@
 ;;          |           |               | keep eye on   |
 ;;          |  fetch    |               * ------------> |
 ;;          * --------> |               | <-----------  |
-;;          | <-------- |               | epackage new  |
-;;          |  upgrade  | keep epackage | releases      |
-;;          |           | info in sync  |               |
+;;          | <-------- *               | epackage new  |
+;;          |  upgrade  | add epackage  | releases      |
+;;          |           | location      |               |
 ;;          |           | <------------ *               |
 ;;          |           |   (url)       |               |
 ;;          |                           |               |
@@ -373,7 +373,7 @@
 ;;          |                           |               |
 ;;          |    upgrade "X"            |               |
 ;;          * ------------------------> |               |
-;;          | <------------------------ |               |
+;;          | <------------------------ *               |
 ;;          |   download DVCS "delta"   |               |
 ;;          |                           |               |
 ;;          |  report epackage bug      |               |
@@ -440,7 +440,7 @@
 ;;      The layout of an epackaged Emacs extension looks like:
 ;;
 ;;          <PACKAGE, the Emacs extension root dir>
-;;          | <files and possible directories>
+;;          | <upstream files and possible directories>
 ;;          |
 ;;          +- .git/                  Version control branches (see above)
 ;;          |
@@ -508,16 +508,15 @@
 ;;      This file contains Emacs Lisp command to byte compile the
 ;;      extension. The file is run at the root directory of the
 ;;      extension with `load-path' set to include all the relevant
-;;      directories. Evaluating the file must byte compilation
-;;      everything needed. All the variables and functions defined here
-;;      must have `PACKAGE-*' prefix to keep the Emacs name space
-;;      clean. An exmaple for simple extension consisting of two
-;;      files:
+;;      directories. Evaluating the file must byte compile all that is
+;;      needed. Possible variables and functions defined here must
+;;      have `PACKAGE-*' prefix to keep the Emacs name space clean. An
+;;      exmaple for simple extension consisting of two files:
 ;;
 ;;          (dolist (file '("foo-lib.el" "foo.el"))
 ;;            (byte-compile-file file))
 ;;
-;;      *Exception:* packages that only have a single *.el file do not
+;;      *Exception:* packages that only have a single '*.el' file do not
 ;;      need to define this file.
 ;;
 ;;     The *-configure.el
@@ -548,32 +547,31 @@
 ;;     The *-install.el
 ;;
 ;;      This file publishes user variables and interactive `M-x'
-;;      functions in *autoload* state. It may contains conservative
-;;      changes to user's environment: those of modifying
+;;      functions in *autoload* state. It may make conservative
+;;      changes to Emacs environment: those of modifying
 ;;      `auto-mode-alist' or setting up hooks. The *-install* in name
 ;;      refers to standard installation, or availability for that
 ;;      matter, of interactive functions. *Note:* try to avoid
-;;      `require' or `load' commands as much as possible; or arrange
-;;      and delay their calls to the point where after user calls
-;;      functions interactively. That helps keeping Emacs startup fast
-;;      and lean. Mnemonic: "if you load this file, the extension is
-;;      up and ready to be used in your Emacs. You can start calling
-;;      extension's functions ot load new files that activate the
-;;      extension's features". The file ends in:
+;;      `require' or `load' commands as much as possible. Arrange and
+;;      use `autoload' statements instead. That helps keeping Emacs
+;;      startup fast and lean. Mnemonic: "if you load this file, the
+;;      extension is up and ready to be used in your Emacs. You can
+;;      start calling extension's functions or load new files that
+;;      activate the extension's features". The file ends in:
 ;;
 ;;          (provide 'PACKAGE-install)
 ;;
 ;;     The *-uninstall.el
 ;;
-;;      This file does the opposite of `*-install.el' and `*-activate.el'
-;;      It runs commands to remove the extension as if it has never
-;;      been loaded. Due to the nature of Emacs, it is not really
-;;      practical to completely try to uninstall the package. The
-;;      uninstallation usually covers undoing the changes to *-hook,
-;;      *-functions and `auto-mode-alist' and the like variables. The
-;;      actual symbols (defined functions and variables) are not
-;;      removed. To shake extension completely, restart Emacs after
-;;      uninstall of epackage. The file ends in:
+;;      This file does the opposite of `*-install.el' and
+;;      `*-activate.el' It runs commands to remove the extension as if
+;;      it has never been loaded. Due to the nature of Emacs, it is
+;;      not really practical to completely try to uninstall the
+;;      package. The uninstallation usually covers undoing the changes
+;;      to *-hook, *-functions and `auto-mode-alist' and to similar
+;;      variables. The actual symbols (defined functions and
+;;      variables) are not removed. To shake extension completely,
+;;      restart Emacs after uninstall of epackage. The file ends in:
 ;;
 ;;          (provide 'PACKAGE-uninstall)
 ;;
@@ -638,7 +636,7 @@
 ;;
 ;;          Package: test-package
 ;;          Section: tools
-;;          License: None
+;;          License: GPL-2+
 ;;          Depends: emacs (>= 21)
 ;;          Status: unmaintained
 ;;          Compat:
@@ -647,16 +645,16 @@
 ;;          Upstream: John doe <jdoe@example.com>
 ;;          Upstream-Bugs:
 ;;          Vcs-Type: http
-;;          Vcs-Url: http://www.emacswiki.org/emacs/download/this-is-test-package.el
+;;          Vcs-Url: http://www.emacswiki.org/emacs/download/test-package.el
 ;;          Vcs-Browser:
 ;;          Vcs-User:
 ;;          Vcs-Password:
 ;;          Homepage:
 ;;          Wiki: http://www.emacswiki.org/emacs/TheTestPackage
 ;;          Commentary: test-package.el
-;;          Description: Test package with various functions
-;;           Main command [C-u] M-x test-package to run various tests on the
-;;           lisp package. With a prefix argument, show also notes and more minor
+;;          Description: test package with various functions
+;;           Main command [C-u] M-x test-package runs various tests on the
+;;           current lisp code. With a prefix argument, shows also notes and minor
 ;;           details.
 ;;           .
 ;;           Note: 2010-12-03 the code hasn't been touched since 2004.
@@ -680,28 +678,27 @@
 ;;
 ;;     Commentary
 ;;
-;;      This field contains path, relative to epackage root directory,
-;;      to single Emacs Lisp file which contains documentation
-;;      suitable for `M-x' `finder-commentary'. In order to find
-;;      documentation, this field must exist even for epackages that
-;;      contain single Emacs Lisp file. Extension developers should
-;;      study core Emacs *lisp-mnt.el* and function `lm-commentary'.
-;;      The documentation read is enclosed in mentioned file between
-;;      tags:
+;;      This field contains a path, relative to epackage root
+;;      directory, to a single Emacs Lisp file which contains
+;;      documentation suitable for `M-x' `finder-commentary'. In order
+;;      to find documentation, this field must exist even for
+;;      epackages that contain single Emacs Lisp file. Extension
+;;      developers should study core Emacs *lisp-mnt.el* and function
+;;      `lm-commentary'. The documentation read from file is enclosed
+;;      in between tags:
 ;;
 ;;          ;;; Commentary:
 ;;
 ;;          ;;; Change Log:
 ;;
-;;    Compat
+;;     Compat
 ;;
 ;;      The compatibility level used in the epackage. The Epackage
-;;      format may change in time and this field indicates which the
-;;      epackage layout version. If the value is missing or is empty,
-;;      no specific compatibility level is required and latest is
-;;      assumed. Usually an epackage maintainer should follow the
-;;      latest format to prevent installation problems. See section
-;;      "Epackage Compatibility Levels" for more information.
+;;      format may change in time and this field indicates which
+;;      epackage layout was used. If the value is missing or is empty,
+;;      the latest is assumed. Usually an epackage maintainer should
+;;      follow the latest format to prevent installation problems. See
+;;      section "Epackage Compatibility Levels" for more information.
 ;;
 ;;     Conflicts
 ;;
@@ -726,24 +723,23 @@
 ;;      latest Emacs releases are candidate for removal from the
 ;;      official Epackage Yellow Pages sources list. Examples:
 ;;
-;;          Depends: emacs, foo
+;;          Depends: foo
 ;;          Depends: emacs (>= 22.2) | xemacs (>= 20), foo
 ;;
-;;      To mark that package dows not work in XEmacs, use "!". The
-;;      version parameter is ignored in logical *not*, parenhesis are
-;;      still required:
+;;      To mark that package does not work in XEmacs, use "!". The
+;;      version parameter is ignored with logical *not* but
+;;      the parenthesis are still required:
 ;;
 ;;          Depends: emacs (>= 22.2), xemacs (!), foo
 ;;
-;;      _Limitations_: The *vertical* *bar*, OR-operator(|), is not in
-;;      general use. It is only respected on the Emacs flavor part.
+;;      _Limitations_: The *vertical* *bar*, OR-operator(|), is not
+;;      really used. It is only respected on the Emacs flavor part.
 ;;      Using OR-operator anywhere else causes treating the elments as
-;;      required as if written "exension | extension" => "extension,
-;;      extension".
+;;      if written "exension | extension" => "extension, extension".
 ;;
 ;;      The *version* *information* is a no-op anewhere else than
 ;;      Emacs flavor check. This kind of fine grained package
-;;      dependencies has never been in use with Emacs Lisp extension.
+;;      dependencies has never been in use with Emacs Lisp extensions.
 ;;      There is no support for version numbers in Emacs Lisp commands
 ;;      `provide', `require', `load', `load-file' and `load-library'.
 ;;      Extensions typically check the available features with
@@ -752,7 +748,7 @@
 ;;
 ;;          Depends: emacs (>= 22.2), xemacs (!), foo (>= 0.9)
 ;;                                                    |
-;;                                     Will no tbe used
+;;                               Ignored. Has no effect.
 ;;
 ;;      See also section "Development notes: depends".
 ;;
@@ -784,11 +780,10 @@
 ;;
 ;;      In any case, the homepage URL should not directly point to the
 ;;      developer's volatile personal homepage if there are
-;;      alternative choices. It is good idea to encourage "garage"
-;;      upstream developers to set up their software at some project
-;;      hosting site which encourage collaboration and provide
-;;      infrastructure e.g. for issue tracking. For more information,
-;;      see
+;;      alternatives. It is good idea to encourage "garage" upstream
+;;      developers to set up their software at some project hosting
+;;      site which encourage collaboration and provide infrastructure
+;;      e.g. for issue tracking. For more information, see
 ;;      <http://en.wikipedia.org/wiki/Comparison_of_open_source_software_hosting_facilities>.
 ;;
 ;;     License
@@ -824,14 +819,13 @@
 ;;      "html-helper-mode". In case of minor or major modes, always
 ;;      add *-mode even if file name does not explicitly say so. An
 ;;      example "python.el" => package name is "python-mode". No two
-;;      packages can have the same name. Please notify upstream about
-;;      the clash.
+;;      packages can have the same name. Please notify upstream if
+;;      any package name clashes.
 ;;
-;;      Note: There may be exotically names extensions like "crypt++",
+;;      Note: There may be exotically named extensions like "crypt++",
 ;;      but the *epackage* name must not contains special characters
-;;      like "+". Name the epackage "crypt-plusplus" is nothing else
-;;      comes to mind or if upstream can't remove the special
-;;      characters.
+;;      like "+". Name the epackage "crypt-plusplus" if nothing else
+;;      comes to mind or if upstream can't rename the package.
 ;;
 ;;     Recommends
 ;;
@@ -853,7 +847,7 @@
 ;;     Status
 ;;
 ;;      This field lists succinct information about the package. Each
-;;      keyword has a unique meaning. the allowed list:
+;;      keyword has a unique meaning. The allowed list is:
 ;;
 ;;          keyword := core-emacs[-NN.N]
 ;;                     | core-xemacs[-NN.N]
@@ -865,21 +859,23 @@
 ;;                     | experimental
 ;;
 ;;      The `core-*' values mark the extension or its features being
-;;      included (or will be) in the latest [X]Emacs. The optional
+;;      included (or will be) in the mentioned [X]Emacs. The optional
 ;;      NN.N announces in which Emacs flavor the feature was included;
 ;;      e.g. *core-emacs-22.1*. Value `unmaintained' means that the
 ;;      original developer has vanished or abandoned the project and
 ;;      is no longer available for contacting or further development.
 ;;      Value `unsafe' means that the not all the symbols are name
 ;;      space clean (prefix-*); meaning that some of the commands
-;;      might clash with existing ones. The current release status of
-;;      package can be indicated with terms `stable' (no more actively
-;;      developed, bugs shaken out), `unstable' (package is in active
-;;      development) or `experimental' (no guarantees, not necessarily
-;;      tested, this is the latest code). Value `broken' means that
-;;      there are ports of problems or that it may not work in some
-;;      Emacs version. Further information should be supplied in the
-;;      end of *Description:* field in section "BUGS" or similar.
+;;      might clash with existing function in Emacs. The current
+;;      release status of package can be indicated with terms `stable'
+;;      (no more actively developed, bugs shaken out), `unstable'
+;;      (package is in active development) or `experimental' (no
+;;      guarantees, not necessarily tested, this is the latest code).
+;;      Value `broken' means that there are known problems,
+;;      limitations or that the package may not work in some Emacs
+;;      version. Further information about "brokeness" should be
+;;      supplied in the end of *Description:* field in section "BUGS"
+;;      or similar.
 ;;
 ;;     Upstream
 ;;
@@ -1063,22 +1059,22 @@
 ;;      o   Cannot easily know en masse to which packages updates
 ;;          would be available. Because the is no central place to
 ;;          read, each repository would need to be checked separately
-;;          (network perfomance penalty.
+;;          (network perfomance penalty).
 ;;
 ;;      In daily use these are not in practice big problems. If
 ;;      package X requires Y, the Y will be downloaded. If Y further
 ;;      requires Z, the Z will be downloaded etc. Somewhere in the
 ;;      chain the downloads stops. It is just that no progress
 ;;      indicator can be presented to tell how many more packages
-;;      there is to load. Mots of the Emacs Lisp extensions are self
+;;      there is to load. Most of the Emacs Lisp extensions are self
 ;;      standing and have no external dependencies.
 ;;
-;;      Regarding the requirement for specific version of the package
+;;      Regarding the requirement for a specific version of the package
 ;;      in form of:
 ;;
 ;;          Depends: foo (>= 0.9)
 ;;                       |
-;;                       No-op. Will not be used
+;;                       No-op. Will not be used.
 ;;
 ;;      Emacs extensions have never had any Perl like "use PACKAGE
 ;;      VERSION" statements, thus there is not much point of
@@ -1103,21 +1099,27 @@
 ;;      packages. But we can't have one without touching the other
 ;;      issues: what if package is removed? Say package A requires
 ;;      both B and C. Currently user has total control and can remove
-;;      package C and make A non-working. Nothing checks prevent
-;;      removing or disabling packages as one wishes. In order to do
-;;      the removals in a safe fashion, the dependency graphs of all
-;;      packages would need to be collected and maintained.
+;;      package C and make A non-working. Nothing prevents removing or
+;;      disabling packages as one wishes. In order to do the removals
+;;      in a safe fashion, the dependency graphs of all packages would
+;;      need to be collected and maintained.
 ;;
 ;;      Indeed, writing a depends system is challenging. Currently this
 ;;      software lacks dependency checks during package removals.
 ;;
 ;;     Version
 ;;
-;;      Why is there no "Version:" field in the `info' file? The Git
+;;      Why is there no "Version:" field in the `info' file that would
+;;      announce which "version of the extension is"? The Git
 ;;      repository is supposed to have tags for all upstream versions
 ;;      of the package. It would be duplicate work to manually keep
 ;;      the info::Version field in synch with the tags of Git
-;;      repository.
+;;      repository. So, you download extensions, not really "some
+;;      specific versions of extentions". This is a little differently
+;;      than in Redhat or Debian/Ubuntu, where you upgrade from
+;;      version to newer version of the package. In Epackage, you
+;;      actually update Git repository, thus bringing extension up to
+;;      date.
 ;;
 ;; TODO
 ;;
@@ -1192,7 +1194,6 @@
   (defvar pcomplete-parse-arguments-function)
   (defvar pcomplete-default-completion-function)
   (defvar whitespace-style)
-  (defvar whitespace-trailing-regexp)
   (defvar finder-known-keywords)
   (autoload 'generate-file-autoloads "autoload")
   (autoload 'whitespace-replace-action "whitespace")
@@ -1216,7 +1217,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0114.0920"
+(defconst epackage-version-time "2011.0401.1155"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1470,6 +1471,17 @@ during hook. The TYPE is one of `epackage--layout-mapping'."
   :tag "Epackage Info Mode Text"
   :group 'epackage
   :type 'string)
+
+(defcustom epackage-devel-template-directory nil
+  "Directry of template files to make an Epackage.
+Used by `epackage-devel-compose-package'."
+  :group 'epackage
+  :type 'directory)
+
+(defvar epackage-whitespace-trailing-regexp
+  "\\(\\(\t\\| \\|\xA0\\|\x8A0\\|\x920\\|\xE20\\|\xF20\\|\x0C\\)+\\)$"
+  "Specify trailing characters regexp.
+Copy from whitespace.el with ^L character added.")
 
 (defvar epackage-info-mode nil
   "*Non-nil when Epackage Info Mode is active.
@@ -2147,6 +2159,14 @@ Return `epackage--download-action-list'."
   "Return nth 1 of TYPE listed in `epackage--layout-mapping'."
   (nth 1 (assq type epackage--layout-mapping)))
 
+(defsubst epackage-layout-file-name (dir package type)
+  "Return file name under DIR of PACKAGE and layout TYPE."
+  (format "%s%s/%s%s"
+	  (file-name-as-directory dir)
+	  epackage--package-control-directory
+	  (downcase package)
+	  (epackage-layout-mapping-file type)))
+
 (defsubst epackage-eval-file (file &optional security)
   "Evaluate FILE with optionally checking SECURITY.
 If SECURITY is non-nil, signal error if
@@ -2182,8 +2202,7 @@ Return:
   "Clear end of line whitespaces from whole buffer. Including ^L."
   (require 'whitespace) ;; Define whitespace-trailing-regexp
   (let ((whitespace-trailing-regexp
-         (concat whitespace-trailing-regexp
-                 "\\|" (char-to-string ?\C-l) "$")))
+         epackage-whitespace-trailing-regexp))
     (whitespace-replace-action
      'delete-region (point-min) (point-max)
      whitespace-trailing-regexp 1)))
@@ -3118,6 +3137,10 @@ Those that are not installed in `epackage-directory-install'."
 If optional VERBOSE is non-nil, display progress message."
   (let ((generated-autoload-file dest))
       (with-current-buffer (find-file-noselect dest)
+	(when buffer-auto-save-file-name
+	  (if (file-exists-p buffer-auto-save-file-name)
+	      (delete-file buffer-auto-save-file-name))
+	  (auto-save-mode -1))
         (goto-char (point-max))
         (let ((point (point)))
           (generate-file-autoloads file)
@@ -3156,11 +3179,12 @@ The first argument is the the destination file where loaddefs are stored."
 
 ;; Copy of tinylisp-autoload-generate-loaddefs-dir
 (defun epackage-autoload-generate-loaddefs-dir
-  (file dir &optional exclude verb)
-  "Generate loaddefs to FILE from DIR, optionally EXCLUDE by regexp.
+  (dir file &optional exclude verb)
+  "Generate loaddefs from DIR to FILE.
+Optionally EXCLUDE files by regexp.
 If VERB is non-nil, display verbose messages."
-  (interactive "DLoaddefs from dir\nsIgnore regexp: ")
-  (let ((regexp "-\\(?:loaddef\\|autoload\\).*\\.el")
+  (interactive "FDLoaddefs from dir: \nFLoaddefs to file: \nsFile ignore regexp: ")
+  (let ((regexp "\\(?:loaddef\\|autoload\\).*\\.el\\|[#~]")
         list)
     (if (and (stringp exclude)
              (string-match "^[ \t\r\n]*$" exclude))
@@ -3169,19 +3193,15 @@ If VERB is non-nil, display verbose messages."
     (when (setq list (epackage-directory-file-list dir exclude))
       (if (file-exists-p file)
           (delete-file file))
+      (let ((buffer (get-file-buffer file)))
+	(when buffer
+	  (with-current-buffer buffer
+	    (set-buffer-modified-p nil))
+	  (kill-buffer buffer)))
       (epackage-autoload-generate-loaddefs-file-list
        file
        list
        (or verb (interactive-p))))))
-
-;; Copy of tinylisp-batch-autoload-generate-loaddefs-dir
-(defun epackage-batch-autoload-generate-loaddefs-dir (&optional exclude)
-  "Call `epackage-autoload-generate-loaddefs-dir' for `command-line-args-left'.
-Optionally EXCLUDE files by regexp."
-  (epackage-with-command-line
-   (epackage-autoload-generate-loaddefs-dir
-    item
-    exclude)))
 
 ;; Copy of ti::package-autoload-create-on-file
 (defun epackage-autoload-create-on-file
@@ -3321,15 +3341,22 @@ Input:
         (goto-char (point-min)))
       buffer)))
 
+(defun epackage-autoload-generate-autoload-file-list
+  (file list &optional verbose)
+  "Generate to FILE all loaddefs from LIST of files.
+If optional VERBOSE is non-nil, display progress message."
+  (dolist (elt list)
+    (epackage-autoload-write-autoload-file elt file verbose)))
+
 ;; copy of ti::package-autoload-create-on-directory
 (defun epackage-autoload-create-on-directory
-  (dir &optional buffer no-show no-desc)
-  "Create autoloads from lisp files in DIR.
-Optionally put results to BUFFER. NO-SHOW does not show buffer.
+  (dir &optional buffer)
+  "Create autoloads from lisp files in DIR to current buffer.
+Optionally put results to BUFFER.
 
 Note:
 
-  Doesn't recognize ###autoload tags; reads only functions.
+  Doesn't care about ###autoload tags; reads only functions.
 
 Input:
 
@@ -3337,114 +3364,52 @@ Input:
   (let ((files (directory-files
                 dir
                 'full
-                "\\.el$")))
+                "\\.el$"))
+	(regexp "\\(?:loaddef\\|autoload\\)\\|[#~]"))
     (dolist (file files)
-      (epackage-autoload-create-on-file file buffer no-show no-desc))))
+      (unless (string-match regexp file)
+	(epackage-autoload-create-on-file
+	 file
+	 (or buffer (current-buffer))
+	 'no-show
+	 'no-desc
+	 'no-path)))))
 
-;; Copy of ti::package-autoload-loaddefs-create-maybe
-(defun epackage-autoload-loaddefs-create-maybe (file)
-  "Make sure `generated-autoload-file' exists for FILE."
-  (unless (file-exists-p file)
-    (let ((name (file-name-nondirectory file)))
-      (with-temp-buffer
-        (insert
-         (format ";;; %s -- " name)
-         "loaddef definitions\n"
-         ";;  Generate date: " (format-time-string "%Y-%m-%d" (current-time))
-         "\n\
-;;  This file is automatically generated. Do not Change."
-         "\n\n"
-         (format "\n(provide '%s)\n\n"
-                 (file-name-sans-extension (file-name-nondirectory name))))
-        (epackage-write-region (point-min) (point-max) file)))))
+(defun epackage-devel-generate-loaddefs (package dir)
+  "Generate PACKAGE loaddefs from DIR.
+The loaddefs are stored under directory
+`epackage--directory-name' as defined in `epackage--layout-mapping'."
+  (interactive "sPackage name: \nDEpackage loaddefs from dir: ")
+  (let ((file (epackage-layout-file-name dir package 'loaddefs)))
+    (epackage-autoload-generate-loaddefs-dir
+     dir file nil (interactive-p))))
 
-;; Copy of ti::package-autoload-loaddefs-dir-files
-(defun epackage-autoload-loaddefs-dir-files (dir &optional regexp)
-  "Return from DIR .el files that do not matching REGEXP.
-TO-FILE is excluded from autoload search."
-  (let (ret)
-    (dolist (file (directory-files dir 'abs))
-      (when (and (not (file-directory-p file))
-                 (string-match "\.el$" file)
-                 (or  (null regexp)
-                      (not (string-match regexp file))))
-        (push file ret )))
-    ret))
+;; Copy of tinylisp-batch-autoload-generate-loaddefs-dir
+(defun epackage-batch-autoload-generate-loaddefs-dir (&optional exclude)
+  "Call `epackage-autoload-generate-loaddefs-dir' for `command-line-args-left'.
+Optionally EXCLUDE files by regexp."
+  (epackage-with-command-line
+   (epackage-autoload-generate-loaddefs-dir
+    item
+    exclude)))
 
-;; Copy of ti::package-autoload-loaddefs-build-dir-1
-(defun epackage-autoload-loaddefs-build-dir-1 (dir &optional regexp to-file)
-  "Build autoloads in DIR not matching REGEXP TO-FILE."
-  (let ((files (epackage-autoload-loaddefs-dir-files dir regexp)))
-    (when files
-      (let (auto-mode-alist
-            find-file-hook
-            write-file-functions
-            font-lock-mode
-            ;; buffer-auto-save-file-name
-            auto-save-hook
-            auto-save-default
-            (auto-save-interval 0)
-            (backup-inhibited t))
-        ;; These are byte compiler silencers
-        (if (null find-file-hook)
-            (setq find-file-hook nil))
-        (if (null auto-mode-alist)
-            (setq auto-mode-alist nil))
-        (if (null write-file-functions)
-            (setq write-file-functions nil))
-        (if (null font-lock-mode)
-            (setq font-lock-mode nil))
-        (if (null auto-save-hook)
-            (setq auto-save-hook nil))
-        (if (null auto-save-default)
-            (setq auto-save-default nil))
-        (if auto-save-interval
-            (setq auto-save-interval 0))
-        (if backup-inhibited
-            (setq backup-inhibited t))
-        (epackage-autoload-loaddefs-create-maybe to-file)
-        (dolist (file files)
-          (epackage-message "[INFO] Updated loaddefs %s => %s" dir to-file)
-          (update-file-autoloads file))))))
+(defun epackage-devel-generate-autoloads (package dir)
+  "Generate PACKAGE autoloads from DIR.
+The loaddefs are stored under directory
+`epackage--directory-name' as defined in `epackage--layout-mapping'."
+  (interactive "sPackage name: \nDEpackage autoloads from dir: ")
+  (let ((file (epackage-layout-file-name dir package 'autoloads)))
+    ;; FIXME
+    (epackage-autoload-create-on-directory dir)
+    ))
 
-;; Copy of ti::package-autoload-loaddefs-build-dir
-(defun epackage-autoload-loaddefs-build-dir
-  (dir to-file &optional regexp force)
-  "Build autoloads in DIR TO-FILE like like `update-file-autoloads' does.
-
-Input:
-
-  DIR       Directory
-  TO-FILE   The autoload file
-  REGEXP    Ignore files matching regexp.
-  FORCE     If non-nil, delete previous TO-FILE."
-  (let ((generated-autoload-file to-file) ;; See autoload.el, must be bound
-        (name          (file-name-nondirectory to-file))
-        (buffer        (find-buffer-visiting to-file))
-        load)
-    (unless generated-autoload-file ;; just byte compiler silencer.
-      (setq generated-autoload-file nil))
-    ;;  Exclude to-file from search.
-    (if regexp
-        (setq regexp (concat regexp "\\|" (regexp-quote name)))
-      (setq regexp (regexp-quote name)))
-    (when buffer
-      (kill-buffer buffer)
-      (setq load t))
-    (when (and force
-               (file-exists-p to-file))
-      (delete-file to-file))
-;;;    (dolist (file (ti::package-autoload-loaddefs-dir-files dir regexp))
-;;;      (message "TinyLib: loaddefs %s %s" generated-autoload-file file)
-;;;      (update-file-autoloads file))
-    (epackage-autoload-loaddefs-build-dir-1 dir regexp to-file)
-    (when (setq buffer (find-buffer-visiting to-file))
-      (with-current-buffer buffer
-        (let (buffer-auto-save-file-name
-              auto-save-default)
-          (save-buffer))))
-    (when load ;;  Reload, because buffer was in Emacs
-      (find-file-noselect to-file))))
+(defun epackage-devel-compose-package (package dir)
+  "Compose initial templates for PACKAGE in DIR.
+Generating autoloads, loaddefs file and write other
+template files under `epackage--directory-name'.."
+  (interactive "sPackage name: \nDEpackage initialize from dir: ")
+  ;; FIXME
+  )
 
 ;;; ............................................... &functions-package ...
 
