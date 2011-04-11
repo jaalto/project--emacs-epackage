@@ -1217,7 +1217,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0411.1158"
+(defconst epackage-version-time "2011.0411.1210"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -3110,16 +3110,20 @@ No pending commits and no modified files."
   "Return list of packages in `epackage-directory-install'."
   ;; We don't care autoloads, because 'enable' installation is a
   ;; REQUIREMENT for epackages.
-  (epackage-config-status-of-packages 'enable))
+  (let ((list (epackage-config-status-of-packages 'enable)))
+    ;; FIXME: is there union() outside of CL that we could use?
+    (dolist (elt (epackage-config-status-of-packages 'activate))
+      (epackage-push elt list))
+    list))
 
 (defun epackage-status-not-installed-packages ()
   "Return list of packages in `epackage-directory-packages'.
 Those that are not installed in `epackage-directory-install'."
-  (let ((active (epackage-config-status-of-packages 'activate))
+  (let ((installed (epackage-status-installed-packages))
         (downloaded (epackage-status-downloaded-packages))
         list)
     (dolist (package downloaded)
-      (unless (member package active)
+      (unless (member package installed)
         (epackage-push package list)))
     (nreverse list)))
 

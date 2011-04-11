@@ -31,6 +31,10 @@
 	`epackage-batch-ui-display-package-action-list'.
 	(epackage-batch-ui-download-action-activate-toggle): Call
 	`epackage-batch-ui-display-package-action-list'.
+	(epackage-status-installed-packages): Include 'activated'
+	packages too.
+	(epackage-status-not-installed-packages): Correct function.
+	Use `epackage-status-installed-packages'.
 
 2011-04-01 Fri  Jari Aalto  <jari.aalto@cante.net>
 
