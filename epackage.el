@@ -1217,7 +1217,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0411.1221"
+(defconst epackage-version-time "2011.0411.1424"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -5543,10 +5543,10 @@ If optional VERBOSE is non-nil, display progress message."
   (interactive
    (list 'interactive))
   (epackage-require-main verbose)
-  (unless (epackage-sources-list-p)
-    (epackage-cmd-download-sources-list verbose))
   ;; There are few checks that need this
   (let ((epackage--initialize-flag t))
+    (unless (epackage-sources-list-p)
+      (epackage-cmd-download-sources-list verbose))
     (epackage-sources-list-build verbose))
   (setq epackage--initialize-flag t)
   (run-hooks 'epackage--initialize-hook))

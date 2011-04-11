@@ -38,6 +38,9 @@
 	(epackage-status-not-installed-packages): Correct function.
 	Use `epackage-status-installed-packages'.
 	(epackage--batch-ui-menu-header): Display version.
+	(epackage-initialize): move let `epackage--initialize-flag' a
+	little earler. This prvents "make ui" error on pristine
+	call where nothing has been done yet.
 
 2011-04-01 Fri  Jari Aalto  <jari.aalto@cante.net>
 
