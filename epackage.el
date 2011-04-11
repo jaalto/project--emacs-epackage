@@ -1217,7 +1217,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0411.0749"
+(defconst epackage-version-time "2011.0411.1027"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1988,6 +1988,12 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
          make-backup-files)
      ,@body))
 
+(defsubst epackage-sort (list)
+  "Sort LIST of string."
+  (sort list
+	(lambda (a b)
+	  (string< a b))))
+
 (defsubst epackage-append-to-buffer (buffer string &optional begin)
   "Append to BUFFER a STRING. Optionally at the BEGIN."
   (with-current-buffer buffer
@@ -2198,6 +2204,18 @@ Return:
   ;; This fucntion exists so that you can point edebugger to it.
   (string-match exclude dir))
 
+(defun epackage-insert-file-contents (file)
+  "Call `insert-file-contents' and put point after end of insert."
+  ;; `insert-file-contents' does not put point after last line
+  (let ((marker (if (not (eobp))
+		    (make-marker))))
+    (if marker
+	(set-marker marker (min (1+ (point)) (point-max))))
+    (insert-file-contents file)
+    (goto-char (if marker
+                   (1- (marker-position marker))
+                 (point-max)))
+    (setq marker nil)))
 (defun epackage-buffer-remove-whitespace-eol ()
   "Clear end of line whitespaces from whole buffer. Including ^L."
   (require 'whitespace) ;; Define whitespace-trailing-regexp
@@ -2801,10 +2819,7 @@ Return subexpression 1, or 0; the one that exists."
       (if list
           (setq status (mapconcat
                         #'concat
-                        (sort list
-                              (lambda (a b)
-                                (string< a b)))
-                        " ")))
+                        (epackage-sort list))))
       status)))
 
 ;;; ................................................... &functions-git ...
@@ -3853,18 +3868,17 @@ If optional VERBOSE is non-nil, display progress message."
 (defun epackage-loader-file-insert-install-code ()
   "Insert package installation code into `current-buffer'."
   ;; FIXME: If there is both install, xactivate should be install both?
-  (let ((list (directory-files
-	       (epackage-directory-install)
-	       'full-path
-	       "^.*-.*\\.el"
-	       t)))
-    (setq list (sort list
-		     (lambda (a b)
-		       (string< a b))))
+  (let ((list (epackage-sort
+	       (directory-files
+		(epackage-directory-install)
+		'full-path
+		"^.*-.*\\.el"
+		t))))
     (dolist (file list)
-      (goto-char (point-max))
+      ;; `insert-file-contents' does not put point after last line
+      ;; inserted so we must move ourselves.
       (if (file-exists-p file)
-	  (insert-file-contents file)))))
+	  (epackage-insert-file-contents file)))))
 
 (defsubst epackage-loader-file-insert-load-path ()
   "Insert Epackage loader boot commands: header and`load-path'."
@@ -4048,8 +4062,7 @@ Format is described in variable `epackage--sources-list-url'."
       (goto-char (point-min))
       (while (re-search-forward "^\\([a-z][a-z0-9-]+\\)[ \t]+[a-z]" nil t)
         (epackage-push (match-string-no-properties 1) list))
-      (setq list (sort list (lambda (a b)
-                              (string< a b))))
+      (setq list (epackage-sort list))
       list)))
 
 (defun epackage-require-emacs (&optional verbose)

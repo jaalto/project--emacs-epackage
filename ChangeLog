@@ -9,6 +9,12 @@
 	(epackage-loader-file-insert-install-code): Sort list of files.
 	This is important because "autoloads" must be before "install"
 	and "xactivate". This fixes epackage-loader.el load problems.
+	(epackage-loader-file-insert-install-code): Move point to
+	the eob before exiting function.
+	(epackage-sort): New.
+	(epackage-pkg-info-status-warnings): Use `epackage-sort'.
+	(epackage-sources-list-info-pkg-list): Use `epackage-sort'.
+	(epackage-insert-file-contents): New.
 
 2011-04-01 Fri  Jari Aalto  <jari.aalto@cante.net>
 
