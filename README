@@ -27,7 +27,7 @@ Project details
 	- git[1], any version.
 	- Depends only on standard Emacs. Does not use external or
           "cl" libraries.
-	- For "make doc" to genrate documentation (same as "Manual" above),
+	- For "make doc" which generates HTML documentation, the
 	  Perl utilities ripdoc[2] and t2html[3] are needed in PATH.
 
 References

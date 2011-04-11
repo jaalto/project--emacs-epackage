@@ -1,5 +1,7 @@
 2011-04-11 Mon  Jari Aalto  <jari.aalto@cante.net>
 
+	* README (Project details): Fix typo in word "generates".
+
 	* epackage.el: (top level::The Info File): Move
 	"Depends" after "Description"; keeps item in alphabetical
 	order.
