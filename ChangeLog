@@ -15,6 +15,7 @@
 	(epackage-pkg-info-status-warnings): Use `epackage-sort'.
 	(epackage-sources-list-info-pkg-list): Use `epackage-sort'.
 	(epackage-insert-file-contents): New.
+	(epackage--batch-ui-menu-help): Adjust wording.
 
 2011-04-01 Fri  Jari Aalto  <jari.aalto@cante.net>
 

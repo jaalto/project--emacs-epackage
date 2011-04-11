@@ -1217,7 +1217,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0411.1027"
+(defconst epackage-version-time "2011.0411.1114"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1859,11 +1859,11 @@ Use from command line:
 (defconst epackage--batch-ui-menu-help "\
 In a nutshell
 -------------
-To install some package: (d)ownload, (e)enable, (b)oot loader generate, (q)uit.
+To install epackage: (d)ownload, (e)enable, (b)oot loader generate, (q)uit.
 
 Packages management
 -------------------
-download        Download package to disk. No install whatsoever.
+download        Download epackage to disk. No install whatsoever.
 
 upgrade         Get updates for epackage.
 
@@ -1881,23 +1881,24 @@ install         Several choices:
                   and the like. Possibly modifies Emacs setup.
                   The opposite is deactivate.
 
-clean           Delete all install configuration files. Package
+clean           Delete all install configuration files. Epackage
                 will not be available for later use. M-x calls
-                are no longer available,
+                are no longer available. This does not remove the
+                downloaded epackage from disk.
 
-remove          Physically remove configuration files and package
+remove          Physically remove configuration files and epackage
                 from download directory. The opposite of download.
 
 Other actions
 -------------
-boot loader     Write boot loader that contains all packages'
+boot loader     Write boot loader that contains all epackages'
                 configurations in one file. Must be generated/updated
-                after each package management change. This is intended to be
+                after each epackage management change. This is intended to be
                 loaded from ~/.emacs with
 
                 (load \"~/.emacs.d/epackage/00conf/epackage-loader\" 'noerr)
 
-get             Get package sources list Yellow Pages data. This updates
+get             Get epackage sources list Yellow Pages data. This updates
                 the list of available packages."
   "UI menu help.")
 
