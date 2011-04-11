@@ -1217,7 +1217,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0401.1155"
+(defconst epackage-version-time "2011.0411.0744"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -3838,6 +3838,8 @@ If optional VERBOSE is non-nil, display progress message."
 (defun epackage-loader-insert-file-path-list-by-path (path)
   "Insert `load-path' definitions to `current-buffer' from PATH."
   (dolist (dir (epackage-directory-recursive-lisp-files path))
+    ;; Convert absolute paths into HOME (~)
+    (setq dir (abbreviate-file-name dir))
     (insert (format
              "(add-to-list 'load-path \"%s\")\n"
              dir))))

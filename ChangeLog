@@ -4,6 +4,8 @@
 	"Depends" after "Description"; keeps item in alphabetical
 	order.
 	(epackage--batch-ui-menu-header): Correct header.
+	(epackage-loader-insert-file-path-list-by-path): Use
+	`abbreviate-file-name'.
 
 2011-04-01 Fri  Jari Aalto  <jari.aalto@cante.net>
 
