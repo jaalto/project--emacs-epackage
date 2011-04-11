@@ -253,7 +253,7 @@
 ;;
 ;;      o   edit package's *info* file.
 ;;      o   email upstream to report a bug in the extension.
-;;	o   email epackage maintainer to report a packaging bug.
+;;      o   email epackage maintainer to report a packaging bug.
 ;;          You can e.g. send a requests to update contents of the
 ;;          'info' file as needed.
 ;;
@@ -1217,7 +1217,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0411.1213"
+(defconst epackage-version-time "2011.0411.1218"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
