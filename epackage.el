@@ -1181,7 +1181,7 @@
 ;;          these are Git repositories and maintainers should be trusted
 ;;          => possible solution: require detached GPG signing of *-compile.el
 ;;      o   Package removal: present some analysis command to show what
-;;          would happen if package X would be removed. Is other packages
+;;          would happen if package X would be removed. Are other packages
 ;;          depending on X or can it be removed safely?
 
 ;;; Change Log:
@@ -1217,7 +1217,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0411.1220"
+(defconst epackage-version-time "2011.0411.1221"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
