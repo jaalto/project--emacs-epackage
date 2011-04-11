@@ -1,3 +1,9 @@
+2011-04-11 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el: (top level::The Info File): Move
+	"Depends" after "Description"; keeps item in alphabetical
+	order.
+
 2011-04-01 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el: (Commentary): Fix various typos and improve
