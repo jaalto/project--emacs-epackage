@@ -1217,7 +1217,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0411.1127"
+(defconst epackage-version-time "2011.0411.1158"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1796,6 +1796,9 @@ If B was already installed, then the calls would be:
 
 And the packages to roll back would be only A and C.")
 
+(defvar epackage--batch-ui-menu-prompt "== epackage ([?mq]/cmd): "
+  "Command line UI menu prompt.")
+
 ;; Indent less used commands; but keep in alphabetical order,
 ;; so that we know what keys are left to use.
 
@@ -1823,8 +1826,7 @@ u       Upgrade epackage. Download new updates
 U       Upgrade all epackages
 y       B(y)te compile epackage
 Y         Action toggle: after every download, b(y)te compile epackage
-?       Help.
-q       Quit"
+?,q,m,v   Help, Quit, Menu, Version"
   "UI menu to run epackage from command line.")
 
 (defconst epackage--batch-ui-menu-actions
@@ -1841,6 +1843,7 @@ q       Quit"
     (?I epackage-batch-ui-display-package-documentation)
     (?l epackage-batch-ui-list-installed-packages)
     (?L epackage-batch-ui-list-downloaded-packages)
+    (?m epackage-batch-ui-display-menu)
     (?n epackage-batch-ui-list-not-installed-packages)
     (?o epackage-batch-ui-autoload-package)
     (?r epackage-batch-ui-remove-package)
@@ -1848,6 +1851,7 @@ q       Quit"
     (?T epackage-batch-ui-download-action-activate-toggle)
     (?u epackage-batch-ui-upgrade-package)
     (?U epackage-batch-ui-upgrade-all-packages)
+    (?v epackage-batch-ui-display-version)
     (?p epackage-batch-ui-list-available-packages)
     (?q quit)
     (?Q quit)
@@ -5708,6 +5712,25 @@ Summary, Version, Maintainer etc."
           (message "%-25s %s" package description)
         (message package)))))
 
+(defun epackage-batch-ui-display-menu ()
+  "Display `epackage--batch-ui-menu-string'."
+  (interactive)
+  (message epackage--batch-ui-menu-string))
+
+(defun epackage-batch-ui-display-version ()
+  "Display `epackage-version-time' and `epackage-maintainer'."
+  (interactive)
+  (message "== Version: %s <%s>"
+           epackage-version-time
+           epackage-maintainer))
+
+(defsubst epackage-batch-ui-display-package-action-list ()
+  "Display `epackage--download-action-list'."
+  (message "== Package activation list after download:%s"
+           (if epackage--download-action-list
+               (format " %s" epackage--download-action-list)
+             "")))
+
 ;;;###autoload
 (defun epackage-batch-ui-display-package-info ()
   "Display downloaded package's information file."
@@ -5804,13 +5827,15 @@ Summary, Version, Maintainer etc."
 (defun epackage-batch-ui-download-action-enable-toggle ()
   "Call `epackage-cmd-download-action-enable-toggle'."
   (interactive)
-  (call-interactively 'epackage-cmd-download-action-enable-toggle))
+  (call-interactively 'epackage-cmd-download-action-enable-toggle)
+  (epackage-batch-ui-display-package-action-list))
 
 ;;;###autoload
 (defun epackage-batch-ui-download-action-activate-toggle ()
   "Call `epackage-cmd-download-action-activate-toggle'."
   (interactive)
-  (call-interactively 'epackage-cmd-download-action-activate-toggle))
+  (call-interactively 'epackage-cmd-download-action-activate-toggle)
+  (epackage-batch-ui-display-package-action-list))
 
 ;;;###autoload
 (defun epackage-batch-ui-download-action-compile-toggle ()
@@ -5948,9 +5973,9 @@ Summary, Version, Maintainer etc."
   (epackage-initialize)
   (epackage-cmd-upgrade-all-packages 'verbose))
 
-(defun epackage-batch-ui-menu-selection ()
-  "Display UI menu."
-  (let* ((str (read-string "Choice: "))
+(defun epackage-batch-ui-menu-selection (prompt)
+  "Display UI menu PROMPT."
+  (let* ((str (read-string prompt))
          (char (string-to-char str))
          (menu (assq char epackage--batch-ui-menu-actions))
          (choice (nth 1 menu)))
@@ -5965,16 +5990,9 @@ Summary, Version, Maintainer etc."
 (defsubst epackage--batch-ui-menu-header ()
   "Display menu header."
   (message "\
-========================================================
-Epackage - Distributed Emacs Lisp Package System (DELPS)
-Version: %s <%s>
-========================================================
-Package activation type after download:%s"
-           epackage-version-time
-           epackage-maintainer
-           (if epackage--download-action-list
-               (format " %s" epackage--download-action-list)
-             "")))
+== ===================================================================
+== Epackage - Distributed Emacs Lisp Package System (DELPS)
+== ==================================================================="))
 
 ;;;###autoload
 (defun epackage-batch-ui-menu ()
@@ -5991,10 +6009,10 @@ Package activation type after download:%s"
     ;;  current Emacs
     (setq epackage--install-action-list
           (delq 'enable epackage--install-action-list))
+    (epackage--batch-ui-menu-header)
     (while loop
-      (epackage--batch-ui-menu-header)
-      (message epackage--batch-ui-menu-string)
-      (setq choice (epackage-batch-ui-menu-selection))
+      (setq choice (epackage-batch-ui-menu-selection
+		    epackage--batch-ui-menu-prompt))
       (epackage-with-debug
         (message "debug: choice %s" choice))
       (cond

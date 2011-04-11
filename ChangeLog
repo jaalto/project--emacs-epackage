@@ -16,6 +16,21 @@
 	(epackage-sources-list-info-pkg-list): Use `epackage-sort'.
 	(epackage-insert-file-contents): New.
 	(epackage--batch-ui-menu-help): Adjust wording.
+	(epackage--batch-ui-menu-prompt): New.
+	(epackage--batch-ui-menu-actions): Add "m" for
+	`epackage-batch-ui-display-menu'.
+	(epackage-batch-ui-display-menu): New.
+	(epackage-batch-ui-menu): Show `epackage--batch-ui-menu-prompt',
+	and full menu only after "m" to reduce display.
+	(epackage-batch-ui-display-version): New.
+	(epackage--batch-ui-menu-actions): Add "v"
+	´epackage-batch-ui-display-version'.
+	(epackage-batch-ui-display-package-action-list): New.
+	(epackage--batch-ui-menu-header): Rewrite.
+	(epackage-batch-ui-download-action-enable-toggle): Call
+	`epackage-batch-ui-display-package-action-list'.
+	(epackage-batch-ui-download-action-activate-toggle): Call
+	`epackage-batch-ui-display-package-action-list'.
 
 2011-04-01 Fri  Jari Aalto  <jari.aalto@cante.net>
 
