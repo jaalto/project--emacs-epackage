@@ -1217,7 +1217,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0411.1114"
+(defconst epackage-version-time "2011.0411.1127"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1796,30 +1796,33 @@ If B was already installed, then the calls would be:
 
 And the packages to roll back would be only A and C.")
 
+;; Indent less used commands; but keep in alphabetical order,
+;; so that we know what keys are left to use.
+
 (defconst epackage--batch-ui-menu-string "\
-a       Install activate configuration; modifies Emacs environment
-A       Deactivate. Uninstall activate configuration
-b       Generate boot loader
-B       Byte compile epackage
+a       Install (a)ctivate configuration; modifies Emacs environment
+A       Uninstall activate configuration
+b         Generate boot loader
+B         Byte compile epackage
 c       Clean install configuration files (whole uninstall)
 d       Download epackage
 e       Install standard (e)nable configuration from epackage
 E       Uninstall standard enable configuration from epackage
 g       Get sources list; update the yellow page data
-i       Display (i)nfo file of epackage
-I       Display documentation of extension.
+i         Display (i)nfo file of epackage
+I         Display documentation of extension.
 l       List installed epackages
 L       List downloaded epackages
 n       List (n)ot installed epackages
 o       Install aut(o)load configuration from epackage
-p       List available (p)ackages in sources list
+p       List available (p)ackages in sources list; yellow pages
 r       Remove; delete package physically from local disk
-t       Ac(t)ion toggle: after every download, install (e)nable configuration
-T       Ac(t)ion toggle: after every download, install (a)ctivate configuration
+t          Ac(t)ion toggle: after every download, install (e)nable configuration
+T          Ac(t)ion toggle: after every download, install (a)ctivate configuration
 u       Upgrade epackage. Download new updates
 U       Upgrade all epackages
-y       B(y)te compile epackaged extension
-Y       Action toggle: after every download, b(y)te compile epackage
+y       B(y)te compile epackage
+Y         Action toggle: after every download, b(y)te compile epackage
 ?       Help.
 q       Quit"
   "UI menu to run epackage from command line.")
@@ -1870,36 +1873,35 @@ upgrade         Get updates for epackage.
 info            Show downloaded epackage's information file.
                 Use command \"List available (p)ackages\" prior download.
 
-install         Several choices:
+install         Several configuration choices:
                 * autoload. Install only minimal functions
-                  that will be available in autoload state only.
+                  that will be made available in autoload state.
                   If you want to configure everything manually in
-                  ~/.emacs startup file, use this (for experts).
-                * standard = enable only autoload code.
-                  The opposite is disable.
-                * activate = install file that provides hooks, bindings
-                  and the like. Possibly modifies Emacs setup.
-                  The opposite is deactivate.
+                  ~/.emacs startup file, use this (expert install).
+                * standard = enable autoload code and very basic
+                  functionality of user commmands for M-x calls.
+                * activate = install with hooks, bindings
+                  and the like. Modifies Emacs setup.
 
 clean           Delete all install configuration files. Epackage
                 will not be available for later use. M-x calls
                 are no longer available. This does not remove the
-                downloaded epackage from disk.
+                downloaded epackage from disk (see \"remove\").
 
 remove          Physically remove configuration files and epackage
                 from download directory. The opposite of download.
 
 Other actions
 -------------
-boot loader     Write boot loader that contains all epackages'
+\(b)oot loader    Write boot loader that contains all epackages'
                 configurations in one file. Must be generated/updated
                 after each epackage management change. This is intended to be
                 loaded from ~/.emacs with
 
                 (load \"~/.emacs.d/epackage/00conf/epackage-loader\" 'noerr)
 
-get             Get epackage sources list Yellow Pages data. This updates
-                the list of available packages."
+\(g)et           Get new sources list and store it locally. This gets updates
+                to list of available packages. Must be run periodically."
   "UI menu help.")
 
 ;;; ................................................ &functions-simple ...
