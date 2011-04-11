@@ -1217,7 +1217,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0411.0744"
+(defconst epackage-version-time "2011.0411.0749"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -3852,15 +3852,19 @@ If optional VERBOSE is non-nil, display progress message."
 
 (defun epackage-loader-file-insert-install-code ()
   "Insert package installation code into `current-buffer'."
-  ;; FIXME: Should only insert activate, not enable code if both exist
-  (dolist (file (directory-files
-                 (epackage-directory-install)
-                 'full-path
-                 "^.*-.*\\.el"
-                 t))
-    (goto-char (point-max))
-    (if (file-exists-p file)
-        (insert-file-contents file))))
+  ;; FIXME: If there is both install, xactivate should be install both?
+  (let ((list (directory-files
+	       (epackage-directory-install)
+	       'full-path
+	       "^.*-.*\\.el"
+	       t)))
+    (setq list (sort list
+		     (lambda (a b)
+		       (string< a b))))
+    (dolist (file list)
+      (goto-char (point-max))
+      (if (file-exists-p file)
+	  (insert-file-contents file)))))
 
 (defsubst epackage-loader-file-insert-load-path ()
   "Insert Epackage loader boot commands: header and`load-path'."

@@ -6,6 +6,9 @@
 	(epackage--batch-ui-menu-header): Correct header.
 	(epackage-loader-insert-file-path-list-by-path): Use
 	`abbreviate-file-name'.
+	(epackage-loader-file-insert-install-code): Sort list of files.
+	This is important because "autoloads" must be before "install"
+	and "xactivate". This fixes epackage-loader.el load problems.
 
 2011-04-01 Fri  Jari Aalto  <jari.aalto@cante.net>
 
