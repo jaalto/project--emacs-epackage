@@ -5943,10 +5943,10 @@ Summary, Version, Maintainer etc."
 (defsubst epackage--batch-ui-menu-header ()
   "Display menu header."
   (message "\
-===================================================
-Epackage - Distributed Emacs Package System (DELPS)
+========================================================
+Epackage - Distributed Emacs Lisp Package System (DELPS)
 Version: %s <%s>
-===================================================
+========================================================
 Package activation type after download:%s"
            epackage-version-time
            epackage-maintainer

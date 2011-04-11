@@ -3,6 +3,7 @@
 	* epackage.el: (top level::The Info File): Move
 	"Depends" after "Description"; keeps item in alphabetical
 	order.
+	(epackage--batch-ui-menu-header): Correct header.
 
 2011-04-01 Fri  Jari Aalto  <jari.aalto@cante.net>
 
