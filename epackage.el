@@ -1217,7 +1217,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0411.1210"
+(defconst epackage-version-time "2011.0411.1213"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -5995,7 +5995,9 @@ Summary, Version, Maintainer etc."
   "Display menu header."
   (message "\
 == ===================================================================
-== Epackage - Distributed Emacs Lisp Package System (DELPS)
+== Epackage - Distributed Emacs Lisp Package System (DELPS)")
+  (epackage-batch-ui-display-version)
+  (message "\
 == ==================================================================="))
 
 ;;;###autoload
