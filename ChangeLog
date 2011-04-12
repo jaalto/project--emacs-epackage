@@ -43,6 +43,12 @@
 	(epackage-run-action-list): Add arg ACTIONS.
 	(epackage-package-byte-compiled-p): New.
 	(epackage-package-status-actions): New.
+	(epackage-upgrade-package-actions): New.
+	(epackage-upgrade-package-main): New.
+	(epackage-upgrade-package-git): Rename. Was
+	`epackage-upgrade-package'.
+	(epackage-upgrade-package-files): New.
+	(epackage-git-command-current-sha): New.
 
 2011-04-11 Mon  Jari Aalto  <jari.aalto@cante.net>
 

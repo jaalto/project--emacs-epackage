@@ -1247,7 +1247,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0412.2008"
+(defconst epackage-version-time "2011.0412.2104"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -3120,6 +3120,12 @@ If optional VERBOSE is non-nil, display progress message."
   (epackage-git-branch-list-current-branch
    (epackage-git-command-branch-list dir verbose)))
 
+(defun epackage-git-command-current-sha (dir &optional verbose)
+  "Run 'git rev-parse HEAD' in DIR.
+If optional VERBOSE is non-nil, display progress message."
+  (epackage-with-git-command dir verbose
+    "rev-parse" "HEAD"))
+
 (defun epackage-git-command-checkout-force-head (dir &optional verbose)
   "Run 'git checkout -f HEAD' in DIR.
 If optional VERBOSE is non-nil, display progress message."
@@ -3584,7 +3590,34 @@ template files under `epackage--directory-name'.."
 
 ;;; ............................................... &functions-package ...
 
-(defun epackage-upgrade-package (package &optional verbose)
+(defun epackage-upgrade-package-files (package verbose)
+  "Update installed files from PACKAGE.
+If optional VERBOSE is non-nil, display progress messages."
+  ;; FIXME: upgrade
+  ;; - New or deleted files in epackage/*
+  ;; - obsolete 00control/* files ?
+  (let ((list (epackage-package-status-actions package)))
+    (dolist (elt list)
+      ;; FIXME: not implemented. Write this part.
+      )))
+
+(defun epackage-upgrade-package-actions (package verbose)
+  "Run after upgrade actions: byte compile, install updated files etc.
+If optional VERBOSE is non-nil, display progress messages."
+  ;; FIXME: upgrade
+  ;; - New or deleted files in epackage/*
+  ;; - obsolete 00control/* files ?
+  (let ((list (epackage-rerun-action-list package verbose))
+	actions)
+    ;; Any other actions in effect?
+    (dolist (elt epackage--download-action-list)
+      (unless (memq elt list)
+	(epackage-push elt actions)))
+    (when actions			 ; Run more actions as needed
+      (setq actions (reverse actions)) ; Keep alphabetical order
+      (epackage-run-action-list package actions verbose))))
+
+(defun epackage-upgrade-package-git (package &optional verbose)
   "Upgrade PACKAGE.
 If optional VERBOSE is non-nil, display progress message."
   (let ((url (epackage-sources-list-info-url package)))
@@ -3607,6 +3640,23 @@ If optional VERBOSE is non-nil, display progress message."
                "possibly changed manually.")
             dir))
         (epackage-git-command-pull dir verbose)))))
+
+(defun epackage-upgrade-package-main (package &optional verbose)
+  "Do all steps necessary to upgrade PACKAGE.
+If optional VERBOSE is non-nil, display progress message.
+
+NOTE: No Git branch check is verified. The caller must have
+ensured that the branch where Git is run is correct e.g. with
+function `epackage-git-master-p'."
+  (let ((dir (epackage-directory-package-root package)))
+    (when dir
+	(let ((sha-old (epackage-git-command-current-sha dir))
+	      sha)
+	  (epackage-upgrade-package-git package verbose)
+	  (setq sha (epackage-git-command-current-sha dir))
+	  (unless (string= sha sha-old)
+	    (epackage-upgrade-package-files package verbose)
+	    (epackage-upgrade-package-actions package verbose))))))
 
 (defun epackage-kill-buffer-sources-list ()
   "Kill sources list buffer."
@@ -5784,20 +5834,7 @@ If optional VERBOSE is non-nil, display progress messages."
      "Upgrade ignored. Locally modified. Branch is not \"master\" in %s"
      package))
    (t
-    (epackage-upgrade-package package verbose)
-    (let ((list (epackage-rerun-action-list package verbose))
-	  actions)
-      ;; Any other actions now in effect?
-      (dolist (elt epackage--download-action-list)
-	(unless (memq elt list)
-	  (epackage-push elt actions)))
-      (when actions			 ; Run more actions as needed
-	(setq actions (reverse actions)) ; Keep alphabetical order
-	(epackage-run-action-list package actions verbose)))
-    ;; FIXME: upgrade
-    ;; - New files in epackage/*
-    ;; - obsolete 00control/* files ?
-    )))
+    (epackage-upgrade-package-main package verbose))))
 
 ;;;###autoload
 (defun epackage-cmd-upgrade-all-packages (&optional verbose)
