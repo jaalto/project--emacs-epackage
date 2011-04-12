@@ -19,6 +19,30 @@
 	commadn line calling.
 	(epackage-combine-files): Use
 	`epackage--build-sources-list-replace-table'.
+	(epackage-cmd-upgrade-package): Improve "not downloaded" message.
+	(epackage-recreate-package): Move location.
+	(epackage-cmd-download-package): Adjust message string: "No
+	package selected..."
+	(epackage-cmd-upgrade-package): Add call to
+	`epackage-run-action-list'.
+	(epackage-package-installed-p): New.
+	(epackage-package-autoload-p): New.
+	(epackage-file-name-loaddefs-compose): New.
+	(epackage-package-activated-p): Use
+	`epackage-file-name-install-compose'.
+	(epackage-package-enabled-p): Use
+	`epackage-file-name-install-compose'.
+	(epackage-package-loaddefs-p): New.
+	(epackage-file-name-enabled-compose): Remove.
+	(epackage-file-name-activated-compose): Remove.
+	(epackage-file-name-package-compose): New.
+	(epackage--layout-mapping): Add 'lisp'.
+	(epackage-cmd-upgrade-package): Add missing postprosessing after
+	upgrade: byte compile, install files etc.
+	(epackage-rerun-action-list): New.
+	(epackage-run-action-list): Add arg ACTIONS.
+	(epackage-package-byte-compiled-p): New.
+	(epackage-package-status-actions): New.
 
 2011-04-11 Mon  Jari Aalto  <jari.aalto@cante.net>
 

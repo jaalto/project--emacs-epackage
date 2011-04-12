@@ -463,6 +463,7 @@
 ;;          |
 ;;          +-- epackage/
 ;;              info                  required: The information file
+;;              lisp		      optional: Location of Emacs Lisp files
 ;;              PACKAGE-0loaddefs.el  optional: extracted ###autoload statements
 ;;              PACKAGE-autoloads.el  optional: autoload statements (manual)
 ;;              PACKAGE-clean.el      optional: Code to run "make clean" equivalent
@@ -674,6 +675,19 @@
 ;;           details.
 ;;           .
 ;;           Note: 2010-12-03 the code hasn't been touched since 2004.
+;;
+;;  The 'lisp' file
+;;
+;;	This file contains Emacs Lisp file directory or directories
+;;	relative to the root of package. files in the package. Empty
+;;	lines and standalone comments starting with "#" are ignored.
+;;	Comments must not be placed at the directory lines. If all the
+;;	Emacs Lisp files are in the package's root directory, this
+;;	file not needed. The file is used internally to find out if
+;;	the package has been byte compiled or not. An example:
+;;
+;;
+;;
 ;;
 ;;  Details of the info file fields
 ;;
@@ -1233,7 +1247,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0412.1438"
+(defconst epackage-version-time "2011.0412.2008"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1763,12 +1777,13 @@ Format is:
   '((FIELD CONTENT-TEST-REGEXP) ...).")
 
 (defconst epackage--layout-mapping
-  '((activate  "-xactivate.el")
-    (autoload  "-autoloads.el")
-    (enable  "-install.el"  'required)
-    (compile  "-compile.el")
-    (info  "info" 'required)
-    (loaddefs  "-0loaddefs.el")
+  '((activate   "-xactivate.el")
+    (autoload   "-autoloads.el")
+    (enable     "-install.el"  'required)
+    (compile    "-compile.el")
+    (info       "info"  'required)
+    (lisp       "lisp")
+    (loaddefs   "-0loaddefs.el")
     (uninstall  "-uninstall.el"))
   "File type and its mappings in `epackage--package-control-directory'.
 Format is:
@@ -2365,7 +2380,7 @@ The TYPE is car of list `epackage--layout-mapping'."
         (format "%s/%s%s" dir package file))))))
 
 (defun epackage-file-name-install-compose (package type)
-  "Rturn PACKAGE filenme of TYPE in `epackage--directory-name-install'.
+  "Return PACKAGE filenme of TYPE in `epackage--directory-name-install'.
 The TYPE is car of list `epackage--layout-mapping'."
   (let ((dir (epackage-directory-install))
         (file (nth 1 (assq type epackage--layout-mapping))))
@@ -2377,23 +2392,18 @@ The TYPE is car of list `epackage--layout-mapping'."
        (t
         (format "%s/%s%s" dir package file))))))
 
-(defsubst epackage-file-name-activated-compose (package)
-  "Return path to PACKAGE under activated directory."
-  (format "%s/%s%s"
-          (epackage-directory-root)
-          epackage--directory-name-install
-          (if (string= "" package)
-              ""
-            (format "/%s-xactivate.el" package))))
-
-(defsubst epackage-file-name-enabled-compose (package)
-  "Return path to PACKAGE under install directory."
-  (format "%s/%s%s"
-          (epackage-directory-root)
-          epackage--directory-name-install
-          (if (string= "" package)
-              ""
-            (format "/%s-install.el" package))))
+(defun epackage-file-name-package-compose (package type)
+  "Return PACKAGE filenme of TYPE in `epackage-directory-package-root'.
+The TYPE is car of list `epackage--layout-mapping'."
+  (let ((dir (epackage-directory-package-root package))
+        (file (nth 1 (assq type epackage--layout-mapping))))
+    (if (not file)
+        (epackage-error "[ERROR] Unknown TYPE argument '%s'" type)
+      (cond
+       ((eq type 'info)
+        (format "%s/%s/%s" dir epackage--package-control-directory file))
+       (t
+        (format "%s/%s%s" dir package file))))))
 
 (defsubst epackage-git-directory-p (dir)
   "Check if there is .git under DIR. Return DIR if so."
@@ -2401,17 +2411,52 @@ The TYPE is car of list `epackage--layout-mapping'."
     (if (file-directory-p path)
         dir)))
 
+(defun epackage-package-loaddefs-p (package)
+  "Return file if PACKAGE autolaod file exists."
+  (let ((file (epackage-file-name-install-compose package 'loaddefs)))
+    (if (file-exists-p file)
+        file)))
+
+(defun epackage-package-autoload-p (package)
+  "Return file if PACKAGE autolaod file exists."
+  (let ((file (epackage-file-name-install-compose package 'autoload)))
+    (if (file-exists-p file)
+        file)))
+
 (defun epackage-package-enabled-p (package)
   "Return file if PACKAGE is enabled."
-  (let ((file (epackage-file-name-enabled-compose package)))
+  (let ((file (epackage-file-name-install-compose package 'enable)))
     (if (file-exists-p file)
         file)))
 
 (defun epackage-package-activated-p (package)
   "Return file if PACKAGE is activated."
-  (let ((file (epackage-file-name-activated-compose package)))
+  (let ((file (epackage-file-name-install-compose package 'activate)))
     (if (file-exists-p file)
         file)))
+
+(defun epackage-package-byte-compiled-p (package)
+  "Return non-nil if PACKAGE has been byte compiled."
+  (let ((root (epackage-directory-package-root package))
+	status)
+    (when (file-directory-p root)
+      (let ((list (epackage-pkg-lisp-directory package)))
+	(unless list
+	  (setq try '("lisp" "")))
+	(dolist (dir try)
+	  (unless status
+	    (setq dir (format "%s%s" (file-name-as-directory root) dir))
+	    (if (directory-files dir nil "\\.elc$")
+		(setq status dir))))))
+    status))
+
+(defun epackage-package-installed-p (package)
+  "Return non-nil if PACKAGE has been installed."
+  (unless (epackage-string-p package)
+    (epackage-error "arg 'package' is not a string."))
+  (let ((dir (epackage-directory-package-root package)))
+    (if (file-directory-p dir)
+        dir)))
 
 (defun epackage-package-downloaded-p (package)
   "Return download directory if PACKAGE has been downloaded."
@@ -2888,6 +2933,24 @@ Return subexpression 1, or 0; the one that exists."
                         (epackage-sort list))))
       status)))
 
+(defun epackage-pkg-lisp-directory (package)
+  "Return list of lisp directories of PACKAGE."
+  (let ((dir (epackage-directory-package-root package))
+	(file (epackage-file-name-package-compose package 'lisp))
+	elt
+	list)
+    (when (file-exists-p dir)
+      (if (not (file-exists-p file))
+	  (setq list (list dir))
+	(with-temp-buffer
+	  (find-file-literally file)
+	  (goto-char (point-min))
+	  (setq dir (file-name-as-directory dir))
+	  (while (re-search-forward "^[ \t]*\\([^ \t\r\n#]+\\)" nil t)
+	    (setq elt (format "%s%s" dir (match-string-no-properties 1)))
+	    (epackage-push elt list)))))
+    list))
+
 ;;; ................................................... &functions-git ...
 
 (defun epackage-git-buffer-fetch-field (tag field)
@@ -3192,6 +3255,22 @@ Those that are not installed in `epackage-directory-install'."
       (unless (member package installed)
         (epackage-push package list)))
     (nreverse list)))
+
+(defun epackage-package-status-actions (package)
+  "Return current status of installed package.
+See `epackage--download-action-list'.
+
+Returns:
+  '(KEYWORD ...)."
+  (let (list)
+    ;; Order if the statements matter: keep 'list' in alphabetical order
+    (if (epackage-package-byte-compiled-p)
+	(epackage-push 'compile list))
+    (if (epackage-package-enabled-p)
+	(epackage-push 'enable list))
+    (if (epackage-package-activated-p)
+	(epackage-push 'activate list))
+    list))
 
 ;;; ............................................. epackage development ...
 
@@ -3518,27 +3597,16 @@ If optional VERBOSE is non-nil, display progress message."
             `,(concat
                "Can't upgrade. "
                "Branch name is not \"master\" in '%s'; "
-               "possibly changed manually or invalid package.")
+               "repository changed manually or invalid package dir content.")
             dir))
         (unless (epackage-git-status-clean-p package)
           (epackage-fatal
             `,(concat
                "Can't upgrade. "
-               "Unclean status in '%s'; "
+               "Unclean Git status in '%s'; "
                "possibly changed manually.")
             dir))
         (epackage-git-command-pull dir verbose)))))
-
-(defun epackage-recreate-package (package &optional verbose)
-  "Re-create PACKAGE by deleting old and downloading new.
-If optional VERBOSE is non-nil, display progress message.
-No error checking are done for PACKAGE."
-  (epackage-pkg-kill-buffer-force package verbose)
-  (let ((dir (epackage-package-downloaded-p package)))
-    (if dir
-        (delete-directory dir 'recursive)))
-  ;; FIX: handle possibly changed configuration files
-  (epackage-cmd-download-package package verbose))
 
 (defun epackage-kill-buffer-sources-list ()
   "Kill sources list buffer."
@@ -5613,7 +5681,7 @@ If optional VERBOSE is non-nil, display progress messages."
    (list (epackage-cmd-select-package "Download epackage: ")
          'interactive))
   (if (not (epackage-string-p package))
-      (epackage-message "No packages selected for download.")
+      (epackage-message "No package selected for download.")
     (if (epackage-package-downloaded-p package)
         (epackage-message "Ignore download. Already downloaded: %s" package)
       (let ((url (epackage-sources-list-info-url package)))
@@ -5621,13 +5689,27 @@ If optional VERBOSE is non-nil, display progress messages."
             (epackage-message
               "Abort download. No known URL for package: %s" package)
           (epackage-download-package package verbose)
-          (epackage-run-action-list package verbose))
+          (epackage-run-action-list
+	   package
+	   epackage--download-action-list
+	   verbose))
         (when verbose
           (let ((warnings (epackage-pkg-info-status-warnings package)))
             (if warnings
                 (epackage-warn
                  "package status %s: %s"
                  package warnings))))))))
+
+(defun epackage-recreate-package (package &optional verbose)
+  "Re-create PACKAGE by deleting old and downloading new.
+If optional VERBOSE is non-nil, display progress message.
+No error checking are done for PACKAGE."
+  (epackage-pkg-kill-buffer-force package verbose)
+  (let ((dir (epackage-package-downloaded-p package)))
+    (if dir
+        (delete-directory dir 'recursive)))
+  ;; FIXME: handle possibly changed configuration files
+  (epackage-cmd-download-package package verbose))
 
 ;;;###autoload
 (defun epackage-cmd-lint-package (package &optional verbose)
@@ -5692,7 +5774,7 @@ If optional VERBOSE is non-nil, display progress messages."
   (cond
    ((and (eq verbose 'interactive)
          (null package))
-    (epackage-message "No packages downloaded. Nothing to upgrade."))
+    (epackage-message "Package name is not set. Nothing to upgrade."))
    ((not (epackage-string-p package))
     (epackage-message "No package selected for upgrade."))
    ((not (epackage-package-downloaded-p package))
@@ -5703,9 +5785,17 @@ If optional VERBOSE is non-nil, display progress messages."
      package))
    (t
     (epackage-upgrade-package package verbose)
-    ;; FIXME: Add post-processing
+    (let ((list (epackage-rerun-action-list package verbose))
+	  actions)
+      ;; Any other actions now in effect?
+      (dolist (elt epackage--download-action-list)
+	(unless (memq elt list)
+	  (epackage-push elt actions)))
+      (when actions			 ; Run more actions as needed
+	(setq actions (reverse actions)) ; Keep alphabetical order
+	(epackage-run-action-list package actions verbose)))
+    ;; FIXME: upgrade
     ;; - New files in epackage/*
-    ;; - Auto-install, auto-activate?
     ;; - obsolete 00control/* files ?
     )))
 
@@ -6233,8 +6323,8 @@ Summary, Version, Maintainer etc."
        (t
         (message "** Unknown menu selection: %s" choice))))))
 
-(defun epackage-run-action-list (package &optional verbose)
-  "Run PACKAGE actions listed in `epackage--download-action-list'.
+(defun epackage-run-action-list (package actions &optional verbose)
+  "Run PACKAGE ACTIONS. See  `epackage--download-action-list'.
 If optional VERBOSE is non-nil, display progress message."
   (let* ((actions epackage--download-action-list)
          (list (sort actions
@@ -6246,7 +6336,7 @@ If optional VERBOSE is non-nil, display progress message."
          (enable-p (epackage-download-action-enable-p)))
     (dolist (elt list)
       (epackage-verbose-message "package action: %s" elt)
-      ;; Development note: keep the list in alphabetical "run" order
+      ;; Development note: keep the cond-list in alphabetical order
       (cond
        ((eq elt 'activate)
         (let ((epackage--download-action-list epackage--download-action-list))
@@ -6269,6 +6359,20 @@ If optional VERBOSE is non-nil, display progress message."
         (epackage-pkg-lint-package package verbose))
        ((eq elt 'package-depends)
         (epackage-pkg-depends-satisfy package verbose))))))
+
+(defun epackage-rerun-action-list (package &optional verbose)
+  "Run PACKAGE actions as aready they are.
+If optional VERBOSE is non-nil, display progress message.
+
+The actions are evaluated based on the installation: If there
+are byte compiled files, then byte compile. If there are autoload
+files, then reinstall autoload files etc.
+
+Return list of actions as in `epackage--download-action-list':
+  '((action ...))."
+  (let ((actions (epackage-package-status-actions package)))
+    (when actions			; If not installed, nothing to do
+      (epackage-run-action-list package actions verbose))))
 
 ;;;###autoload
 (defalias 'epackage 'epackage-manager)
