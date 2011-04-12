@@ -1,3 +1,13 @@
+2011-04-12 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-download-sources-list): Improve
+	error condition checks. Recreate clone directory as needed.
+	(epackage-git-command-checkout-force-head): New.
+	(epackage-cmd-download-sources-list): Rearrange calls and
+	act upon status of `epackage-download-sources-list'.
+	(epackage-initialize): Always call
+	`epackage-cmd-download-sources-list' to get clean state.
+
 2011-04-11 Mon  Jari Aalto  <jari.aalto@cante.net>
 
 	* README (Project details): Fix typo in word "generates".
@@ -41,6 +51,23 @@
 	(epackage-initialize): move let `epackage--initialize-flag' a
 	little earler. This prvents "make ui" error on pristine
 	call where nothing has been done yet.
+	(epackage-ssh-known-host-p): New.
+	(epackage-ssh-config-strict-key-check-disabled-p): New.
+	(epackage-auto-revert-mode-p): New.
+	(epackage-turn-on-auto-revert-mode): New.
+	(epackage-require-ssh): New.
+	(epackage-download-sources-list): Add call to
+	`epackage-require-ssh' prior downloading from gitub.
+	(epackage--batch-ui-menu-string): Remove B command.
+	(epackage--batch-ui-menu-actions): Comment out B command.
+	The Byte compile is in "y" command already.
+	(epackage-with-git-command): Add `abbreviate-file-name'.
+	(epackage-ssh-help-string): New.
+	(epackage-ssh-p): New.
+	(epackage-url-extract-host): New.
+	(epackage-download-sources-list): Add SSH configurrion and
+	stop on error unless ok.
+	(epackage-git-command-clone): Use `epackage-require-ssh'.
 
 2011-04-01 Fri  Jari Aalto  <jari.aalto@cante.net>
 

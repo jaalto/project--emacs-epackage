@@ -1217,7 +1217,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0411.1424"
+(defconst epackage-version-time "2011.0412.0859"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1806,7 +1806,6 @@ And the packages to roll back would be only A and C.")
 a       Install (a)ctivate configuration; modifies Emacs environment
 A       Uninstall activate configuration
 b         Generate boot loader
-B         Byte compile epackage
 c       Clean install configuration files (whole uninstall)
 d       Download epackage
 e       Install standard (e)nable configuration from epackage
@@ -1820,11 +1819,11 @@ n       List (n)ot installed epackages
 o       Install aut(o)load configuration from epackage
 p       List available (p)ackages in sources list; yellow pages
 r       Remove; delete package physically from local disk
-t          Ac(t)ion toggle: after every download, install (e)nable configuration
-T          Ac(t)ion toggle: after every download, install (a)ctivate configuration
+t          Ac(t)ion toggle: after download, install (e)nable configuration
+T          Ac(T)ion toggle: after download, install (a)ctivate configuration
 u       Upgrade epackage. Download new updates
 U       Upgrade all epackages
-y       B(y)te compile epackage
+y         B(y)te compile epackage
 Y         Action toggle: after every download, b(y)te compile epackage
 ?,q,m,v   Help, Quit, Menu, Version"
   "UI menu to run epackage from command line.")
@@ -1832,7 +1831,7 @@ Y         Action toggle: after every download, b(y)te compile epackage
 (defconst epackage--batch-ui-menu-actions
   '((?a epackage-cmd-activate-package)
     (?b epackage-batch-ui-loader-file-generate)
-    (?B epackage-batch-ui-byte-compile-package)
+    ;; (?B epackage-batch-ui-byte-compile-package)
     (?A epackage-batch-ui-deactivate-package)
     (?c epackage-batch-ui-clean-package)
     (?d epackage-batch-ui-download-package)
@@ -2000,6 +1999,22 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
   (sort list
 	(lambda (a b)
 	  (string< a b))))
+
+(defsubst epackage-url-extract-host (url)
+  "Extract from URL the HOST portion."
+  (if (string-match "^[^:]+://\\([^/]+\\)" url)
+      (match-string 1 url)))
+
+(defsubst epackage-auto-revert-mode-p ()
+  "Check if auto-revert is active in current buffer."
+  (or auto-revert-mode
+      auto-revert-tail-mode
+      global-auto-revert-mode))
+
+(defsubst epackage-turn-on-auto-revert-mode ()
+  "Turn on `auto-revert-mode' unless already active in current buffer."
+  (unless (epackage-auto-revert-mode-p)
+    (auto-revert-mode 1)))
 
 (defsubst epackage-append-to-buffer (buffer string &optional begin)
   "Append to BUFFER a STRING. Optionally at the BEGIN."
@@ -2619,7 +2634,7 @@ If VERBOSE is non-nil, display progress message."
          (epackage-message
            "Running 'git %s' in %s ..."
            (mapconcat #'concat (list ,@args) " ")
-           ,dir))
+           (abbreviate-file-name ,dir)))
      (prog1
          (unless (epackage-git-command-ok-p
                   (epackage-git-command-process
@@ -2629,7 +2644,7 @@ If VERBOSE is non-nil, display progress message."
          (epackage-message
            "Running 'git %s' in %s ...done"
            (mapconcat #'concat (list ,@args) " ")
-           ,dir))))
+           (abbreviate-file-name ,dir)))))
 
 (put 'epackage-with-git-config 'lisp-indent-function 1)
 (put 'epackage-with-git-config 'edebug-form-spec '(body))
@@ -2998,6 +3013,12 @@ If optional VERBOSE is non-nil, display progress message."
   (epackage-git-branch-list-current-branch
    (epackage-git-command-branch-list dir verbose)))
 
+(defun epackage-git-command-checkout-force-head (dir &optional verbose)
+  "Run 'git checkout -f HEAD' in DIR.
+If optional VERBOSE is non-nil, display progress message."
+  (epackage-with-git-command dir verbose
+    "checkout" "-f" "HEAD"))
+
 (defun epackage-git-command-pull (dir &optional verbose)
   "Run 'git pull' in DIR.
 If optional VERBOSE is non-nil, display progress message."
@@ -3015,6 +3036,7 @@ If optional VERBOSE is non-nil, display progress message."
 If optional VERBOSE is non-nil, display progress message."
   (let ((name (epackage-file-name-basename dir))
         (dir-before (epackage-file-name-directory-previous dir)))
+    (epackage-require-ssh url)
     (epackage-with-git-command dir-before verbose
       "clone" url name)))
 
@@ -4117,6 +4139,91 @@ If optional VERBOSE is non-nil, display progress message."
       (epackage-verbose-message "Making directory %s ..." dir)
       (make-directory dir))))
 
+(defun epackage-ssh-known-host-p (&optional host)
+  "Check if HOST exists in ~/.ssh/known_hosts file."
+  (let ((file "~/.ssh/known_hosts"))
+    (cond
+     ((not (file-exists-p file))
+      nil)
+     (t
+      (with-current-buffer (find-file-noselect file)
+	;; We need to be notified about changes
+	(epackage-turn-on-auto-revert-mode)
+	(goto-char (point-min))
+	;; <host>,<ip> <key type> <key>
+	(let ((re (format "^[ \t]*%s," (regexp-quote host))))
+	  (re-search-forward re nil t)))))))
+
+(defun epackage-ssh-config-strict-key-check-disabled-p (&optional host)
+  "Check that HOST is set to \"StrictHostKeyChecking no\" in ~/.ssh/config."
+  ;; We can't allow any interactive prompts like this:
+  ;;
+  ;; git clone git@github.com:<url>
+  ;; Initialized empty Git repository in <path>
+  ;; The authenticity of host 'github.com (65.74.177.129)' can't be established.
+  ;; RSA key fingerprint is 16:27:ac:a5:76:28:2d:36:63:1b:56:4d:eb:df:a6:48.
+  ;; Are you sure you want to continue connecting (yes/no)?
+  ;;
+  (let ((file "~/.ssh/config"))
+    (cond
+     ((not (file-exists-p file))
+      (error (concat "Epacakge: [ERROR] File does not exist: %s. "
+		     "Please install SSH" file)))
+     (t
+      (with-current-buffer (find-file-noselect file)
+	;; We need to be notified about changes
+	(epackage-turn-on-auto-revert-mode)
+	(goto-char (point-min))
+	(let ((re (format "^[ \t]*Host[ \t]+.*%s" (regexp-quote host))))
+	  (re-search-forward re nil t)))))))
+
+(defun epackage-ssh-help-string (host)
+  "Return SSH configuration help message."
+  (format
+   "\
+PROBLEM
+
+    When git:// protocol is used, ssh may ask question like this:
+
+	The authenticity of host 'github.com (207.97.227.239)' can't be established.
+	RSA key fingerprint is 16:27:ac:a5:76:28:2d:36:63:1b:56:4d:eb:df:a6:48.
+	Are you sure you want to continue connecting (yes/no)? no
+
+    As we cannot answer to these kind interactive questions, we
+    must make sure user SSH is configured so that there are no
+    interactive questions. Git commands must have direct access
+    to the repositories.
+
+SOLUTIONS
+
+    (A) Connect manually with ssh or git to %s at least once, or
+    (B) Add to file ~/.ssh/config line:
+	Host %s\n\tStrictHostKeyChecking no"
+   host
+   host))
+
+(defsubst epackage-ssh-p (host)
+  "Check HOST is known to SSH."
+  (or (epackage-ssh-known-host-p host)
+      (epackage-ssh-config-strict-key-check-disabled-p host)))
+
+(defun epackage-require-ssh (ur)
+  "If Git protocol is SSH, require direct access to SSH without prompts."
+  ;; FIXME: Can we test if ssh-agent is running?
+  ;; SSH Protocols are:  ssh://  and  user@host:<path>
+  ;; See http://www.kernel.org/pub/software/scm/git/docs/git-clone.html
+  (when (string-match "ssh://\\|[^@]+@[^:]+:" url)
+    (let ((host (epackage-url-extract-host url)))
+      (or (epackage-ssh-p host)
+	  (let ((message (epackage-ssh-help-string)))
+	    (message message)		;Record user help to *Messages* buffer
+	    (let ((debug-on-error nil)) ;; batch UI: don't display stack trace
+	      (error
+	       (substitute-command-keys
+		(concat "Epackage: [ERROR] SSH configuration problem. "
+		      "See recent message with "
+		      "\\[view-echo-area-messages]")))))))))
+
 (defun epackage-require-main (&optional verbose)
   "Check requirements to run Epackage.
 If optional VERBOSE is non-nil, display progress message."
@@ -4427,12 +4534,34 @@ Return:
 
 (defun epackage-download-sources-list (&optional verbose)
   "Download sources list file, the yellow pages.
-If optional VERBOSE is non-nil, display progress message."
-  (if (epackage-sources-list-p)
-      (epackage-verbose-message "Sources list already exists.")
-    (let ((dir (epackage-sources-list-official-directory)))
-      (epackage-git-command-clone
-       epackage--sources-list-url dir verbose))))
+If optional VERBOSE is non-nil, display progress message.
+
+Return:
+  non-nil if anything was done."
+  (let* ((dir  (epackage-sources-list-official-directory))
+	 (file (epackage-file-name-sources-list-official))
+	 (need-clone (not (file-directory-p dir)))
+	 status)
+    (unless need-clone          ;; directory exists, check validity
+      (cond
+       ((not (epackage-git-directory-p dir))
+	(epackage-verbose-message "Deleting corrupted Git dir: %s"
+				  (abbreviate-file-name dir))
+	;; Something is very wrong. Start from fresh.
+	(delete-directory dir 'recursive)
+	(setq need-clone t))
+       ((not (file-exists-p file))
+	(epackage-verbose-message "Restoring state of dir: %s"
+				  (abbreviate-file-name dir))
+	;; Somebody deleted the file; reset git
+	(setq status 'git-checkout-force)
+	(epackage-git-command-checkout-force-head dir verbose))))
+    (when need-clone
+      (setq status 'git-clone)
+      (let* ((url epackage--sources-list-url)
+	     (host (epackage-url-extract-host url)))
+	(epackage-git-command-clone url dir verbose)))
+    status))
 
 (defun epackage-cmd-select-package (&optional message list)
   "Interactively select package with optional MESSAGE from LIST.
@@ -5399,11 +5528,12 @@ If optional VERBOSE is non-nil, display progress messages."
   (interactive
    (list 'interactive))
   (epackage-kill-buffer-sources-list)
-  (if (epackage-sources-list-p)
+  (unless (epackage-sources-list-p)
+    (epackage-with-message verbose "Wait, downloading sources list"))
+  (let ((status (epackage-download-sources-list verbose)))
+    (unless status
       (epackage-with-message verbose "Upgrading sources list"
-        (epackage-sources-list-upgrade verbose))
-    (epackage-with-message verbose "Wait, downloading sources list"
-      (epackage-download-sources-list verbose)))
+	(epackage-sources-list-upgrade verbose))))
   (epackage-sources-list-build verbose))
 
 ;;;###autoload
@@ -5545,9 +5675,7 @@ If optional VERBOSE is non-nil, display progress message."
   (epackage-require-main verbose)
   ;; There are few checks that need this
   (let ((epackage--initialize-flag t))
-    (unless (epackage-sources-list-p)
-      (epackage-cmd-download-sources-list verbose))
-    (epackage-sources-list-build verbose))
+    (epackage-cmd-download-sources-list verbose))
   (setq epackage--initialize-flag t)
   (run-hooks 'epackage--initialize-hook))
 

@@ -25,6 +25,7 @@ Project details
 	Depends
 	- Emacs 22.1+ (released 2007).
 	- git[1], any version.
+	- OpenSSH client, any version (for the git:// repository protocol).
 	- Depends only on standard Emacs. Does not use external or
           "cl" libraries.
 	- For "make doc" which generates HTML documentation, the
