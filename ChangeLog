@@ -1,12 +1,24 @@
 2011-04-12 Tue  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-download-sources-list): Improve
+	* epackage.el
+	(top level::Installation): Explain how to use github with http
+	protocol.
+	(epackage-download-sources-list): Improve
 	error condition checks. Recreate clone directory as needed.
 	(epackage-git-command-checkout-force-head): New.
 	(epackage-cmd-download-sources-list): Rearrange calls and
 	act upon status of `epackage-download-sources-list'.
 	(epackage-initialize): Always call
 	`epackage-cmd-download-sources-list' to get clean state.
+	(epackage-sources-list-initialize): Send
+	`epackage--build-sources-list-hook' to `epackage-combine-files'.
+	(epackage-combine-files): add arg HOOKS.
+	(epackage-replace-regexp-in-buffer): New.
+	(epackage--build-sources-list-replace-table): New.
+	(epackage-ui): New. Alias to `epackage-batch-ui-menu' for
+	commadn line calling.
+	(epackage-combine-files): Use
+	`epackage--build-sources-list-replace-table'.
 
 2011-04-11 Mon  Jari Aalto  <jari.aalto@cante.net>
 

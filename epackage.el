@@ -25,7 +25,7 @@
 ;; Depends:
 
 ;;      o   Emacs 22.1+ (released 2007). Designed only for Emacs.
-;;          XEmacs has its own packaging system (pui-*).
+;;          Note that XEmacs has its own packaging system (pui-*).
 ;;          http://www.gnu.org/software/emacs
 ;;      o   git(1) Distributed Version Control System (DVCS). Any version.
 ;;          http://en.wikipedia.org/wiki/Git_(software)
@@ -36,14 +36,19 @@
 ;;  Put this file along your Emacs-Lisp `load-path' and add following
 ;;  into your ~/.emacs startup file.
 ;;
-;;      ;; If you want to customize any of the epackages, like BBDB,
-;;      ;; do it *here*, before the following `load' command.
+;;      ;; if you're behind firewall and Git port is blocked, you may
+;;      ;; want to translate addresses with this
+;;      ;; (setq epackage--build-sources-list-replace-table
+;;      ;;       '(("git://github" "http://github")))
 ;;
-;;      ;; One big file to boot all installed packages
+;;      ;; -- If you want to customize any of the epackages, like BBDB,
+;;      ;; -- do it *here*, before the following `load' command.
+;;
+;;      ;; One big file to boot all installed epackages
 ;;      ;; Automatically generated. Do not edit.
 ;;      (load "~/.emacs.d/epackage/00conf/epackage-loader" 'noerr)
 ;;
-;;      ;;  M-x epackage to start package manager
+;;      ;;  M-x epackage to start the epackage manager
 ;;      (autoload 'epackage "epackage" "" t)
 ;;
 ;;      (autoload 'epackage-loader-file-byte-compile    "epackage" "" t)
@@ -66,7 +71,7 @@
 ;;  In addition to full UI (M-x epackage), there is also a minimal
 ;;  command line UI:
 ;;
-;;      emacs --batch -Q -l /path/to/epackage.el -f epackage-batch-ui-menu
+;;      emacs --batch -Q -l /path/to/epackage.el -f epackage-ui
 ;;
 ;; WARNING: Make sure no *alias* commands override those of standard git
 ;; commands in ~/.gitocnfig or this extension will not work correctly.
@@ -1217,7 +1222,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0412.0859"
+(defconst epackage-version-time "2011.0412.1404"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1383,6 +1388,29 @@ by function `epackage-file-name-sources-list-main'."
   :type  '(list string)
   :group 'epackage)
 
+(defcustom epackage--build-sources-list-replace-table nil
+"Replace each found REGEXP with STRING in sources list.
+
+Format:
+  '((regexp string [regexp submatch] ...))
+
+Possible use case:
+
+  If you're behind firewall that blocks git port, change all
+  git:// protocols to http:// to access the site.
+
+  ;; Use this
+  (setq epackage--build-sources-list-replace-table
+        '((\"git://github\" \"http://github\")))
+
+for more in dept manipulation, see  `epackage--build-sources-list-hook'."
+  :type  '(repeat
+	   (list
+	    (string :tag "Regexp")
+	    (string :tag "Replace")
+	    (choice (const nil) (integer :tag "match level"))))
+  :group 'epackage)
+
 ;;; ................................................. &variables-hooks ...
 
 (defcustom epackage--load-hook nil
@@ -1457,7 +1485,12 @@ during hook. The TYPE is one of `epackage--layout-mapping'."
   :group 'epackage)
 
 (defcustom epackage--build-sources-list-hook nil
-  "*Hook run after function `epackage-build-sources-list'."
+  "*Hook run after function `epackage-build-sources-list'.
+This hook is run in combined sources list buffer just content is
+written to file returned by function
+`epackage-file-name-sources-list-main'.
+
+See also `epackage--build-sources-list-replace-table'."
   :type  'hook
   :group 'epackage)
 
@@ -3542,9 +3575,29 @@ If optional VERBOSE is non-nil, display progress message."
           dir))))
     (epackage-git-command-pull dir verbose)))
 
-(defun epackage-combine-files (file list &optional verbose)
+(defun epackage-replace-regexp-in-buffer (table)
+  "Replace according to TABLE '((re replace [match]) ...) in buffer."
+  (let ((point (point))
+	re
+	str
+	match
+	status)
+    (dolist (elt table)
+      (setq re (nth 0 elt)
+	    str (nth 1 elt)
+	    match (or (nth 2 elt) 0))
+      (goto-char point)
+      (while (re-search-forward re nil t)
+	(setq status 'replaced)
+	(replace-match match string)))
+    status))
+
+(defun epackage-combine-files (file list &optional hooks verbose)
   "Write to FILE a combined content of LIST of files.
-If optional VERBOSE is non-nil, display progress message."
+If optional HOOK is set, call `run-hooks' before saving to FILE.
+If optional VERBOSE is non-nil, display progress message.
+
+Before saving, apply `epackage--build-sources-list-replace-table'."
   (with-temp-buffer
     (dolist (elt list)
       (goto-char (point-max))
@@ -3557,6 +3610,10 @@ If optional VERBOSE is non-nil, display progress message."
       (unless (re-search-forward "^[^#\r\n]+://" nil t)
         (epackage-error
           "Can't find any Git repository URLs. Check files %s" list))
+      (epackage-replace-regexp-in-buffer
+       epackage--build-sources-list-replace-table)
+      (if hooks
+	  (run-hooks hooks))
       (epackage-write-region (point-min) (point-max) file))))
 
 (defun epackage-sources-list-initialize (&optional verbose)
@@ -3581,8 +3638,9 @@ If optional VERBOSE is non-nil, display progress message."
     (epackage-combine-files
      (epackage-file-name-sources-list-main)
      (append epackage--sources-file-list
-             (list (epackage-file-name-sources-list-official))))
-    (run-hooks 'epackage--build-sources-list-hook)))
+             (list (epackage-file-name-sources-list-official)))
+     '(epackage--build-sources-list-hook) ;; Hooks to run before save.
+     verbose)))
 
 (defun epackage-sources-list-build (&optional verbose)
   "Build sources list file.
@@ -6203,6 +6261,9 @@ If optional VERBOSE is non-nil, display progress message."
 
 ;;;###autoload
 (defalias 'epackage 'epackage-manager)
+
+;;;###autoload
+(defalias 'epackage-ui 'epackage-batch-ui-menu)
 
 (provide   'epackage)
 
