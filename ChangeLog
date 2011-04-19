@@ -26,6 +26,13 @@
 	"Installing".
 	(epackage--batch-ui-menu-actions): Correct ?E menu entry.
 	(epackage-batch-ui-uninstall-package): New.
+	(epackage-download-package-actions): New.
+	(epackage--download-action-list): Correct "package-depeds"
+	to "package-depends".
+	(epackage-cmd-download-package): Use `epackage-download-package-actions'.
+	(epackage-initialize): Check with `epackage-sources-list-p' before
+	running git command unconditionally. Add check for sources list
+	git repository.
 
 2011-04-12 Tue  Jari Aalto  <jari.aalto@cante.net>
 

@@ -1247,7 +1247,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0419.1358"
+(defconst epackage-version-time "2011.0419.1730"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1287,7 +1287,7 @@ for currently running Emacs; i.e. to take the extension into use."
            (const nil))
   :group 'epackage)
 
-(defcustom epackage--download-action-list '(enable package-depeds)
+(defcustom epackage--download-action-list '(enable package-depends)
   "*TYPE of actions to run after package download.
 Default value is: '(enable package-depeds)
 
@@ -3802,6 +3802,14 @@ if sources list has already been downloaded or not."
   (if epackage--sources-list-and-repository-sync-flag
       (epackage-sources-list-and-repositories-sync verbose)))
 
+(defun epackage-download-package-actions (package &optional verbose)
+  "Run `epackage--download-action-list' for PACKAGE.
+If optional VERBOSE is non-nil, display progress message."
+  (epackage-run-action-list
+   package
+   epackage--download-action-list
+   verbose))
+
 (defun epackage-download-package (package &optional verbose)
   "Download PACKAGE.
 If optional VERBOSE is non-nil, display progress message.
@@ -5766,10 +5774,7 @@ If optional VERBOSE is non-nil, display progress messages."
             (epackage-message
               "Abort. No URL to download package: %s" package)
           (epackage-download-package package verbose)
-          (epackage-run-action-list
-	   package
-	   epackage--download-action-list
-	   verbose))
+	  (epackage-download-package-actions package verbose))
         (when verbose
           (let ((warnings (epackage-pkg-info-status-warnings package)))
             (if warnings
@@ -5897,8 +5902,11 @@ If optional VERBOSE is non-nil, display progress message."
    (list 'interactive))
   (epackage-require-main verbose)
   ;; There are few checks that need this
-  (let ((epackage--initialize-flag t))
-    (epackage-cmd-download-sources-list verbose))
+  (let ((dir (epackage-sources-list-official-directory)))
+    (unless (and (epackage-sources-list-p) ;sources list exists (has been installed)
+		 (file-directory-p dir))   ;and sources list git repository exists
+      (let ((epackage--initialize-flag t))
+	(epackage-cmd-download-sources-list verbose))))
   (setq epackage--initialize-flag t)
   (run-hooks 'epackage--initialize-hook))
 
