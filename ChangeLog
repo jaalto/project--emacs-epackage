@@ -22,6 +22,10 @@
 	(epackage-pkg-lisp-directory): Correct to use  `file-directory-p'.
 	(epackage-status-install-files): New.
 	(epackage-upgrade-package-files): Write function body.
+	(epackage-enable-file): Chnage "Processing" message to
+	"Installing".
+	(epackage--batch-ui-menu-actions): Correct ?E menu entry.
+	(epackage-batch-ui-uninstall-package): New.
 
 2011-04-12 Tue  Jari Aalto  <jari.aalto@cante.net>
 

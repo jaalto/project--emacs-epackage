@@ -1247,7 +1247,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0419.1033"
+(defconst epackage-version-time "2011.0419.1358"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1900,7 +1900,7 @@ Y         Action toggle: after every download, b(y)te compile epackage
     (?c epackage-batch-ui-clean-package)
     (?d epackage-batch-ui-download-package)
     (?e epackage-batch-ui-enable-package)
-    (?E epackage-barch-ui-disable-package)
+    (?E epackage-batch-ui-disable-package)
     (?g epackage-batch-ui-download-sources-list)
     (?i epackage-batch-ui-display-package-info)
     (?I epackage-batch-ui-display-package-documentation)
@@ -1909,6 +1909,7 @@ Y         Action toggle: after every download, b(y)te compile epackage
     (?m epackage-batch-ui-display-menu)
     (?n epackage-batch-ui-list-not-installed-packages)
     (?o epackage-batch-ui-autoload-package)
+;;    (?O epackage-batch-ui-uninstall-package)
     (?r epackage-batch-ui-remove-package)
     (?t epackage-batch-ui-download-action-enable-toggle)
     (?T epackage-batch-ui-download-action-activate-toggle)
@@ -3939,7 +3940,7 @@ Return:
     nil        nok"
   (cond
    ((file-exists-p from)
-    (epackage-verbose-message "processing %s" to)
+    (epackage-verbose-message "Installing %s" to)
     (if epackage--symlink-support-flag
         (dired-make-relative-symlink from to 'overwrite)
       (copy-file from to 'overwrite 'keep-time))
@@ -6158,6 +6159,12 @@ Summary, Version, Maintainer etc."
   "Call `epackage-cmd-autoload-package'."
   (interactive)
   (call-interactively 'epackage-cmd-autoload-package))
+
+;;;###autoload
+(defun epackage-batch-ui-uninstall-package ()
+  "Call `epackage-cmd-config-uninstall-package'."
+  (interactive)
+  (call-interactively 'epackage-cmd-config-uninstall-package))
 
 ;;;###autoload
 (defun epackage-batch-ui-enable-package ()
