@@ -1,3 +1,28 @@
+2011-04-19 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-combine-files): Replace `run-hooks' with
+	`dolist'.
+	(epackage-sources-list-initialize): Correct
+	`epackage--build-sources-list-hook'.
+	(epackage-require-ssh): Correct arg URL.
+	(epackage--install-download-hook): Rename. Was
+	`epackage-install-download-hook'.
+	(epackage-require-ssh): Add check that host is string.
+	(epackage-url-extract-host): Add SSH URL support.
+	(epackage--build-sources-list-replace-table): Under Windows Emacs,
+	preset this to thanslate github to http://
+	(epackage-require-ssh): Check another SSH url type in format
+	user@host:<path>.
+	(epackage-ssh-url-p): New.
+	(epackage-require-ssh): Use `epackage-ssh-url-p'.
+	(epackage-package-status-actions): Add missing  package' args to
+	function calls.
+	(epackage-package-byte-compiled-p): Correct variable `try' to 'list'.
+	Correct directory handling.
+	(epackage-pkg-lisp-directory): Correct to use  `file-directory-p'.
+	(epackage-status-install-files): New.
+	(epackage-upgrade-package-files): Write function body.
+
 2011-04-12 Tue  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el

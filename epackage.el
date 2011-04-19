@@ -1247,7 +1247,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0412.2104"
+(defconst epackage-version-time "2011.0419.1033"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1413,7 +1413,9 @@ by function `epackage-file-name-sources-list-main'."
   :type  '(list string)
   :group 'epackage)
 
-(defcustom epackage--build-sources-list-replace-table nil
+(defcustom epackage--build-sources-list-replace-table
+  (if (memq system-type '(windows-nt ms-dos))
+      '(("git://github" "http://github")))
 "Replace each found REGEXP with STRING in sources list.
 
 Format:
@@ -1478,7 +1480,7 @@ for more in dept manipulation, see  `epackage--build-sources-list-hook'."
   :type  'hook
   :group 'epackage)
 
-(defcustom epackage-install-download-hook nil
+(defcustom epackage--install-download-hook nil
   "*Hook run when epackage is downloaded.
 Variable `package' is available."
   :type  'hook
@@ -1823,7 +1825,10 @@ producing 'foo-install.el.")
 Set by function `epackage-initialize'. Do not touch.")
 
 (defvar epackage--program-git nil
-  "Location of program git(1).")
+  "Location of program git(1).
+
+This variable will be set by `epackage-initialize'
+which calls function `epackage-require-git'.")
 
 (defvar epackage--process-output "*Epackage process*"
   "Output of `epackage--program-git'.")
@@ -2061,7 +2066,8 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
 
 (defsubst epackage-url-extract-host (url)
   "Extract from URL the HOST portion."
-  (if (string-match "^[^:]+://\\([^/]+\\)" url)
+  (if (or (string-match "^[^:]+@\\([^/:]+\\):" url) ;login@host:
+	  (string-match "^[^:]+://\\([^/]+\\)" url)) ;http://
       (match-string 1 url)))
 
 (defsubst epackage-auto-revert-mode-p ()
@@ -2412,7 +2418,7 @@ The TYPE is car of list `epackage--layout-mapping'."
         dir)))
 
 (defun epackage-package-loaddefs-p (package)
-  "Return file if PACKAGE autolaod file exists."
+  "Return file if PACKAGE autoload file exists."
   (let ((file (epackage-file-name-install-compose package 'loaddefs)))
     (if (file-exists-p file)
         file)))
@@ -2441,11 +2447,8 @@ The TYPE is car of list `epackage--layout-mapping'."
 	status)
     (when (file-directory-p root)
       (let ((list (epackage-pkg-lisp-directory package)))
-	(unless list
-	  (setq try '("lisp" "")))
-	(dolist (dir try)
+	(dolist (dir list)
 	  (unless status
-	    (setq dir (format "%s%s" (file-name-as-directory root) dir))
 	    (if (directory-files dir nil "\\.elc$")
 		(setq status dir))))))
     status))
@@ -2939,7 +2942,7 @@ Return subexpression 1, or 0; the one that exists."
 	(file (epackage-file-name-package-compose package 'lisp))
 	elt
 	list)
-    (when (file-exists-p dir)
+    (when (file-directory-p dir)
       (if (not (file-exists-p file))
 	  (setq list (list dir))
 	(with-temp-buffer
@@ -3199,6 +3202,16 @@ No pending commits and no modified files."
 
 ;;; ................................................ &functions-status ...
 
+(defun epackage-status-install-files (package)
+  "Return list of currently installed files for PACKAGE."
+  (let ((dir    (epackage-directory-install))
+	(regexp (format "%s-.*\\.el$" (regexp-quote package)))
+	list)
+    (directory-files
+     dir
+     (not 'full-path)
+     regexp)))
+
 (defun epackage-config-status-of-packages (type)
   "Return packages of TYPE of `epackage--layout-mapping'."
   (let* ((dir      (epackage-directory-install))
@@ -3270,11 +3283,11 @@ Returns:
   '(KEYWORD ...)."
   (let (list)
     ;; Order if the statements matter: keep 'list' in alphabetical order
-    (if (epackage-package-byte-compiled-p)
+    (if (epackage-package-byte-compiled-p package)
 	(epackage-push 'compile list))
-    (if (epackage-package-enabled-p)
+    (if (epackage-package-enabled-p package)
 	(epackage-push 'enable list))
-    (if (epackage-package-activated-p)
+    (if (epackage-package-activated-p package)
 	(epackage-push 'activate list))
     list))
 
@@ -3594,12 +3607,16 @@ template files under `epackage--directory-name'.."
   "Update installed files from PACKAGE.
 If optional VERBOSE is non-nil, display progress messages."
   ;; FIXME: upgrade
-  ;; - New or deleted files in epackage/*
-  ;; - obsolete 00control/* files ?
-  (let ((list (epackage-package-status-actions package)))
-    (dolist (elt list)
-      ;; FIXME: not implemented. Write this part.
-      )))
+  ;; - New or deleted files in <package>/*
+  ;; - What about obsolete 00control/* files ?
+  (let ((root (epackage-directory-package-control package))
+	(install (epackage-directory-install))
+	from
+	to)
+    (dolist (file (epackage-status-install-files package))
+      (setq from (format "%s/%s" root file))
+      (setq to (format "%s/%s" install file))
+      (epackage-enable-file from to nil verbose))))
 
 (defun epackage-upgrade-package-actions (package verbose)
   "Run after upgrade actions: byte compile, install updated files etc.
@@ -3723,7 +3740,7 @@ If optional VERBOSE is non-nil, display progress message."
 
 (defun epackage-combine-files (file list &optional hooks verbose)
   "Write to FILE a combined content of LIST of files.
-If optional HOOK is set, call `run-hooks' before saving to FILE.
+If optional HOOKS set, call each hook function before saving to FILE.
 If optional VERBOSE is non-nil, display progress message.
 
 Before saving, apply `epackage--build-sources-list-replace-table'."
@@ -3742,7 +3759,7 @@ Before saving, apply `epackage--build-sources-list-replace-table'."
       (epackage-replace-regexp-in-buffer
        epackage--build-sources-list-replace-table)
       (if hooks
-	  (run-hooks hooks))
+	  (run-hook hooks))
       (epackage-write-region (point-min) (point-max) file))))
 
 (defun epackage-sources-list-initialize (&optional verbose)
@@ -3768,7 +3785,7 @@ If optional VERBOSE is non-nil, display progress message."
      (epackage-file-name-sources-list-main)
      (append epackage--sources-file-list
              (list (epackage-file-name-sources-list-official)))
-     '(epackage--build-sources-list-hook) ;; Hooks to run before save.
+     epackage--build-sources-list-hook ;; Hooks to run before save.
      verbose)))
 
 (defun epackage-sources-list-build (&optional verbose)
@@ -3911,9 +3928,9 @@ If optional VERBOSE is non-nil, display progress message."
 
 ;;; ................................................ &functions-config ...
 
-(defsubst epackage-enable-file (from to &optional noerr verbose)
+(defun epackage-enable-file (from to &optional noerr verbose)
   "Enable by copying or by symlinking file FROM TO.
-With optional NOERR, do not signall errors, display inly messages.
+With optional NOERR, do not signal errors.
 If optional VERBOSE is non-nil, display progress message.
 See variable `epackage--symlink-support-flag'.
 
@@ -4370,39 +4387,48 @@ If optional VERBOSE is non-nil, display progress message."
    "\
 PROBLEM
 
-    When git:// protocol is used, ssh may ask question like this:
+    SSH is not configured to be used to access git repositories.
+
+DESCRIPTION
+
+    When git with a ssh protocol is being used, ssh may ask question like this:
 
 	The authenticity of host 'github.com (207.97.227.239)' can't be established.
 	RSA key fingerprint is 16:27:ac:a5:76:28:2d:36:63:1b:56:4d:eb:df:a6:48.
 	Are you sure you want to continue connecting (yes/no)? no
 
-    As we cannot answer to these kind interactive questions, we
-    must make sure user SSH is configured so that there are no
-    interactive questions. Git commands must have direct access
-    to the repositories.
+    As epackage.el cannot answer to these kind interactive
+    questions, the SSH must be configured so that it doesn't ask
+    interactive questions.
 
 SOLUTIONS
 
-    (A) Connect manually with ssh or git to %s at least once, or
-    (B) Add to file ~/.ssh/config line:
+    (A) Connect manually from command line at least once to %s
+        so that host is recorded to ~/.ssh/known_hosts
+    (B) Or add to file ~/.ssh/config line:
 	Host %s\n\tStrictHostKeyChecking no"
    host
    host))
 
+(defsubst epackage-ssh-url-p (url)
+  "Check if URL uses SSH protocol."
+  (string-match "ssh://\\|[^@]+@[^:]+:\\|^[^@:]+@[^:]+:" url))
+
 (defsubst epackage-ssh-p (host)
   "Check HOST is known to SSH."
+  ;; SSH Protocols are:  ssh://  and  user@host:<path>
+  ;; See http://www.kernel.org/pub/software/scm/git/docs/git-clone.html
   (or (epackage-ssh-known-host-p host)
       (epackage-ssh-config-strict-key-check-disabled-p host)))
 
-(defun epackage-require-ssh (ur)
+(defun epackage-require-ssh (url)
   "If Git protocol is SSH, require direct access to SSH without prompts."
   ;; FIXME: Can we test if ssh-agent is running?
-  ;; SSH Protocols are:  ssh://  and  user@host:<path>
-  ;; See http://www.kernel.org/pub/software/scm/git/docs/git-clone.html
-  (when (string-match "ssh://\\|[^@]+@[^:]+:" url)
+  (when (epackage-ssh-url-p url)
     (let ((host (epackage-url-extract-host url)))
-      (or (epackage-ssh-p host)
-	  (let ((message (epackage-ssh-help-string)))
+      (or (and (stringp host)
+	       (epackage-ssh-p host))
+	  (let ((message (epackage-ssh-help-string host)))
 	    (message message)		;Record user help to *Messages* buffer
 	    (let ((debug-on-error nil)) ;; batch UI: don't display stack trace
 	      (error
@@ -5737,7 +5763,7 @@ If optional VERBOSE is non-nil, display progress messages."
       (let ((url (epackage-sources-list-info-url package)))
         (if (not url)
             (epackage-message
-              "Abort download. No known URL for package: %s" package)
+              "Abort. No URL to download package: %s" package)
           (epackage-download-package package verbose)
           (epackage-run-action-list
 	   package
