@@ -1218,7 +1218,7 @@
 
 ;;; Code:
 
-(eval-when-compile
+(eval-and-compile
   (defvar auto-revert-mode)
   (defvar global-auto-revert-mode)
   (defvar pcomplete-parse-arguments-function)
@@ -1247,7 +1247,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.0419.1730"
+(defconst epackage-version-time "2011.1106.0734"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
