@@ -36,13 +36,25 @@
 ;;  Put this file along your Emacs-Lisp `load-path' and add following
 ;;  into your ~/.emacs startup file.
 ;;
-;;      ;; if you're behind firewall and Git port is blocked, you may
-;;      ;; want to translate addresses with this
+;;      ;; If you're behing proxy, be sure to define connection
+;;      ;; details before you start Emacs at command line.
+;;      ;; Consult http://stackoverflow.com/questions/496277/git-error-fatal-unable-to-connect-a-socket-invalid-argument
+;;      ;; for in depth details. From bash shell:
+;;      ;;
+;;      ;;    export http_proxy=http://<username>:<password>@<proxy host>:<proxy port>
+;;      ;;
+;;      ;; Or, this may also be possible:
+;;      ;;
+;;      ;;    git config --global http.proxy http://<username>:<password>@<proxy host>:<proxy port>
+;;
+;;      ;; If you're behind firewall and Git port 9418 is blocked, you
+;;      ;; may want to use HTTP and translate addresses with this table:
+;;      ;;
 ;;      ;; (setq epackage--build-sources-list-replace-table
 ;;      ;;       '(("git://github" "http://github")))
 ;;
 ;;      ;; -- If you want to customize any of the epackages, like BBDB,
-;;      ;; -- do it *here*, before the following `load' command.
+;;      ;; -- do it *here*, before the next `load' command.
 ;;
 ;;      ;; One big file to boot all installed epackages
 ;;      ;; Automatically generated. Do not edit.
@@ -73,9 +85,9 @@
 ;;
 ;;      emacs --batch -Q -l /path/to/epackage.el -f epackage-ui
 ;;
-;; WARNING: Make sure no *alias* commands override those of standard git
-;; commands in ~/.gitocnfig or this extension will not work correctly.
-;; Alias definitions that are not standard git commands are fine.
+;; WARNING: Make sure no *alias* override those of standard git
+;; commands in your ~/.gitocnfig or this creates problems. Alias
+;; definitions that are not standard git commands are fine.
 
 ;;; Commentary:
 
@@ -83,27 +95,26 @@
 ;;
 ;;      NOTE: 2010-12-08 This extension is in alpha design state;
 ;;      meaning that it is not in full use yet. The core elements are
-;;      being planned and written. For testing, see available `M-x'
-;;      `epackage-*' commands. There is also a rudimentary batch
-;;      command line UI:
-;;
-;;          # Or run the provided Makefile: "make ui"
-;;          emacs --batch -Q -l /path/to/epackage.el -f epackage-batch-ui-menu
-;;
+;;      being planned, written and tested. For preview, see available `M-x'
+;;      `epackage-*' commands. Currently it is best to use the batch
+;;      command line UI.
 ;;      ....expect full UI with nice menus, font-lock, mode command
-;;      and Emacs buffers like in ELPA somewhere around spring 2011
+;;      and Emacs buffers like in ELPA somewhere around late spring/summer 2011
 ;;      the earliest.
+;;
+;;          # Or run the provided Makefile target: "make ui"
+;;          emacs --batch -Q -l /path/to/epackage.el -f epackage-batch-ui-menu
 ;;
 ;;      Emacs has been around for decades now. Many new version have
 ;;      come and gone. And yet there are wealth of useful extensions
 ;;      available e.g. at <http://emacswiki.org> which add new
-;;      features not yet available in standard Emacs. The typical
-;;      procedure to add a new extension to Emacs has been:
+;;      features not included in standard Emacs. The typical procedure
+;;      to add a new extension to Emacs has been:
 ;;
 ;;      o   Find an extension at places like
 ;;          http://dir.gmane.org/gmane.emacs.sources or
 ;;          http://www.emacswiki.org
-;;      o   Download and save the *.el file(s) along `load-path'
+;;      o   Download and save *.el file(s) along `load-path'
 ;;      o   Read the installation information. Usually embedded in comments
 ;;          at the beginning of *.el file(s).
 ;;      o   Modify the Emacs startup file `~/.emacs'
@@ -115,39 +126,39 @@
 ;;      command *apt-get/aptitude* [1], Redhat uses *rpm* [2], Suse
 ;;      uses *yast* [3]. So why not make one for Emacs as well.
 ;;
-;;      The DELPS has been designed built around two concepts: it
-;;      borrows the Debian style package management and it uses
-;;      version controlled packages.
+;;      The DELPS has been designed around two concepts: it borrows
+;;      the Debian style package management and it uses version
+;;      control for distributing packages.
 ;;
 ;;      Each Emacs extension is wrapped into epackage format which
-;;      basically follows the Debian [4] packaging style where a separate
-;;      control directory named `epackage/' is used for all the
-;;      packaging details: activation, autoloads and installation etc.
-;;      In addition, each epackage is imported in and deployed using
-;;      Git Distributed Version Control System (DVCS). A specific
-;;      "Yellow pages" file lists the available Git repositories where
-;;      user can download packages. Once an epackage has been
-;;      downloaded, subsequent downloads are very efficient because
-;;      only deltas are transferred.
+;;      basically follows the Debian [4] packaging style where a
+;;      separate control directory named `epackage/' is used for all
+;;      the packaging details: activation, autoloads and installation
+;;      etc. In addition, each epackage is imported in and deployed
+;;      using Git Distributed Version Control System (DVCS). A
+;;      specific "Yellow pages" file(s) list the available distributed
+;;      Git repositories from where users can download epackages. Once
+;;      an epackage has been downloaded, subsequent downloads are very
+;;      efficient because, due to benefits of version control, only
+;;      deltas are transferred.
 ;;
 ;;      If you're an Emacs user, all these details do not concern you.
 ;;      From `M-x' `epackage' management view, select items to
-;;      download, and activate them. There are several ways how to
-;;      install packages. Select *autoload* install (no Emacs setup
-;;      changes), *standard* install (= enabling), or *activation*
-;;      install (the activation code can chnage Emacs environment).
-;;      Later you can upgrade packages. To get updates of available
-;;      packages, ask to "get" the sources list, the "Yellow pages",
-;;      that holds information about available Git repositories.
+;;      download and install them. There are several ways how to
+;;      install: an *autoload* install (no Emacs setup changes),
+;;      *standard* install (= enabling), or *activation* install (the
+;;      activation code can change Emacs environment). Later you can
+;;      upgrade packages. To get updates of new packages, ask to "get"
+;;      the sources list, the "Yellow pages", that holds information
+;;      about Git repositories.
 ;;
-;;      If you're a developer who would like to make extensions
-;;      available for others as epackages, that will require
-;;      familiarizing with the `Git' distributed version control
-;;      system.
+;;      If you're a developer who would like to make an extension
+;;      available for others, that will require familiarizing with the
+;;      `Git' distributed version control system.
 ;;
-;;      The epackage system can co-exist with any other installation
-;;      like ELPA [4]. User's standard Emacs startup files, like
-;;      `~/.emacs' are not modified in standard install.
+;;      The epackage system can co-exist with any other packaging
+;;      system like ELPA [4]. User's standard Emacs startup files,
+;;      like `~/.emacs' are not modified with this system.
 ;;
 ;;      [1] http://en.wikipedia.org/wiki/Advanced_Packaging_Tool
 ;;
@@ -162,12 +173,11 @@
 ;;
 ;;  Epackage - the DVCS packaging format
 ;;
-;;      The DELPS epackages are in the form of distributed[1] git[2]
+;;      The DELPS epackages are in the form of distributed[1] Git[2]
 ;;      version control repositories. The traditional packaging
 ;;      methods, like ELPA[3], have previously relied on archives like
-;;      *.tar.gz to hold the code. In contrast, the DVCS approach
-;;      offers interesting features over the traditional archive
-;;      distribution approach:
+;;      *.tar.gz. In contrast, the DVCS approach offers interesting
+;;      features over the traditional archive distribution approach:
 ;;
 ;;      o   Efficient downloads; fast, only deltas are transferred.
 ;;      o   Local modifications are possible; users can create their own
@@ -183,18 +193,18 @@
 ;;          with the upstream e.g. through http://github.com
 ;;          push/pull.
 ;;
-;;      Each Emacs extension is prepared for use with this system:
-;;      upstream code is imported into a git repository, the epackage
-;;      system is installed on top of upstream code in separate
-;;      directory, the whole git repository is made available online
-;;      and information about the availability of new epackage is
-;;      recorded to a separate seources list file, aka the yellow
-;;      pages. The epackaging work can be done by anyone who wants to
-;;      set up a repository. It doesn't necesarily need to be done by
-;;      the original Emacs extension author (upstream) who may not be
+;;      Each Emacs extension is prepared for use in DELPS: an upstream
+;;      code is imported into a Git repository, the epackage system is
+;;      installed on top of upstream code in a separate directory, the
+;;      whole git repository is made available online and information
+;;      about the availability of new epackage is recorded to a
+;;      separate seources list file, aka the yellow pages. The
+;;      epackaging work can be done by anyone who wants to set up a
+;;      repository. It doesn't necesarily need to be done by the
+;;      original Emacs extension author (upstream) who may not be
 ;;      familiar with the `Git' distributed version control system.
 ;;      For more information about the packaging, refer to section
-;;      "The epackage system framework ".
+;;      "The DELPS framework".
 ;;
 ;;      [1] DVCS = Distributed Version Control System
 ;;          http://en.wikipedia.org/wiki/Distributed_revision_control
@@ -204,6 +214,8 @@
 ;;      [3] http://www.emacswiki.org/emacs/ELPA
 ;;
 ;;  User commands
+;;
+;;	[PLANNED: does not exist yet; Use command like UI]
 ;;
 ;;      Command `M-x' `epackage' is alias for function
 ;;      `epackage-manager'. It builds buffer where packages can be
@@ -407,7 +419,7 @@
 ;;          +--packages/           Git DVCS repositories
 ;;             |
 ;;             +-- 00sources/      Yellow pages: list of available packages
-;;             +-- package/        Downloaded package
+;;             +-- package/        Downloaded PACKAGE
 ;;             +-- ...
 ;;
 ;;  Epackage specification (draft; level 1)
@@ -451,6 +463,7 @@
 ;;          |
 ;;          +-- epackage/
 ;;              info                  required: The information file
+;;              lisp		      optional: Location of Emacs Lisp files
 ;;              PACKAGE-0loaddefs.el  optional: extracted ###autoload statements
 ;;              PACKAGE-autoloads.el  optional: autoload statements (manual)
 ;;              PACKAGE-clean.el      optional: Code to run "make clean" equivalent
@@ -461,16 +474,15 @@
 ;;              PACKAGE-uninstall.el  optional: Code to remove the extension
 ;;              PACKAGE-xactivate.el  optional: Code to activate the extension
 ;;
-;;      The names of the files have been chosen to sort
-;;      alphabetically. All these configuration files are later
-;;      combined in a single loader file. Loading a single file is
-;;      faster than spending time in loading small file along
-;;      `load-path'. The alphabetic order makes it possible to combine
-;;      the install parts safely together:
+;;      All these configuration files are combined in a single loader
+;;      file. Loading a single file is faster than spending time in
+;;      loading small file along `load-path'. The alphabetic order
+;;      makes it possible to combine the install parts safely
+;;      together:
 ;;
 ;;              ls |
 ;;              egrep -vi '00|clean|compile|configure|examples|uninstall' |
-;;              xargs cat > PACKAGE-00.el
+;;              xargs cat > PACKAGE-00-loader.el
 ;;
 ;;     The *-0loaddefs.el
 ;;
@@ -663,6 +675,19 @@
 ;;           details.
 ;;           .
 ;;           Note: 2010-12-03 the code hasn't been touched since 2004.
+;;
+;;  The 'lisp' file
+;;
+;;	This file contains Emacs Lisp file directory or directories
+;;	relative to the root of package. files in the package. Empty
+;;	lines and standalone comments starting with "#" are ignored.
+;;	Comments must not be placed at the directory lines. If all the
+;;	Emacs Lisp files are in the package's root directory, this
+;;	file not needed. The file is used internally to find out if
+;;	the package has been byte compiled or not. An example:
+;;
+;;
+;;
 ;;
 ;;  Details of the info file fields
 ;;
@@ -1222,7 +1247,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1106.0730"
+(defconst epackage-version-time "2011.1106.0734"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1262,7 +1287,7 @@ for currently running Emacs; i.e. to take the extension into use."
            (const nil))
   :group 'epackage)
 
-(defcustom epackage--download-action-list '(enable package-depeds)
+(defcustom epackage--download-action-list '(enable package-depends)
   "*TYPE of actions to run after package download.
 Default value is: '(enable package-depeds)
 
@@ -1388,7 +1413,9 @@ by function `epackage-file-name-sources-list-main'."
   :type  '(list string)
   :group 'epackage)
 
-(defcustom epackage--build-sources-list-replace-table nil
+(defcustom epackage--build-sources-list-replace-table
+  (if (memq system-type '(windows-nt ms-dos))
+      '(("git://github" "http://github")))
 "Replace each found REGEXP with STRING in sources list.
 
 Format:
@@ -1453,7 +1480,7 @@ for more in dept manipulation, see  `epackage--build-sources-list-hook'."
   :type  'hook
   :group 'epackage)
 
-(defcustom epackage-install-download-hook nil
+(defcustom epackage--install-download-hook nil
   "*Hook run when epackage is downloaded.
 Variable `package' is available."
   :type  'hook
@@ -1752,12 +1779,13 @@ Format is:
   '((FIELD CONTENT-TEST-REGEXP) ...).")
 
 (defconst epackage--layout-mapping
-  '((activate  "-xactivate.el")
-    (autoload  "-autoloads.el")
-    (enable  "-install.el"  'required)
-    (compile  "-compile.el")
-    (info  "info" 'required)
-    (loaddefs  "-0loaddefs.el")
+  '((activate   "-xactivate.el")
+    (autoload   "-autoloads.el")
+    (enable     "-install.el"  'required)
+    (compile    "-compile.el")
+    (info       "info"  'required)
+    (lisp       "lisp")
+    (loaddefs   "-0loaddefs.el")
     (uninstall  "-uninstall.el"))
   "File type and its mappings in `epackage--package-control-directory'.
 Format is:
@@ -1797,7 +1825,10 @@ producing 'foo-install.el.")
 Set by function `epackage-initialize'. Do not touch.")
 
 (defvar epackage--program-git nil
-  "Location of program git(1).")
+  "Location of program git(1).
+
+This variable will be set by `epackage-initialize'
+which calls function `epackage-require-git'.")
 
 (defvar epackage--process-output "*Epackage process*"
   "Output of `epackage--program-git'.")
@@ -1869,7 +1900,7 @@ Y         Action toggle: after every download, b(y)te compile epackage
     (?c epackage-batch-ui-clean-package)
     (?d epackage-batch-ui-download-package)
     (?e epackage-batch-ui-enable-package)
-    (?E epackage-barch-ui-disable-package)
+    (?E epackage-batch-ui-disable-package)
     (?g epackage-batch-ui-download-sources-list)
     (?i epackage-batch-ui-display-package-info)
     (?I epackage-batch-ui-display-package-documentation)
@@ -1878,6 +1909,7 @@ Y         Action toggle: after every download, b(y)te compile epackage
     (?m epackage-batch-ui-display-menu)
     (?n epackage-batch-ui-list-not-installed-packages)
     (?o epackage-batch-ui-autoload-package)
+;;    (?O epackage-batch-ui-uninstall-package)
     (?r epackage-batch-ui-remove-package)
     (?t epackage-batch-ui-download-action-enable-toggle)
     (?T epackage-batch-ui-download-action-activate-toggle)
@@ -2035,7 +2067,8 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
 
 (defsubst epackage-url-extract-host (url)
   "Extract from URL the HOST portion."
-  (if (string-match "^[^:]+://\\([^/]+\\)" url)
+  (if (or (string-match "^[^:]+@\\([^/:]+\\):" url) ;login@host:
+	  (string-match "^[^:]+://\\([^/]+\\)" url)) ;http://
       (match-string 1 url)))
 
 (defsubst epackage-auto-revert-mode-p ()
@@ -2354,7 +2387,7 @@ The TYPE is car of list `epackage--layout-mapping'."
         (format "%s/%s%s" dir package file))))))
 
 (defun epackage-file-name-install-compose (package type)
-  "Rturn PACKAGE filenme of TYPE in `epackage--directory-name-install'.
+  "Return PACKAGE filenme of TYPE in `epackage--directory-name-install'.
 The TYPE is car of list `epackage--layout-mapping'."
   (let ((dir (epackage-directory-install))
         (file (nth 1 (assq type epackage--layout-mapping))))
@@ -2366,23 +2399,18 @@ The TYPE is car of list `epackage--layout-mapping'."
        (t
         (format "%s/%s%s" dir package file))))))
 
-(defsubst epackage-file-name-activated-compose (package)
-  "Return path to PACKAGE under activated directory."
-  (format "%s/%s%s"
-          (epackage-directory-root)
-          epackage--directory-name-install
-          (if (string= "" package)
-              ""
-            (format "/%s-xactivate.el" package))))
-
-(defsubst epackage-file-name-enabled-compose (package)
-  "Return path to PACKAGE under install directory."
-  (format "%s/%s%s"
-          (epackage-directory-root)
-          epackage--directory-name-install
-          (if (string= "" package)
-              ""
-            (format "/%s-install.el" package))))
+(defun epackage-file-name-package-compose (package type)
+  "Return PACKAGE filenme of TYPE in `epackage-directory-package-root'.
+The TYPE is car of list `epackage--layout-mapping'."
+  (let ((dir (epackage-directory-package-root package))
+        (file (nth 1 (assq type epackage--layout-mapping))))
+    (if (not file)
+        (epackage-error "[ERROR] Unknown TYPE argument '%s'" type)
+      (cond
+       ((eq type 'info)
+        (format "%s/%s/%s" dir epackage--package-control-directory file))
+       (t
+        (format "%s/%s%s" dir package file))))))
 
 (defsubst epackage-git-directory-p (dir)
   "Check if there is .git under DIR. Return DIR if so."
@@ -2390,17 +2418,49 @@ The TYPE is car of list `epackage--layout-mapping'."
     (if (file-directory-p path)
         dir)))
 
+(defun epackage-package-loaddefs-p (package)
+  "Return file if PACKAGE autoload file exists."
+  (let ((file (epackage-file-name-install-compose package 'loaddefs)))
+    (if (file-exists-p file)
+        file)))
+
+(defun epackage-package-autoload-p (package)
+  "Return file if PACKAGE autolaod file exists."
+  (let ((file (epackage-file-name-install-compose package 'autoload)))
+    (if (file-exists-p file)
+        file)))
+
 (defun epackage-package-enabled-p (package)
   "Return file if PACKAGE is enabled."
-  (let ((file (epackage-file-name-enabled-compose package)))
+  (let ((file (epackage-file-name-install-compose package 'enable)))
     (if (file-exists-p file)
         file)))
 
 (defun epackage-package-activated-p (package)
   "Return file if PACKAGE is activated."
-  (let ((file (epackage-file-name-activated-compose package)))
+  (let ((file (epackage-file-name-install-compose package 'activate)))
     (if (file-exists-p file)
         file)))
+
+(defun epackage-package-byte-compiled-p (package)
+  "Return non-nil if PACKAGE has been byte compiled."
+  (let ((root (epackage-directory-package-root package))
+	status)
+    (when (file-directory-p root)
+      (let ((list (epackage-pkg-lisp-directory package)))
+	(dolist (dir list)
+	  (unless status
+	    (if (directory-files dir nil "\\.elc$")
+		(setq status dir))))))
+    status))
+
+(defun epackage-package-installed-p (package)
+  "Return non-nil if PACKAGE has been installed."
+  (unless (epackage-string-p package)
+    (epackage-error "arg 'package' is not a string."))
+  (let ((dir (epackage-directory-package-root package)))
+    (if (file-directory-p dir)
+        dir)))
 
 (defun epackage-package-downloaded-p (package)
   "Return download directory if PACKAGE has been downloaded."
@@ -2877,6 +2937,24 @@ Return subexpression 1, or 0; the one that exists."
                         (epackage-sort list))))
       status)))
 
+(defun epackage-pkg-lisp-directory (package)
+  "Return list of lisp directories of PACKAGE."
+  (let ((dir (epackage-directory-package-root package))
+	(file (epackage-file-name-package-compose package 'lisp))
+	elt
+	list)
+    (when (file-directory-p dir)
+      (if (not (file-exists-p file))
+	  (setq list (list dir))
+	(with-temp-buffer
+	  (find-file-literally file)
+	  (goto-char (point-min))
+	  (setq dir (file-name-as-directory dir))
+	  (while (re-search-forward "^[ \t]*\\([^ \t\r\n#]+\\)" nil t)
+	    (setq elt (format "%s%s" dir (match-string-no-properties 1)))
+	    (epackage-push elt list)))))
+    list))
+
 ;;; ................................................... &functions-git ...
 
 (defun epackage-git-buffer-fetch-field (tag field)
@@ -3046,6 +3124,12 @@ If optional VERBOSE is non-nil, display progress message."
   (epackage-git-branch-list-current-branch
    (epackage-git-command-branch-list dir verbose)))
 
+(defun epackage-git-command-current-sha (dir &optional verbose)
+  "Run 'git rev-parse HEAD' in DIR.
+If optional VERBOSE is non-nil, display progress message."
+  (epackage-with-git-command dir verbose
+    "rev-parse" "HEAD"))
+
 (defun epackage-git-command-checkout-force-head (dir &optional verbose)
   "Run 'git checkout -f HEAD' in DIR.
 If optional VERBOSE is non-nil, display progress message."
@@ -3119,6 +3203,16 @@ No pending commits and no modified files."
 
 ;;; ................................................ &functions-status ...
 
+(defun epackage-status-install-files (package)
+  "Return list of currently installed files for PACKAGE."
+  (let ((dir    (epackage-directory-install))
+	(regexp (format "%s-.*\\.el$" (regexp-quote package)))
+	list)
+    (directory-files
+     dir
+     (not 'full-path)
+     regexp)))
+
 (defun epackage-config-status-of-packages (type)
   "Return packages of TYPE of `epackage--layout-mapping'."
   (let* ((dir      (epackage-directory-install))
@@ -3181,6 +3275,22 @@ Those that are not installed in `epackage-directory-install'."
       (unless (member package installed)
         (epackage-push package list)))
     (nreverse list)))
+
+(defun epackage-package-status-actions (package)
+  "Return current status of installed package.
+See `epackage--download-action-list'.
+
+Returns:
+  '(KEYWORD ...)."
+  (let (list)
+    ;; Order if the statements matter: keep 'list' in alphabetical order
+    (if (epackage-package-byte-compiled-p package)
+	(epackage-push 'compile list))
+    (if (epackage-package-enabled-p package)
+	(epackage-push 'enable list))
+    (if (epackage-package-activated-p package)
+	(epackage-push 'activate list))
+    list))
 
 ;;; ............................................. epackage development ...
 
@@ -3494,7 +3604,38 @@ template files under `epackage--directory-name'.."
 
 ;;; ............................................... &functions-package ...
 
-(defun epackage-upgrade-package (package &optional verbose)
+(defun epackage-upgrade-package-files (package verbose)
+  "Update installed files from PACKAGE.
+If optional VERBOSE is non-nil, display progress messages."
+  ;; FIXME: upgrade
+  ;; - New or deleted files in <package>/*
+  ;; - What about obsolete 00control/* files ?
+  (let ((root (epackage-directory-package-control package))
+	(install (epackage-directory-install))
+	from
+	to)
+    (dolist (file (epackage-status-install-files package))
+      (setq from (format "%s/%s" root file))
+      (setq to (format "%s/%s" install file))
+      (epackage-enable-file from to nil verbose))))
+
+(defun epackage-upgrade-package-actions (package verbose)
+  "Run after upgrade actions: byte compile, install updated files etc.
+If optional VERBOSE is non-nil, display progress messages."
+  ;; FIXME: upgrade
+  ;; - New or deleted files in epackage/*
+  ;; - obsolete 00control/* files ?
+  (let ((list (epackage-rerun-action-list package verbose))
+	actions)
+    ;; Any other actions in effect?
+    (dolist (elt epackage--download-action-list)
+      (unless (memq elt list)
+	(epackage-push elt actions)))
+    (when actions			 ; Run more actions as needed
+      (setq actions (reverse actions)) ; Keep alphabetical order
+      (epackage-run-action-list package actions verbose))))
+
+(defun epackage-upgrade-package-git (package &optional verbose)
   "Upgrade PACKAGE.
 If optional VERBOSE is non-nil, display progress message."
   (let ((url (epackage-sources-list-info-url package)))
@@ -3507,27 +3648,33 @@ If optional VERBOSE is non-nil, display progress message."
             `,(concat
                "Can't upgrade. "
                "Branch name is not \"master\" in '%s'; "
-               "possibly changed manually or invalid package.")
+               "repository changed manually or invalid package dir content.")
             dir))
         (unless (epackage-git-status-clean-p package)
           (epackage-fatal
             `,(concat
                "Can't upgrade. "
-               "Unclean status in '%s'; "
+               "Unclean Git status in '%s'; "
                "possibly changed manually.")
             dir))
         (epackage-git-command-pull dir verbose)))))
 
-(defun epackage-recreate-package (package &optional verbose)
-  "Re-create PACKAGE by deleting old and downloading new.
+(defun epackage-upgrade-package-main (package &optional verbose)
+  "Do all steps necessary to upgrade PACKAGE.
 If optional VERBOSE is non-nil, display progress message.
-No error checking are done for PACKAGE."
-  (epackage-pkg-kill-buffer-force package verbose)
-  (let ((dir (epackage-package-downloaded-p package)))
-    (if dir
-        (delete-directory dir 'recursive)))
-  ;; FIX: handle possibly changed configuration files
-  (epackage-cmd-download-package package verbose))
+
+NOTE: No Git branch check is verified. The caller must have
+ensured that the branch where Git is run is correct e.g. with
+function `epackage-git-master-p'."
+  (let ((dir (epackage-directory-package-root package)))
+    (when dir
+	(let ((sha-old (epackage-git-command-current-sha dir))
+	      sha)
+	  (epackage-upgrade-package-git package verbose)
+	  (setq sha (epackage-git-command-current-sha dir))
+	  (unless (string= sha sha-old)
+	    (epackage-upgrade-package-files package verbose)
+	    (epackage-upgrade-package-actions package verbose))))))
 
 (defun epackage-kill-buffer-sources-list ()
   "Kill sources list buffer."
@@ -3594,7 +3741,7 @@ If optional VERBOSE is non-nil, display progress message."
 
 (defun epackage-combine-files (file list &optional hooks verbose)
   "Write to FILE a combined content of LIST of files.
-If optional HOOK is set, call `run-hooks' before saving to FILE.
+If optional HOOKS set, call each hook function before saving to FILE.
 If optional VERBOSE is non-nil, display progress message.
 
 Before saving, apply `epackage--build-sources-list-replace-table'."
@@ -3613,7 +3760,7 @@ Before saving, apply `epackage--build-sources-list-replace-table'."
       (epackage-replace-regexp-in-buffer
        epackage--build-sources-list-replace-table)
       (if hooks
-	  (run-hooks hooks))
+	  (run-hook hooks))
       (epackage-write-region (point-min) (point-max) file))))
 
 (defun epackage-sources-list-initialize (&optional verbose)
@@ -3639,7 +3786,7 @@ If optional VERBOSE is non-nil, display progress message."
      (epackage-file-name-sources-list-main)
      (append epackage--sources-file-list
              (list (epackage-file-name-sources-list-official)))
-     '(epackage--build-sources-list-hook) ;; Hooks to run before save.
+     epackage--build-sources-list-hook ;; Hooks to run before save.
      verbose)))
 
 (defun epackage-sources-list-build (&optional verbose)
@@ -3654,6 +3801,14 @@ if sources list has already been downloaded or not."
       (epackage-sources-list-initialize verbose)))
   (if epackage--sources-list-and-repository-sync-flag
       (epackage-sources-list-and-repositories-sync verbose)))
+
+(defun epackage-download-package-actions (package &optional verbose)
+  "Run `epackage--download-action-list' for PACKAGE.
+If optional VERBOSE is non-nil, display progress message."
+  (epackage-run-action-list
+   package
+   epackage--download-action-list
+   verbose))
 
 (defun epackage-download-package (package &optional verbose)
   "Download PACKAGE.
@@ -3782,9 +3937,9 @@ If optional VERBOSE is non-nil, display progress message."
 
 ;;; ................................................ &functions-config ...
 
-(defsubst epackage-enable-file (from to &optional noerr verbose)
+(defun epackage-enable-file (from to &optional noerr verbose)
   "Enable by copying or by symlinking file FROM TO.
-With optional NOERR, do not signall errors, display inly messages.
+With optional NOERR, do not signal errors.
 If optional VERBOSE is non-nil, display progress message.
 See variable `epackage--symlink-support-flag'.
 
@@ -3793,7 +3948,7 @@ Return:
     nil        nok"
   (cond
    ((file-exists-p from)
-    (epackage-verbose-message "processing %s" to)
+    (epackage-verbose-message "Installing %s" to)
     (if epackage--symlink-support-flag
         (dired-make-relative-symlink from to 'overwrite)
       (copy-file from to 'overwrite 'keep-time))
@@ -4241,39 +4396,48 @@ If optional VERBOSE is non-nil, display progress message."
    "\
 PROBLEM
 
-    When git:// protocol is used, ssh may ask question like this:
+    SSH is not configured to be used to access git repositories.
+
+DESCRIPTION
+
+    When git with a ssh protocol is being used, ssh may ask question like this:
 
 	The authenticity of host 'github.com (207.97.227.239)' can't be established.
 	RSA key fingerprint is 16:27:ac:a5:76:28:2d:36:63:1b:56:4d:eb:df:a6:48.
 	Are you sure you want to continue connecting (yes/no)? no
 
-    As we cannot answer to these kind interactive questions, we
-    must make sure user SSH is configured so that there are no
-    interactive questions. Git commands must have direct access
-    to the repositories.
+    As epackage.el cannot answer to these kind interactive
+    questions, the SSH must be configured so that it doesn't ask
+    interactive questions.
 
 SOLUTIONS
 
-    (A) Connect manually with ssh or git to %s at least once, or
-    (B) Add to file ~/.ssh/config line:
+    (A) Connect manually from command line at least once to %s
+        so that host is recorded to ~/.ssh/known_hosts
+    (B) Or add to file ~/.ssh/config line:
 	Host %s\n\tStrictHostKeyChecking no"
    host
    host))
 
+(defsubst epackage-ssh-url-p (url)
+  "Check if URL uses SSH protocol."
+  (string-match "ssh://\\|[^@]+@[^:]+:\\|^[^@:]+@[^:]+:" url))
+
 (defsubst epackage-ssh-p (host)
   "Check HOST is known to SSH."
+  ;; SSH Protocols are:  ssh://  and  user@host:<path>
+  ;; See http://www.kernel.org/pub/software/scm/git/docs/git-clone.html
   (or (epackage-ssh-known-host-p host)
       (epackage-ssh-config-strict-key-check-disabled-p host)))
 
-(defun epackage-require-ssh (ur)
+(defun epackage-require-ssh (url)
   "If Git protocol is SSH, require direct access to SSH without prompts."
   ;; FIXME: Can we test if ssh-agent is running?
-  ;; SSH Protocols are:  ssh://  and  user@host:<path>
-  ;; See http://www.kernel.org/pub/software/scm/git/docs/git-clone.html
-  (when (string-match "ssh://\\|[^@]+@[^:]+:" url)
+  (when (epackage-ssh-url-p url)
     (let ((host (epackage-url-extract-host url)))
-      (or (epackage-ssh-p host)
-	  (let ((message (epackage-ssh-help-string)))
+      (or (and (stringp host)
+	       (epackage-ssh-p host))
+	  (let ((message (epackage-ssh-help-string host)))
 	    (message message)		;Record user help to *Messages* buffer
 	    (let ((debug-on-error nil)) ;; batch UI: don't display stack trace
 	      (error
@@ -5602,21 +5766,32 @@ If optional VERBOSE is non-nil, display progress messages."
    (list (epackage-cmd-select-package "Download epackage: ")
          'interactive))
   (if (not (epackage-string-p package))
-      (epackage-message "No packages selected for download.")
+      (epackage-message "No package selected for download.")
     (if (epackage-package-downloaded-p package)
         (epackage-message "Ignore download. Already downloaded: %s" package)
       (let ((url (epackage-sources-list-info-url package)))
         (if (not url)
             (epackage-message
-              "Abort download. No known URL for package: %s" package)
+              "Abort. No URL to download package: %s" package)
           (epackage-download-package package verbose)
-          (epackage-run-action-list package verbose))
+	  (epackage-download-package-actions package verbose))
         (when verbose
           (let ((warnings (epackage-pkg-info-status-warnings package)))
             (if warnings
                 (epackage-warn
                  "package status %s: %s"
                  package warnings))))))))
+
+(defun epackage-recreate-package (package &optional verbose)
+  "Re-create PACKAGE by deleting old and downloading new.
+If optional VERBOSE is non-nil, display progress message.
+No error checking are done for PACKAGE."
+  (epackage-pkg-kill-buffer-force package verbose)
+  (let ((dir (epackage-package-downloaded-p package)))
+    (if dir
+        (delete-directory dir 'recursive)))
+  ;; FIXME: handle possibly changed configuration files
+  (epackage-cmd-download-package package verbose))
 
 ;;;###autoload
 (defun epackage-cmd-lint-package (package &optional verbose)
@@ -5681,7 +5856,7 @@ If optional VERBOSE is non-nil, display progress messages."
   (cond
    ((and (eq verbose 'interactive)
          (null package))
-    (epackage-message "No packages downloaded. Nothing to upgrade."))
+    (epackage-message "Package name is not set. Nothing to upgrade."))
    ((not (epackage-string-p package))
     (epackage-message "No package selected for upgrade."))
    ((not (epackage-package-downloaded-p package))
@@ -5691,12 +5866,7 @@ If optional VERBOSE is non-nil, display progress messages."
      "Upgrade ignored. Locally modified. Branch is not \"master\" in %s"
      package))
    (t
-    (epackage-upgrade-package package verbose)
-    ;; FIXME: Add post-processing
-    ;; - New files in epackage/*
-    ;; - Auto-install, auto-activate?
-    ;; - obsolete 00control/* files ?
-    )))
+    (epackage-upgrade-package-main package verbose))))
 
 ;;;###autoload
 (defun epackage-cmd-upgrade-all-packages (&optional verbose)
@@ -5732,8 +5902,11 @@ If optional VERBOSE is non-nil, display progress message."
    (list 'interactive))
   (epackage-require-main verbose)
   ;; There are few checks that need this
-  (let ((epackage--initialize-flag t))
-    (epackage-cmd-download-sources-list verbose))
+  (let ((dir (epackage-sources-list-official-directory)))
+    (unless (and (epackage-sources-list-p) ;sources list exists (has been installed)
+		 (file-directory-p dir))   ;and sources list git repository exists
+      (let ((epackage--initialize-flag t))
+	(epackage-cmd-download-sources-list verbose))))
   (setq epackage--initialize-flag t)
   (run-hooks 'epackage--initialize-hook))
 
@@ -5996,6 +6169,12 @@ Summary, Version, Maintainer etc."
   (call-interactively 'epackage-cmd-autoload-package))
 
 ;;;###autoload
+(defun epackage-batch-ui-uninstall-package ()
+  "Call `epackage-cmd-config-uninstall-package'."
+  (interactive)
+  (call-interactively 'epackage-cmd-config-uninstall-package))
+
+;;;###autoload
 (defun epackage-batch-ui-enable-package ()
   "Call `epackage-cmd-enable-package'."
   (interactive)
@@ -6222,8 +6401,8 @@ Summary, Version, Maintainer etc."
        (t
         (message "** Unknown menu selection: %s" choice))))))
 
-(defun epackage-run-action-list (package &optional verbose)
-  "Run PACKAGE actions listed in `epackage--download-action-list'.
+(defun epackage-run-action-list (package actions &optional verbose)
+  "Run PACKAGE ACTIONS. See  `epackage--download-action-list'.
 If optional VERBOSE is non-nil, display progress message."
   (let* ((actions epackage--download-action-list)
          (list (sort actions
@@ -6235,7 +6414,7 @@ If optional VERBOSE is non-nil, display progress message."
          (enable-p (epackage-download-action-enable-p)))
     (dolist (elt list)
       (epackage-verbose-message "package action: %s" elt)
-      ;; Development note: keep the list in alphabetical "run" order
+      ;; Development note: keep the cond-list in alphabetical order
       (cond
        ((eq elt 'activate)
         (let ((epackage--download-action-list epackage--download-action-list))
@@ -6258,6 +6437,20 @@ If optional VERBOSE is non-nil, display progress message."
         (epackage-pkg-lint-package package verbose))
        ((eq elt 'package-depends)
         (epackage-pkg-depends-satisfy package verbose))))))
+
+(defun epackage-rerun-action-list (package &optional verbose)
+  "Run PACKAGE actions as aready they are.
+If optional VERBOSE is non-nil, display progress message.
+
+The actions are evaluated based on the installation: If there
+are byte compiled files, then byte compile. If there are autoload
+files, then reinstall autoload files etc.
+
+Return list of actions as in `epackage--download-action-list':
+  '((action ...))."
+  (let ((actions (epackage-package-status-actions package)))
+    (when actions			; If not installed, nothing to do
+      (epackage-run-action-list package actions verbose))))
 
 ;;;###autoload
 (defalias 'epackage 'epackage-manager)
