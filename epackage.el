@@ -550,14 +550,15 @@
 ;;
 ;;      This file contains anything the upstream may have explained in
 ;;      the comments, or interesting snippets various users have found
-;;      useful to customize the extensions. It provides a showcase, or
+;;      useful to customize the extension. It provides a showcase, or
 ;;      scratch book, to present anything that might be useful to be
 ;;      put into `~/.emacs' startup file. Mnemonic: "Look examples in
 ;;      this file for ideas how to make more out of the extension".
 ;;      This file is _not_ intended to be loadable and it must _not_
 ;;      contain any `provide' statements. In fact it is recommended that
 ;;      any attempt to load this file generates an error. Add something
-;;      like this to the beginning of file:
+;;      like this to the beginning of file to remind thee user that it is
+;;      his responsibility to copy the relevant code to his own startup:
 ;;
 ;;          (error "PACKAGE-examples.el is not a config file. Study the examples.")
 ;;
@@ -1218,7 +1219,7 @@
 
 ;;; Code:
 
-(eval-and-compile
+(eval-when-compile
   (defvar auto-revert-mode)
   (defvar global-auto-revert-mode)
   (defvar pcomplete-parse-arguments-function)
@@ -1237,7 +1238,7 @@
   (autoload 'mail-position-on-field "sendmail")
   (autoload 'mail-setup "sendmail")
   (autoload 'url-http-parse-response "url")
-  (autoload 'pcomplete-here "pcomplete"))
+  (autoload 'pcomplete-here "pcomplete" nil 'macro))
 
 ;;;###autoload
 (autoload 'mail-fetch-field "mail-utils")
@@ -1247,7 +1248,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1106.0734"
+(defconst epackage-version-time "2011.1106.1713"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
