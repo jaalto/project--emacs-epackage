@@ -1,3 +1,8 @@
+2011-11-06 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (top-level): Change `eval-when-compile' to
+	'eval-and-compile'.
+
 2011-04-12 Tue  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el
