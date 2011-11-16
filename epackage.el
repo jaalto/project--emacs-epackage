@@ -1058,7 +1058,8 @@
 ;;      work and my own other Open Source projects take their share. I
 ;;      have to regret that I will not be having resources to port or
 ;;      support this utility to XEmacs. Please send patches if you
-;;      take the code to ride in XEmacs.
+;;      take the code to ride in XEmacs. Fortunately XEmacs already
+;;      includes its own package manager: see the `pui-*' commands.
 ;;
 ;;     Depends
 ;;
@@ -1253,7 +1254,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1252"
+(defconst epackage-version-time "2011.1116.1254"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
