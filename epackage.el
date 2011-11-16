@@ -803,13 +803,13 @@
 ;;     Homepage
 ;;
 ;;      URL to the project's homepage. It is recommended to use
-;;      addresses that don't move; those of http://Freshmeat.net,
+;;      addresses that don't move; those of http://Freecode.com,
 ;;      http://www.Sourceforge.com, http://Launchpad.net,
-;;      http://Github.com, http://Bitbucket.com etc. The Freshmeat is
+;;      http://Github.com, http://Bitbucket.com etc. The Freecode is
 ;;      especially good because it provides project information in
-;;      coherent manner. Through Freshmeat it is also possible to
+;;      coherent manner. Through Freecode it is also possible to
 ;;      browse related software and subscribe to project
-;;      announcements. Freshmeat is also easy for the upstream
+;;      announcements. Freecode is also easy for the upstream
 ;;      developers to set up because it does not require heavy project
 ;;      management; only links.
 ;;
@@ -1256,7 +1256,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1301"
+(defconst epackage-version-time "2011.1116.1319"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
