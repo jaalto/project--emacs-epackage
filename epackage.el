@@ -621,7 +621,7 @@
 ;;  The info file
 ;;
 ;;      A RFC 2822 (email) formatted file, which contains information
-;;      about the extension. The header field names are case
+;;      about the extension. The header field names are not case
 ;;      insensitive; but if you use the default *get.sh*, it expects
 ;;      the Vcs-* field to be case-sensitive. Continued lines must be
 ;;      indented with only 1 space. Required fields are marked with
@@ -693,9 +693,6 @@
 ;;	Emacs Lisp files are in the package's root directory, this
 ;;	file not needed. The file is used internally to find out if
 ;;	the package has been byte compiled or not. An example:
-;;
-;;
-;;
 ;;
 ;;  Details of the info file fields
 ;;
@@ -1256,7 +1253,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1232"
+(defconst epackage-version-time "2011.1116.1234"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
