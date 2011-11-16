@@ -1256,7 +1256,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1319"
+(defconst epackage-version-time "2011.1116.1539"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2082,9 +2082,12 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
 
 (defsubst epackage-auto-revert-mode-p ()
   "Check if auto-revert is active in current buffer."
-  (or auto-revert-mode
-      auto-revert-tail-mode
-      global-auto-revert-mode))
+  (or (and (boundp 'auto-revert-mode)
+	   auto-revert-mode)
+      (and (boundp 'auto-revert-tail-mode)
+	   auto-revert-tail-mode)
+      (and (boundp 'global-auto-revert-mode)
+	   global-auto-revert-mode)))
 
 (defsubst epackage-turn-on-auto-revert-mode ()
   "Turn on `auto-revert-mode' unless already active in current buffer."
