@@ -97,7 +97,11 @@
 ;;      meaning that it is not in full use yet. The core elements are
 ;;      being planned, written and tested. For preview, see available `M-x'
 ;;      `epackage-*' commands. Currently it is best to use the batch
-;;      command line UI.
+;;      command line UI:
+;;
+;;          # Or run the provided Makefile: "make ui"
+;;          emacs --batch -Q -l /path/to/epackage.el -f epackage-batch-ui-menu
+;;
 ;;      ....expect full UI with nice menus, font-lock, mode command
 ;;      and Emacs buffers like in ELPA somewhere around 2012.
 ;;      the earliest.
@@ -1253,7 +1257,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1215"
+(defconst epackage-version-time "2011.1116.1219"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
