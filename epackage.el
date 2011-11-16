@@ -1075,7 +1075,7 @@
 ;;      challenging. Take for examples the Debian package depends
 ;;      guidelines described at
 ;;      <http://www.debian.org/doc/debian-policy/ch-relationships.html>
-;;      which was the source of inspiration forthe used syntax. The
+;;      which was the source of inspiration for the used syntax. The
 ;;      Debian packaging system is centralized, so it has the
 ;;      knowledge about all the available packages and their version
 ;;      numbers. In Debian, then commands can build the full
@@ -1093,7 +1093,7 @@
 ;;          version information is only available *after* the package
 ;;          has been downloaded from the git tags.
 ;;      o   Cannot easily know en masse to which packages updates
-;;          would be available. Because the is no central place to
+;;          would be available. Because there is no central place to
 ;;          read, each repository would need to be checked separately
 ;;          (network perfomance penalty).
 ;;
@@ -1254,7 +1254,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1254"
+(defconst epackage-version-time "2011.1116.1256"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
