@@ -531,14 +531,13 @@
 ;;      extension with `load-path' set to include all the relevant
 ;;      directories. Evaluating the file must byte compile all that is
 ;;      needed. Possible variables and functions defined here must
-;;      have `PACKAGE-*' prefix to keep the Emacs name space clean. An
-;;      example for simple extension consisting of two files:
+;;      have `PACKAGE-*' prefix to keep the Emacs name space clean.
+;;      *Exception:* packages that only have a single '*.el' file do
+;;      not need to define this file. An example for simple extension
+;;      consisting of two files:
 ;;
 ;;          (dolist (file '("foo-lib.el" "foo.el"))
 ;;            (byte-compile-file file))
-;;
-;;      *Exception:* packages that only have a single '*.el' file do not
-;;      need to define this file.
 ;;
 ;;     The *-configure.el
 ;;
@@ -1257,7 +1256,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1230"
+(defconst epackage-version-time "2011.1116.1232"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
