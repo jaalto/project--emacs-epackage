@@ -93,13 +93,13 @@
 
 ;;  Preface 2009
 ;;
-;;      NOTE: 2010-12-08 This extension is in alpha design state;
+;;      NOTE: This extension is in early state;
 ;;      meaning that it is not in full use yet. The core elements are
 ;;      being planned, written and tested. For preview, see available `M-x'
 ;;      `epackage-*' commands. Currently it is best to use the batch
 ;;      command line UI.
 ;;      ....expect full UI with nice menus, font-lock, mode command
-;;      and Emacs buffers like in ELPA somewhere around late spring/summer 2011
+;;      and Emacs buffers like in ELPA somewhere around 2012.
 ;;      the earliest.
 ;;
 ;;          # Or run the provided Makefile target: "make ui"
@@ -1253,7 +1253,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1147"
+(defconst epackage-version-time "2011.1116.1215"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"

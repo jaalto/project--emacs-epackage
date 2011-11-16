@@ -12,12 +12,8 @@
 
 2011-11-06 Sun  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el Correct autoload for `pcomplete-here'.
-
-2011-11-06 Sun  Jari Aalto  <jari.aalto@cante.net>
-
-	* epackage.el (top-level): Change `eval-when-compile' to
-	'eval-and-compile'.
+	* epackage.el (top-level): Correct autoload for `pcomplete-here'.
+	Change `eval-when-compile' to 'eval-and-compile'.
 
 2011-04-19 Tue  Jari Aalto  <jari.aalto@cante.net>
 
