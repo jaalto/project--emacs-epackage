@@ -665,9 +665,9 @@
 ;;          Depends: emacs (>= 21)
 ;;          Status: unmaintained
 ;;          Compat:
-;;          Maintainer: Joe Average <joe@example.org>
+;;          Maintainer: Joe Average < joe@example.org >
 ;;          Bugs:
-;;          Upstream: John doe <jdoe@example.com>
+;;          Upstream: John doe < jdoe@example.com >
 ;;          Upstream-Bugs:
 ;;          Vcs-Type: http
 ;;          Vcs-Url: http://www.emacswiki.org/emacs/download/test-package.el
@@ -1253,7 +1253,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1235"
+(defconst epackage-version-time "2011.1116.1236"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
