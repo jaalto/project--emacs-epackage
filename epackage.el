@@ -824,10 +824,10 @@
 ;;     License
 ;;
 ;;      The valid License abbreviations should follow list defined at
-;;      <http://wiki.debian.org/CopyrightFormat>. A special word
-;;      "None" should be used if the software has no license
-;;      information in any of the source files. Examples of valid
-;;      license tokens:
+;;      <http://dep.debian.net/deps/dep5> "License specification /
+;;      Short name". A special word "None" should be used if the
+;;      software has no license information in any of the source
+;;      files. Examples of valid license tokens:
 ;;
 ;;              GPL-2, GPL-2+, GPL-3, GPL-3+, BSD, Apache-2.0
 ;;
@@ -1253,7 +1253,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1236"
+(defconst epackage-version-time "2011.1116.1247"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
