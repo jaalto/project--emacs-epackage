@@ -824,10 +824,10 @@
 ;;     License
 ;;
 ;;      The valid License abbreviations should follow list defined at
-;;      <http://dep.debian.net/deps/dep5> "License specification /
-;;      Short name". A special word "None" should be used if the
-;;      software has no license information in any of the source
-;;      files. Examples of valid license tokens:
+;;      <http://dep.debian.net/deps/dep5/#license-specification>
+;;      "License specification / Short name". A special word "None"
+;;      should be used if the software has no license information in
+;;      any of the source files. Examples of valid license tokens:
 ;;
 ;;              GPL-2, GPL-2+, GPL-3, GPL-3+, BSD, Apache-2.0
 ;;
