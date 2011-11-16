@@ -995,8 +995,8 @@
 ;;      notation. It is recommended that X-fields are listed at the
 ;;      bottom, just before the *Description:* field.
 ;;
-;;          X-Comment: <comment here>
-;;          X-Upstream-Homepage: <URL>
+;;          X-Comment: This comment.
+;;          X-Upstream-Homepage: URL
 ;;
 ;;      If making the epackaging needs special treatment for the
 ;;      extension, please document those in field like:
@@ -1253,7 +1253,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1247"
+(defconst epackage-version-time "2011.1116.1252"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
