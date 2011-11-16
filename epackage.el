@@ -1097,13 +1097,14 @@
 ;;          read, each repository would need to be checked separately
 ;;          (network perfomance penalty).
 ;;
-;;      In daily use these are not in practice big problems. If
-;;      package X requires Y, the Y will be downloaded. If Y further
-;;      requires Z, the Z will be downloaded etc. Somewhere in the
-;;      chain the downloads stops. It is just that no progress
-;;      indicator can be presented to tell how many more packages
-;;      there is to load. Most of the Emacs Lisp extensions are self
-;;      standing and have no external dependencies.
+;;      In daily use these issues don't much matter. If package X
+;;      requires Y, the Y will be downloaded. If Y further requires Z,
+;;      the Z will be downloaded etc. Somewhere in the chain the
+;;      downloads stops. It is just that no progress indicator can be
+;;      presented to tell how many more packages there is to load.
+;;      Most of the Emacs Lisp extensions are self standing and have
+;;      no external dependencies; contrast to Linux software that have
+;;      huge library dependencies.
 ;;
 ;;      Regarding the requirement for a specific version of the package
 ;;      in form of:
@@ -1254,7 +1255,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1256"
+(defconst epackage-version-time "2011.1116.1257"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
