@@ -1256,7 +1256,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1539"
+(defconst epackage-version-time "2011.1116.1553"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1934,51 +1934,51 @@ Y         Action toggle: after every download, b(y)te compile epackage
 
 Use from command line:
 
-  Emacs --batch -Q -l ./epackage.el -f epackage-batch-ui-menu")
+  emacs --batch -Q -l ./epackage.el -f epackage-batch-ui-menu")
 
 (defconst epackage--batch-ui-menu-help "\
 In a nutshell
 -------------
-To install epackage: (d)ownload, (e)enable, (b)oot loader generate, (q)uit.
+To install: (d)ownload, (e)enable, (b)oot loader generate, (q)uit.
 
 Packages management
 -------------------
-download        Download epackage to disk. No install whatsoever.
+download        Download to disk. No install whatsoever.
 
-upgrade         Get updates for epackage.
+upgrade         Download (uU)pdates for single or all.
 
-info            Show downloaded epackage's information file.
+info            Show downloaded (i)nformation file.
                 Use command \"List available (p)ackages\" prior download.
 
 install         Several configuration choices:
-                * autoload. Install only minimal functions
+                * aut(o)load. Install only minimal functions
                   that will be made available in autoload state.
                   If you want to configure everything manually in
-                  ~/.emacs startup file, use this (expert install).
-                * standard = enable autoload code and very basic
+                  ~/.emacs startup file (expert install).
+                * standard = (e)nable autoload code and very basic
                   functionality of user commmands for M-x calls.
-                * activate = install with hooks, bindings
-                  and the like. Modifies Emacs setup.
+                * (a)ctivate = install fancy setup with hooks,
+                  bindings and the like. Modifies Emacs setup.
 
-clean           Delete all install configuration files. Epackage
+clean           Delete all install configuration files. The extension
                 will not be available for later use. M-x calls
                 are no longer available. This does not remove the
-                downloaded epackage from disk (see \"remove\").
+                download from disk (see \"remove\").
 
-remove          Physically remove configuration files and epackage
+remove          Physically remove configuration files and files
                 from download directory. The opposite of download.
 
 Other actions
 -------------
-\(b)oot loader    Write boot loader that contains all epackages'
-                configurations in one file. Must be generated/updated
+\(b)oot loader    Write boot loader that contains all activated
+                configurations. Must be generated/updated
                 after each epackage management change. This is intended to be
                 loaded from ~/.emacs with
 
                 (load \"~/.emacs.d/epackage/00conf/epackage-loader\" 'noerr)
 
-\(g)et           Get new sources list and store it locally. This gets updates
-                to list of available packages. Must be run periodically."
+\(g)et           Get new sources list and store it locally. This is the basis
+                for selecting packages to install. Must be run periodically."
   "UI menu help.")
 
 ;;; ................................................ &functions-simple ...

@@ -9,6 +9,7 @@
 	`str'.
 	(epackage-combine-files): Correct `run-hook' to `run-hooks'.
 	(epackage-autoload-write-autoload-files): New. Not yet implemented.
+	(epackage--batch-ui-menu-actions): Update docstring.
 
 2011-11-06 Sun  Jari Aalto  <jari.aalto@cante.net>
 
