@@ -1,7 +1,18 @@
+2011-11-16 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el
+	(top level): add defvat for auto-revert-tail-mode.
+	(epackage-auto-revert-mode-p): Rewrite.
+	(epackage-turn-on-auto-revert-mode): Rewrite. Remove duplicate.
+	(epackage-pkg-info-status-warnings): Add 3rd arg to `mapconcat'.
+	(epackage-replace-regexp-in-buffer): Correct variable `string' to
+	`str'.
+	(epackage-combine-files): Correct `run-hook' to `run-hooks'.
+	(epackage-autoload-write-autoload-files): New. Not yet implemented.
+
 2011-11-06 Sun  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (top-level): Change `eval-when-compile' to
-	'eval-and-compile'.
+	* epackage.el Correct autoload for `pcomplete-here'.
 
 2011-11-06 Sun  Jari Aalto  <jari.aalto@cante.net>
 

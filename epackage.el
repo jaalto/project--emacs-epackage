@@ -554,11 +554,15 @@
 ;;      scratch book, to present anything that might be useful to be
 ;;      put into `~/.emacs' startup file. Mnemonic: "Look examples in
 ;;      this file for ideas how to make more out of the extension".
-;;      This file is _not_ intended to be loadable and it must _not_
-;;      contain any `provide' statements. In fact it is recommended that
-;;      any attempt to load this file generates an error. Add something
-;;      like this to the beginning of file to remind thee user that it is
-;;      his responsibility to copy the relevant code to his own startup:
+;;      This file is not intended to be loadable and it must _not_
+;;      contain any `provide' statements. All functions and private
+;;      variables written must start with prefix `my-PACKAGE-* so
+;;      that they can be easily copied tp user's own setup.
+;;
+;;      It may be even recommendable that any attempt to load this
+;;      file generates an error. Add something like this to the
+;;      beginning of file to remind that it is user's responsibility
+;;      to copy the relevant code:
 ;;
 ;;          (error "PACKAGE-examples.el is not a config file. Study the examples.")
 ;;
@@ -1226,6 +1230,7 @@
   (defvar pcomplete-default-completion-function)
   (defvar whitespace-style)
   (defvar finder-known-keywords)
+  (defvar auto-revert-tail-mode)
   (autoload 'generate-file-autoloads "autoload")
   (autoload 'whitespace-replace-action "whitespace")
   (autoload 'lm-version "lisp-mnt")
@@ -1248,7 +1253,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1106.1713"
+(defconst epackage-version-time "2011.1116.1147"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2080,7 +2085,8 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
 
 (defsubst epackage-turn-on-auto-revert-mode ()
   "Turn on `auto-revert-mode' unless already active in current buffer."
-  (unless (epackage-auto-revert-mode-p)
+  (when (and (buffer-file-name)         ;; Must be file buffer
+	     (not (epackage-auto-revert-mode-p)))
     (auto-revert-mode 1)))
 
 (defsubst epackage-append-to-buffer (buffer string &optional begin)
@@ -2558,15 +2564,6 @@ This means that `epackage-initialize' has not been run."
            "Run \\[epackage-initialize]")
         epackage--program-git)))))
 
-(defsubst epackage-turn-on-auto-revert-mode ()
-  "Activate function `auto-revert-mode' on current file buffer."
-  (when (and (boundp 'global-auto-revert-mode)
-             (not global-auto-revert-mode)
-             (buffer-file-name)
-             (boundp 'auto-revert-mode)
-             (not auto-revert-mode))
-    (auto-revert-mode 1)))
-
 (defun epackage-kill-buffer (buffer &optional verbose)
   "Kill BUFFER, even if modified. Do nothing if BUFFER does not exist.
 If optional VERBOSE is non-nil, display progress message."
@@ -2935,7 +2932,8 @@ Return subexpression 1, or 0; the one that exists."
       (if list
           (setq status (mapconcat
                         #'concat
-                        (epackage-sort list))))
+                        (epackage-sort list)
+			" ")))
       status)))
 
 (defun epackage-pkg-lisp-directory (package)
@@ -3533,12 +3531,16 @@ Input:
         (goto-char (point-min)))
       buffer)))
 
+(defun epackage-autoload-write-autoload-files (&rest args)
+  "Not implemented yet".
+  nil)
+
 (defun epackage-autoload-generate-autoload-file-list
   (file list &optional verbose)
   "Generate to FILE all loaddefs from LIST of files.
 If optional VERBOSE is non-nil, display progress message."
   (dolist (elt list)
-    (epackage-autoload-write-autoload-file elt file verbose)))
+    (epackage-autoload-write-autoload-files elt file verbose)))
 
 ;; copy of ti::package-autoload-create-on-directory
 (defun epackage-autoload-create-on-directory
@@ -3737,7 +3739,7 @@ If optional VERBOSE is non-nil, display progress message."
       (goto-char point)
       (while (re-search-forward re nil t)
 	(setq status 'replaced)
-	(replace-match match string)))
+	(replace-match match str)))
     status))
 
 (defun epackage-combine-files (file list &optional hooks verbose)
@@ -3761,7 +3763,7 @@ Before saving, apply `epackage--build-sources-list-replace-table'."
       (epackage-replace-regexp-in-buffer
        epackage--build-sources-list-replace-table)
       (if hooks
-	  (run-hook hooks))
+	  (run-hooks hooks))
       (epackage-write-region (point-min) (point-max) file))))
 
 (defun epackage-sources-list-initialize (&optional verbose)
