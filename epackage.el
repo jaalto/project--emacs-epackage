@@ -627,7 +627,7 @@
 ;;      indented with only 1 space. Required fields are marked with
 ;;      asterisk (*). In the long description part, new paragraphs are
 ;;      separated by a single dot(.) character on their own line. The
-;;      layout of the `info' mirrors concepts of `control' file in
+;;      layout of the `info' somewhat mirrors concepts of `control' file in
 ;;      Debian packaging system which is explained in
 ;;      <http://www.debian.org/doc/debian-policy/ch-controlfields.html>.
 ;;
@@ -1253,7 +1253,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1234"
+(defconst epackage-version-time "2011.1116.1235"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
