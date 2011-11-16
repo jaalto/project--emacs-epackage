@@ -506,7 +506,7 @@
 ;;     The *-autoloads.el
 ;;
 ;;      This file contains manually written `autoload' statements.
-;;      This file acts as a backup if there is no `###auutoload'
+;;      This file acts as a backup if there is no `###autoload'
 ;;      definitions. Its purpose it to publish prospective functions
 ;;      (interactive or not) that might be called from programs or by
 ;;      the user. Mnemonic: "if you load this file, you can write lisp
@@ -1257,7 +1257,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1219"
+(defconst epackage-version-time "2011.1116.1228"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
