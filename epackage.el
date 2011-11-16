@@ -1151,12 +1151,13 @@
 ;;      repository is supposed to have tags for all upstream versions
 ;;      of the package. It would be duplicate work to manually keep
 ;;      the info::Version field in synch with the tags of Git
-;;      repository. So, you download extensions, not really "some
-;;      specific versions of extentions". This is a little differently
-;;      than in Redhat or Debian/Ubuntu, where you upgrade from
-;;      version to newer version of the package. In Epackage, you
-;;      actually update Git repository, thus bringing extension up to
-;;      date.
+;;      repository. The user is 90% interested in downloading an
+;;      extension, not really some specific versions of the extention.
+;;      This is a little different than in Redhat or Debian/Ubuntu,
+;;      where one can upgrade from version to newer version of the
+;;      package. In Epackage, you actually update full Git repository,
+;;      thus bringing all possible version of the extension available;
+;;      and activating always the latest.
 ;;
 ;; TODO
 ;;
@@ -1255,7 +1256,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1257"
+(defconst epackage-version-time "2011.1116.1301"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
