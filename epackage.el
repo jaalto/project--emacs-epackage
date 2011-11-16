@@ -532,7 +532,7 @@
 ;;      directories. Evaluating the file must byte compile all that is
 ;;      needed. Possible variables and functions defined here must
 ;;      have `PACKAGE-*' prefix to keep the Emacs name space clean. An
-;;      exmaple for simple extension consisting of two files:
+;;      example for simple extension consisting of two files:
 ;;
 ;;          (dolist (file '("foo-lib.el" "foo.el"))
 ;;            (byte-compile-file file))
@@ -1257,7 +1257,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1228"
+(defconst epackage-version-time "2011.1116.1230"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
