@@ -50,7 +50,7 @@
 ;;      ;; If you're behind firewall and Git port 9418 is blocked, you
 ;;      ;; may want to use HTTP and translate addresses with this table:
 ;;      ;;
-;;      ;; (setq epackage--build-sources-list-replace-table
+;;      ;; (setq epackage--sources-replace-table
 ;;      ;;       '(("git://github" "http://github")))
 ;;
 ;;      ;; -- If you want to customize any of the epackages, like BBDB,
@@ -318,14 +318,14 @@
 ;;      Private installed epackage repositories, or other sources, can
 ;;      be defined in variable `epackage--sources-file-list'. The list
 ;;      of files included in there will be combined variable with
-;;      `epackage--sources-list-url'. The order of the entries matter:
+;;      `epackage--url-sources-list'. The order of the entries matter:
 ;;      the packages are read first-served basis. An example:
 ;;
 ;;          (setq epackage--sources-file-list
 ;;                '("~/.emacs.d/epackage-local.lst"))
 ;;
 ;;      Say the *epackage-local.lst* lists package =foo= and file
-;;      pointed by `epackage--sources-list-url' also contains package
+;;      pointed by `epackage--url-sources-list' also contains package
 ;;      =foo=. Because the files will be combined,
 ;;      *epackage-local.lst* will take precedence; its package =foo=
 ;;      will be used for download.
@@ -1256,11 +1256,11 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1116.1553"
+(defconst epackage-version-time "2011.1118.0541"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
-  "Maintiner's email address.")
+  "Maintainer's email address.")
 
 (eval-and-compile                       ;We need this at runtim
   (defconst epackage-w32-p
@@ -1269,7 +1269,7 @@
     "Non-nil under Windows, DOS operating system."))
 
 (defgroup epackage nil
-  "Distributed Emacs Lisp package system (DELPS)."
+  "Implementation of Distributed Emacs Lisp package system (DELPS)."
   ;;  :link '(function-link view-mode)
   ;;  :link '(custom-manual "(emacs)Misc File Ops")
   :group 'tools)
@@ -1319,7 +1319,7 @@ To check package validity and colloect information in
     lint
 
 An example. The following would automatically compile and enable
-package after download and download all dpends for the package:
+package after download and fetch all depends:
 
   '(compile enable lint package-depends).
 
@@ -1335,7 +1335,9 @@ See also variable `epackage--depends-handling'."
 Possible values:
 
     'warn       Warn about unsatisfied depends and proceed with install.
+
     'error      Signal error on unsatisfied depends. Refuse to install.
+
     nil         Do nothing. Bypass depends checks. Useful if you want
                 to mass download many packages as the code to check
                 depends would be quite time consuming.
@@ -1350,13 +1352,14 @@ which see."
 
 (defcustom epackage--sources-list-and-repository-sync-flag t
   "*Non-nil means to recreate any changed repositories.
-When this variable is non-nil, whenever `epackage-cmd-download-sources-list'
-is called, all the URLs in the list are matched against the
-git 'origin' URLs in respective downloaded repositories. If package's
-sources list URL differ from the repository on disk, the package will be
-deleted and downloaded again to keep it in synch.
+When this variable is non-nil, whenever function
+`epackage-cmd-download-sources-list' is called, all the URLs in
+the list are matched against the git 'origin' URLs in respective
+downloaded repositories. If package's sources list URL differ
+from the repository on disk, the package will be deleted and
+downloaded again to keep it in synch.
 
-It's like this, the URLs point to different locations:
+It's like this: the URLs point to different locations:
 
     sources list        ---> A
     (yellow pages)
@@ -1383,16 +1386,16 @@ returned by `epackage-file-name-loader-file' is byte compiled."
   :type  'boolean
   :group 'epackage)
 
-(defcustom epackage--sources-list-url
+(defcustom epackage--sources-yellow-pages-url
   "git://github.com/jaalto/project--emacs-epackage-sources-list.git"
-  "URL to the location of official available package list. The yellow pages.
+  "URL to the location of the official Git package list. The yellow pages.
 This is the Git repository that contains the canonical list of
 available packages.
 
-The included text file contains information about package names
-and their repository download URLs. Empty lines and comment on
-their own lines started with character '#' are ignored. There
-must be no leading whitespaces in front of PACKAGE-NAME.
+The file contains information about package names and their
+repository download URLs. Empty lines and comment on their own
+lines started with character '#' are ignored. There must be no
+leading whitespaces in front of PACKAGE-NAME.
 
   # Comment
   PACKAGE-NAME REPOSITORY-URL DESCRIPTION
@@ -1403,26 +1406,34 @@ An example:
 
   foo git://example.com/repository/foo.git
 
-This list is combined with user given list in
+This list is combined with additional sources list in
 variable `epackage--sources-file-list'."
   :type  'string
   :group 'epackage)
 
+(defcustom epackage--url-epkg-template
+  "git://github.com/jaalto/project--emacs-epackage-template.git"
+  "URL to the location of the epackage template repository. The yellow pages.
+This is the Git repository that contains the canonical ttemplate files
+to be used when creating new epackages. Needed by the developers."
+  :type  'string
+  :group 'epackage)
+
 (defcustom epackage--sources-file-list nil
-  "*List of files that are in the form of `epackage--sources-list-url'.
+  "*List of files that are in the form of `epackage--sources-yellow-pages-url'.
 In here you can list additional package repositories.
 
 An example:
 
   '(\"~/.emacs.d/my/epackage-private-repo.lst\")
 
-The files listed will be combined before `epackage--sources-list-url'
+The files listed will be combined before `epackage--sources-yellow-pages-url'
 into a the main package sources list file whose path is returned
 by function `epackage-file-name-sources-list-main'."
   :type  '(list string)
   :group 'epackage)
 
-(defcustom epackage--build-sources-list-replace-table
+(defcustom epackage--sources-replace-table
   (if (memq system-type '(windows-nt ms-dos))
       '(("git://github" "http://github")))
 "Replace each found REGEXP with STRING in sources list.
@@ -1433,13 +1444,13 @@ Format:
 Possible use case:
 
   If you're behind firewall that blocks git port, change all
-  git:// protocols to http:// to access the site.
+  git:// protocols to http:// to access the repositories.
 
   ;; Use this
-  (setq epackage--build-sources-list-replace-table
+  (setq epackage--sources-replace-table
         '((\"git://github\" \"http://github\")))
 
-for more in dept manipulation, see  `epackage--build-sources-list-hook'."
+for more in depth manipulation, see  `epackage--build-sources-list-hook'."
   :type  '(repeat
 	   (list
 	    (string :tag "Regexp")
@@ -1526,12 +1537,12 @@ This hook is run in combined sources list buffer just content is
 written to file returned by function
 `epackage-file-name-sources-list-main'.
 
-See also `epackage--build-sources-list-replace-table'."
+See also `epackage--sources-replace-table'."
   :type  'hook
   :group 'epackage)
 
 ;;; ............................................. &variables-info-mode ...
-;;; No two-dash variables, see define-minor-mode
+;;; No two-dash variables due to `define-minor-mode'.
 
 (defcustom epackage-info-mode-text " eInfo"
   "String to display in the mode line when Epackage Info Mode is active.
@@ -1641,14 +1652,18 @@ Never set this variable directly, use the command
     "experimental")
   "List of completions for Status field.")
 
-(defvar epackage--info-mode-completions-license
+(defconst epackage--info-mode-completions-license
   '("GPL-2+"                        ;XEmacs is not listed by purpose
     "GPL-3+"
     "BSD"
     "Apache-2.0"
     "Custom"
     "None")
-  "List of completions for License field.")
+  "List of completions for License field. This is not a user variable.
+The valid License abbreviations should follow list defined at:
+
+    License specification / Short name
+    <http://dep.debian.net/deps/dep5/#license-specification>.")
 
 (defvar epackage--info-mode-completions-section nil
   "List of completions for Section field.
@@ -1666,7 +1681,7 @@ time in `epackage-info-mode-tab-command'.")
             ;;  In case there i no description, do not *require*
             ;;  a match
             "\\(?:[ \t]+\\([^ \t\r\n]+.+[^ \t\r\n]+\\)\\)?")
-  "Regexp to match entries described in `epackage--sources-list-url'.
+  "Regexp to match entries described in `epackage--sources-yellow-pages-url'.
 The %s marks the package name.")
 
 (defcustom epackage--root-directory
@@ -1714,7 +1729,7 @@ Use `epackage-directory-loader' for full path name.")
 
 (defconst epackage--sources-package-name "00sources"
   "The name of local yellow pages repository directory.
-Copy of `epackage--sources-list-url'.")
+Copy of `epackage--sources-yellow-pages-url'.")
 
 (defconst epackage--directory-name-install "00install"
   "Install directory under `epackage--root-directory'.
@@ -1722,7 +1737,7 @@ This directory contains control files from packages.")
 
 (defvar epackage--sources-file-name-official "epackage.lst"
   "Name of official yellow pages file that lists available packages.
-Do not touch. See variable `epackage--sources-list-url'.")
+Do not touch. See variable `epackage--sources-yellow-pages-url'.")
 
 (defvar epackage--package-control-directory "epackage"
   "Name of directory inside VCS controlled package.")
@@ -1731,11 +1746,11 @@ Do not touch. See variable `epackage--sources-list-url'.")
 ;;;###autoload
 (defvar epackage--pkg-info-file-name "info"
   "Name of information file of epackage.
-Do not touch. See variable `epackage--sources-list-url'.")
+Do not touch. See variable `epackage--sources-yellow-pages-url'.")
 
 (defvar epackage--sources-file-name-main "sources.lst"
   "Name of the combined yellow pages file that lists available packages.
-Do not touch. See variables `epackage--sources-list-url'
+Do not touch. See variables `epackage--sources-yellow-pages-url'
 and `epackage--sources-file-list'.")
 
 (defvar epackage--loader-file-name "epackage-loader.el"
@@ -3753,7 +3768,7 @@ If optional VERBOSE is non-nil, display progress message."
 If optional HOOKS set, call each hook function before saving to FILE.
 If optional VERBOSE is non-nil, display progress message.
 
-Before saving, apply `epackage--build-sources-list-replace-table'."
+Before saving, apply `epackage--sources-replace-table'."
   (with-temp-buffer
     (dolist (elt list)
       (goto-char (point-max))
@@ -3767,7 +3782,7 @@ Before saving, apply `epackage--build-sources-list-replace-table'."
         (epackage-error
           "Can't find any Git repository URLs. Check files %s" list))
       (epackage-replace-regexp-in-buffer
-       epackage--build-sources-list-replace-table)
+       epackage--sources-replace-table)
       (if hooks
 	  (run-hooks hooks))
       (epackage-write-region (point-min) (point-max) file))))
@@ -4274,7 +4289,7 @@ If optional VERBOSE is non-nil, display progress message."
       (epackage-byte-compile-loader-file-maybe verbose))))
 
 (defun epackage-sources-list-info-parse-line (package)
-  "Return list of PACKAGE fields described in `epackage--sources-list-url'.
+  "Return list of PACKAGE fields described in `epackage--sources-yellow-pages-url'.
 Point must be at the beginning of line."
   (if (looking-at
        (format epackage--sources-list-regexp
@@ -4286,7 +4301,7 @@ Point must be at the beginning of line."
 
 (defun epackage-sources-list-info-main (package)
   "Return '(pkg url description) for PACKAGE.
-Format is described in variable `epackage--sources-list-url'."
+Format is described in variable `epackage--sources-yellow-pages-url'."
   (epackage-with-sources-list
     (goto-char (point-min))
     (let ((re (format epackage--sources-list-regexp
@@ -4789,7 +4804,7 @@ Return:
 	(epackage-git-command-checkout-force-head dir verbose))))
     (when need-clone
       (setq status 'git-clone)
-      (let* ((url epackage--sources-list-url)
+      (let* ((url epackage--sources-yellow-pages-url)
 	     (host (epackage-url-extract-host url)))
 	(epackage-git-command-clone url dir verbose)))
     status))

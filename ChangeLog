@@ -1,3 +1,20 @@
+2011-11-18 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-maintainer): Fix docstring.
+	(defgroup epackage): Adjust docstring.
+	(epackage--download-action-list): Adjust docstring.
+	(epackage--depends-handling): Adjust docstring.
+	(epackage--sources-list-and-repository-sync-flag): Adjust docstring.
+	(epackage--url-epkg-template): New.
+	(epackage--sources-file-list): Rename from
+	`epackage--sources-file-list'.
+	(epackage--sources-yellow-pages-url): Rename from
+	`epackage--sources-list-url'.
+	(epackage--sources-replace-table): Rename from
+	`epackage--build-sources-list-replace-table'
+	(epackage--info-mode-completions-license): Make `defconst'.
+	Adjust docstring.
+
 2011-11-16 Wed  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el
