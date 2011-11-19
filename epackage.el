@@ -1257,7 +1257,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1119.0818"
+(defconst epackage-version-time "2011.1119.0851"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2298,8 +2298,8 @@ Return `epackage--download-action-list'."
 (defsubst epackage-eval-file (file &optional security)
   "Evaluate FILE with optionally checking SECURITY.
 If SECURITY is non-nil, signal error if
-- GPG signature is missing at location <FILE>.gpg
-- GPG signature is invalid at location <FILE.gpg."
+- GPG signature is missing at location FILE.gpg
+- GPG signature is invalid at location FILE.gpg."
   (with-temp-buffer
     (insert-file-contents file)
     ;; FIXME: Implement SECURITY
@@ -2779,16 +2779,47 @@ Kill buffer after BODY."
 
 ;;; ............................................. &functions-info-file ...
 
-(defsubst epackage-field-name ()
-  "Return field name near point."
-  (save-excursion
-    (when (or (re-search-backward "^\\([^ \t\r\n]+\\):" nil t)
-              (looking-at "^\\([^:]+\\):"))
-      (match-string-no-properties 1))))
+(defsubst epackage-field-forward ()
+  "Search for 'field:' forward. Submatch 1 contains field name."
+  (re-search-forward "^\\([^ \t\r\n]+\\):" nil t))
 
-(defun epackage-narrow-to-field () ;; FIXME: implement
-  "Narrow the buffer to the header on the current line."
-  (error "Not implemented"))
+(defsubst epackage-field-backward ()
+  "Search for 'field:' backward. Submatch 1 contains field name."
+  (re-search-backward "^\\([^ \t\r\n]+\\):" nil t))
+
+(defsubst epackage-field-name (&optional region)
+  "Return field name near point.
+If optional REGION is non-nil, return position of field '(beginning end)."
+  (save-excursion
+    (when (or (looking-at "^\\([^:]+\\):")
+	      (epackage-field-backward))
+      (if region
+	  (list (match-beginning 1)
+		(match-end 1))
+	(match-string-no-properties 1)))))
+
+(defun epackage-narrow-to-field (&optional full) ;; FIXME: implement
+  "Narrow the buffer to the field data area of the current line.
+If optional FULL is non-nil, include field in narrowed region."
+  (let ((region (epackage-field-name 'region)) ;; moves backward
+	beg
+	end)
+    (unless region
+      (error "Field not found. Cannot narrow."))
+    (save-excursion
+      (goto-char (line-end-position))
+      (setq end (or (epackage-field-forward)
+		    (re-search-forward "^[ \t]*$" nil t) ; first empty line
+		    (point-max))))
+    (cond
+     (full
+      (setq beg car region))
+     (t
+      (setq beg (1+ (nth 1 region)))	; after colon(:)
+      (goto-char beg)
+      (if (looking-at " ")		; "field: "
+	  (setq beg (1+ beg)))))
+    (narrow-to-region beg end)))
 
 (defsubst epackage-fetch-field (field)
   "Like `mail-fetch-field', but return FIELD's value only if it exists.
