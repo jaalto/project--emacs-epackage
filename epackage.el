@@ -1257,7 +1257,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1119.1041"
+(defconst epackage-version-time "2011.1119.1150"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -3647,27 +3647,76 @@ Optionally EXCLUDE files by regexp."
     item
     exclude)))
 
-(defun epackage-devel-generate-autoloads (package dir &optional verbose)
-  "Generate PACKAGE autoloads manually from DIR.
-The autoloads are stored under directory
-`epackage--directory-name' as defined in `epackage--layout-mapping'."
-  (interactive "sPackage name: \nDEpackage autoloads from dir: ")
-  (let* ((file (epackage-layout-file-name dir package 'autoloads))
-	 (pkgdir (file-name-directory file))
+(defun epackage-devel-generate-autoloads (package root dir &optional recursive verbose)
+  "Generate PACKAGE autoloads relative to ROOT manually from DIR.
+The autoloads are stored under directory ROOT/`epackage--directory-name'.
+
+Input:
+
+    PACKAGE	Epackage name
+    ROOT	Epackage root directory (must exists).
+    DIR   	Emacs Lisp package directories. This can be a one string
+                or list of strings.
+    RECURSIVE   Optional. If non-nil, read all *.el files under DIR-LIST.
+		Interactive prefix.
+    VERBOSE	Optional. If non-nil, display verbose message.
+                Interactive call sets this.
+
+Notes:
+
+   If RECURSIVE is set, every directory that contains *.el file
+   is considered a candidate. With bigger packages this is not
+   so. Take for exampels BBDB, which contains following
+   directories; of which only one of them is relevant for
+   autoload generation: the lisp/ directory.
+
+	bits/
+	bits/bbdb-filters/
+	lisp/
+	misc/
+	testing/
+	texinfo/
+	utils/
+
+   So, you must manually check and possibly edit the generated results."
+  ;; (read-file-name "Make directory: " default-directory default-directory nil nil)
+  ;;
+  (interactive "sPackage name: \nDPackage root dir: \nDRead autoloads from dir: \np")
+  (when (or (not (stringp dir))
+	    (not (file-directory-p dir)))
+    (epackage-error "Drectory does not exist: %s" dir))
+  (when (or (not (stringp root))
+	    (not (file-directory-p root)))
+    (epackage-error "Drectory does not exist: %s" dir))
+  (let* ((file (epackage-layout-file-name root package 'autoloads))
+	 (edir (file-name-directory file))
 	 (buffer epackage--buffer-autoload))
     (if (interactive-p)
 	(setq verbose t))
-    (epackage-make-directory pkgdir 'error)
+    (epackage-make-directory edir 'error)
     (epackage-with-buffer-autoload
       (delete-region (point-min) (point-max))
-      (epackage-autoload-create-on-directory dir)
+      (cond
+       (recursive
+	;; (epackage-directory-recursive-lisp-files "~/vc/git/emacs-lisp-dev--bbdb")
+	(dolist (elt (epackage-directory-recursive-lisp-files dir))
+	  (epackage-autoload-create-on-directory elt)))
+       (t
+	(if (stringp dir)
+	    (epackage-autoload-create-on-directory dir)
+	  (dolist (elt dir)
+	    (epackage-autoload-create-on-directory elt)))))
       (cond
        ((not (eq (point-min) (point-max)))
+	(goto-char (point-max))
+	(insert (format "(provide '%s)\n" (file-name-sans-extension
+					 (file-name-nondirectory file))))
 	(epackage-write-region (point-min) (point-max) file)
 	(epackage-verbose-message "Wrote %s" file)
 	t)
        (t
-	(epackage-verbose-message "[WARN] No autoloads found for %s" file)
+	(epackage-verbose-message
+	  "[WARN] No autoloads found for %s from dir %s" file dir)
 	nil)))))
 
 (defun epackage-devel-compose-package (package dir)
