@@ -23,6 +23,19 @@
 	(epackage-devel-generate-autoloads): Implement.
 	(epackage-directory-file-list): Exclude [#~] fles.
 	(epackage-devel-generate-loaddefs): Implement.
+	(epackage--layout-template-info): New.
+	(epackage-devel-information-buffer): New.
+	(epackage-devel-information-license): New.
+	(epackage-devel-information-license-gpl-standard): New.
+	(epackage-devel-information-version): New.
+	(epackage-version-time): adjust docstring.
+	(epackage-date-to-iso): New.
+	(epackage-devel-information-maintainer): New.
+	(epackage-devel-information-homepage): New.
+	(epackage-devel-information-date): New.
+	(epackage--date-month-list): New.
+	(epackage--date-month-regexp): New.
+	(epackage--date-weekday-regexp): New.
 
 2011-11-18 Fri  Jari Aalto  <jari.aalto@cante.net>
 

@@ -1235,6 +1235,7 @@
   (defvar whitespace-style)
   (defvar finder-known-keywords)
   (defvar auto-revert-tail-mode)
+  (autoload 'lm-header "lisp-mnt")
   (autoload 'generate-file-autoloads "autoload")
   (autoload 'whitespace-replace-action "whitespace")
   (autoload 'lm-version "lisp-mnt")
@@ -1257,8 +1258,8 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1119.1526"
-  "Version of last edit.")
+(defconst epackage-version-time "2011.1119.1851"
+  "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
   "Maintainer's email address.")
@@ -1771,6 +1772,43 @@ See also variable `epackage--loader-file-byte-compile-flag'.")
 Not a user file. This is used internally during byte compiling
 packages.")
 
+(defconst epackage--date-month-list
+  '(("Jan" 1)
+    ("Feb" 2)
+    ("Mar" 3)
+    ("Apr" 4)
+    ("May" 5)
+    ("Jun" 6)
+    ("Jul" 7)
+    ("Aug" 8)
+    ("Sep" 9)
+    ("Oct" 10)
+    ("Nov" 11)
+    ("Dec" 12))
+  "Assoc list of months '((MONTH NUMBER) ...).")
+
+(defconst epackage--date-month-regexp
+  `,(concat
+     "\\<"
+     (regexp-opt
+      (mapcar #'car epackage--date-month-list))
+     "\\>")
+  "Regexp matching short month names.")
+
+(defconst epackage--date-weekday-regexp
+  `,(concat
+     "\\<"
+     (regexp-opt
+      '("Mon"
+	"Tue"
+	"Wed"
+	"Thu"
+	"Fri"
+	"Sat"
+	"Sun"))
+     "\\>")
+  "Regexp matching short month names.")
+
 ;;;###autoload
 (defconst epackage--directory-exclude-regexp
   (concat
@@ -1813,7 +1851,6 @@ Format is:
 (defconst epackage--layout-mapping
   '((activate   "-xactivate.el")
     (autoload   "-autoloads.el")
-    (autoloads  "-autoloads.el")	;synonym
     (enable     "-install.el"  'required)
     (compile    "-compile.el")
     (info       "info"  'required)
@@ -2008,6 +2045,34 @@ Other actions
 \(g)et           Get new sources list and store it locally. This is the basis
                 for selecting packages to install. Must be run periodically."
   "UI menu help.")
+
+(defconst epackage--layout-template-info
+  "\
+Package:
+Section: data | extensions | files | languages | mail | tools <M-x finder-list-keywords>
+License: GPL-2+ | BSD | Apache-2.0 | ... | None
+Depends: emacs (>= 22)
+Status: core-emacs[-NN.N] unmaintained broken unsafe stable unstable experimental
+Compat:
+Maintainer:
+Bugs:
+Upstream:
+Upstream-Bugs:
+Vcs-Type:
+Vcs-Url:
+Vcs-Args:
+Vcs-Browser:
+Vcs-User:
+Vcs-Password:
+Homepage:
+Wiki: http://www.emacswiki.org/emacs/
+Commentary:
+Description: <short one line>
+ [<Longer description>]
+ .
+ Note YYYY-MM-DD the code hasn't been touched since YYYY.
+"
+  "String containing the epackage/info file.")
 
 ;;; ................................................ &functions-simple ...
 
@@ -2340,6 +2405,53 @@ Return:
   "Check if EXCLUDE regexp match DIR."
   ;; This fucntion exists so that you can point edebugger to it.
   (string-match exclude dir))
+
+;;  Test Drivers:
+;;  (epackage-date-to-iso "2011.1.12")
+;;  (epackage-date-to-iso "1/19/98")
+;;  (epackage-date-to-iso "Wed Jun 17 14:26:21 2009 (-0700)")
+(defun epackage-date-to-iso (str)
+  "Convert US date M/D/YY[YY] into ISO 8601 format YYYY-MM-DD."
+  (cond
+   ((not (stringp str))					; skip
+    nil)
+   ((string-match "\\<\\([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\\)\\>" str)
+    (match-string-no-properties 1 str))			; Already ISO
+   ((string-match					; YYYY.MM?.DD?
+     `,(concat "\\<\\([0-9][0-9][0-9][0-9]\\)[.]"
+	       "\\([0-9][0-9]?\\)[.]"
+	       "\\([0-9][0-9]?\\)\\>")
+     str)
+    (let ((y (match-string-no-properties 1 str))
+	  (m (string-to-number (match-string-no-properties 2 str)))
+	  (d (string-to-number (match-string-no-properties 3 str))))
+      (format "%s-%02d-%02d" y m d)))
+   ((string-match "\\<\\([0-9]+\\)/\\([0-9]+\\)/\\([0-9][0-9]+\\)\\>" str)
+    (let ((m (string-to-number (match-string-no-properties 1 str)))
+	  (d (string-to-number (match-string-no-properties 2 str)))
+	  (y (match-string-no-properties 3 str)))
+      (when (= (length y) 2)
+	(if (string-match "^[789]" y)
+	    (setq y (concat "19" y))
+	  (setq y (concat "20" y))))
+      (format "%s-%02d-%02d" y m d)))
+   ((string-match
+     `,(concat
+	epackage--date-weekday-regexp
+	"[ \t]+"
+	"\\(" 	epackage--date-month-regexp "\\)"	; 1 month
+	"[ \t]+"
+	"\\([0-9]+\\)"					; 2 date
+	"[ \t]+"
+	"[0-9]+:[0-9:]+"				; time
+	"[ \t]+"
+	"\\([0-9][0-9][0-9][0-9]\\)")			; 3 year
+     str)
+    (let ((m (nth 1 (assoc (match-string-no-properties 1 str)
+			   epackage--date-month-list)))
+	  (d (string-to-number (match-string-no-properties 2 str)))
+	  (y (match-string-no-properties 3 str)))
+      (format "%s-%02d-%02d" y m d)))))
 
 (defun epackage-insert-file-contents (file)
   "Call `insert-file-contents' and put point after end of insert."
@@ -3719,7 +3831,7 @@ Notes:
   (when (or (not (stringp root))
 	    (not (file-directory-p root)))
     (epackage-error "Drectory does not exist: %s" dir))
-  (let* ((file (epackage-layout-file-name root package 'autoloads))
+  (let* ((file (epackage-layout-file-name root package 'autoload))
 	 (edir (file-name-directory file))
 	 (buffer epackage--buffer-autoload))
     (if (interactive-p)
@@ -3749,13 +3861,124 @@ Notes:
 	  "[WARN] No autoloads found for %s from dir %s" file dir)
 	nil)))))
 
-(defun epackage-devel-compose-package (package dir)
+(defun epackage-devel-information-license-gpl-standard ()
+  "If buffer contains standard GPL stanza, return GPL[-<version>[+]].
+Point is not preserved."
+  (let (str)
+    (goto-char (point-min))
+    (when (re-search-forward
+	   "terms.*of.*GNU.*General.*Public.*License" nil t)
+      (setq str "GPL")
+      (when (re-search-forward
+	     ;;  either version 2 of the License, or (at your option)
+	     ;;  either version 2, or (at your option)
+	     "version[ \t]+\\([2-9]\\)\\(?:,\\|[ \t]+of[ \t].*License\\)" nil t)
+	(setq str (format "%s-%s" str (match-string-no-properties 1)))
+	(if (re-search-forward "any[ \t]+later[ \t]+version" nil t)
+	    (setq str (concat str "+"))))
+      str)))
+
+(defun epackage-devel-information-license ()
+  "Return license information from current buffer."
+  (or (epackage-devel-information-license-gpl-standard)))
+
+(defun epackage-devel-information-version ()
+  "Return license from current buffer.
+Point is not preserved."
+  (goto-char (point-min))
+  (or (when (re-search-forward
+	     ;; (defconst epackage-version-time "2011.1119.1749"
+	     "^(def[a-z].*[ \t\r\n]+[a-z-]+version.* \"\\([^\"]+\\)" nil t)
+	(match-string-no-properties 1))
+      (lm-header "version")))
+
+(defun epackage-devel-information-maintainer ()
+  "Return maintainer from current buffer.
+Point is not preserved."
+  (or (lm-header "Maintainer")
+      (lm-header "Author")))
+
+(defun epackage-devel-information-homepage ()
+  "Return homepage from current buffer.
+Point is not preserved."
+  (or (lm-header "Homepage")
+      (lm-header "Home")
+      (lm-header "URL")))
+
+(defun epackage-devel-information-date ()
+  "Return date from current buffer.
+Point is not preserved."
+  (let* ((str (or (lm-header "Time-stamp")
+		  (lm-header "Updated")
+		  (lm-header "Last-Updated")
+		  (lm-header "Modified")
+		  (lm-header "Created")))
+	 (iso (epackage-date-to-iso str)))
+    (or iso
+	str)))
+
+(defun epackage-devel-information-buffer ()
+  "Examine current buffer and return list '((field value) ...)
+FIELD can be:
+  maintainer
+  license
+  version
+  homepage
+  date."
+  (let (str
+        list)
+    (save-excursion
+      (when str (epackage-devel-information-license)
+	(epackage-push (list "license" str) list))
+      (when (setq str (epackage-devel-information-maintainer))
+	(epackage-push (list "maintainer" str) list))
+      (when (setq str (epackage-devel-information-homepage))
+	(epackage-push (list "homepage" str) list))
+      (when (setq str (epackage-devel-information-date))
+	  (epackage-push (list "date" str) list))
+      (when (setq str (epackage-devel-information-versione))
+	(epackage-push (list "version" str) list))
+      list)))
+
+;; (epackage-devel-compose-package "test" "~/vc/epackage/emacs-epackage.git" 'verb)
+(defun epackage-devel-compose-package (package dir &optional verbose)
   "Compose initial templates for PACKAGE in DIR.
-Generating autoloads, loaddefs file and write other
-template files under `epackage--directory-name'.."
-  (interactive "sPackage name: \nDEpackage initialize from dir: ")
-  ;; FIXME
-  nil)
+Generate autoloads, loaddefs file and write other
+template files under `epackage--directory-name'."
+  (interactive "sPackage name: \nDPackage root dir: ")
+  (if (interactive-p)
+      (setq verbose t))
+  (epackage-devel-generate-autoloads package dir dir 'recursive verbose)
+  (epackage-devel-generate-loaddefs package dir dir 'recursive verbose)
+  (let ((autoloads (epackage-layout-file-name dir package 'autoload))
+	(install (epackage-layout-file-name dir package 'enable)))
+    ;; By default we copy all interactive functions to install.
+    (if (file-exists-p install)
+	(epackage-verbose-message "Already created, not touching %s" install)
+      (if (not (file-exists-p autoloads))
+	  (epackage-verbose-message "[NOTE] File does not exist %s" autoloads)
+	(with-temp-buffer
+	  (insert-file autoloads)
+	  (goto-char (point-min))
+	  ;; Searh line that have "t" at end:
+	  ;;
+	  ;; (autoload 'epackage-info-mode                   "epackage" "" t)
+	  ;; (autoload 'epackage-cmd-package-check-macro     "epackage" "" nil 'macro)
+	  (delete-non-matching-lines "t)[ \t]*$")
+	  (epackage-write-region (point-min) (point-max) install)
+	  (epackage-verbose-message "Wrote %s" install))))
+    ;; Write info file
+    (let ((file (format "%s%s/%s"
+			(file-name-as-directory dir)
+			epackage--package-control-directory
+			"info")))
+      (if (file-exists-p file)
+	  (epackage-verbose-message "[NOTE] Not touching existing file %s" file)
+	(with-temp-buffer
+	  (insert epackage--layout-template-info)
+	  (epackage-write-region (point-min) (point-max) file)
+	  (epackage-verbose-message "Wrote %s" file))))
+    t))
 
 ;;; ............................................... &functions-package ...
 
