@@ -3,6 +3,7 @@
 	* epackage.el: Adjust Tag descriptions of custom variables.
 	Patch thanks to David Ross <H.David.Ross@gmail.com>.
 	Add autoload stanzas to more variables.
+	(epackage-assoc): Rename from `epackage-asscoc'.
 
 2011-11-18 Fri  Jari Aalto  <jari.aalto@cante.net>
 

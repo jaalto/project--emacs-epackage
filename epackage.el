@@ -1257,7 +1257,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1119.0816"
+(defconst epackage-version-time "2011.1119.0818"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2008,7 +2008,7 @@ Other actions
   "A close `push' CL library macro equivalent: (push X PLACE)."
   `(setq ,place (cons ,x ,place)))
 
-(defmacro epackage-asscoc (key list)
+(defmacro epackage-assoc (key list)
   "Access of KEY in LIST and return its value.
 An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
   `(nth 1 (assoc ,key ,list)))
@@ -5996,9 +5996,9 @@ KEY is one of:
   "Return documentation header string from current buffer.
 Summary, Version, Maintainer etc."
   (let* ((list       (epackage-documentation-buffer-main))
-         (summary    (epackage-asscoc 'summary list))
-         (version    (epackage-asscoc 'version list))
-         (maintainer (epackage-asscoc 'maintainer list)))
+         (summary    (epackage-assoc 'summary list))
+         (version    (epackage-assoc 'version list))
+         (maintainer (epackage-assoc 'maintainer list)))
     (concat
      "epackage.el -- " (or summary "") "\n\n"
      "Version   : " (or version "") "\n"
