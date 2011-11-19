@@ -8,6 +8,19 @@
 	(epackage-field-forward): New.
 	(epackage-field-backward): New.
 	(epackage-field-name): Add arg region.
+	(epackage-autoload-create-on-file): Simplify function by
+	removing parameters no-show, no-desc and no-path. Make
+	buffer parameter required.
+	(epackage--buffer-autoload): New.
+	(epackage-autoload-create-on-file): Update changes
+	according to `epackage-autoload-create-on-file'.
+	(epackage--root-directory): signal error if no root found and
+	suggest creating directory ~/.emacs.d
+	(epackage-layout-file-name): Check type for error.
+	(epackage--layout-mapping): Add synonym mapping: autoloads.
+	(epackage-make-directory): New.
+	(epackage-with-buffer-autoload): New.
+	(epackage-devel-generate-autoloads): Implement.
 
 2011-11-18 Fri  Jari Aalto  <jari.aalto@cante.net>
 

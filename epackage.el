@@ -1257,7 +1257,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1119.0851"
+(defconst epackage-version-time "2011.1119.1041"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1690,11 +1690,12 @@ time in `epackage-info-mode-tab-command'.")
 The %s marks the package name.")
 
 (defcustom epackage--root-directory
-  (let (ret)
+  (let ((default (if (featurep 'xemacs)
+		     "~/.xemacs.d"
+		   "~/.emacs.d"))
+	 ret)
     (dolist (elt (list
-                  (if (featurep 'xemacs)
-                      "~/.xemacs.d"
-                    "~/.emacs.d")
+		  default
                   "~/elisp"))
       (if (and elt
                (null ret)
@@ -1705,11 +1706,12 @@ The %s marks the package name.")
       ret)
      (t
       ;; No known package installation root directory
-      (message
+      (error
        (concat "Epackage: [ERROR] Can't determine location of lisp packages."
-               "Please define `epackage--root-directory'.")))))
-  "*Location of Lisp files. Typically ~/.emacs.d or ~/elisp.
-Directory should not contain a trailing slash."
+               "Please See `epackage--root-directory'."
+	       (format "You should create directory %s" default))))))
+  "*Location of Emacs Lisp files. Typically ~/.emacs.d or ~/elisp.
+Directory must not contain a trailing slash."
   :type  'directory
   :group 'epackage)
 
@@ -1811,6 +1813,7 @@ Format is:
 (defconst epackage--layout-mapping
   '((activate   "-xactivate.el")
     (autoload   "-autoloads.el")
+    (autoloads  "-autoloads.el")	;synonym
     (enable     "-install.el"  'required)
     (compile    "-compile.el")
     (info       "info"  'required)
@@ -1824,6 +1827,10 @@ Format is:
 Ff FILENAME sarts with '-', then the package name is prefixed to
 the FILENAME. Say package name 'foo' is prefixed with '-install'
 producing 'foo-install.el.")
+
+(defvar epackage--buffer-autoload "*Epackage autoloads*"
+  "Buffer to use for gathering manual autoload definitions.
+See function `epackage-autoload-create-on-directory'.")
 
 (defvar epackage--buffer-doc "*Epackage documentation*"
   "Buffer displayed by `epackage-doscumentation'.")
@@ -2079,6 +2086,13 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
        (if ,verbose
            (epackage-message "%s" (concat ,message "...done"))))))
 
+(put 'epackage-with-buffer-autoload 'lisp-indent-function 0)
+(put 'epackage-with-buffer-autoload 'edebug-form-spec '(body))
+(defmacro epackage-with-buffer-autoload (&rest body)
+  "Create `epackage--buffer-autoload' and and run BODY."
+  `(with-current-buffer (get-buffer-create epackage--buffer-autoload)
+     ,@body))
+
 (put 'epackage-with-write-file 'lisp-indent-function 0)
 (put 'epackage-with-write-file 'edebug-form-spec '(body))
 (defmacro epackage-with-write-file (&rest body)
@@ -2293,7 +2307,8 @@ Return `epackage--download-action-list'."
 	  (file-name-as-directory dir)
 	  epackage--package-control-directory
 	  (downcase package)
-	  (epackage-layout-mapping-file type)))
+	  (or (epackage-layout-mapping-file type)
+	      (error "Unknown epackage layout type: %s" type))))
 
 (defsubst epackage-eval-file (file &optional security)
   "Evaluate FILE with optionally checking SECURITY.
@@ -2830,7 +2845,7 @@ If FIELD is empty or does not exist, return nil."
 
 (defun epackage-fetch-field-description ()
   "Return content of 'Description:' '(\"short desc\" \"long desc\").
-Remove 1 space indentation and paragraph separators(.) characters."
+Remove 1 space indentation and paragraph separator(.) characters."
   (let ((str (epackage-fetch-field "Description"))
         short
         long)
@@ -3452,24 +3467,18 @@ If VERB is non-nil, display verbose messages."
        (or verb (interactive-p))))))
 
 ;; Copy of ti::package-autoload-create-on-file
-(defun epackage-autoload-create-on-file
-  (file &optional buffer no-show no-desc no-path)
-  "Very simple autoload function generator out of FILE.
-Optionally put results to BUFFER. NO-SHOW does not show buffer.
+(defun epackage-autoload-create-on-file (file buffer)
+  "Read FILE and write autoload statements to BUFFER.
 
-Note:
+Notes:
 
-  Doesn't recognize ###autoload tags
-  Reads only functions.
+  Doesn't read ###autoload tags.
+  Detects functions by regexps.
 
 Input:
 
-  FILE      Emasc Lisp file to read
-  BUFFER    Where to insert autoloads.
-  NO-SHOW   Do not show autoload buffer
-  NO-DESC   Do not include function description comments
-  NO-PATH   Do not include path location comment."
-  (interactive "fConstruct lisp autoloads from file: ")
+  FILE      Emacs Lisp file to read
+  BUFFER    to insert autoloads."
   (let ((fn     (file-name-nondirectory file))
         (regexp `,(concat
                    "^(\\("
@@ -3497,30 +3506,23 @@ Input:
         iact
         point
         read-buffer
+	save-point
         tmp)
-    (or buffer
-        (setq buffer (get-buffer-create (or buffer  "*Autoloads*"))))
     ;;   We want to say (autoload 'func "pacakge" t t)
     ;;   and not        (autoload 'func "pacakge.el" t t)
     ;;   so that .elc files can be used.
     (if (string-match "\\(.*\\).el" fn)
         (setq fn (match-string 1 fn)))
     (unless (setq read-buffer (find-buffer-visiting file))
-      (setq read-buffer (setq tmp (find-file file))))
+      (setq read-buffer (setq tmp (find-file-noselect file))))
     (with-current-buffer read-buffer
-      ;; Can't use forward-sexp etc otherwise
+      (setq save-point (point))
+      ;; Can't use forward-sexp
       (unless (string-match "lisp" (symbol-name major-mode))
         (let (emacs-lisp-mode-hook) ;; Run no hooks
           (if emacs-lisp-mode-hook  ;; Quiet ByteCompiler "unused var"
               (setq emacs-lisp-mode-hook nil))
           (emacs-lisp-mode)))
-      (unless no-path
-        (epackage-append-to-buffer
-         buffer
-         (format ";; %s\n" (file-name-nondirectory file)))
-        (epackage-append-to-buffer
-         buffer
-         (format ";; %s\n" file)))
       (goto-char (point-min))
       (while (re-search-forward regexp nil t)
         (setq iact nil                  ;interactive flag
@@ -3571,22 +3573,9 @@ Input:
                                 (format ";;%s" type) "")))
           (epackage-append-to-buffer buffer str)
           (setq iact "t")))
-      (unless no-desc
-        (with-current-buffer buffer
-          (insert "\n")                   ;list arguments for functions.
-          (let (func args)
-            (dolist (elt list)
-              (setq func (nth 0 elt)
-                    args (nth 1 elt))
-              (if (and (stringp args)
-                       (string-match "[a-z]" args))
-                  (insert (format ";; %-35s %s\n" func args))
-                (insert (format ";; %s\n" func)))))))
-      (if tmp                          ;We loaded this to Emacs, remove it
-          (kill-buffer tmp))
-      (unless no-show
-        (pop-to-buffer buffer)
-        (goto-char (point-min)))
+      (if tmp			        ; We loaded this to Emacs, remove it
+          (kill-buffer tmp)
+	(goto-char save-point))		; Restore position
       buffer)))
 
 (defun epackage-autoload-write-autoload-files (&rest args)
@@ -3613,7 +3602,8 @@ Note:
 
 Input:
 
-  See argument description in function `epackage-autoload-create-on-file'."
+  DIR     Directory to read *.el files.
+  BUFFER  Optional. Defaults to `current-buffer'."
   (let ((files (directory-files
                 dir
                 'full
@@ -3623,10 +3613,21 @@ Input:
       (unless (string-match regexp file)
 	(epackage-autoload-create-on-file
 	 file
-	 (or buffer (current-buffer))
-	 'no-show
-	 'no-desc
-	 'no-path)))))
+	 (or buffer
+	     (current-buffer)))))))
+
+(defun epackage-make-directory (directory &optional error)
+  "Ask permission to create DIRECTORY.
+If optional ERROR is non-nil, signal error if DIRECTORY was not created."
+  (unless (file-directory-p directory)
+    (cond
+     ((y-or-n-p (format "Create directory %s " directory))
+      (make-directory directory)
+      t)
+     (t
+      (if error
+	  (epackage-error "Directory creation not confirmed: %d" dir))
+      nil))))
 
 (defun epackage-devel-generate-loaddefs (package dir)
   "Generate PACKAGE loaddefs from DIR.
@@ -3646,15 +3647,28 @@ Optionally EXCLUDE files by regexp."
     item
     exclude)))
 
-(defun epackage-devel-generate-autoloads (package dir)
-  "Generate PACKAGE autoloads from DIR.
-The loaddefs are stored under directory
+(defun epackage-devel-generate-autoloads (package dir &optional verbose)
+  "Generate PACKAGE autoloads manually from DIR.
+The autoloads are stored under directory
 `epackage--directory-name' as defined in `epackage--layout-mapping'."
   (interactive "sPackage name: \nDEpackage autoloads from dir: ")
-  (let ((file (epackage-layout-file-name dir package 'autoloads)))
-    ;; FIXME
-    (epackage-autoload-create-on-directory dir)
-    nil))
+  (let* ((file (epackage-layout-file-name dir package 'autoloads))
+	 (pkgdir (file-name-directory file))
+	 (buffer epackage--buffer-autoload))
+    (if (interactive-p)
+	(setq verbose t))
+    (epackage-make-directory pkgdir 'error)
+    (epackage-with-buffer-autoload
+      (delete-region (point-min) (point-max))
+      (epackage-autoload-create-on-directory dir)
+      (cond
+       ((not (eq (point-min) (point-max)))
+	(epackage-write-region (point-min) (point-max) file)
+	(epackage-verbose-message "Wrote %s" file)
+	t)
+       (t
+	(epackage-verbose-message "[WARN] No autoloads found for %s" file)
+	nil)))))
 
 (defun epackage-devel-compose-package (package dir)
   "Compose initial templates for PACKAGE in DIR.
