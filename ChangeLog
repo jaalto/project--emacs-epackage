@@ -36,6 +36,11 @@
 	(epackage--date-month-list): New.
 	(epackage--date-month-regexp): New.
 	(epackage--date-weekday-regexp): New.
+	(epackage-git-command-init): New.
+	(epackage-git-command-branch-with-args): New.
+	(epackage-devel-compose-package-dir): Rename
+	from `epackage-devel-compose-package-dir'.
+	(epackage-devel-compose-git-import): New.
 
 2011-11-18 Fri  Jari Aalto  <jari.aalto@cante.net>
 

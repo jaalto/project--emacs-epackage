@@ -1258,7 +1258,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1119.1851"
+(defconst epackage-version-time "2011.1119.2035"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -2880,16 +2880,15 @@ If VERBOSE is non-nil, display progress message."
            "Running 'git %s' in %s ..."
            (mapconcat #'concat (list ,@args) " ")
            (abbreviate-file-name ,dir)))
-     (prog1
-         (unless (epackage-git-command-ok-p
-                  (epackage-git-command-process
-                   ,@args))
-           (epackage-git-error-handler)))
+     (unless (epackage-git-command-ok-p
+	      (epackage-git-command-process
+	       ,@args))
+       (epackage-git-error-handler))
      (if ,verbose
-         (epackage-message
-           "Running 'git %s' in %s ...done"
-           (mapconcat #'concat (list ,@args) " ")
-           (abbreviate-file-name ,dir)))))
+	 (epackage-message
+	  "Running 'git %s' in %s ...done"
+	  (mapconcat #'concat (list ,@args) " ")
+	  (abbreviate-file-name ,dir)))))
 
 (put 'epackage-with-git-config 'lisp-indent-function 1)
 (put 'epackage-with-git-config 'edebug-form-spec '(body))
@@ -3193,6 +3192,17 @@ Return:
                        list))
       list)))
 
+(defun epackage-git-command-init (dir &optional verbose)
+  "Run 'git init' in DIR.
+If optional VERBOSE is non-nil, display progress message.
+
+Return:
+    t or nil   according to success."
+  (epackage-with-git-command dir verbose
+    "init")
+  (epackage-with-last-git-output
+    (re-search-forward "^\\(Reinitialized\\|Initialized\\)" nil t)))
+
 (defun epackage-git-command-status-parse-buffer-limit ()
   "Return next limit point of 'status' section in current buffer.
 The limist are those of top level heading:
@@ -3279,12 +3289,18 @@ See manual page of git-status(1)."
   (epackage-with-last-git-output
     (epackage-git-command-branch-parse-buffer)))
 
+(defmacro epackage-git-command-branch-with-args
+  (dir &optional verbose &rest args)
+  "In DIR, run in optional VERBOSE mode 'git branch ARGS'.
+If optional VERBOSE is non-nil, display progress message."
+  `(epackage-with-git-command ,dir ,verbose "branch" ,@args))
+
 (defun epackage-git-command-branch-list (dir &optional verbose arg)
   "In DIR, run in optional VERBOSE mode 'git branch [ARG]'.
 If optional VERBOSE is non-nil, display progress message.
 
 Return:
-    List of tag names."
+    List of branch names."
   ;; FIXME improve macro to handle both cases
   (if arg
       (epackage-with-git-command dir verbose
@@ -3908,12 +3924,26 @@ Point is not preserved."
 (defun epackage-devel-information-date ()
   "Return date from current buffer.
 Point is not preserved."
-  (let* ((str (or (lm-header "Time-stamp")
-		  (lm-header "Updated")
-		  (lm-header "Last-Updated")
-		  (lm-header "Modified")
-		  (lm-header "Created")))
-	 (iso (epackage-date-to-iso str)))
+  (let ((str (or (lm-header "Time-stamp")
+		 (lm-header "Updated")
+		 (lm-header "Last-Updated")
+		 (lm-header "Modified")))
+	version)
+    (when (and (not str)
+	       ;; See if version is in format YYYY.MMDD
+	       (setq version (epackage-devel-information-version))
+	       (string-match
+		`,(concat
+		   "\\(\\(?:19\\|20\\)[0-9][0-9]\\)\\." ;Year  19xx 20xx
+		   "\\([0][1-9]\\|1[012]\\)"		;Month 01-12
+		   "\\([0-3][0-9]\\)")			;Date
+		version))
+      (setq str (format "%s-%s-%s"
+			(match-string-no-properties 1 version)
+			(match-string-no-properties 2 version)
+			(match-string-no-properties 3 version))))
+    (if str
+	(setq iso (epackage-date-to-iso str)))
     (or iso
 	str)))
 
@@ -3936,12 +3966,12 @@ FIELD can be:
 	(epackage-push (list "homepage" str) list))
       (when (setq str (epackage-devel-information-date))
 	  (epackage-push (list "date" str) list))
-      (when (setq str (epackage-devel-information-versione))
+      (when (setq str (epackage-devel-information-version))
 	(epackage-push (list "version" str) list))
       list)))
 
 ;; (epackage-devel-compose-package "test" "~/vc/epackage/emacs-epackage.git" 'verb)
-(defun epackage-devel-compose-package (package dir &optional verbose)
+(defun epackage-devel-compose-package-dir (package dir &optional verbose)
   "Compose initial templates for PACKAGE in DIR.
 Generate autoloads, loaddefs file and write other
 template files under `epackage--directory-name'."
@@ -3979,6 +4009,82 @@ template files under `epackage--directory-name'."
 	  (epackage-write-region (point-min) (point-max) file)
 	  (epackage-verbose-message "Wrote %s" file))))
     t))
+
+;; (epackage-devel-compose-git-import "~/tmp/ep" t)
+(defun epackage-devel-compose-git-import (dir &optional verbose)
+  "Import Emacs Lisp Package into Git repository.
+This is the initial step for starting to work with Epackages:
+
+  - Initialize Git repository in DIR
+  - Import all code to 'upstream' branch
+  - Tag import
+  - Branch off to master
+  ... after that you can populate epackage/ directory.
+
+Notes:
+
+  If package in DIR contains more than one *.el file, this program
+  will abort. Handling big packages that consist of many lisp files
+  must be handled manually.
+
+  Also the lisp file being imported must contain information about
+  version and last modification date."
+  (unless (file-directory-p dir)
+    (epackage-error "No such directory %s" dir))
+  (let ((git (format "%s.git" (file-name-as-directory dir))))
+    (when (file-directory-p git)
+      (epackage-error "Already Git repository in directory %s" git)))
+  (let ((dirs (epackage-directory-recursive-lisp-files dir))
+	files
+	list)
+    (if (> (length dirs) 1)
+	(epackage-error
+	 `,(format
+	    "Abort. epackage-devel-compose-git-import "
+	    "can only handle single file packages (dirs: %d)."
+	    (length dirs))))
+    (setq files (directory-files dir nil "\\.el$"))
+    (unless files
+      (epackage-error "No *.el files found in %s" dir))
+    ;; Filter out some common files
+    (dolist (elt files)
+      (unless (string-match "autoload\\|loaddefs" elt)
+	(epackage-push elt list)))
+    (if (> (length list) 1)
+	(epackage-error
+	 `,(format
+	    "Abort. epackage-devel-compose-git-import "
+	    "can only handle single file packages (files: %d)."
+	    (length list))))
+    (let ((file (car list))
+	  version
+	  date
+	  alist)
+    (with-temp-buffer
+      (insert-file file)
+      (setq alist (epackage-devel-information-buffer))
+      (unless (setq date (nth 1 (assoc "date" alist)))
+	(epackage-error "Cannot find version field from file %s" file))
+      (unless (setq version (nth 1 (assoc "version" alist)))
+	(epackage-error "Cannot find modified date field from file %s" file))
+      (epackage-require-git)
+      (epackage-git-command-init dir)
+      ;;  start directly at upstream branch
+      (epackage-with-git-command dir verbose
+	"symbolic-ref" "HEAD" "refs/heads/upstream")
+      ;; import
+      (epackage-with-git-command dir verbose
+	"add" ".")
+      (let ((message
+	     (format "Import upstream %s (%s)" version date)))
+	(epackage-with-git-command dir verbose
+	  "commit" "-m" message))
+      (let ((tag (format "upstream/%s--%s" date version)))
+	(epackage-with-git-command dir verbose
+	  "tag" tag))
+      (epackage-with-git-command dir verbose
+	"checkout" "-b" "master")
+      alist))))
 
 ;;; ............................................... &functions-package ...
 
