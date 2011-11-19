@@ -41,6 +41,7 @@
 	(epackage-devel-compose-package-dir): Rename
 	from `epackage-devel-compose-package-dir'.
 	(epackage-devel-compose-git-import): New.
+	(epackage-devel-compose-main): New.
 
 2011-11-18 Fri  Jari Aalto  <jari.aalto@cante.net>
 

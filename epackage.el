@@ -1258,7 +1258,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1119.2035"
+(defconst epackage-version-time "2011.1119.2103"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -3571,10 +3571,10 @@ The first argument is the the destination file where loaddefs are stored."
 
 ;; Copy of tinylisp-autoload-generate-loaddefs-dir
 (defun epackage-autoload-generate-loaddefs-dir
-  (dir file &optional exclude verb)
+  (dir file &optional exclude verbose)
   "Generate loaddefs from DIR to FILE.
 Optionally EXCLUDE files by regexp.
-If VERB is non-nil, display verbose messages."
+If VERBOSE is non-nil, display informational messages."
   (interactive "FDLoaddefs from dir: \nFLoaddefs to file: \nsFile ignore regexp: ")
   (let ((regexp "\\(?:loaddef\\|autoload\\).*\\.el\\|[#~]")
         list)
@@ -3593,7 +3593,7 @@ If VERB is non-nil, display verbose messages."
       (epackage-autoload-generate-loaddefs-file-list
        file
        list
-       (or verb (interactive-p))))))
+       (or verbose (interactive-p))))))
 
 ;; Copy of ti::package-autoload-create-on-file
 (defun epackage-autoload-create-on-file (file buffer)
@@ -3745,12 +3745,13 @@ Input:
 	 (or buffer
 	     (current-buffer)))))))
 
-(defun epackage-make-directory (directory &optional error)
-  "Ask permission to create DIRECTORY.
+(defun epackage-make-directory (directory &optional no-question error)
+  "Create directory, optionally with NO-QUESTION. Signal error if denied.
 If optional ERROR is non-nil, signal error if DIRECTORY was not created."
   (unless (file-directory-p directory)
     (cond
-     ((y-or-n-p (format "Create directory %s " directory))
+     ((or no-question
+	  (y-or-n-p (format "Create directory %s " directory)))
       (make-directory directory)
       t)
      (t
@@ -3785,7 +3786,7 @@ Input:
 	 (buffer epackage--buffer-autoload))
     (if (interactive-p)
 	(setq verbose t))
-    (epackage-make-directory edir 'error)
+    (epackage-make-directory edir 'no-question 'error)
     (cond
      (recursive
       (dolist (elt (epackage-directory-recursive-lisp-files dir))
@@ -3970,14 +3971,16 @@ FIELD can be:
 	(epackage-push (list "version" str) list))
       list)))
 
-;; (epackage-devel-compose-package "test" "~/vc/epackage/emacs-epackage.git" 'verb)
+;;;###autoload
 (defun epackage-devel-compose-package-dir (package dir &optional verbose)
   "Compose initial templates for PACKAGE in DIR.
-Generate autoloads, loaddefs file and write other
-template files under `epackage--directory-name'."
-  (interactive "sPackage name: \nDPackage root dir: ")
+If VERBOSE is non-nil, display informational messages.
+
+Generate autoloads, loaddefs file and write other template files
+under `epackage--directory-name'."
+  (interactive "sEpackage name: \nDLisp package root dir: ")
   (if (interactive-p)
-      (setq verbose t))
+      (setq verbose 'interactive))
   (epackage-devel-generate-autoloads package dir dir 'recursive verbose)
   (epackage-devel-generate-loaddefs package dir dir 'recursive verbose)
   (let ((autoloads (epackage-layout-file-name dir package 'autoload))
@@ -4010,9 +4013,11 @@ template files under `epackage--directory-name'."
 	  (epackage-verbose-message "Wrote %s" file))))
     t))
 
-;; (epackage-devel-compose-git-import "~/tmp/ep" t)
+;;;###autoload
 (defun epackage-devel-compose-git-import (dir &optional verbose)
   "Import Emacs Lisp Package into Git repository.
+If VERBOSE is non-nil, display informational messages.
+
 This is the initial step for starting to work with Epackages:
 
   - Initialize Git repository in DIR
@@ -4029,6 +4034,9 @@ Notes:
 
   Also the lisp file being imported must contain information about
   version and last modification date."
+  (interactive "DLisp package root dir to import: ")
+  (if (interactive-p)
+      (setq verbose 'interactive))
   (unless (file-directory-p dir)
     (epackage-error "No such directory %s" dir))
   (let ((git (format "%s.git" (file-name-as-directory dir))))
@@ -4085,6 +4093,42 @@ Notes:
       (epackage-with-git-command dir verbose
 	"checkout" "-b" "master")
       alist))))
+
+;; (epackage-devel-compose-main "~/tmp/ep" "test" t)
+;;;###autoload
+(defun epackage-devel-compose-main (dir package &optional verbose)
+  "Convert Emacs Lisp Package DIR into Epackage.
+If VERBOSE is non-nil, display informational messages.
+
+Notes:
+  Only single file packages are handled.
+  See caveats from `epackage-devel-compose-git-import'."
+  (interactive
+   (let* ((dir (read-directory-name
+		"Lisp package root directory: "
+		default-directory
+		default-directory
+		'must-match
+		(not 'initial-value)))
+	  (default (if (string-match "/\\([^/]+\\)/$" dir)
+		       (match-string 1 dir)))
+	  (package (read-string "Epackage name: " default)))
+     (list dir
+	   package
+	   'interactive)))
+  (if (interactive-p)
+      (setq verbose 'interactive))
+  (unless (file-directory-p dir)
+    (epackage-error "No such directory %s" dir))
+  (epackage-devel-compose-git-import dir verbose)
+  (epackage-devel-compose-package-dir package dir verbose)
+  (when verbose
+    (let ((file (format "%s%s/%s"
+			(file-name-as-directory dir)
+			epackage--package-control-directory
+			"info")))
+      (epackage-message
+       "Epackage %s done, edit %s" package file))))
 
 ;;; ............................................... &functions-package ...
 
