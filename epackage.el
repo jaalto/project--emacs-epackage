@@ -1257,7 +1257,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1119.1150"
+(defconst epackage-version-time "2011.1119.1526"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -3389,8 +3389,9 @@ Returns:
   "Return list of Emacs Lisp files. Optionally EXCLUDE by regexp."
   (let (list)
     (dolist (elt (directory-files dir 'full "\\.el$"))
-      (when (or (null exclude)
-                (not (string-match exclude elt)))
+      (when (and (not (string-match "[#~]" elt))
+		 (or (null exclude)
+		     (not (string-match exclude elt))))
         (push elt list)))
     list))
 
@@ -3629,14 +3630,43 @@ If optional ERROR is non-nil, signal error if DIRECTORY was not created."
 	  (epackage-error "Directory creation not confirmed: %d" dir))
       nil))))
 
-(defun epackage-devel-generate-loaddefs (package dir)
-  "Generate PACKAGE loaddefs from DIR.
-The loaddefs are stored under directory
-`epackage--directory-name' as defined in `epackage--layout-mapping'."
-  (interactive "sPackage name: \nDEpackage loaddefs from dir: ")
-  (let ((file (epackage-layout-file-name dir package 'loaddefs)))
-    (epackage-autoload-generate-loaddefs-dir
-     dir file nil (interactive-p))))
+(defun epackage-devel-generate-loaddefs
+  (package root dir &optional recursive verbose)
+  "Generate PACKAGE loaddefs relative to ROOT from DIR.
+The loaddefs are stored under directory ROOT/`epackage--directory-name'.
+
+Input:
+
+    PACKAGE	Epackage name
+    ROOT	Epackage root directory (must exists).
+    DIR   	Emacs Lisp package directories. This can be a one string
+                or list of strings.
+    RECURSIVE   Optional. If non-nil, read all *.el files under DIR-LIST.
+		Interactive prefix.
+    VERBOSE	Optional. If non-nil, display verbose message.
+                Interactive call sets this."
+  (interactive "sPackage name: \nDPackage root dir: \nDRead loaddefs from dir: \np")
+  (when (or (not (stringp dir))
+	    (not (file-directory-p dir)))
+    (epackage-error "Drectory does not exist: %s" dir))
+  (when (or (not (stringp root))
+	    (not (file-directory-p root)))
+    (epackage-error "Drectory does not exist: %s" dir))
+  (let* ((file (epackage-layout-file-name root package 'loaddefs))
+	 (edir (file-name-directory file))
+	 (buffer epackage--buffer-autoload))
+    (if (interactive-p)
+	(setq verbose t))
+    (epackage-make-directory edir 'error)
+    (cond
+     (recursive
+      (dolist (elt (epackage-directory-recursive-lisp-files dir))
+	(epackage-autoload-generate-loaddefs-dir elt file nil verbose)))
+     (t
+      (if (stringp dir)
+	  (epackage-autoload-generate-loaddefs-dir elt file nil verbose)
+	(dolist (elt dir)
+	  (epackage-autoload-generate-loaddefs-dir elt file nil verbose)))))))
 
 ;; Copy of tinylisp-batch-autoload-generate-loaddefs-dir
 (defun epackage-batch-autoload-generate-loaddefs-dir (&optional exclude)
@@ -3647,7 +3677,8 @@ Optionally EXCLUDE files by regexp."
     item
     exclude)))
 
-(defun epackage-devel-generate-autoloads (package root dir &optional recursive verbose)
+(defun epackage-devel-generate-autoloads
+  (package root dir &optional recursive verbose)
   "Generate PACKAGE autoloads relative to ROOT manually from DIR.
 The autoloads are stored under directory ROOT/`epackage--directory-name'.
 
@@ -3698,7 +3729,6 @@ Notes:
       (delete-region (point-min) (point-max))
       (cond
        (recursive
-	;; (epackage-directory-recursive-lisp-files "~/vc/git/emacs-lisp-dev--bbdb")
 	(dolist (elt (epackage-directory-recursive-lisp-files dir))
 	  (epackage-autoload-create-on-directory elt)))
        (t

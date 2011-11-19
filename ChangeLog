@@ -21,6 +21,8 @@
 	(epackage-make-directory): New.
 	(epackage-with-buffer-autoload): New.
 	(epackage-devel-generate-autoloads): Implement.
+	(epackage-directory-file-list): Exclude [#~] fles.
+	(epackage-devel-generate-loaddefs): Implement.
 
 2011-11-18 Fri  Jari Aalto  <jari.aalto@cante.net>
 
