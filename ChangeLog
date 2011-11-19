@@ -1,3 +1,8 @@
+2011-11-19 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el: Adjust Tag descriptions of custom variables.
+	Patch thanks to David Ross <H.David.Ross@gmail.com>.
+
 2011-11-18 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-maintainer): Fix docstring.

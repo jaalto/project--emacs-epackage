@@ -1227,6 +1227,7 @@
 ;;; Code:
 
 (eval-when-compile
+  ;; Forward declarations, not really variable definitions.
   (defvar auto-revert-mode)
   (defvar global-auto-revert-mode)
   (defvar pcomplete-parse-arguments-function)
@@ -1256,7 +1257,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1118.0541"
+(defconst epackage-version-time "2011.1119.0803"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1570,19 +1571,19 @@ Never set this variable directly, use the command
 
 (defcustom epackage-info-mode-hook nil
   "Functions to run when Epackage Info Mode is called."
-  :tag "Epackage Info Hook"
+  :tag "Epackage Info Called Hook"
   :group 'epackage
   :type 'hook)
 
 (defcustom epackage-info-mode-on-hook nil
   "Functions to run when Epackage Info Mode is enabled."
-  :tag "Epackage Info Hook"
+  :tag "Epackage Info Mode On Hook"
   :group 'epackage
   :type 'hook)
 
 (defcustom epackage-info-mode-off-hook nil
   "Functions to run when Epackage Info Mode is disabled."
-  :tag "Epackage Info Hook"
+  :tag "Epackage Info Mode Off Hook"
   :group 'epackage
   :type 'hook)
 
@@ -3554,11 +3555,12 @@ Input:
 
 (defun epackage-autoload-write-autoload-files (&rest args)
   "Not implemented yet".
+  ;; FIXME
   nil)
 
 (defun epackage-autoload-generate-autoload-file-list
   (file list &optional verbose)
-  "Generate to FILE all loaddefs from LIST of files.
+  "Generate to FILE all autoload definitions from LIST of files.
 If optional VERBOSE is non-nil, display progress message."
   (dolist (elt list)
     (epackage-autoload-write-autoload-files elt file verbose)))
@@ -3616,7 +3618,7 @@ The loaddefs are stored under directory
   (let ((file (epackage-layout-file-name dir package 'autoloads)))
     ;; FIXME
     (epackage-autoload-create-on-directory dir)
-    ))
+    nil))
 
 (defun epackage-devel-compose-package (package dir)
   "Compose initial templates for PACKAGE in DIR.
@@ -3624,7 +3626,7 @@ Generating autoloads, loaddefs file and write other
 template files under `epackage--directory-name'.."
   (interactive "sPackage name: \nDEpackage initialize from dir: ")
   ;; FIXME
-  )
+  nil)
 
 ;;; ............................................... &functions-package ...
 
@@ -5136,7 +5138,7 @@ function description of `epackage-info-mode-tab-command'.
   "Initialize variable `epackage--info-mode-completions-section'.
 The values are list of cars from `finder-known-keywords'."
   (unless epackage--info-mode-completions-section
-    (require 'finder)
+    (require 'finder)			; To define finder-known-keywords
     (setq epackage--info-mode-completions-section
           (mapcar (lambda (elt)
                     (symbol-name (car elt)))
