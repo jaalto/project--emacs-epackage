@@ -1257,7 +1257,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1119.0803"
+(defconst epackage-version-time "2011.1119.0816"
   "Version of last edit.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1277,6 +1277,7 @@
 
 ;;; ................................................ &variables-custom ...
 
+;;;###autoload
 (defcustom epackage--install-action-list '(enable boot)
   "*TYPE of actions to run after package is installed.
 Default value is: '(enable boot)
@@ -1297,6 +1298,7 @@ for currently running Emacs; i.e. to take the extension into use."
            (const nil))
   :group 'epackage)
 
+;;;###autoload
 (defcustom epackage--download-action-list '(enable package-depends)
   "*TYPE of actions to run after package download.
 Default value is: '(enable package-depeds)
@@ -1331,6 +1333,7 @@ See also variable `epackage--depends-handling'."
   :type  '(list symbol)  ;; FIXME, list names of symbols
   :group 'epackage)
 
+;;;###autoload
 (defcustom epackage--depends-handling 'warn
   "*How to treat package depends. The default is 'warn.
 Possible values:
@@ -1434,6 +1437,7 @@ by function `epackage-file-name-sources-list-main'."
   :type  '(list string)
   :group 'epackage)
 
+;;;###autoload
 (defcustom epackage--sources-replace-table
   (if (memq system-type '(windows-nt ms-dos))
       '(("git://github" "http://github")))
@@ -1765,6 +1769,7 @@ See also variable `epackage--loader-file-byte-compile-flag'.")
 Not a user file. This is used internally during byte compiling
 packages.")
 
+;;;###autoload
 (defconst epackage--directory-exclude-regexp
   (concat
    (regexp-opt
@@ -3363,7 +3368,7 @@ If optional VERBOSE is non-nil, display progress message."
                 (epackage-message
                   "[NOTE] No autoload definitions in %s" file)))
            (t
-            ;; DVCS git does not like EOL whitespace or ^L
+            ;; DVCS git does not necessarily like EOL whitespace or ^L
             (epackage-buffer-remove-whitespace-eol)
             (epackage-save-buffer)
             (kill-buffer (current-buffer))))))))
@@ -3372,7 +3377,7 @@ If optional VERBOSE is non-nil, display progress message."
 (defun epackage-autoload-generate-loaddefs-file-list
   (file list &optional verbose)
   "Generate to FILE all loaddefs from LIST of files.
-If optional VERBOSE is non-nil, display progress message."
+If optional VERBOSE is non-nil, display messages."
   (dolist (elt list)
     (epackage-autoload-write-loaddefs-file elt file verbose)))
 
