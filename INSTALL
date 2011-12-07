@@ -1,3 +1,6 @@
-Verify "Depends" listed in README first.
+See "Depends" section in README first before using makefile to
+generate documentation. See choices with:
 
-Process with instruction given in "Install:" section of epackage.el.
+  make help
+
+See "Install:" section in epackage.el for more information.
