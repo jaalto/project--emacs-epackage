@@ -19,8 +19,8 @@ Project details
         Homepage        http://freecode.com/projects/emacs-epackage
         Wiki            http://www.emacswiki.org/emacs/DELPS
         Manual          http://www.nongnu.org/emacs-epackage/manual
-        Bugs            See freshmeat page
-        Source code     See freshmeat page
+        Bugs            See Homepage
+        Source code     See Homepage
 
         Depends
         - Emacs 22.1+ (released 2007).
@@ -41,10 +41,10 @@ References
             http://en.wikipedia.org/wiki/Git_(software)
 
         [2] Extract documentation that follows Technical Text Format guidelines
-            http://freshmeat.net/projects/perl-ripdoc
+            http://freecode.com/projects/perl-ripdoc
 
         [3] Convert Technical Text Format into HTML
-            http://freshmeat.net/projects/perl-text2html
+            http://freecode.com/projects/perl-text2html
 
 License
 
