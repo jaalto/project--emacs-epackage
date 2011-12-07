@@ -826,7 +826,7 @@
 ;;      should be used if the software has no license information in
 ;;      any of the source files. Examples of valid license tokens:
 ;;
-;;              GPL-2, GPL-2+, GPL-3, GPL-3+, BSD, Apache-2.0
+;;              GPL-2, GPL-2+, GPL-3, GPL-3+, BSD-2-clause, Apache-2.0
 ;;
 ;;      If License is not any of the OSI known standard licenses
 ;;      <http://www.opensource.org/licenses>, or if it contains
