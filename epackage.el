@@ -4129,7 +4129,7 @@ Notes:
     (let ((file (format "%s%s/%s"
 			(file-name-as-directory dir)
 			epackage--package-control-directory
-			"info")))
+			(epackage-layout-mapping-file 'info))))
       (epackage-message
        "Epackage %s done, edit %s" package file))))
 
