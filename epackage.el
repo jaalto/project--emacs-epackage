@@ -321,7 +321,7 @@
 ;;      `epackage--url-sources-list'. The order of the entries matter:
 ;;      the packages are read first-served basis. An example:
 ;;
-;;          (setq epackage--sources-file-list
+;;          (setq epackage--sources-file-list  ;; This is the default
 ;;                '("~/.emacs.d/epackage-local.lst"))
 ;;
 ;;      Say the *epackage-local.lst* lists package =foo= and file
@@ -1422,13 +1422,13 @@ to be used when creating new epackages. Needed by the developers."
   :type  'string
   :group 'epackage)
 
-(defcustom epackage--sources-file-list nil
+(defcustom epackage--sources-file-list
+  '("~/.emacs.d/epackage-local.lst")
   "*List of files that are in the form of `epackage--sources-yellow-pages-url'.
-In here you can list additional package repositories.
+In here you can list additional package repositories. Non-existing files
+will be ignored. Default is:
 
-An example:
-
-  '(\"~/.emacs.d/my/epackage-private-repo.lst\")
+  '(\"~/.emacs.d/epackage-local.lst\")
 
 The files listed will be combined before `epackage--sources-yellow-pages-url'
 into a the main package sources list file whose path is returned
@@ -1756,7 +1756,7 @@ Do not touch. See variable `epackage--sources-yellow-pages-url'.")
 
 (defvar epackage--sources-file-name-main "sources.lst"
   "Name of the combined yellow pages file that lists available packages.
-Do not touch. See variables `epackage--sources-yellow-pages-url'
+Do not touch. See User configurable variables `epackage--sources-yellow-pages-url'
 and `epackage--sources-file-list'.")
 
 (defvar epackage--loader-file-name "epackage-loader.el"
@@ -4279,7 +4279,10 @@ Before saving, apply `epackage--sources-replace-table'."
       (goto-char (point-max))
       (epackage-verbose-message "Combining sources list file %s" elt)
       (insert "###file: " file "\n")
-      (insert-file-contents elt))
+      (if (file-exists-p file)
+	  (insert-file-contents elt)
+	(insert "# ERROR: Not found\n")
+	(epackage-message "WARNING: Non-existing file for combine: %s" file))))
     (epackage-with-message
         verbose (format "Write master sources list file %s" file)
       (goto-char (point-min))
