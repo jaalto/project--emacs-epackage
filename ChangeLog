@@ -1,3 +1,8 @@
+2011-12-07 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-devel-compose-git-import): Fix
+	byte compile.
+
 2011-11-19 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el: Adjust Tag descriptions of custom variables.

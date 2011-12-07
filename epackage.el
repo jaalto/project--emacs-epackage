@@ -2939,7 +2939,7 @@ If optional FULL is non-nil, include field in narrowed region."
 		    (point-max))))
     (cond
      (full
-      (setq beg car region))
+      (setq beg (car region)))
      (t
       (setq beg (1+ (nth 1 region)))	; after colon(:)
       (goto-char beg)
@@ -3756,7 +3756,7 @@ If optional ERROR is non-nil, signal error if DIRECTORY was not created."
       t)
      (t
       (if error
-	  (epackage-error "Directory creation not confirmed: %d" dir))
+	  (epackage-error "Directory creation not confirmed: %d" directory))
       nil))))
 
 (defun epackage-devel-generate-loaddefs
@@ -3793,9 +3793,9 @@ Input:
 	(epackage-autoload-generate-loaddefs-dir elt file nil verbose)))
      (t
       (if (stringp dir)
-	  (epackage-autoload-generate-loaddefs-dir elt file nil verbose)
+	  (epackage-autoload-generate-loaddefs-dir dir file nil verbose)
 	(dolist (elt dir)
-	  (epackage-autoload-generate-loaddefs-dir elt file nil verbose)))))))
+	  (epackage-autoload-generate-loaddefs-dir dir file nil verbose)))))))
 
 ;; Copy of tinylisp-batch-autoload-generate-loaddefs-dir
 (defun epackage-batch-autoload-generate-loaddefs-dir (&optional exclude)
@@ -3929,6 +3929,7 @@ Point is not preserved."
 		 (lm-header "Updated")
 		 (lm-header "Last-Updated")
 		 (lm-header "Modified")))
+	iso
 	version)
     (when (and (not str)
 	       ;; See if version is in format YYYY.MMDD
@@ -3991,7 +3992,7 @@ under `epackage--directory-name'."
       (if (not (file-exists-p autoloads))
 	  (epackage-verbose-message "[NOTE] File does not exist %s" autoloads)
 	(with-temp-buffer
-	  (insert-file autoloads)
+	  (insert-file-contents autoloads)
 	  (goto-char (point-min))
 	  ;; Searh line that have "t" at end:
 	  ;;
@@ -4047,9 +4048,10 @@ Notes:
 	list)
     (if (> (length dirs) 1)
 	(epackage-error
-	 `,(format
-	    "Abort. epackage-devel-compose-git-import "
-	    "can only handle single file packages (dirs: %d)."
+	 (format
+	    `,(concat
+	       "Abort. epackage-devel-compose-git-import "
+	       "can only handle single *.el file packages (dirs: %d).")
 	    (length dirs))))
     (setq files (directory-files dir nil "\\.el$"))
     (unless files
@@ -4060,16 +4062,17 @@ Notes:
 	(epackage-push elt list)))
     (if (> (length list) 1)
 	(epackage-error
-	 `,(format
-	    "Abort. epackage-devel-compose-git-import "
-	    "can only handle single file packages (files: %d)."
+	 (format
+	    `,(concat
+	       "Abort. epackage-devel-compose-git-import "
+	       "can only handle single *.el packages (files: %d).")
 	    (length list))))
     (let ((file (car list))
 	  version
 	  date
 	  alist)
     (with-temp-buffer
-      (insert-file file)
+      (insert-file-contents file)
       (setq alist (epackage-devel-information-buffer))
       (unless (setq date (nth 1 (assoc "date" alist)))
 	(epackage-error "Cannot find version field from file %s" file))
