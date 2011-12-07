@@ -16,11 +16,6 @@
 #
 #	You should have received a copy of the GNU General Public License
 #	along with this program. If not, see <http://www.gnu.org/licenses/>.
-#
-#    Depends
-#
-#	http://freshmeat.net/projects/perl-text2html
-#	http://freshmeat.net/projects/perl-ripdoc
 
 PACKAGE		= epackage
 SRC		= $(PACKAGE).el
