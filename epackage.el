@@ -463,11 +463,11 @@
 ;;          <PACKAGE, the Emacs extension root dir>
 ;;          | <upstream files and possible directories>
 ;;          |
-;;          +- .git/                  Version control branches (see above)
+;;          +- .git/                       Version control branches
 ;;          |
 ;;          +-- epackage/
-;;              info                  required: The information file
-;;              lisp		      optional: Location of Emacs Lisp files
+;;              info                       required: The information file
+;;              lisp		           optional: Location of Emacs Lisp files
 ;;              PACKAGE-epkg-0loaddefs.el  optional: extracted ###autoload statements
 ;;              PACKAGE-epkg-autoloads.el  optional: autoload statements (manual)
 ;;              PACKAGE-epkg-clean.el      optional: Code to run "make clean" equivalent
