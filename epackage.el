@@ -744,15 +744,12 @@
 ;;     Description (required)
 ;;
 ;;      The first line of this field is a concise description that
-;;      fits on maximum line length of 80 characters; words
+;;      fits on maximum line length of 80 characters; word
 ;;      "Description: " included. The long description should explain
-;;      the essential M-x commands to use the package. Like mentioning
-;;      M-x foo-mode or saying: "With standard install the mode is
-;;      activated if you load file ending to *.xxx" etc. The details
-;;      of an extension are explained in the following paragraphs
-;;      which are separated from each other with a single dot(.) on
-;;      their own lines. The long description's paragraphs are
-;;      indented by one space.
+;;      the essential M-x commands to use the package. The details of
+;;      the extension are explained in the following paragraphs which
+;;      are separated from each other with a single dot(.) on their
+;;      own lines. The paragraphs are indented by one space.
 ;;
 ;;     Depends (required)
 ;;
