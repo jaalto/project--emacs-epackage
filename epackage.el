@@ -4282,7 +4282,7 @@ Before saving, apply `epackage--sources-replace-table'."
       (if (file-exists-p file)
 	  (insert-file-contents elt)
 	(insert "# ERROR: Not found\n")
-	(epackage-message "WARNING: Non-existing file for combine: %s" file))))
+	(epackage-message "WARNING: Non-existing file for combine: %s" file)))
     (epackage-with-message
         verbose (format "Write master sources list file %s" file)
       (goto-char (point-min))
