@@ -1832,7 +1832,8 @@ packages.")
       ))
    "$")
   "Regexp to exclude dirctory names.
-See 'epackage-directory-recursive-list-default'.")
+See 'epackage-directory-recursive-list-default'
+which also excludes directories than contain file .nosearch.")
 
 (defconst epackage--info-layout-mapping
   '(("Package" "[a-z0-9-]+")
@@ -6441,6 +6442,7 @@ If optional VERBOSE is non-nil, display progress message."
       (let ((epackage--initialize-flag t))
 	(epackage-cmd-download-sources-list verbose))))
   (setq epackage--initialize-flag t)
+  (epackage-sources-list-build verbose)
   (run-hooks 'epackage--initialize-hook))
 
 ;;;###autoload

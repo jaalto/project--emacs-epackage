@@ -8,6 +8,8 @@
 	(epackage-devel-compose-main): Use `epackage-layout-mapping-file'.
 	(epackage-loader-file-insert-header): Mention M-x command.
 	(epackage-combine-files): Check for non-existing files.
+	(epackage-initialize): Call `epackage-sources-list-build'.
+	(epackage--directory-exclude-regexp): Add .nosearch to docstring.
 
 2011-11-19 Sat  Jari Aalto  <jari.aalto@cante.net>
 
