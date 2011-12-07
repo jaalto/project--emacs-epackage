@@ -468,15 +468,15 @@
 ;;          +-- epackage/
 ;;              info                  required: The information file
 ;;              lisp		      optional: Location of Emacs Lisp files
-;;              PACKAGE-0loaddefs.el  optional: extracted ###autoload statements
-;;              PACKAGE-autoloads.el  optional: autoload statements (manual)
-;;              PACKAGE-clean.el      optional: Code to run "make clean" equivalent
-;;              PACKAGE-compile.el    optional: Code to byte compile the extension
-;;              PACKAGE-configure.el  optional: Code to run ./configure
-;;              PACKAGE-examples.el   optional: Customization examples
-;;              PACKAGE-install.el    required: Code to make the extension available
-;;              PACKAGE-uninstall.el  optional: Code to remove the extension
-;;              PACKAGE-xactivate.el  optional: Code to activate the extension
+;;              PACKAGE-epkg-0loaddefs.el  optional: extracted ###autoload statements
+;;              PACKAGE-epkg-autoloads.el  optional: autoload statements (manual)
+;;              PACKAGE-epkg-clean.el      optional: Code to run "make clean" equivalent
+;;              PACKAGE-epkg-compile.el    optional: Code to byte compile the extension
+;;              PACKAGE-epkg-configure.el  optional: Code to run ./configure
+;;              PACKAGE-epkg-examples.el   optional: Customization examples
+;;              PACKAGE-epkg-install.el    required: Code to make the extension available
+;;              PACKAGE-epkg-uninstall.el  optional: Code to remove the extension
+;;              PACKAGE-epkg-xactivate.el  optional: Code to activate the extension
 ;;
 ;;      All these configuration files are combined in a single loader
 ;;      file. Loading a single file is faster than spending time in
@@ -1258,7 +1258,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1119.2103"
+(defconst epackage-version-time "2011.1207.0851"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1849,14 +1849,14 @@ Format is:
   '((FIELD CONTENT-TEST-REGEXP) ...).")
 
 (defconst epackage--layout-mapping
-  '((activate   "-xactivate.el")
-    (autoload   "-autoloads.el")
-    (enable     "-install.el"  'required)
-    (compile    "-compile.el")
+  '((activate   "-epkg-xactivate.el")
+    (autoload   "-epkg-autoloads.el")
+    (enable     "-epkg-install.el"  'required)
+    (compile    "-epkg-compile.el")
     (info       "info"  'required)
     (lisp       "lisp")
-    (loaddefs   "-0loaddefs.el")
-    (uninstall  "-uninstall.el"))
+    (loaddefs   "-epkg-0loaddefs.el")
+    (uninstall  "-epkg-uninstall.el"))
   "File type and its mappings in `epackage--package-control-directory'.
 Format is:
   '((TYPE  FILENAME [REQUIRED-FLAG]) ...)
