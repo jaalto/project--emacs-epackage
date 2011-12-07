@@ -1644,7 +1644,7 @@ Never set this variable directly, use the command
      1 'font-lock-keyword-face)
     ("^\\(X-[^ \t\r\n]+\\):"
      1 'font-lock-string-face)
-    ("^\\([A-Z][^ \t\r\n]+\\):"
+    ("^\\([A-Z-][^ \t\r\n]+\\):"
      1 'font-lock-builtin-face))
   "Keywords to hilight Epackage Info mode.")
 

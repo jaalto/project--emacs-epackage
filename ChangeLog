@@ -2,6 +2,8 @@
 
 	* epackage.el (epackage-devel-compose-git-import): Fix
 	byte compile.
+	(epackage-info-mode-font-lock-keywords): Allow dash
+	in header names.
 
 2011-11-19 Sat  Jari Aalto  <jari.aalto@cante.net>
 
