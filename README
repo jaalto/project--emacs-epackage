@@ -3,49 +3,53 @@ README: epackage.el for Emacs
 
 Description
 
-	An Emacs extension for Distributed Emacs Lisp Package System
-	(DELPS). With it, you can install Emacs extensions that have
-	been put available as git DVCS repositories. This format is
-	called "epackage".
+        An Emacs extension for Distributed Emacs Lisp Package System
+        (DELPS). With it, you can install Emacs extensions that have
+        been put available as git DVCS repositories. This format is
+        called "epackage".
 
 Important files
 
-    	COPYING*	GPL-2+ Source. Docs are dual GPL-2+/GFDL
-    	INSTALL         Install instructions
-    	ChangeLog	Project change records
+        COPYING*        GPL-2+ Source. Docs are dual GPL-2+/GFDL
+        INSTALL         Install instructions
+        ChangeLog       Project change records
 
 Project details
 
-	Homepage	http://freshmeat.net/projects/emacs-epackage
-	Wiki            http://www.emacswiki.org/emacs/DELPS
-	Manual		http://www.nongnu.org/emacs-epackage/manual
-	Bugs		See freshmeat page
-	Source code	See freshmeat page
+        Homepage        http://freshmeat.net/projects/emacs-epackage
+        Wiki            http://www.emacswiki.org/emacs/DELPS
+        Manual          http://www.nongnu.org/emacs-epackage/manual
+        Bugs            See freshmeat page
+        Source code     See freshmeat page
 
-	Depends
-	- Emacs 22.1+ (released 2007).
-	- git[1], any version.
-	- OpenSSH client, any version (for the git:// repository protocol).
-	- Depends only on standard Emacs. Does not use external or
+        Depends
+        - Emacs 22.1+ (released 2007).
+        - Git[1], any version.
+        - Depends only on standard Emacs. Does not use external or
           "cl" libraries.
-	- For "make doc" which generates HTML documentation, the
-	  Perl utilities ripdoc[2] and t2html[3] are needed in PATH.
+
+	Depends (optional)
+        - Perl, and utilities: ripdoc[2] and t2html[3].
+          Use in Makefile's "make doc" command to generate HTML
+          documentation.
+        - OpenSSH client, any version. For package maintainers that
+	  push packages to remote git:// repositories.
 
 References
 
-	[1] Git Distributed Version Control System (DVCS).
-	    http://en.wikipedia.org/wiki/Git_(software)
+        [1] Git Distributed Version Control System (DVCS).
+            http://en.wikipedia.org/wiki/Git_(software)
 
-	[2] Extract documentation that follows Technical Text Format guidelines
-	    http://freshmeat.net/projects/perl-ripdoc
+        [2] Extract documentation that follows Technical Text Format guidelines
+            http://freshmeat.net/projects/perl-ripdoc
 
-	[3] Convert Technical Text Format into HTML
-	    http://freshmeat.net/projects/perl-text2html
+        [3] Convert Technical Text Format into HTML
+            http://freshmeat.net/projects/perl-text2html
 
 License
 
-	This program is free software; you can redistribute and/or modify
-	program under the terms of GNU General Public license either version 2
-	of the License, or (at your option) any later version.
+        This program is free software; you can redistribute and/or modify
+        program under the terms of GNU General Public license either version 2
+        of the License, or (at your option) any later version.
 
 End of file
