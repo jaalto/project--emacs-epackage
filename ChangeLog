@@ -6,6 +6,7 @@
 	in header names.
 	(epackage--layout-mapping): Add *-epkg-* to all files.
 	(epackage-devel-compose-main): Use `epackage-layout-mapping-file'.
+	(epackage-loader-file-insert-header): Mention M-x command.
 
 2011-11-19 Sat  Jari Aalto  <jari.aalto@cante.net>
 

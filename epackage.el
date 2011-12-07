@@ -4609,6 +4609,7 @@ If optional VERBOSE is non-nil, display progress message."
     "\
 ;; Epackge boot file -- automatically generated
 ;;
+;; M-x epackage-loader-file-generate-boot
 ;; Do not modify. Changes done here will be lost.
 
 "))
