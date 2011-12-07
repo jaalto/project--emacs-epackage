@@ -686,13 +686,13 @@
 ;;
 ;;  The 'lisp' file
 ;;
-;;	This file contains Emacs Lisp file directory or directories
-;;	relative to the root of package. files in the package. Empty
-;;	lines and standalone comments starting with "#" are ignored.
-;;	Comments must not be placed at the directory lines. If all the
-;;	Emacs Lisp files are in the package's root directory, this
-;;	file not needed. The file is used internally to find out if
-;;	the package has been byte compiled or not. An example:
+;;	This file contains Emacs Lisp file directories relative to the
+;;	root of package. Empty lines and standalone comments on their
+;;	own lines starting with "#" are ignored. Comments must not be
+;;	placed at the directory lines. If all the Emacs Lisp files are
+;;	in the package's root directory, this file not needed. The
+;;	file is used internally to find out if the package has been
+;;	byte compiled or not.
 ;;
 ;;  Details of the info file fields
 ;;
