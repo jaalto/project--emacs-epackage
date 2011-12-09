@@ -1,5 +1,8 @@
 2011-12-09 Fri  Jari Aalto  <jari.aalto@cante.net>
 
+	* epackage.el (epackage--directory-exclude-regexp): Adjust
+	paren position.
+
 	* README (Important files): Add AUTHORS.
 	(Project details): Adjust depends.
 	(References): Minot updates.

@@ -1256,7 +1256,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1207.0851"
+(defconst epackage-version-time "2011.1209.1245"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1828,8 +1828,7 @@ packages.")
       "/tex"
       "/texinfo"
       "/html"
-      "/test"
-      ))
+      "/test"))
    "$")
   "Regexp to exclude dirctory names.
 See 'epackage-directory-recursive-list-default'
