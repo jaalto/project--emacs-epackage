@@ -6357,7 +6357,8 @@ If optional VERBOSE is non-nil, display progress messages."
               "Abort. No URL to download package: %s" package)
           (epackage-download-package package verbose)
 	  (epackage-download-package-actions package verbose))
-        (when verbose
+        (when (and url
+		   verbose)
           (let ((warnings (epackage-pkg-info-status-warnings package)))
             (if warnings
                 (epackage-warn

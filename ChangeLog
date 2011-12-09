@@ -21,6 +21,8 @@
 	(epackage-devel-information-date-lm): New.
 	(epackage-devel-information-date-main): Rename. Was
 	`epackage-devel-information-date'. Rewrite.
+	(epackage-cmd-download-package): Check url before trying
+	to show package warnings.
 
 2011-12-09 Fri  Jari Aalto  <jari.aalto@cante.net>
 
