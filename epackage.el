@@ -847,11 +847,16 @@
 ;;      "[a-z][a-z0-9-]+". Usually base name of the extension file or
 ;;      the canonical known name in case of bigger packages like
 ;;      "gnus". An example "html-helper-mode.el" => package name is
-;;      "html-helper-mode". In case of minor or major modes, always
-;;      add *-mode even if file name does not explicitly say so. An
-;;      example "python.el" => package name is "python-mode". No two
-;;      packages can have the same name. Please notify upstream if
-;;      any package name clashes.
+;;      "html-helper-mode". No two packages can have the same name.
+;;      Please notify upstream if about package name problems. Rules:
+;;
+;;	o   In case of minor or major modes, always
+;;          add *-mode even if file name does not explicitly say so. An
+;;          example "python.el" => package name is "python-mode".
+;;      o   In extension is ment to be a library (e.g. xml-rpc), start
+;;          package name with "lib-<rest of the name>". This way user
+;;          who is browsing the list of packages can ignore or complete
+;;          these packages easily.
 ;;
 ;;      Note: There may be exotically named extensions like "crypt++",
 ;;      but the *epackage* name must not contains special characters
@@ -1254,7 +1259,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1209.1648"
+(defconst epackage-version-time "2011.1209.1841"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
