@@ -1259,7 +1259,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1209.1841"
+(defconst epackage-version-time "2011.1209.1859"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -6291,7 +6291,7 @@ If optional VERBOSE is non-nil, display progress messages."
   (let ((status (epackage-sources-list-download verbose)))
     (unless status
       (epackage-sources-list-upgrade verbose)
-      (epackage-message verbose "Upgrade sources list")))
+      (epackage-verbose-message "Upgrade sources list")))
   (epackage-sources-list-build verbose))
 
 ;;;###autoload
