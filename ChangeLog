@@ -23,6 +23,8 @@
 	`epackage-devel-information-date'. Rewrite.
 	(epackage-cmd-download-package): Check url before trying
 	to show package warnings.
+	(epackage--batch-ui-menu-string): Correct ?u command
+	description.
 
 2011-12-09 Fri  Jari Aalto  <jari.aalto@cante.net>
 

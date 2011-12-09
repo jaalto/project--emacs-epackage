@@ -1958,7 +1958,7 @@ p       List available (p)ackages in sources list
 r       Remove; delete package physically from local disk
 t          Ac(t)ion toggle: after download, install (e)nable configuration
 T          Ac(T)ion toggle: after download, install (a)ctivate configuration
-u       Upgrade epackage. Download new updates
+u       Upgrade single epackage
 U       Upgrade all epackages
 y         B(y)te compile epackage
 Y         Action toggle: after every download, b(y)te compile epackage
