@@ -1,3 +1,9 @@
+2011-12-09  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-combine-files): Correct variable
+	in loop.
+	(epackage--loader-file-byte-compile-flag): Adjust docstring.
+
 2011-12-09 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage--directory-exclude-regexp): Adjust

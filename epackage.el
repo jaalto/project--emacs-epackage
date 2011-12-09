@@ -63,8 +63,7 @@
 ;;      ;;  M-x epackage to start the epackage manager
 ;;      (autoload 'epackage "epackage" "" t)
 ;;
-;;      (autoload 'epackage-loader-file-byte-compile    "epackage" "" t)
-;;      (autoload 'epackage-loader-file-generate        "epackage" "" t)
+;;      (autoload 'epackage-loader-file-generate-boot   "epackage" "" t)
 ;;      (autoload 'epackage-cmd-autoload-package        "epackage" "" t)
 ;;      (autoload 'epackage-cmd-enable-package          "epackage" "" t)
 ;;      (autoload 'epackage-cmd-disable-package         "epackage" "" t)
@@ -1384,7 +1383,7 @@ When non-nil, this verification takes place after every sources list update."
 
 (defcustom epackage--loader-file-byte-compile-flag t
   "*Non-nil means to byte compile `epackage--loader-file-boot'.
-When non-nil, After calling `epackage-loader-file-generate', file
+If non-nil, after calling `epackage-loader-file-generate-boot', the file
 returned by `epackage-file-name-loader-file' is byte compiled."
   :type  'boolean
   :group 'epackage)
@@ -4278,8 +4277,8 @@ Before saving, apply `epackage--sources-replace-table'."
     (dolist (elt list)
       (goto-char (point-max))
       (epackage-verbose-message "Combining sources list file %s" elt)
-      (insert "###file: " file "\n")
-      (if (file-exists-p file)
+      (insert "###file: " elt "\n")
+      (if (file-exists-p elt)
 	  (insert-file-contents elt)
 	(insert "# ERROR: Not found\n")
 	(epackage-message "WARNING: Non-existing file for combine: %s" file)))
@@ -4783,7 +4782,7 @@ Return:
 
 ;;;###autoload
 (defun epackage-loader-file-generate-boot (&optional verbose)
-  "Generate boot loader for all installed or activated packages.
+  "Generate boot loader for all enabled and activated packages.
 If optional VERBOSE is non-nil, display progress message."
   (interactive
    (list 'interactive))
