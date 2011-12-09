@@ -1,8 +1,20 @@
+2011-12-09 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el
+	(top level): Reduce use of term Yellow Pages.
+	(epackage-batch-ui-upgrade-sources-list): Rename.
+	Was `epackage-batch-ui-download-sources-list'.
+	(epackage-cmd-upgrade-sources-list): New.
+	(epackage--sources-list-url): Rename. Was
+	`epackage--sources-yellow-pages-url'.
+	(epackage--sources-list-url): Change from defcustom to defvar.
+
 2011-12-09  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-combine-files): Correct variable
 	in loop.
 	(epackage--loader-file-byte-compile-flag): Adjust docstring.
+	(epackage-cmd-download-sources-list): Do not upgrade automatically.
 
 2011-12-09 Fri  Jari Aalto  <jari.aalto@cante.net>
 

@@ -73,7 +73,7 @@
 ;;      (autoload 'epackage-cmd-remove-package          "epackage" "" t)
 ;;      (autoload 'epackage-cmd-upgrade-package         "epackage" "" t)
 ;;      (autoload 'epackage-cmd-upgrade-all-packages    "epackage" "" t)
-;;      (autoload 'epackage-cmd-download-sources-list   "epackage" "" t)
+;;      (autoload 'epackage-cmd-sources-list-download   "epackage" "" t)
 ;;      (autoload 'epackage-cmd-download-package        "epackage" "" t)
 ;;      (autoload 'epackage-initialize                  "epackage" "" t)
 ;;      (autoload 'epackage-version                     "epackage" "" t)
@@ -201,13 +201,12 @@
 ;;      installed on top of upstream code in a separate directory, the
 ;;      whole git repository is made available online and information
 ;;      about the availability of new epackage is recorded to a
-;;      separate seources list file, aka the yellow pages. The
-;;      epackaging work can be done by anyone who wants to set up a
-;;      repository. It doesn't necesarily need to be done by the
-;;      original Emacs extension author (upstream) who may not be
-;;      familiar with the `Git' distributed version control system.
-;;      For more information about the packaging, refer to section
-;;      "The DELPS framework".
+;;      separate seources list file. The epackaging work can be done
+;;      by anyone who wants to set up a repository. It doesn't
+;;      necesarily need to be done by the original Emacs extension
+;;      author (upstream) who may not be familiar with the `Git'
+;;      distributed version control system. For more information about
+;;      the packaging, refer to section "The DELPS framework".
 ;;
 ;;      [1] DVCS = Distributed Version Control System
 ;;          http://en.wikipedia.org/wiki/Distributed_revision_control
@@ -254,7 +253,7 @@
 ;;      o   _d_, Download package.
 ;;      o   D, run `dired' on package installation directory.
 ;;          as for new wish list features, report bugs etc.
-;;      o   g, Get yellow page data. Update package sources list.
+;;      o   g, Get. Update package sources list.
 ;;      o   _e_, Enable standard configuration for package.
 ;;      o   _E_, Disable standard configuration for package.
 ;;      o   l<key>, (l)ist: available, installed, downloaded, enabled,
@@ -1042,8 +1041,8 @@
 ;;          epackage-batch-ui-loader-file-generate
 ;;          epackage-batch-ui-loader-file-byte-compile
 ;;
-;;          ;; This command upgrades the yellow pages file
-;;          epackage-batch-ui-download-sources-list
+;;          ;; This command upgrades the sources list
+;;          epackage-batch-ui-sources-list-upgrade
 ;;
 ;; Development notes
 ;;
@@ -1077,7 +1076,7 @@
 ;;      knowledge about all the available packages and their version
 ;;      numbers. In Debian, then commands can build the full
 ;;      dependency list and check if install is even possible. In
-;;      contrast, the epackage yellow pages refers to distributed
+;;      contrast, the epackage sources list refers to distributed
 ;;      locations. The available versions or further depends
 ;;      information can only be determined only after the package has
 ;;      been downloaded by reading the "Depends:" field. Because of
@@ -1163,7 +1162,7 @@
 ;;      General
 ;;
 ;;      o   Download problem, broken link:
-;;          => Offer mailing the Yellow page maintainer
+;;          => Offer mailing the Yellow Page maintainer
 ;;      o   What if user manually deletes directories? Left over config files?
 ;;
 ;;      REPO
@@ -1255,7 +1254,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1209.1249"
+(defconst epackage-version-time "2011.1209.1648"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1355,7 +1354,7 @@ which see."
 (defcustom epackage--sources-list-and-repository-sync-flag t
   "*Non-nil means to recreate any changed repositories.
 When this variable is non-nil, whenever function
-`epackage-cmd-download-sources-list' is called, all the URLs in
+`epackage-cmd-sources-list-download' is called, all the URLs in
 the list are matched against the git 'origin' URLs in respective
 downloaded repositories. If package's sources list URL differ
 from the repository on disk, the package will be deleted and
@@ -1388,9 +1387,9 @@ returned by `epackage-file-name-loader-file' is byte compiled."
   :type  'boolean
   :group 'epackage)
 
-(defcustom epackage--sources-yellow-pages-url
+(defvar epackage--sources-list-url
   "git://github.com/jaalto/project--emacs-epackage-sources-list.git"
-  "URL to the location of the official Git package list. The yellow pages.
+  "URL to the location of the official Git package list.
 This is the Git repository that contains the canonical list of
 available packages.
 
@@ -1409,13 +1408,11 @@ An example:
   foo git://example.com/repository/foo.git
 
 This list is combined with additional sources list in
-variable `epackage--sources-file-list'."
-  :type  'string
-  :group 'epackage)
+variable `epackage--sources-file-list'.")
 
 (defcustom epackage--url-epkg-template
   "git://github.com/jaalto/project--emacs-epackage-template.git"
-  "URL to the location of the epackage template repository. The yellow pages.
+  "URL to the location of the epackage template repository.
 This is the Git repository that contains the canonical ttemplate files
 to be used when creating new epackages. Needed by the developers."
   :type  'string
@@ -1423,13 +1420,13 @@ to be used when creating new epackages. Needed by the developers."
 
 (defcustom epackage--sources-file-list
   '("~/.emacs.d/epackage-local.lst")
-  "*List of files that are in the form of `epackage--sources-yellow-pages-url'.
+  "*List of files that are in the form of `epackage--sources-list-url'.
 In here you can list additional package repositories. Non-existing files
 will be ignored. Default is:
 
   '(\"~/.emacs.d/epackage-local.lst\")
 
-The files listed will be combined before `epackage--sources-yellow-pages-url'
+The files listed will be combined before `epackage--sources-list-url'
 into a the main package sources list file whose path is returned
 by function `epackage-file-name-sources-list-main'."
   :type  '(list string)
@@ -1444,9 +1441,9 @@ by function `epackage-file-name-sources-list-main'."
 Format:
   '((regexp string [regexp submatch] ...))
 
-Possible use case:
+Use case:
 
-  If you're behind firewall that blocks git port, change all
+  If you're behind a firewall that blocks git port, change all
   git:// protocols to http:// to access the repositories.
 
   ;; Use this
@@ -1684,7 +1681,7 @@ time in `epackage-info-mode-tab-command'.")
             ;;  In case there i no description, do not *require*
             ;;  a match
             "\\(?:[ \t]+\\([^ \t\r\n]+.+[^ \t\r\n]+\\)\\)?")
-  "Regexp to match entries described in `epackage--sources-yellow-pages-url'.
+  "Regexp to match entries described in `epackage--sources-list-url'.
 The %s marks the package name.")
 
 (defcustom epackage--root-directory
@@ -1729,20 +1726,20 @@ Use function `epackage-directory' for full path name.")
 Use function `epackage-directory-packages' for full path name.")
 
 (defconst epackage--directory-name-conf "00conf"
-  "The name of local yellow pages repository.
+  "The name of local sources list repository.
 Use `epackage-directory-loader' for full path name.")
 
 (defconst epackage--sources-package-name "00sources"
-  "The name of local yellow pages repository directory.
-Copy of `epackage--sources-yellow-pages-url'.")
+  "The name of local sources list repository directory.
+Copy of `epackage--sources-list-url'.")
 
 (defconst epackage--directory-name-install "00install"
   "Install directory under `epackage--root-directory'.
 This directory contains control files from packages.")
 
 (defvar epackage--sources-file-name-official "epackage.lst"
-  "Name of official yellow pages file that lists available packages.
-Do not touch. See variable `epackage--sources-yellow-pages-url'.")
+  "Name of official sources list file that lists available packages.
+Do not touch. See variable `epackage--sources-list-url'.")
 
 (defvar epackage--package-control-directory "epackage"
   "Name of directory inside VCS controlled package.")
@@ -1751,11 +1748,11 @@ Do not touch. See variable `epackage--sources-yellow-pages-url'.")
 ;;;###autoload
 (defvar epackage--pkg-info-file-name "info"
   "Name of information file of epackage.
-Do not touch. See variable `epackage--sources-yellow-pages-url'.")
+Do not touch. See variable `epackage--sources-list-url'.")
 
 (defvar epackage--sources-file-name-main "sources.lst"
-  "Name of the combined yellow pages file that lists available packages.
-Do not touch. See User configurable variables `epackage--sources-yellow-pages-url'
+  "Name of the combined sources list file that lists available packages.
+Do not touch. See User configurable variables `epackage--sources-list-url'
 and `epackage--sources-file-list'.")
 
 (defvar epackage--loader-file-name "epackage-loader.el"
@@ -1945,14 +1942,14 @@ c       Clean install configuration files (whole uninstall)
 d       Download epackage
 e       Install standard (e)nable configuration from epackage
 E       Uninstall standard enable configuration from epackage
-g       Get sources list; update the yellow page data
+g       Get sources list; update available packages data
 i         Display (i)nfo file of epackage
 I         Display documentation of extension.
 l       List installed epackages
 L       List downloaded epackages
 n       List (n)ot installed epackages
 o       Install aut(o)load configuration from epackage
-p       List available (p)ackages in sources list; yellow pages
+p       List available (p)ackages in sources list
 r       Remove; delete package physically from local disk
 t          Ac(t)ion toggle: after download, install (e)nable configuration
 T          Ac(T)ion toggle: after download, install (a)ctivate configuration
@@ -1972,7 +1969,7 @@ Y         Action toggle: after every download, b(y)te compile epackage
     (?d epackage-batch-ui-download-package)
     (?e epackage-batch-ui-enable-package)
     (?E epackage-batch-ui-disable-package)
-    (?g epackage-batch-ui-download-sources-list)
+    (?g epackage-batch-ui-sources-list-upgrade)
     (?i epackage-batch-ui-display-package-info)
     (?I epackage-batch-ui-display-package-documentation)
     (?l epackage-batch-ui-list-installed-packages)
@@ -2637,12 +2634,12 @@ The TYPE is car of list `epackage--layout-mapping'."
         file)))
 
 (defsubst epackage-directory-sources-list ()
-  "Return sources list build directory; the yellow pages.
+  "Return sources list build directory.
 Location of `epackage--sources-file-name-main'."
   (epackage-directory-conf))
 
 (defsubst epackage-sources-list-official-directory ()
-  "Return sources list repository directory; the yellow pages.
+  "Return sources list repository directory.
 location of `epackage--sources-file-name-official'."
   (epackage-directory-package-root epackage--sources-package-name))
 
@@ -4238,8 +4235,9 @@ still in pristine state."
           (epackage-recreate-package package verbose)))))))
 
 (defun epackage-sources-list-upgrade (&optional verbose)
-  "Update list of available packages; the yellow pages.
-If optional VERBOSE is non-nil, display progress message."
+  "Update list of available packages.
+If optional VERBOSE is non-nil, display progress message.
+This is a low level command."
   (let ((dir (epackage-sources-list-official-directory)))
     (unless (file-directory-p dir)
       (epackage-error
@@ -4295,7 +4293,7 @@ Before saving, apply `epackage--sources-replace-table'."
       (epackage-write-region (point-min) (point-max) file))))
 
 (defun epackage-sources-list-initialize (&optional verbose)
-  "Build list of available packages; the yellow pages.
+  "Build list of available packages.
 If optional VERBOSE is non-nil, display progress message."
   (let ((dir (epackage-directory-sources-list))
         (official (epackage-file-name-sources-list-official)))
@@ -4797,7 +4795,7 @@ If optional VERBOSE is non-nil, display progress message."
       (epackage-byte-compile-loader-file-maybe verbose))))
 
 (defun epackage-sources-list-info-parse-line (package)
-  "Return list of PACKAGE fields described in `epackage--sources-yellow-pages-url'.
+  "Return list of PACKAGE fields described in `epackage--sources-list-url'.
 Point must be at the beginning of line."
   (if (looking-at
        (format epackage--sources-list-regexp
@@ -4809,7 +4807,7 @@ Point must be at the beginning of line."
 
 (defun epackage-sources-list-info-main (package)
   "Return '(pkg url description) for PACKAGE.
-Format is described in variable `epackage--sources-yellow-pages-url'."
+Format is described in variable `epackage--sources-list-url'."
   (epackage-with-sources-list
     (goto-char (point-min))
     (let ((re (format epackage--sources-list-regexp
@@ -5286,37 +5284,6 @@ Return:
 
 ;;; .................................................. &functions-misc ...
 
-(defun epackage-download-sources-list (&optional verbose)
-  "Download sources list file, the yellow pages.
-If optional VERBOSE is non-nil, display progress message.
-
-Return:
-  non-nil if anything was done."
-  (let* ((dir  (epackage-sources-list-official-directory))
-	 (file (epackage-file-name-sources-list-official))
-	 (need-clone (not (file-directory-p dir)))
-	 status)
-    (unless need-clone          ;; directory exists, check validity
-      (cond
-       ((not (epackage-git-directory-p dir))
-	(epackage-verbose-message "Deleting corrupted Git dir: %s"
-				  (abbreviate-file-name dir))
-	;; Something is very wrong. Start from fresh.
-	(delete-directory dir 'recursive)
-	(setq need-clone t))
-       ((not (file-exists-p file))
-	(epackage-verbose-message "Restoring state of dir: %s"
-				  (abbreviate-file-name dir))
-	;; Somebody deleted the file; reset git
-	(setq status 'git-checkout-force)
-	(epackage-git-command-checkout-force-head dir verbose))))
-    (when need-clone
-      (setq status 'git-clone)
-      (let* ((url epackage--sources-yellow-pages-url)
-	     (host (epackage-url-extract-host url)))
-	(epackage-git-command-clone url dir verbose)))
-    status))
-
 (defun epackage-cmd-select-package (&optional message list)
   "Interactively select package with optional MESSAGE from LIST.
 Return package name or nil."
@@ -5327,7 +5294,7 @@ Return package name or nil."
           (substitute-command-keys
            `,(concat
               "Can't build package list. "
-              "Run \\[epackage-cmd-download-sources-list]")))
+              "Run \\[epackage-cmd-sources-list-download]")))
       (setq package
             (completing-read
              (if message
@@ -6275,19 +6242,65 @@ environment. To clean those, reboot Emacs."
           "Ignore uninstall. No control file supplied in package: %s" package)
         nil)))))
 
+(defun epackage-sources-list-download (&optional verbose)
+  "Download sources list file.
+If optional VERBOSE is non-nil, display progress message.
+This is a lowlevel function.
+
+Return:
+  Non-nil if anything was done."
+  (let* ((dir  (epackage-sources-list-official-directory))
+	 (file (epackage-file-name-sources-list-official))
+	 (need-clone (not (file-directory-p dir)))
+	 status)
+    (unless need-clone          ;; directory exists, check validity
+      (cond
+       ((not (epackage-git-directory-p dir))
+	(epackage-verbose-message "Deleting corrupted Git dir: %s"
+				  (abbreviate-file-name dir))
+	;; Something is very wrong. Start from fresh.
+	(delete-directory dir 'recursive)
+	(setq need-clone t))
+       ((not (file-exists-p file))
+	(epackage-verbose-message "Restoring state of dir: %s"
+				  (abbreviate-file-name dir))
+	;; Somebody deleted the file; reset git
+	(setq status 'git-checkout-force)
+	(epackage-git-command-checkout-force-head dir verbose))))
+    (when need-clone
+      (setq status 'git-clone)
+      (let* ((url epackage--sources-list-url)
+	     (host (epackage-url-extract-host url)))
+	(epackage-git-command-clone url dir verbose)))
+    status))
+
 ;;;###autoload
-(defun epackage-cmd-download-sources-list (&optional verbose)
-  "Download or upgrade package list; the yellow pages of package repositories.
+(defun epackage-cmd-sources-list-upgrade (&optional verbose)
+  "Upgrade sources list.
 If optional VERBOSE is non-nil, display progress messages."
   (interactive
    (list 'interactive))
   (epackage-kill-buffer-sources-list)
   (unless (epackage-sources-list-p)
     (epackage-with-message verbose "Wait, downloading sources list"))
-  (let ((status (epackage-download-sources-list verbose)))
+  (let ((status (epackage-sources-list-download verbose)))
     (unless status
-      (epackage-with-message verbose "Upgrading sources list"
-	(epackage-sources-list-upgrade verbose))))
+      (epackage-sources-list-upgrade verbose)
+      (epackage-message verbose "Upgrade sources list")))
+  (epackage-sources-list-build verbose))
+
+;;;###autoload
+(defun epackage-cmd-sources-list-download (&optional verbose)
+  "Download sources list.
+If optional VERBOSE is non-nil, display progress messages."
+  (interactive
+   (list 'interactive))
+  (epackage-kill-buffer-sources-list)
+  (unless (epackage-sources-list-p)
+    (epackage-with-message verbose "Wait, downloading sources list"))
+  (let ((status (epackage-sources-list-download verbose)))
+    (unless status
+      (epackage-message verbose "sources list alaready downloaded")))
   (epackage-sources-list-build verbose))
 
 ;;;###autoload
@@ -6438,7 +6451,7 @@ If optional VERBOSE is non-nil, display progress message."
     (unless (and (epackage-sources-list-p) ;sources list exists (has been installed)
 		 (file-directory-p dir))   ;and sources list git repository exists
       (let ((epackage--initialize-flag t))
-	(epackage-cmd-download-sources-list verbose))))
+	(epackage-cmd-sources-list-download verbose))))
   (setq epackage--initialize-flag t)
   (epackage-sources-list-build verbose)
   (run-hooks 'epackage--initialize-hook))
@@ -6746,10 +6759,10 @@ Summary, Version, Maintainer etc."
   (call-interactively 'epackage-cmd-download-action-compile-toggle))
 
 ;;;###autoload
-(defun epackage-batch-ui-download-sources-list ()
-  "Call `epackage-cmd-download-sources-list'."
+(defun epackage-batch-ui-sources-list-upgrade ()
+  "Call `epackage-cmd-sources-list-upgrade'."
   (interactive)
-  (call-interactively 'epackage-cmd-download-sources-list))
+  (call-interactively 'epackage-cmd-sources-list-upgrade))
 
 ;;;###autoload
 (defun epackage-batch-ui-download-package ()
@@ -6817,7 +6830,7 @@ Summary, Version, Maintainer etc."
   (interactive)
   (let ((list (epackage-sources-list-info-pkg-list)))
     (if (not list)
-        (message "No yellow pages sources list downloaded.")
+        (message "No sources list downloaded.")
       (message "All available packages for download:")
       (epackage-batch-list-package-summamry list))))
 
