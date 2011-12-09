@@ -3972,13 +3972,13 @@ Point is not preserved. Examine Version string for YYYY.MMDD."
 (defun epackage-devel-information-date-main ()
   "Return date from current buffer.
 Point is not preserved."
-  (let ((version (or (epackage-devel-information-date-lm)
-		     (epackage-devel-information-date-versionstr))
-		 )
+  (let ((str (or (epackage-devel-information-date-lm)
+		 (epackage-devel-information-date-versionstr)))
 	iso)
-    (if version
-	(setq version (epackage-date-to-iso version)))
-    version))
+    (if str
+	(setq iso (epackage-date-to-iso str)))
+    (or iso
+	str)))
 
 (defun epackage-devel-information-buffer ()
   "Examine current buffer and return list '((field value) ...)
