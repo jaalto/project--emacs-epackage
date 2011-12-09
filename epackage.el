@@ -1859,7 +1859,7 @@ Format is:
 Format is:
   '((TYPE  FILENAME [REQUIRED-FLAG]) ...)
 
-Ff FILENAME sarts with '-', then the package name is prefixed to
+If FILENAME sarts with '-', then the package name is prefixed to
 the FILENAME. Say package name 'foo' is prefixed with '-install'
 producing 'foo-install.el.")
 
