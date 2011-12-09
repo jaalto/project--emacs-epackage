@@ -33,7 +33,7 @@ clean:
 	rm -f *.elc *[#~] *.bak
 
 $(PACKAGE).elc: $(SRC)
-	$(BIN) --batch -Q -q -f batch-byte-compile $(SRC)
+	$(BIN) --batch --no-init-file --quick --funcall batch-byte-compile $(SRC)
 
 # build - Byte compile *.el file
 build: $(PACKAGE).elc

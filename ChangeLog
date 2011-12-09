@@ -1,3 +1,7 @@
+2011-12-09 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* Makefile ($(PACKAGE).elc): Use --long options.
+
 2011-12-07 Wed  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-devel-compose-git-import): Fix
