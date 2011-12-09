@@ -1,5 +1,9 @@
 2011-12-09 Fri  Jari Aalto  <jari.aalto@cante.net>
 
+	* README (Important files): Add AUTHORS.
+	(Project details): Adjust depends.
+	(References): Minot updates.
+
 	* Makefile ($(PACKAGE).elc): Use --long options.
 
 2011-12-07 Wed  Jari Aalto  <jari.aalto@cante.net>

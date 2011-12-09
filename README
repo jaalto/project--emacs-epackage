@@ -12,6 +12,7 @@ Important files
 
         COPYING*        GPL-2+ Source. Docs are dual GPL-2+/GFDL
         INSTALL         Install instructions
+	AUTHORS		Deveoper contacts
         ChangeLog       Project change records
 
 Project details
@@ -23,24 +24,23 @@ Project details
         Source code     See Homepage
 
         Depends
-        - Emacs 22.1+ (released 2007).
+        - Emacs 22.1+ (released 2007). No cl or
+          external libraries are used.
         - Git[1], any version.
-        - Depends only on standard Emacs. Does not use external or
-          "cl" libraries.
 
 	Depends (optional)
         - Perl, and utilities: ripdoc[2] and t2html[3].
-          Use in Makefile's "make doc" command to generate HTML
+          Used in "make doc" command to generate HTML
           documentation.
         - OpenSSH client, any version. For package maintainers that
-	  push packages to remote git:// repositories.
+	  host packages at remote git:// repositories.
 
 References
 
         [1] Git Distributed Version Control System (DVCS).
             http://en.wikipedia.org/wiki/Git_(software)
 
-        [2] Extract documentation that follows Technical Text Format guidelines
+        [2] Extract Technical Text Format documentation from source code
             http://freecode.com/projects/perl-ripdoc
 
         [3] Convert Technical Text Format into HTML
