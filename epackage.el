@@ -1256,7 +1256,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1209.1247"
+(defconst epackage-version-time "2011.1209.1248"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1859,7 +1859,7 @@ Format is:
 Format is:
   '((TYPE  FILENAME [REQUIRED-FLAG]) ...)
 
-If FILENAME sarts with '-', then the package name is prefixed to
+If FILENAME stars with '-', then the package name is prefixed to
 the FILENAME. Say package name 'foo' is prefixed with '-install'
 producing 'foo-install.el.")
 
