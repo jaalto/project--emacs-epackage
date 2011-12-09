@@ -3894,19 +3894,42 @@ Point is not preserved."
 	    (setq str (concat str "+"))))
       str)))
 
-(defun epackage-devel-information-license ()
+(defun epackage-devel-information-license-main ()
   "Return license information from current buffer."
   (or (epackage-devel-information-license-gpl-standard)))
 
-(defun epackage-devel-information-version ()
-  "Return license from current buffer.
-Point is not preserved."
+(defun epackage-devel-information-version-from-comment ()
+  "Return version from current buffer.
+Point is not preserved. An example:
+
+  ;; Version: 1.0"
   (goto-char (point-min))
-  (or (when (re-search-forward
-	     ;; (defconst epackage-version-time "2011.1119.1749"
-	     "^(def[a-z].*[ \t\r\n]+[a-z-]+version.* \"\\([^\"]+\\)" nil t)
-	(match-string-no-properties 1))
-      (lm-header "version")))
+  (when (re-search-forward
+	 "^;;+ *Version: *\\([0-9][^\"]+\\)" nil t)
+    (match-string-no-properties 1)))
+
+(defun epackage-devel-information-version-from-lm ()
+  "Return version from current buffer.
+Point is not preserved. Call `lm-header'."
+  (lm-header "version"))
+
+(defun epackage-devel-information-version-from-variable ()
+  "Return version from current buffer.
+Point is not preserved. An example:
+
+   ;; (defconst foo-version \"2011.1119.1749\""
+  (goto-char (point-min))
+  (when (re-search-forward
+	 "^(def[a-z].*[ \t\r\n]+[a-z-]+version.* \"\\([0-9][^\"]+\\)"
+	 nil t)
+    (match-string-no-properties 1)))
+
+(defun epackage-devel-information-version-main ()
+  "Return version from current buffer.
+Point is not preserved."
+  (or (epackage-devel-information-version-from-lm)
+      (epackage-devel-information-version-from-variable)
+      (epackage-devel-information-version-from-comment)))
 
 (defun epackage-devel-information-maintainer ()
   "Return maintainer from current buffer.
@@ -3921,32 +3944,41 @@ Point is not preserved."
       (lm-header "Home")
       (lm-header "URL")))
 
-(defun epackage-devel-information-date ()
+(defun epackage-devel-information-date-lm ()
   "Return date from current buffer.
-Point is not preserved."
-  (let ((str (or (lm-header "Time-stamp")
-		 (lm-header "Updated")
-		 (lm-header "Last-Updated")
-		 (lm-header "Modified")))
-	iso
-	version)
-    (when (and (not str)
-	       ;; See if version is in format YYYY.MMDD
-	       (setq version (epackage-devel-information-version))
+Point is not preserved. Use `lm-header'."
+  (or (lm-header "Time-stamp")
+      (lm-header "Updated")
+      (lm-header "Last-Updated")
+      (lm-header "Modified")))
+
+(defun epackage-devel-information-date-versionstr ()
+  "Return date from current buffer.
+Point is not preserved. Examine Version string for YYYY.MMDD."
+  ;; See if version is in format YYYY.MMDD
+  (let ((version (epackage-devel-information-version)))
+    (when (and version
 	       (string-match
 		`,(concat
 		   "\\(\\(?:19\\|20\\)[0-9][0-9]\\)\\." ;Year  19xx 20xx
 		   "\\([0][1-9]\\|1[012]\\)"		;Month 01-12
 		   "\\([0-3][0-9]\\)")			;Date
 		version))
-      (setq str (format "%s-%s-%s"
-			(match-string-no-properties 1 version)
-			(match-string-no-properties 2 version)
-			(match-string-no-properties 3 version))))
-    (if str
-	(setq iso (epackage-date-to-iso str)))
-    (or iso
-	str)))
+      (format "%s-%s-%s"
+	      (match-string-no-properties 1 version)
+	      (match-string-no-properties 2 version)
+	      (match-string-no-properties 3 version)))))
+
+(defun epackage-devel-information-date-main ()
+  "Return date from current buffer.
+Point is not preserved."
+  (let ((version (or (epackage-devel-information-date-lm)
+		     (epackage-devel-information-date-versionstr))
+		 )
+	iso)
+    (if version
+	(setq version (epackage-date-to-iso version)))
+    version))
 
 (defun epackage-devel-information-buffer ()
   "Examine current buffer and return list '((field value) ...)
@@ -3959,15 +3991,15 @@ FIELD can be:
   (let (str
         list)
     (save-excursion
-      (when str (epackage-devel-information-license)
+      (when str (epackage-devel-information-license-main)
 	(epackage-push (list "license" str) list))
       (when (setq str (epackage-devel-information-maintainer))
 	(epackage-push (list "maintainer" str) list))
       (when (setq str (epackage-devel-information-homepage))
 	(epackage-push (list "homepage" str) list))
-      (when (setq str (epackage-devel-information-date))
+      (when (setq str (epackage-devel-information-date-main))
 	  (epackage-push (list "date" str) list))
-      (when (setq str (epackage-devel-information-version))
+      (when (setq str (epackage-devel-information-version-main))
 	(epackage-push (list "version" str) list))
       list)))
 
@@ -3995,8 +4027,8 @@ under `epackage--directory-name'."
 	  (goto-char (point-min))
 	  ;; Searh line that have "t" at end:
 	  ;;
-	  ;; (autoload 'epackage-info-mode                   "epackage" "" t)
-	  ;; (autoload 'epackage-cmd-package-check-macro     "epackage" "" nil 'macro)
+	  ;; (autoload 'command "package" "" t)
+	  ;; (autoload 'command "package" "" nil 'macro)
 	  (delete-non-matching-lines "t)[ \t]*$")
 	  (epackage-write-region (point-min) (point-max) install)
 	  (epackage-verbose-message "Wrote %s" install))))
@@ -4052,7 +4084,7 @@ Notes:
 	       "Abort. epackage-devel-compose-git-import "
 	       "can only handle single *.el file packages (dirs: %d).")
 	    (length dirs))))
-    (setq files (directory-files dir nil "\\.el$"))
+    (setq files (directory-files dir 'fullpath "\\.el$"))
     (unless files
       (epackage-error "No *.el files found in %s" dir))
     ;; Filter out some common files
@@ -4074,9 +4106,9 @@ Notes:
       (insert-file-contents file)
       (setq alist (epackage-devel-information-buffer))
       (unless (setq date (nth 1 (assoc "date" alist)))
-	(epackage-error "Cannot find version field from file %s" file))
+	(epackage-error "Cannot find date field from file %s" file))
       (unless (setq version (nth 1 (assoc "version" alist)))
-	(epackage-error "Cannot find modified date field from file %s" file))
+	(epackage-error "Cannot find version number from file %s" file))
       (epackage-require-git)
       (epackage-git-command-init dir)
       ;;  start directly at upstream branch

@@ -11,6 +11,16 @@
 	(epackage-combine-files): Correct variable in loop.
 	(epackage--loader-file-byte-compile-flag): Adjust docstring.
 	(epackage-cmd-download-sources-list): Do not upgrade automatically.
+	(epackage-devel-information-version-main): Rename. Was
+	`epackage-devel-information-version'.
+	(epackage-devel-information-version-from-lm): New.
+	(epackage-devel-information-version-from-variable): New.
+	(epackage-devel-information-version-from-comment): New.
+	(epackage-devel-compose-git-import): Use `directory-files'
+	with 'fullpath argument.
+	(epackage-devel-information-date-lm): New.
+	(epackage-devel-information-date-main): Rename. Was
+	`epackage-devel-information-date'. Rewrite.
 
 2011-12-09 Fri  Jari Aalto  <jari.aalto@cante.net>
 
