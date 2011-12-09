@@ -2,6 +2,7 @@
 
 	* epackage.el (epackage--directory-exclude-regexp): Adjust
 	paren position.
+	(epackage--layout-mapping): Adjust docstring.
 
 	* README (Important files): Add AUTHORS.
 	(Project details): Adjust depends.

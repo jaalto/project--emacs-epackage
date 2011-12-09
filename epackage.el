@@ -1256,7 +1256,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1209.1245"
+(defconst epackage-version-time "2011.1209.1247"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1855,7 +1855,7 @@ Format is:
     (lisp       "lisp")
     (loaddefs   "-epkg-0loaddefs.el")
     (uninstall  "-epkg-uninstall.el"))
-  "File type and its mappings in `epackage--package-control-directory'.
+  "File type mapping table for files in `epackage--package-control-directory'.
 Format is:
   '((TYPE  FILENAME [REQUIRED-FLAG]) ...)
 
