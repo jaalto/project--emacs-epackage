@@ -1256,7 +1256,7 @@
       (message
        "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
 
-(defconst epackage-version-time "2011.1209.1248"
+(defconst epackage-version-time "2011.1209.1249"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage-maintainer "jari.aalto@cante.net"
@@ -1857,11 +1857,11 @@ Format is:
     (uninstall  "-epkg-uninstall.el"))
   "File type mapping table for files in `epackage--package-control-directory'.
 Format is:
-  '((TYPE  FILENAME [REQUIRED-FLAG]) ...)
+  '((TYPE FILENAME [REQUIRED-FLAG]) ...)
 
-If FILENAME stars with '-', then the package name is prefixed to
-the FILENAME. Say package name 'foo' is prefixed with '-install'
-producing 'foo-install.el.")
+If FILENAME starts with '-', then the package name is prefixed to
+the FILENAME. Say package name 'foo', and suffix is '-install',
+the full filename is 'foo-install.el.")
 
 (defvar epackage--buffer-autoload "*Epackage autoloads*"
   "Buffer to use for gathering manual autoload definitions.
