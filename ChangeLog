@@ -1,3 +1,8 @@
+2011-12-10 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-devel-template-directory): 
+	Correct docstring.
+
 2011-12-09 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el

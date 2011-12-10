@@ -1559,7 +1559,7 @@ See also `epackage--sources-replace-table'."
 
 (defcustom epackage-devel-template-directory nil
   "Directry of template files to make an Epackage.
-Used by `epackage-devel-compose-package'."
+Used by `epackage-devel-compose-main'."
   :group 'epackage
   :type 'directory)
 
