@@ -1,1130 +1,1133 @@
 2011-12-10 Sun  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-devel-template-directory): 
-	Correct docstring.
+        * epackage.el (epackage-devel-template-directory):
+        Correct docstring.
+        (epackage-devel-compose-epkg-dir): New.
+        (epackage-devel-compose-1-interactive): New.
+        (epackage-devel-compose-main): Simplify.
 
 2011-12-09 Fri  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el
-	(top level): Reduce use of term Yellow Pages.
-	(epackage-batch-ui-upgrade-sources-list): Rename.
-	Was `epackage-batch-ui-download-sources-list'.
-	(epackage-cmd-upgrade-sources-list): New.
-	(epackage--sources-list-url): Rename. Was
-	`epackage--sources-yellow-pages-url'.
-	(epackage--sources-list-url): Change from defcustom to defvar.
-	(epackage-combine-files): Correct variable in loop.
-	(epackage--loader-file-byte-compile-flag): Adjust docstring.
-	(epackage-cmd-download-sources-list): Do not upgrade automatically.
-	(epackage-devel-information-version-main): Rename. Was
-	`epackage-devel-information-version'.
-	(epackage-devel-information-version-from-lm): New.
-	(epackage-devel-information-version-from-variable): New.
-	(epackage-devel-information-version-from-comment): New.
-	(epackage-devel-compose-git-import): Use `directory-files'
-	with 'fullpath argument.
-	(epackage-devel-information-date-lm): New.
-	(epackage-devel-information-date-main): Rename. Was
-	`epackage-devel-information-date'. Rewrite.
-	(epackage-cmd-download-package): Check url before trying
-	to show package warnings.
-	(epackage--batch-ui-menu-string): Correct ?u command
-	description.
+        * epackage.el
+        (top level): Reduce use of term Yellow Pages.
+        (epackage-batch-ui-upgrade-sources-list): Rename.
+        Was `epackage-batch-ui-download-sources-list'.
+        (epackage-cmd-upgrade-sources-list): New.
+        (epackage--sources-list-url): Rename. Was
+        `epackage--sources-yellow-pages-url'.
+        (epackage--sources-list-url): Change from defcustom to defvar.
+        (epackage-combine-files): Correct variable in loop.
+        (epackage--loader-file-byte-compile-flag): Adjust docstring.
+        (epackage-cmd-download-sources-list): Do not upgrade automatically.
+        (epackage-devel-information-version-main): Rename. Was
+        `epackage-devel-information-version'.
+        (epackage-devel-information-version-from-lm): New.
+        (epackage-devel-information-version-from-variable): New.
+        (epackage-devel-information-version-from-comment): New.
+        (epackage-devel-compose-git-import): Use `directory-files'
+        with 'fullpath argument.
+        (epackage-devel-information-date-lm): New.
+        (epackage-devel-information-date-main): Rename. Was
+        `epackage-devel-information-date'. Rewrite.
+        (epackage-cmd-download-package): Check url before trying
+        to show package warnings.
+        (epackage--batch-ui-menu-string): Correct ?u command
+        description.
 
 2011-12-09 Fri  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage--directory-exclude-regexp): Adjust
-	paren position.
-	(epackage--layout-mapping): Adjust docstring.
+        * epackage.el (epackage--directory-exclude-regexp): Adjust
+        paren position.
+        (epackage--layout-mapping): Adjust docstring.
 
-	* README (Important files): Add AUTHORS.
-	(Project details): Adjust depends.
-	(References): Minot updates.
+        * README (Important files): Add AUTHORS.
+        (Project details): Adjust depends.
+        (References): Minot updates.
 
-	* Makefile ($(PACKAGE).elc): Use --long options.
+        * Makefile ($(PACKAGE).elc): Use --long options.
 
 2011-12-07 Wed  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-devel-compose-git-import): Fix
-	byte compile.
-	(epackage-info-mode-font-lock-keywords): Allow dash
-	in header names.
-	(epackage--layout-mapping): Add *-epkg-* to all files.
-	(epackage-devel-compose-main): Use `epackage-layout-mapping-file'.
-	(epackage-loader-file-insert-header): Mention M-x command.
-	(epackage-combine-files): Check for non-existing files.
-	(epackage-initialize): Call `epackage-sources-list-build'.
-	(epackage--directory-exclude-regexp): Add .nosearch to docstring.
+        * epackage.el (epackage-devel-compose-git-import): Fix
+        byte compile.
+        (epackage-info-mode-font-lock-keywords): Allow dash
+        in header names.
+        (epackage--layout-mapping): Add *-epkg-* to all files.
+        (epackage-devel-compose-main): Use `epackage-layout-mapping-file'.
+        (epackage-loader-file-insert-header): Mention M-x command.
+        (epackage-combine-files): Check for non-existing files.
+        (epackage-initialize): Call `epackage-sources-list-build'.
+        (epackage--directory-exclude-regexp): Add .nosearch to docstring.
 
 2011-11-19 Sat  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el: Adjust Tag descriptions of custom variables.
-	Patch thanks to David Ross <H.David.Ross@gmail.com>.
-	Add autoload stanzas to more variables.
-	(epackage-assoc): Rename from `epackage-asscoc'.
-	(epackage-narrow-to-field): implement function.
-	(epackage-field-forward): New.
-	(epackage-field-backward): New.
-	(epackage-field-name): Add arg region.
-	(epackage-autoload-create-on-file): Simplify function by
-	removing parameters no-show, no-desc and no-path. Make
-	buffer parameter required.
-	(epackage--buffer-autoload): New.
-	(epackage-autoload-create-on-file): Update changes
-	according to `epackage-autoload-create-on-file'.
-	(epackage--root-directory): signal error if no root found and
-	suggest creating directory ~/.emacs.d
-	(epackage-layout-file-name): Check type for error.
-	(epackage--layout-mapping): Add synonym mapping: autoloads.
-	(epackage-make-directory): New.
-	(epackage-with-buffer-autoload): New.
-	(epackage-devel-generate-autoloads): Implement.
-	(epackage-directory-file-list): Exclude [#~] fles.
-	(epackage-devel-generate-loaddefs): Implement.
-	(epackage--layout-template-info): New.
-	(epackage-devel-information-buffer): New.
-	(epackage-devel-information-license): New.
-	(epackage-devel-information-license-gpl-standard): New.
-	(epackage-devel-information-version): New.
-	(epackage-version-time): adjust docstring.
-	(epackage-date-to-iso): New.
-	(epackage-devel-information-maintainer): New.
-	(epackage-devel-information-homepage): New.
-	(epackage-devel-information-date): New.
-	(epackage--date-month-list): New.
-	(epackage--date-month-regexp): New.
-	(epackage--date-weekday-regexp): New.
-	(epackage-git-command-init): New.
-	(epackage-git-command-branch-with-args): New.
-	(epackage-devel-compose-package-dir): Rename
-	from `epackage-devel-compose-package-dir'.
-	(epackage-devel-compose-git-import): New.
-	(epackage-devel-compose-main): New.
+        * epackage.el: Adjust Tag descriptions of custom variables.
+        Patch thanks to David Ross <H.David.Ross@gmail.com>.
+        Add autoload stanzas to more variables.
+        (epackage-assoc): Rename from `epackage-asscoc'.
+        (epackage-narrow-to-field): implement function.
+        (epackage-field-forward): New.
+        (epackage-field-backward): New.
+        (epackage-field-name): Add arg region.
+        (epackage-autoload-create-on-file): Simplify function by
+        removing parameters no-show, no-desc and no-path. Make
+        buffer parameter required.
+        (epackage--buffer-autoload): New.
+        (epackage-autoload-create-on-file): Update changes
+        according to `epackage-autoload-create-on-file'.
+        (epackage--root-directory): signal error if no root found and
+        suggest creating directory ~/.emacs.d
+        (epackage-layout-file-name): Check type for error.
+        (epackage--layout-mapping): Add synonym mapping: autoloads.
+        (epackage-make-directory): New.
+        (epackage-with-buffer-autoload): New.
+        (epackage-devel-generate-autoloads): Implement.
+        (epackage-directory-file-list): Exclude [#~] fles.
+        (epackage-devel-generate-loaddefs): Implement.
+        (epackage--layout-template-info): New.
+        (epackage-devel-information-buffer): New.
+        (epackage-devel-information-license): New.
+        (epackage-devel-information-license-gpl-standard): New.
+        (epackage-devel-information-version): New.
+        (epackage-version-time): adjust docstring.
+        (epackage-date-to-iso): New.
+        (epackage-devel-information-maintainer): New.
+        (epackage-devel-information-homepage): New.
+        (epackage-devel-information-date): New.
+        (epackage--date-month-list): New.
+        (epackage--date-month-regexp): New.
+        (epackage--date-weekday-regexp): New.
+        (epackage-git-command-init): New.
+        (epackage-git-command-branch-with-args): New.
+        (epackage-devel-compose-package-dir): Rename
+        from `epackage-devel-compose-package-dir'.
+        (epackage-devel-compose-git-import): New.
+        (epackage-devel-compose-main): New.
 
 2011-11-18 Fri  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-maintainer): Fix docstring.
-	(defgroup epackage): Adjust docstring.
-	(epackage--download-action-list): Adjust docstring.
-	(epackage--depends-handling): Adjust docstring.
-	(epackage--sources-list-and-repository-sync-flag): Adjust docstring.
-	(epackage--url-epkg-template): New.
-	(epackage--sources-file-list): Rename from
-	`epackage--sources-file-list'.
-	(epackage--sources-yellow-pages-url): Rename from
-	`epackage--sources-list-url'.
-	(epackage--sources-replace-table): Rename from
-	`epackage--build-sources-list-replace-table'
-	(epackage--info-mode-completions-license): Make `defconst'.
-	Adjust docstring.
+        * epackage.el (epackage-maintainer): Fix docstring.
+        (defgroup epackage): Adjust docstring.
+        (epackage--download-action-list): Adjust docstring.
+        (epackage--depends-handling): Adjust docstring.
+        (epackage--sources-list-and-repository-sync-flag): Adjust docstring.
+        (epackage--url-epkg-template): New.
+        (epackage--sources-file-list): Rename from
+        `epackage--sources-file-list'.
+        (epackage--sources-yellow-pages-url): Rename from
+        `epackage--sources-list-url'.
+        (epackage--sources-replace-table): Rename from
+        `epackage--build-sources-list-replace-table'
+        (epackage--info-mode-completions-license): Make `defconst'.
+        Adjust docstring.
 
 2011-11-16 Wed  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el
-	(top level): add defvat for auto-revert-tail-mode.
-	(epackage-auto-revert-mode-p): Rewrite.
-	(epackage-turn-on-auto-revert-mode): Rewrite. Remove duplicate.
-	(epackage-pkg-info-status-warnings): Add 3rd arg to `mapconcat'.
-	(epackage-replace-regexp-in-buffer): Correct variable `string' to
-	`str'.
-	(epackage-combine-files): Correct `run-hook' to `run-hooks'.
-	(epackage-autoload-write-autoload-files): New. Not yet implemented.
-	(epackage--batch-ui-menu-actions): Update docstring.
+        * epackage.el
+        (top level): add defvat for auto-revert-tail-mode.
+        (epackage-auto-revert-mode-p): Rewrite.
+        (epackage-turn-on-auto-revert-mode): Rewrite. Remove duplicate.
+        (epackage-pkg-info-status-warnings): Add 3rd arg to `mapconcat'.
+        (epackage-replace-regexp-in-buffer): Correct variable `string' to
+        `str'.
+        (epackage-combine-files): Correct `run-hook' to `run-hooks'.
+        (epackage-autoload-write-autoload-files): New. Not yet implemented.
+        (epackage--batch-ui-menu-actions): Update docstring.
 
 2011-11-06 Sun  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (top-level): Correct autoload for `pcomplete-here'.
-	Change `eval-when-compile' to 'eval-and-compile'.
+        * epackage.el (top-level): Correct autoload for `pcomplete-here'.
+        Change `eval-when-compile' to 'eval-and-compile'.
 
 2011-04-19 Tue  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-combine-files): Replace `run-hooks' with
-	`dolist'.
-	(epackage-sources-list-initialize): Correct
-	`epackage--build-sources-list-hook'.
-	(epackage-require-ssh): Correct arg URL.
-	(epackage--install-download-hook): Rename. Was
-	`epackage-install-download-hook'.
-	(epackage-require-ssh): Add check that host is string.
-	(epackage-url-extract-host): Add SSH URL support.
-	(epackage--build-sources-list-replace-table): Under Windows Emacs,
-	preset this to thanslate github to http://
-	(epackage-require-ssh): Check another SSH url type in format
-	user@host:<path>.
-	(epackage-ssh-url-p): New.
-	(epackage-require-ssh): Use `epackage-ssh-url-p'.
-	(epackage-package-status-actions): Add missing  package' args to
-	function calls.
-	(epackage-package-byte-compiled-p): Correct variable `try' to 'list'.
-	Correct directory handling.
-	(epackage-pkg-lisp-directory): Correct to use  `file-directory-p'.
-	(epackage-status-install-files): New.
-	(epackage-upgrade-package-files): Write function body.
-	(epackage-enable-file): Chnage "Processing" message to
-	"Installing".
-	(epackage--batch-ui-menu-actions): Correct ?E menu entry.
-	(epackage-batch-ui-uninstall-package): New.
-	(epackage-download-package-actions): New.
-	(epackage--download-action-list): Correct "package-depeds"
-	to "package-depends".
-	(epackage-cmd-download-package): Use `epackage-download-package-actions'.
-	(epackage-initialize): Check with `epackage-sources-list-p' before
-	running git command unconditionally. Add check for sources list
-	git repository.
+        * epackage.el (epackage-combine-files): Replace `run-hooks' with
+        `dolist'.
+        (epackage-sources-list-initialize): Correct
+        `epackage--build-sources-list-hook'.
+        (epackage-require-ssh): Correct arg URL.
+        (epackage--install-download-hook): Rename. Was
+        `epackage-install-download-hook'.
+        (epackage-require-ssh): Add check that host is string.
+        (epackage-url-extract-host): Add SSH URL support.
+        (epackage--build-sources-list-replace-table): Under Windows Emacs,
+        preset this to thanslate github to http://
+        (epackage-require-ssh): Check another SSH url type in format
+        user@host:<path>.
+        (epackage-ssh-url-p): New.
+        (epackage-require-ssh): Use `epackage-ssh-url-p'.
+        (epackage-package-status-actions): Add missing  package' args to
+        function calls.
+        (epackage-package-byte-compiled-p): Correct variable `try' to 'list'.
+        Correct directory handling.
+        (epackage-pkg-lisp-directory): Correct to use  `file-directory-p'.
+        (epackage-status-install-files): New.
+        (epackage-upgrade-package-files): Write function body.
+        (epackage-enable-file): Chnage "Processing" message to
+        "Installing".
+        (epackage--batch-ui-menu-actions): Correct ?E menu entry.
+        (epackage-batch-ui-uninstall-package): New.
+        (epackage-download-package-actions): New.
+        (epackage--download-action-list): Correct "package-depeds"
+        to "package-depends".
+        (epackage-cmd-download-package): Use `epackage-download-package-actions'.
+        (epackage-initialize): Check with `epackage-sources-list-p' before
+        running git command unconditionally. Add check for sources list
+        git repository.
 
 2011-04-12 Tue  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el
-	(top level::Installation): Explain how to use github with http
-	protocol.
-	(epackage-download-sources-list): Improve
-	error condition checks. Recreate clone directory as needed.
-	(epackage-git-command-checkout-force-head): New.
-	(epackage-cmd-download-sources-list): Rearrange calls and
-	act upon status of `epackage-download-sources-list'.
-	(epackage-initialize): Always call
-	`epackage-cmd-download-sources-list' to get clean state.
-	(epackage-sources-list-initialize): Send
-	`epackage--build-sources-list-hook' to `epackage-combine-files'.
-	(epackage-combine-files): add arg HOOKS.
-	(epackage-replace-regexp-in-buffer): New.
-	(epackage--build-sources-list-replace-table): New.
-	(epackage-ui): New. Alias to `epackage-batch-ui-menu' for
-	commadn line calling.
-	(epackage-combine-files): Use
-	`epackage--build-sources-list-replace-table'.
-	(epackage-cmd-upgrade-package): Improve "not downloaded" message.
-	(epackage-recreate-package): Move location.
-	(epackage-cmd-download-package): Adjust message string: "No
-	package selected..."
-	(epackage-cmd-upgrade-package): Add call to
-	`epackage-run-action-list'.
-	(epackage-package-installed-p): New.
-	(epackage-package-autoload-p): New.
-	(epackage-file-name-loaddefs-compose): New.
-	(epackage-package-activated-p): Use
-	`epackage-file-name-install-compose'.
-	(epackage-package-enabled-p): Use
-	`epackage-file-name-install-compose'.
-	(epackage-package-loaddefs-p): New.
-	(epackage-file-name-enabled-compose): Remove.
-	(epackage-file-name-activated-compose): Remove.
-	(epackage-file-name-package-compose): New.
-	(epackage--layout-mapping): Add 'lisp'.
-	(epackage-cmd-upgrade-package): Add missing postprosessing after
-	upgrade: byte compile, install files etc.
-	(epackage-rerun-action-list): New.
-	(epackage-run-action-list): Add arg ACTIONS.
-	(epackage-package-byte-compiled-p): New.
-	(epackage-package-status-actions): New.
-	(epackage-upgrade-package-actions): New.
-	(epackage-upgrade-package-main): New.
-	(epackage-upgrade-package-git): Rename. Was
-	`epackage-upgrade-package'.
-	(epackage-upgrade-package-files): New.
-	(epackage-git-command-current-sha): New.
+        * epackage.el
+        (top level::Installation): Explain how to use github with http
+        protocol.
+        (epackage-download-sources-list): Improve
+        error condition checks. Recreate clone directory as needed.
+        (epackage-git-command-checkout-force-head): New.
+        (epackage-cmd-download-sources-list): Rearrange calls and
+        act upon status of `epackage-download-sources-list'.
+        (epackage-initialize): Always call
+        `epackage-cmd-download-sources-list' to get clean state.
+        (epackage-sources-list-initialize): Send
+        `epackage--build-sources-list-hook' to `epackage-combine-files'.
+        (epackage-combine-files): add arg HOOKS.
+        (epackage-replace-regexp-in-buffer): New.
+        (epackage--build-sources-list-replace-table): New.
+        (epackage-ui): New. Alias to `epackage-batch-ui-menu' for
+        commadn line calling.
+        (epackage-combine-files): Use
+        `epackage--build-sources-list-replace-table'.
+        (epackage-cmd-upgrade-package): Improve "not downloaded" message.
+        (epackage-recreate-package): Move location.
+        (epackage-cmd-download-package): Adjust message string: "No
+        package selected..."
+        (epackage-cmd-upgrade-package): Add call to
+        `epackage-run-action-list'.
+        (epackage-package-installed-p): New.
+        (epackage-package-autoload-p): New.
+        (epackage-file-name-loaddefs-compose): New.
+        (epackage-package-activated-p): Use
+        `epackage-file-name-install-compose'.
+        (epackage-package-enabled-p): Use
+        `epackage-file-name-install-compose'.
+        (epackage-package-loaddefs-p): New.
+        (epackage-file-name-enabled-compose): Remove.
+        (epackage-file-name-activated-compose): Remove.
+        (epackage-file-name-package-compose): New.
+        (epackage--layout-mapping): Add 'lisp'.
+        (epackage-cmd-upgrade-package): Add missing postprosessing after
+        upgrade: byte compile, install files etc.
+        (epackage-rerun-action-list): New.
+        (epackage-run-action-list): Add arg ACTIONS.
+        (epackage-package-byte-compiled-p): New.
+        (epackage-package-status-actions): New.
+        (epackage-upgrade-package-actions): New.
+        (epackage-upgrade-package-main): New.
+        (epackage-upgrade-package-git): Rename. Was
+        `epackage-upgrade-package'.
+        (epackage-upgrade-package-files): New.
+        (epackage-git-command-current-sha): New.
 
 2011-04-11 Mon  Jari Aalto  <jari.aalto@cante.net>
 
-	* README (Project details): Fix typo in word "generates".
+        * README (Project details): Fix typo in word "generates".
 
-	* epackage.el: (top level::The Info File): Move
-	"Depends" after "Description"; keeps item in alphabetical
-	order.
-	(epackage--batch-ui-menu-header): Correct header.
-	(epackage-loader-insert-file-path-list-by-path): Use
-	`abbreviate-file-name'.
-	(epackage-loader-file-insert-install-code): Sort list of files.
-	This is important because "autoloads" must be before "install"
-	and "xactivate". This fixes epackage-loader.el load problems.
-	(epackage-loader-file-insert-install-code): Move point to
-	the eob before exiting function.
-	(epackage-sort): New.
-	(epackage-pkg-info-status-warnings): Use `epackage-sort'.
-	(epackage-sources-list-info-pkg-list): Use `epackage-sort'.
-	(epackage-insert-file-contents): New.
-	(epackage--batch-ui-menu-help): Adjust wording.
-	(epackage--batch-ui-menu-prompt): New.
-	(epackage--batch-ui-menu-actions): Add "m" for
-	`epackage-batch-ui-display-menu'.
-	(epackage-batch-ui-display-menu): New.
-	(epackage-batch-ui-menu): Show `epackage--batch-ui-menu-prompt',
-	and full menu only after "m" to reduce display.
-	(epackage-batch-ui-display-version): New.
-	(epackage--batch-ui-menu-actions): Add "v"
-	´epackage-batch-ui-display-version'.
-	(epackage-batch-ui-display-package-action-list): New.
-	(epackage--batch-ui-menu-header): Rewrite.
-	(epackage-batch-ui-download-action-enable-toggle): Call
-	`epackage-batch-ui-display-package-action-list'.
-	(epackage-batch-ui-download-action-activate-toggle): Call
-	`epackage-batch-ui-display-package-action-list'.
-	(epackage-status-installed-packages): Include 'activated'
-	packages too.
-	(epackage-status-not-installed-packages): Correct function.
-	Use `epackage-status-installed-packages'.
-	(epackage--batch-ui-menu-header): Display version.
-	(epackage-initialize): move let `epackage--initialize-flag' a
-	little earler. This prvents "make ui" error on pristine
-	call where nothing has been done yet.
-	(epackage-ssh-known-host-p): New.
-	(epackage-ssh-config-strict-key-check-disabled-p): New.
-	(epackage-auto-revert-mode-p): New.
-	(epackage-turn-on-auto-revert-mode): New.
-	(epackage-require-ssh): New.
-	(epackage-download-sources-list): Add call to
-	`epackage-require-ssh' prior downloading from gitub.
-	(epackage--batch-ui-menu-string): Remove B command.
-	(epackage--batch-ui-menu-actions): Comment out B command.
-	The Byte compile is in "y" command already.
-	(epackage-with-git-command): Add `abbreviate-file-name'.
-	(epackage-ssh-help-string): New.
-	(epackage-ssh-p): New.
-	(epackage-url-extract-host): New.
-	(epackage-download-sources-list): Add SSH configurrion and
-	stop on error unless ok.
-	(epackage-git-command-clone): Use `epackage-require-ssh'.
+        * epackage.el: (top level::The Info File): Move
+        "Depends" after "Description"; keeps item in alphabetical
+        order.
+        (epackage--batch-ui-menu-header): Correct header.
+        (epackage-loader-insert-file-path-list-by-path): Use
+        `abbreviate-file-name'.
+        (epackage-loader-file-insert-install-code): Sort list of files.
+        This is important because "autoloads" must be before "install"
+        and "xactivate". This fixes epackage-loader.el load problems.
+        (epackage-loader-file-insert-install-code): Move point to
+        the eob before exiting function.
+        (epackage-sort): New.
+        (epackage-pkg-info-status-warnings): Use `epackage-sort'.
+        (epackage-sources-list-info-pkg-list): Use `epackage-sort'.
+        (epackage-insert-file-contents): New.
+        (epackage--batch-ui-menu-help): Adjust wording.
+        (epackage--batch-ui-menu-prompt): New.
+        (epackage--batch-ui-menu-actions): Add "m" for
+        `epackage-batch-ui-display-menu'.
+        (epackage-batch-ui-display-menu): New.
+        (epackage-batch-ui-menu): Show `epackage--batch-ui-menu-prompt',
+        and full menu only after "m" to reduce display.
+        (epackage-batch-ui-display-version): New.
+        (epackage--batch-ui-menu-actions): Add "v"
+        ´epackage-batch-ui-display-version'.
+        (epackage-batch-ui-display-package-action-list): New.
+        (epackage--batch-ui-menu-header): Rewrite.
+        (epackage-batch-ui-download-action-enable-toggle): Call
+        `epackage-batch-ui-display-package-action-list'.
+        (epackage-batch-ui-download-action-activate-toggle): Call
+        `epackage-batch-ui-display-package-action-list'.
+        (epackage-status-installed-packages): Include 'activated'
+        packages too.
+        (epackage-status-not-installed-packages): Correct function.
+        Use `epackage-status-installed-packages'.
+        (epackage--batch-ui-menu-header): Display version.
+        (epackage-initialize): move let `epackage--initialize-flag' a
+        little earler. This prvents "make ui" error on pristine
+        call where nothing has been done yet.
+        (epackage-ssh-known-host-p): New.
+        (epackage-ssh-config-strict-key-check-disabled-p): New.
+        (epackage-auto-revert-mode-p): New.
+        (epackage-turn-on-auto-revert-mode): New.
+        (epackage-require-ssh): New.
+        (epackage-download-sources-list): Add call to
+        `epackage-require-ssh' prior downloading from gitub.
+        (epackage--batch-ui-menu-string): Remove B command.
+        (epackage--batch-ui-menu-actions): Comment out B command.
+        The Byte compile is in "y" command already.
+        (epackage-with-git-command): Add `abbreviate-file-name'.
+        (epackage-ssh-help-string): New.
+        (epackage-ssh-p): New.
+        (epackage-url-extract-host): New.
+        (epackage-download-sources-list): Add SSH configurrion and
+        stop on error unless ok.
+        (epackage-git-command-clone): Use `epackage-require-ssh'.
 
 2011-04-01 Fri  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el: (Commentary): Fix various typos and improve
-	sentences.
+        * epackage.el: (Commentary): Fix various typos and improve
+        sentences.
 
 2011-01-31  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-whitespace-trailing-regexp): New.
-	(epackage-buffer-remove-whitespace-eol): Use
-	`epackage-whitespace-trailing-regexp'.
-	(epackage-autoload-generate-loaddefs-dir): Change order of
-	parameters DIR and FILE. Add interactive spec for FILE.
-	(epackage-autoload-write-loaddefs-file): Turn off `auto-save-mode'.
-	(epackage-devel-generate-autoloads): New.
-	(epackage-devel-generate-loaddefs): New.
-	(epackage-devel-compose-package): New.
-	(epackage-devel-template-directory): New.
-	(epackage-autoload-generate-loaddefs-dir): Adjust regexp: do not
-	require dash.
+        * epackage.el (epackage-whitespace-trailing-regexp): New.
+        (epackage-buffer-remove-whitespace-eol): Use
+        `epackage-whitespace-trailing-regexp'.
+        (epackage-autoload-generate-loaddefs-dir): Change order of
+        parameters DIR and FILE. Add interactive spec for FILE.
+        (epackage-autoload-write-loaddefs-file): Turn off `auto-save-mode'.
+        (epackage-devel-generate-autoloads): New.
+        (epackage-devel-generate-loaddefs): New.
+        (epackage-devel-compose-package): New.
+        (epackage-devel-template-directory): New.
+        (epackage-autoload-generate-loaddefs-dir): Adjust regexp: do not
+        require dash.
 
 2011-01-14 Fri  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-write-region): Add `backup-enable-predicate'.
-	(epackage-with-write-file): New.
-	(epackage-write-region): Rewrite.
-	(epackage-save-buffer): New.
-	(epackage-buffer-remove-whitespace-eol): New.
-	(epackage-with-command-line): devel
-	(epackage-file-name-add-suffix): devel
-	(epackage-directory-file-list): devel
-	(tinylisp-autoload-write-loaddefs-file): devel
-	(epackage-autoload-generate-loaddefs-file-list): devel
-	(epackage-batch-autoload-generate-loaddefs-file): devel
-	(epackage-autoload-generate-loaddefs-dir): devel
-	(epackage-batch-autoload-generate-loaddefs-dir): devel
-	(epackage-autoload-create-on-file): devel
-	(epackage-autoload-create-on-directory): devel
-	(epackage-autoload-loaddefs-create-maybe): devel
-	(epackage-autoload-loaddefs-dir-files): devel
-	(epackage-autoload-loaddefs-build-dir-1): devel
-	(epackage-autoload-loaddefs-build-dir): devel
-	(epackage-autoload-directories): devel
-	(epackage-autoload-loaddefs-build-recursive): devel
+        * epackage.el (epackage-write-region): Add `backup-enable-predicate'.
+        (epackage-with-write-file): New.
+        (epackage-write-region): Rewrite.
+        (epackage-save-buffer): New.
+        (epackage-buffer-remove-whitespace-eol): New.
+        (epackage-with-command-line): devel
+        (epackage-file-name-add-suffix): devel
+        (epackage-directory-file-list): devel
+        (tinylisp-autoload-write-loaddefs-file): devel
+        (epackage-autoload-generate-loaddefs-file-list): devel
+        (epackage-batch-autoload-generate-loaddefs-file): devel
+        (epackage-autoload-generate-loaddefs-dir): devel
+        (epackage-batch-autoload-generate-loaddefs-dir): devel
+        (epackage-autoload-create-on-file): devel
+        (epackage-autoload-create-on-directory): devel
+        (epackage-autoload-loaddefs-create-maybe): devel
+        (epackage-autoload-loaddefs-dir-files): devel
+        (epackage-autoload-loaddefs-build-dir-1): devel
+        (epackage-autoload-loaddefs-build-dir): devel
+        (epackage-autoload-directories): devel
+        (epackage-autoload-loaddefs-build-recursive): devel
 
 2011-01-07 Fri  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-info-mode-completions-section-initialize):
-	Write implementation.
-	(epackage-info-mode-tab-command): Implement 'Section:' header
-	completion.
-	(epackage-info-mode): Call `epackage-info-mode-pcomplete-variables'.
-	(epackage-info-mode-pcomplete-list): Rewrite complete code.
-	(epackage-info-mode-set-variables): Set `colon-double-space'.
-	(epackage-info-mode-set-pcomplete-variables): Rename. Was
-	`epackage-info-mode-pcomplete-variables'.
+        * epackage.el (epackage-info-mode-completions-section-initialize):
+        Write implementation.
+        (epackage-info-mode-tab-command): Implement 'Section:' header
+        completion.
+        (epackage-info-mode): Call `epackage-info-mode-pcomplete-variables'.
+        (epackage-info-mode-pcomplete-list): Rewrite complete code.
+        (epackage-info-mode-set-variables): Set `colon-double-space'.
+        (epackage-info-mode-set-pcomplete-variables): Rename. Was
+        `epackage-info-mode-pcomplete-variables'.
 
 2011-01-06  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-info-mode-tab-standard): New.
-	(epackage-info-mode-tab-command): Use
-	`epackage-info-mode-tab-standard'.
-	(epackage-field-name): Correct regexp.
-	(epackage-info-mode-set-variables): Set `tab-stop-list' by 4.
-	(epackage-info-mode-tab-standard): Change
-	`indent-for-tab-command' to `tab-to-tab-stop'.
+        * epackage.el (epackage-info-mode-tab-standard): New.
+        (epackage-info-mode-tab-command): Use
+        `epackage-info-mode-tab-standard'.
+        (epackage-field-name): Correct regexp.
+        (epackage-info-mode-set-variables): Set `tab-stop-list' by 4.
+        (epackage-info-mode-tab-standard): Change
+        `indent-for-tab-command' to `tab-to-tab-stop'.
 
 2010-12-27 Mon  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el: (Spec): add 'Custom' to License. Add new field
-	'License-Text'.
-	(epackage-eval-file): Use `insert-file-contents', drop
-	(epackage-write-region): New.
-	(epackage--info-mode-completions-license): Add 'Custom'.
+        * epackage.el: (Spec): add 'Custom' to License. Add new field
+        'License-Text'.
+        (epackage-eval-file): Use `insert-file-contents', drop
+        (epackage-write-region): New.
+        (epackage--info-mode-completions-license): Add 'Custom'.
 
-	*-literally.
-	(epackage-combine-files): Use `insert-file-contents', drop
-	*-literally.
-	(epackage-loader-file-insert-install-code): Use
-	`insert-file-contents', drop*-literally.
+        *-literally.
+        (epackage-combine-files): Use `insert-file-contents', drop
+        *-literally.
+        (epackage-loader-file-insert-install-code): Use
+        `insert-file-contents', drop*-literally.
 
 2010-12-25 Sat  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-url-encode): New.
-	(epackage-info-mode-tab-wiki): Add Google search.
-	(epackage-info-mode-pcomplete-list): Remove
-	`pcomplete-default-completion-function'.
-	(epackage--info-mode-completions-section): New.
-	(epackage-info-mode-completions-section-initialize): New.
+        * epackage.el (epackage-url-encode): New.
+        (epackage-info-mode-tab-wiki): Add Google search.
+        (epackage-info-mode-pcomplete-list): Remove
+        `pcomplete-default-completion-function'.
+        (epackage--info-mode-completions-section): New.
+        (epackage-info-mode-completions-section-initialize): New.
 
 2010-12-24 Fri  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage--info-mode-completions-status): Rename.
-	(epackage--info-mode-completions-license): Rename.
-	(epackage--info-mode-completions-current): Rename.
-	(epackage-info-mode-pcomplete-list): New.
-	(epackage-info-mode-set-variables): add `tab-stop-list'.
-	(epackage-info-mode-tab): Improve handling of 'Description:'.
-	(epackage-info-mode-tab-wiki): New.
+        * epackage.el (epackage--info-mode-completions-status): Rename.
+        (epackage--info-mode-completions-license): Rename.
+        (epackage--info-mode-completions-current): Rename.
+        (epackage-info-mode-pcomplete-list): New.
+        (epackage-info-mode-set-variables): add `tab-stop-list'.
+        (epackage-info-mode-tab): Improve handling of 'Description:'.
+        (epackage-info-mode-tab-wiki): New.
 
 2010-12-23 Thu  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-cmd-upgrade-all-packages): Delay
-	`epackage--install-action-list' action "boot" until end.
-	(epackage-mail-buffer-name): New.
-	(epackage-info-mode-cmd-email-maintainer): New.
-	(epackage-info-mode-cmd-email-upstream): New.
-	(package-info-mode-status-completions): New.
-	(epackage-info-mode-pcomplete-arguments): New.
-	(epackage-info-mode-pcomplete-default-completion): New.
-	(epackage-info-mode-pcomplete-variables): New.
-	(epackage-field-name): New.
-	(package-info-mode-current-completions): New.
-	(epackage-info-mode-tab): New.
+        * epackage.el (epackage-cmd-upgrade-all-packages): Delay
+        `epackage--install-action-list' action "boot" until end.
+        (epackage-mail-buffer-name): New.
+        (epackage-info-mode-cmd-email-maintainer): New.
+        (epackage-info-mode-cmd-email-upstream): New.
+        (package-info-mode-status-completions): New.
+        (epackage-info-mode-pcomplete-arguments): New.
+        (epackage-info-mode-pcomplete-default-completion): New.
+        (epackage-info-mode-pcomplete-variables): New.
+        (epackage-field-name): New.
+        (package-info-mode-current-completions): New.
+        (epackage-info-mode-tab): New.
 
 2010-12-22 Wed  Jari Aalto  <jari.aalto@cante.net>
 
-	* README (Project details, References): Add ripdoc, t2html.
+        * README (Project details, References): Add ripdoc, t2html.
 
-	* Makefile (clean, install): adjust documentation strings.
+        * Makefile (clean, install): adjust documentation strings.
 
-	* epackage.el
-	(top level): Don't require autorevert.el, forward declare its
-	variables. Add autoload for `mail-setup'.
-	(epackage-turn-on-auto-revert-mode): Check
-	variables with `boundp'.
-	(epackage-depends-parse-string): Correct variable name.
-	(epackage-git-status-data): Correct variable name.
-	(epackage-combine-files): Adjust message.
-	(epackage-pkg-depends-verify-emacs): Add `version' to let.
-	(epackage-pkg-depends-satisfy): Correct input args.
-	(epackage-config-delete-file): Add arg `verbose'.
-	(epackage-config-delete-action): Pass `verbose' forward.
-	(epackage-pkg-lint-directory): Correct variable.
-	(epackage-cmd-upgrade-package): Add missing arg for `message'.
-	(epackage-pkg-lint-downloaded-git-url): Correct function call.
-	(epackage-cmd-download-action-lint-on): Correct function call.
-	(epackage-batch-ui-display-package-documentation): Correct
-	function call.
-	(epackage--loader-file-name): Rename. Was
-	`epackage--loader-file-boot'.
-	(epackage--loader-file-byte-compile-flag): Rename. Was
-	`epackage--loader-file-boot-byte-compile-flag'.
-	(epackage--sources-list-and-repository-sync-flag): New.
-	(epackage-byte-compile-default-maybe): Remove. Unused.
-	(epackage-kill-buffer-sources-list): New.
-	(epackage-cmd-download-sources-list): Call
-	`epackage-kill-buffer-sources-list'.
-	(epackage-with-sources-list): Add `epackage-turn-on-auto-revert-mode'.
-	(epackage-kill-buffer-list): New.
-	(epackage--install-action-list): New.
-	(epackage-batch-ui-menu): Use `epackage--install-action-list'.
-	(epackage-download-action-install-p): New.
-	(epackage-download-action-activate-p): New.
-	(epackage-download-action-enable-p): New.
-	(epackage-config-install-handler): New.
-	(epackage-config-install-action): Call
-	`epackage-config-install-handler'.
-	(epackage-eval-file-safe): New.
-	(epackage-config-uninstall-invoke): New.
-	(epackage-cmd-config-uninstall-package): New.
-	(epackage-loader-file-insert-path-list): Rewrite completely.
-	(epackage--directory-exclude-regexp): Add more entries.
-	(epackage-directory-list): Ignore "." and ".." directories.
-	(epackage-directory-list-exclude-p): New.
-	(epackage-loader-insert-file-path-list-by-path): Simplify.
-	(epackage-directory-recursive-list-default): Add let.
-	(epackage-directory-recursive-lisp-files): New.
-	(turn-off-epackage-info-mode): New.
-	(turn-on-epackage-info-mode): New.
-	(epackage-info-mode): New.
-	(epackage-info-mode-text): New.
-	(epackage-info-mode): New.
-	(epackage-info-mode-hook): New.
-	(epackage-info-mode-on-hook): New.
-	(epackage-info-mode-off-hook): New.
-	(epackage-info-mode-map): New.
-	(epackage-cmd-lint-package): Rewrite.
-	(epackage-pkg-lint-results): New.
-	(epackage-pkg-lint-package): Use `epackage-pkg-lint-results'.
-	(epackage-pkg-lint-directory-interactive): New.
-	(epackage-pkg-info-p): New.
-	(epackage-info-mode-cmd-goto-status): New.
-	(epackage-info-mode-cmd-url-homepage): New.
-	(epackage-info-mode-cmd-url-wiki): New.
-	(epackage-info-mode-cmd-url-commentary): New.
-	(epackage-info-mode-set-variables): New.
-	(epackage-info-mode-move-beginning-of-line): New.
-	(epackage-info-mode-font-lock-keywords): New.
+        * epackage.el
+        (top level): Don't require autorevert.el, forward declare its
+        variables. Add autoload for `mail-setup'.
+        (epackage-turn-on-auto-revert-mode): Check
+        variables with `boundp'.
+        (epackage-depends-parse-string): Correct variable name.
+        (epackage-git-status-data): Correct variable name.
+        (epackage-combine-files): Adjust message.
+        (epackage-pkg-depends-verify-emacs): Add `version' to let.
+        (epackage-pkg-depends-satisfy): Correct input args.
+        (epackage-config-delete-file): Add arg `verbose'.
+        (epackage-config-delete-action): Pass `verbose' forward.
+        (epackage-pkg-lint-directory): Correct variable.
+        (epackage-cmd-upgrade-package): Add missing arg for `message'.
+        (epackage-pkg-lint-downloaded-git-url): Correct function call.
+        (epackage-cmd-download-action-lint-on): Correct function call.
+        (epackage-batch-ui-display-package-documentation): Correct
+        function call.
+        (epackage--loader-file-name): Rename. Was
+        `epackage--loader-file-boot'.
+        (epackage--loader-file-byte-compile-flag): Rename. Was
+        `epackage--loader-file-boot-byte-compile-flag'.
+        (epackage--sources-list-and-repository-sync-flag): New.
+        (epackage-byte-compile-default-maybe): Remove. Unused.
+        (epackage-kill-buffer-sources-list): New.
+        (epackage-cmd-download-sources-list): Call
+        `epackage-kill-buffer-sources-list'.
+        (epackage-with-sources-list): Add `epackage-turn-on-auto-revert-mode'.
+        (epackage-kill-buffer-list): New.
+        (epackage--install-action-list): New.
+        (epackage-batch-ui-menu): Use `epackage--install-action-list'.
+        (epackage-download-action-install-p): New.
+        (epackage-download-action-activate-p): New.
+        (epackage-download-action-enable-p): New.
+        (epackage-config-install-handler): New.
+        (epackage-config-install-action): Call
+        `epackage-config-install-handler'.
+        (epackage-eval-file-safe): New.
+        (epackage-config-uninstall-invoke): New.
+        (epackage-cmd-config-uninstall-package): New.
+        (epackage-loader-file-insert-path-list): Rewrite completely.
+        (epackage--directory-exclude-regexp): Add more entries.
+        (epackage-directory-list): Ignore "." and ".." directories.
+        (epackage-directory-list-exclude-p): New.
+        (epackage-loader-insert-file-path-list-by-path): Simplify.
+        (epackage-directory-recursive-list-default): Add let.
+        (epackage-directory-recursive-lisp-files): New.
+        (turn-off-epackage-info-mode): New.
+        (turn-on-epackage-info-mode): New.
+        (epackage-info-mode): New.
+        (epackage-info-mode-text): New.
+        (epackage-info-mode): New.
+        (epackage-info-mode-hook): New.
+        (epackage-info-mode-on-hook): New.
+        (epackage-info-mode-off-hook): New.
+        (epackage-info-mode-map): New.
+        (epackage-cmd-lint-package): Rewrite.
+        (epackage-pkg-lint-results): New.
+        (epackage-pkg-lint-package): Use `epackage-pkg-lint-results'.
+        (epackage-pkg-lint-directory-interactive): New.
+        (epackage-pkg-info-p): New.
+        (epackage-info-mode-cmd-goto-status): New.
+        (epackage-info-mode-cmd-url-homepage): New.
+        (epackage-info-mode-cmd-url-wiki): New.
+        (epackage-info-mode-cmd-url-commentary): New.
+        (epackage-info-mode-set-variables): New.
+        (epackage-info-mode-move-beginning-of-line): New.
+        (epackage-info-mode-font-lock-keywords): New.
 
 2010-12-21 Tue  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-with-package-info-file): Turn on
-	`auto-revert-mode'.
-	(epackage-turn-on-auto-revert-mode): New.
-	(epackage-with-sources-list): Call `epackage-turn-on-auto-revert-mode'.
-	(epackage-with-package-info-file): Call
-	`epackage-turn-on-auto-revert-mode'.
-	(epackage-with-git-config): Kill buffer after BODY.
-	(epackage-git-config-fetch-field): New.
-	(epackage-git-buffer-fetch-field): New.
-	(epackage-pkg-lint-git-url): New.
-	(epackage-pkg-lint-package): Call `epackage-pkg-lint-git-url'.
-	(epackage-with-buffer-emacs-messages): New.
-	(epackage-sources-list-build): Rename. Was
-	`epackage-cmd-build-sources-list'.
-	(epackage-sources-list-upgrade): Rename. Was
-	`epackage-upgrade-sources-list'.
-	(epackage-sources-list-initialize): Rename. Was
-	`epackage-build-sources-list'.
-	(epackage-pkg-lint-downloaded-git-url): New.
-	(epackage-sources-list-and-repositories-sync): New.
-	(epackage-sources-list-build): Call
-	`epackage-sources-list-and-repositories-sync'.
-	(epackage-recreate-package): New.
-	(epackage--download-action-list): Set default value to
-	'(enable package-depends).
-	(epackage-git-command-status): New.
-	(epackage-git-command-status-parse-buffer-modified): New.
-	(epackage-git-command-status-modified-parse-main): New.
-	(epackage-git-command-status-parse-buffer-untracked): New.
-	(epackage-git-command-status-parse-buffer-commit): New.
-	(epackage-git-command-status-untracked-parse-main): New.
-	(epackage-git-command-status-commit-parse-main): New.
-	(epackage-git-clean-state-p): New.
-	(epackage-git-status-data): New.
-	(epackage-git-command-status-parse-buffer-limit): New.
-	(epackage-git-command-status-parse-generic): New.
-	(epackage-upgrade-package): Check `epackage-git-status-clean-p'.
-	(epackage-pkg-info-status-warnings): Improve core-* check.
+        * epackage.el (epackage-with-package-info-file): Turn on
+        `auto-revert-mode'.
+        (epackage-turn-on-auto-revert-mode): New.
+        (epackage-with-sources-list): Call `epackage-turn-on-auto-revert-mode'.
+        (epackage-with-package-info-file): Call
+        `epackage-turn-on-auto-revert-mode'.
+        (epackage-with-git-config): Kill buffer after BODY.
+        (epackage-git-config-fetch-field): New.
+        (epackage-git-buffer-fetch-field): New.
+        (epackage-pkg-lint-git-url): New.
+        (epackage-pkg-lint-package): Call `epackage-pkg-lint-git-url'.
+        (epackage-with-buffer-emacs-messages): New.
+        (epackage-sources-list-build): Rename. Was
+        `epackage-cmd-build-sources-list'.
+        (epackage-sources-list-upgrade): Rename. Was
+        `epackage-upgrade-sources-list'.
+        (epackage-sources-list-initialize): Rename. Was
+        `epackage-build-sources-list'.
+        (epackage-pkg-lint-downloaded-git-url): New.
+        (epackage-sources-list-and-repositories-sync): New.
+        (epackage-sources-list-build): Call
+        `epackage-sources-list-and-repositories-sync'.
+        (epackage-recreate-package): New.
+        (epackage--download-action-list): Set default value to
+        '(enable package-depends).
+        (epackage-git-command-status): New.
+        (epackage-git-command-status-parse-buffer-modified): New.
+        (epackage-git-command-status-modified-parse-main): New.
+        (epackage-git-command-status-parse-buffer-untracked): New.
+        (epackage-git-command-status-parse-buffer-commit): New.
+        (epackage-git-command-status-untracked-parse-main): New.
+        (epackage-git-command-status-commit-parse-main): New.
+        (epackage-git-clean-state-p): New.
+        (epackage-git-status-data): New.
+        (epackage-git-command-status-parse-buffer-limit): New.
+        (epackage-git-command-status-parse-generic): New.
+        (epackage-upgrade-package): Check `epackage-git-status-clean-p'.
+        (epackage-pkg-info-status-warnings): Improve core-* check.
 
 2010-12-19 Sun  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-cmd-enable-package): Send 'noerr
-	to `epackage-config-install-action'.
-	(epackage-config-install-action): Run `epackage--install-autoload-hook'
-	only on success.
-	(epackage-cmd-activate-package): Add error handling if activate
-	file is not present.
-	(epackage-cmd-clean-package): Complete only downloaded packages.
-	Handle situation where no packages have been downloaded.
-	(epackage-cmd-upgrade-all-packages): Move location.
-	(epackage-cmd-upgrade-package): complete only downloaded
-	package list.
-	(epackage-cmd-upgrade-all-packages): Adjust return values.
-	(epackage-config-install-autoload): Use 'noerr.
-	(epackage-directory-package-git-root): New.
-	(epackage-directory-package-git-config): New.
-	(epackage-with-git-config): New.
+        * epackage.el (epackage-cmd-enable-package): Send 'noerr
+        to `epackage-config-install-action'.
+        (epackage-config-install-action): Run `epackage--install-autoload-hook'
+        only on success.
+        (epackage-cmd-activate-package): Add error handling if activate
+        file is not present.
+        (epackage-cmd-clean-package): Complete only downloaded packages.
+        Handle situation where no packages have been downloaded.
+        (epackage-cmd-upgrade-all-packages): Move location.
+        (epackage-cmd-upgrade-package): complete only downloaded
+        package list.
+        (epackage-cmd-upgrade-all-packages): Adjust return values.
+        (epackage-config-install-autoload): Use 'noerr.
+        (epackage-directory-package-git-root): New.
+        (epackage-directory-package-git-config): New.
+        (epackage-with-git-config): New.
 
 2010-12-17 Fri  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-cmd-download-package): Correct mesages
-	to sat "download", not "install".
-	(epackage-cmd-download-package): Check download URL.
-	(epackage-cmd-download-sources-list): Call
-	`epackage-cmd-build-sources-list'.
-	(epackage-download-sources-list): Remove interactive and ###autoload.
-	(epackage-fetch-field-status): New.
-	(epackage-pkg-info-fetch-field-status): New.
-	(epackage-pkg-info-fetch-field-depends): New.
-	(epackage-pkg-info-fetch-field-status): New.
-	(epackage-pkg-info-status-p): New.
-	(epackage-pkg-info-status-unmaintained-p): New.
-	(epackage-pkg-info-status-emacs-p): New.
-	(epackage-pkg-info-status-broken-p): New.
-	(epackage-pkg-info-status-unsafe-p): New.
-	(epackage-cmd-download-package): Display warnings after
-	package download.
-	(epackage-pkg-info-status-warnings): New.
+        * epackage.el (epackage-cmd-download-package): Correct mesages
+        to sat "download", not "install".
+        (epackage-cmd-download-package): Check download URL.
+        (epackage-cmd-download-sources-list): Call
+        `epackage-cmd-build-sources-list'.
+        (epackage-download-sources-list): Remove interactive and ###autoload.
+        (epackage-fetch-field-status): New.
+        (epackage-pkg-info-fetch-field-status): New.
+        (epackage-pkg-info-fetch-field-depends): New.
+        (epackage-pkg-info-fetch-field-status): New.
+        (epackage-pkg-info-status-p): New.
+        (epackage-pkg-info-status-unmaintained-p): New.
+        (epackage-pkg-info-status-emacs-p): New.
+        (epackage-pkg-info-status-broken-p): New.
+        (epackage-pkg-info-status-unsafe-p): New.
+        (epackage-cmd-download-package): Display warnings after
+        package download.
+        (epackage-pkg-info-status-warnings): New.
 
-	* README (Project details): Add link to manual.
+        * README (Project details): Add link to manual.
 
 2010-12-16 Thu  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el
-	(top level): Write "Development notes: XEmacs, Depends". Improve
-	"Depends:" field documentation.
-	(epackage-pkg-depends-resolve): Mention epackage
-	name in messages.
-	(epackage-run-action-list): Add `sort'.
-	(epackage-pkg-depends-rollback): New.
-	(epackage--depends-satisfy-running): New.
-	(epackage--download-action-list): Add action `xboot'. Rename
-	action `depends' to 'package-depends'.
-	(epackage-cmd-download-action-depends-handling): New user
-	command.
-	(epackage-pkg-lint-package): New.
-	(epackage-pkg-lint-info-file): Add verbose.
-	(epackage-pkg-lint-git-branches): Rewrite.
-	(epackage-url-retrieve-buffer): New.
-	(epackage-url-save-to-file): New.
-	(epackage-pkg-lint-package): New.
-	(epackage--buffer-lint): New.
-	(epackage-pkg-lint-dir-structure): Fix hadlling of file "info".
-	(epackage--download-action-list): Add TYPE lint.
-	(epackage-run-action-list): Add TYPE lint.
-	(epackage-cmd-download-action-lint-on): New.
-	(epackage-cmd-download-action-lint-off): New.
-	(epackage-cmd-download-action-lint-toggle): New.
-	(epackage-pkg-lint-info-file): Check "Package" field.
-	(epackage-config-delete-file): New.
-	(epackage-config-delete-action): Use `epackage-config-delete-file'.
-	(epackage-config-delete-all): Use `epackage-config-delete-file'.
-	(epackage-pkg-kill-buffer-force): New.
-	(epackage-pkg-buffer-list): New.
-	(epackage-kill-buffer): New.
-	(epackage-cmd-remove-package): Call
-	`epackage-pkg-kill-buffer-force'.
-	(epackage-time): New.
-	(epackage-pkg-lint-package): Use `epackage-time'.
+        * epackage.el
+        (top level): Write "Development notes: XEmacs, Depends". Improve
+        "Depends:" field documentation.
+        (epackage-pkg-depends-resolve): Mention epackage
+        name in messages.
+        (epackage-run-action-list): Add `sort'.
+        (epackage-pkg-depends-rollback): New.
+        (epackage--depends-satisfy-running): New.
+        (epackage--download-action-list): Add action `xboot'. Rename
+        action `depends' to 'package-depends'.
+        (epackage-cmd-download-action-depends-handling): New user
+        command.
+        (epackage-pkg-lint-package): New.
+        (epackage-pkg-lint-info-file): Add verbose.
+        (epackage-pkg-lint-git-branches): Rewrite.
+        (epackage-url-retrieve-buffer): New.
+        (epackage-url-save-to-file): New.
+        (epackage-pkg-lint-package): New.
+        (epackage--buffer-lint): New.
+        (epackage-pkg-lint-dir-structure): Fix hadlling of file "info".
+        (epackage--download-action-list): Add TYPE lint.
+        (epackage-run-action-list): Add TYPE lint.
+        (epackage-cmd-download-action-lint-on): New.
+        (epackage-cmd-download-action-lint-off): New.
+        (epackage-cmd-download-action-lint-toggle): New.
+        (epackage-pkg-lint-info-file): Check "Package" field.
+        (epackage-config-delete-file): New.
+        (epackage-config-delete-action): Use `epackage-config-delete-file'.
+        (epackage-config-delete-all): Use `epackage-config-delete-file'.
+        (epackage-pkg-kill-buffer-force): New.
+        (epackage-pkg-buffer-list): New.
+        (epackage-kill-buffer): New.
+        (epackage-cmd-remove-package): Call
+        `epackage-pkg-kill-buffer-force'.
+        (epackage-time): New.
+        (epackage-pkg-lint-package): Use `epackage-time'.
 
 2010-12-15 Thu  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-cmd-download-action-depends-on): New.
-	(epackage-cmd-download-action-depends-off): New.
-	(epackage-cmd-download-action-depends-toggle): New.
-	(epackage-combine-files): Save new content to `point-max'
-	not `point-min'. This preserves file listing order.
-	(epackage-cmd-download-action-activate-off): Add verbose.
-	(epackage-cmd-download-action-activate-toggle): Add verbose.
-	(epackage-cmd-download-action-autoload-on): Add verbose.
-	(epackage-cmd-download-action-autoload-off): Add verbose.
-	(epackage-cmd-download-action-autoload-toggle): Add verbose.
-	(epackage-cmd-download-action-depends-on): Add verbose.
-	(epackage-cmd-download-action-depends-off): Add verbose.
-	(epackage-cmd-download-action-depends-toggle): Add verbose.
-	(epackage-cmd-download-action-enable-on): Add verbose.
-	(epackage-cmd-download-action-enable-off): Add verbose.
-	(epackage-cmd-download-action-enable-toggle): Add verbose.
-	(epackage-cmd-download-action-compile-on): Add verbose.
-	(epackage-cmd-download-action-compile-off): Add verbose.
-	(epackage-cmd-download-action-compile-toggle): Add verbose.
-	(epackage-pkg-info-fetch-field-depends): New.
-	(epackage-depends-parse-buffer-prepare): New.
+        * epackage.el (epackage-cmd-download-action-depends-on): New.
+        (epackage-cmd-download-action-depends-off): New.
+        (epackage-cmd-download-action-depends-toggle): New.
+        (epackage-combine-files): Save new content to `point-max'
+        not `point-min'. This preserves file listing order.
+        (epackage-cmd-download-action-activate-off): Add verbose.
+        (epackage-cmd-download-action-activate-toggle): Add verbose.
+        (epackage-cmd-download-action-autoload-on): Add verbose.
+        (epackage-cmd-download-action-autoload-off): Add verbose.
+        (epackage-cmd-download-action-autoload-toggle): Add verbose.
+        (epackage-cmd-download-action-depends-on): Add verbose.
+        (epackage-cmd-download-action-depends-off): Add verbose.
+        (epackage-cmd-download-action-depends-toggle): Add verbose.
+        (epackage-cmd-download-action-enable-on): Add verbose.
+        (epackage-cmd-download-action-enable-off): Add verbose.
+        (epackage-cmd-download-action-enable-toggle): Add verbose.
+        (epackage-cmd-download-action-compile-on): Add verbose.
+        (epackage-cmd-download-action-compile-off): Add verbose.
+        (epackage-cmd-download-action-compile-toggle): Add verbose.
+        (epackage-pkg-info-fetch-field-depends): New.
+        (epackage-depends-parse-buffer-prepare): New.
 
 2010-12-15 Wed  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-pkg-info-field-commentary): If
-	value is empty, return nil.
-	(epackage-batch-ui-display-package-documentation): Check
-	if file is empty.
-	(epackage-pkg-info-field-read): Remove.
-	(epackage-pkg-info-field-commentary): Remove.
-	(epackage-pkg-info-fetch-field): New.
-	(epackage-fetch-field): New.
-	(epackage-pkg-lint-main): Add INFO file check.
-	(epackage-pkg-lint-info-file): New.
-	(epackage--info-layout-mapping): New.
-	(epackage--layout-mapping): Update docstring.
-	(epackage-pkg-lint-info-file): New.
-	(epackage-pkg-lint-info-buffer): New.
-	(epackage-pkg-lint-dir-structure): Add VERBOSE.
-	(epackage-pkg-lint-git-branches): Add VERBOSE.
-	(epackage-pkg-lint-dir-structure): Rewrite.
-	(epackage-fetch-field-description): New.
-	(epackage-cmd-select-package): add arg `list'.
-	(epackage-cmd-email-maintainer): New.
-	(epackage-mail-macro): New.
-	(epackage-cmd-email-upstream): New.
-	(epackage--download-action-list): Add TYPE `depends'.
-	(epackage-fetch-field-depends): New.
-	(epackage-depends-parse-string): New.
-	(epackage-depends-parse-buffer): New.
-	(epackage-depends-parse-collect): New.
-	(epackage--depends-handling): New.
-	(epackage-pkg-depends-resolve): New.
-	(epackage-pkg-depends-verify): New.
-	(epackage-pkg-depends-verify-main): New.
-	(epackage-pkg-depends-verify-main): New.
+        * epackage.el (epackage-pkg-info-field-commentary): If
+        value is empty, return nil.
+        (epackage-batch-ui-display-package-documentation): Check
+        if file is empty.
+        (epackage-pkg-info-field-read): Remove.
+        (epackage-pkg-info-field-commentary): Remove.
+        (epackage-pkg-info-fetch-field): New.
+        (epackage-fetch-field): New.
+        (epackage-pkg-lint-main): Add INFO file check.
+        (epackage-pkg-lint-info-file): New.
+        (epackage--info-layout-mapping): New.
+        (epackage--layout-mapping): Update docstring.
+        (epackage-pkg-lint-info-file): New.
+        (epackage-pkg-lint-info-buffer): New.
+        (epackage-pkg-lint-dir-structure): Add VERBOSE.
+        (epackage-pkg-lint-git-branches): Add VERBOSE.
+        (epackage-pkg-lint-dir-structure): Rewrite.
+        (epackage-fetch-field-description): New.
+        (epackage-cmd-select-package): add arg `list'.
+        (epackage-cmd-email-maintainer): New.
+        (epackage-mail-macro): New.
+        (epackage-cmd-email-upstream): New.
+        (epackage--download-action-list): Add TYPE `depends'.
+        (epackage-fetch-field-depends): New.
+        (epackage-depends-parse-string): New.
+        (epackage-depends-parse-buffer): New.
+        (epackage-depends-parse-collect): New.
+        (epackage--depends-handling): New.
+        (epackage-pkg-depends-resolve): New.
+        (epackage-pkg-depends-verify): New.
+        (epackage-pkg-depends-verify-main): New.
+        (epackage-pkg-depends-verify-main): New.
 
 2010-12-14 Tue  Jari Aalto  <jari.aalto@cante.net>
 
-	* Makefile (clean): New.
+        * Makefile (clean): New.
 
-	* epackage.el
-	(top level): Document *-compile.el in "Epackage specification.
-	Add `lm-version' autoload.
-	(epackage-cmd-display-package-info): New.
-	(epackage--buffer-doc): Rename. Was `epackage--doc-buffer'.
-	(epackage--buffer-info): New.
-	(epackage-with-buffer-info): New.
-	(epackage-pkg-info-display): New.
-	(epackage--pkg-info-file-name): New.
-	(epackage-directory-package-control): Rename. Was
-	`epackage-file-name-vcs-package-control-directory'.
-	(epackage-file-name-package-info): New.
-	(epackage-package-info-p): New.
-	(epackage-file-content-as-string): New.
-	(epackage-pkg-info-display): New.
-	(epackage-with-package-info-file): New.
-	(epackage--batch-ui-menu-actions): Rename i, I commands to e, E.
-	Add command i to display package info.
-	(epackage--batch-ui-menu-help): Update.
-	(epackage-batch-ui-display-package-info): New.
-	(epackage--install-autoload-hook): New.
-	(epackage--install-enable-hook): New.
-	(epackage--install-disable-hook): New.
-	(epackage--install-activate-hook): New.
-	(epackage--install-deactivate-hook): New.
-	(epackage-config-install-autoload): Add hook.
-	(epackage--install-config-delete-hook): New.
-	(epackage--install-config-delete-all-hook): New.
-	(epackage-config-delete-all): Add hook.
-	(epackage--install-type-hook): New.
-	(epackage-config-install-action): Add hook.
-	(epackage-cmd-enable-package): Add hook.
-	(epackage-cmd-disable-package): Add hook.
-	(epackage-cmd-activate-package): Add hook.
-	(epackage-cmd-deactivate-package): Add hook.
-	(epackage-cmd-clean-package): Add hook.
-	(epackage--install-clean-hook): New.
-	(epackage--install-download-hook): New.
-	(epackage--install-remove-hook): New.
-	(epackage-download-package): Add hook.
-	(epackage--initialize-hook): New.
-	(epackage-initialize): Run hook.
-	(epackage--build-sources-list-hook): New.
-	(epackage-build-sources-list): Add hook.
-	(epackage--download-action-list): New.
-	(epackage--layout-mapping): Add `compile'.
-	(epackage-download-action-enable): New.
-	(epackage-download-action-disable): New.
-	(epackage-cmd-download-action-enable-on): New.
-	(epackage-cmd-download-action-enable-off): New.
-	(epackage-cmd-download-action-activate-on): New.
-	(epackage-cmd-download-action-activate-off): New.
-	(epackage-cmd-download-action-autoload-on): New.
-	(epackage-cmd-download-action-autoload-off): New.
-	(epackage-cmd-download-action-compile-on): New.
-	(epackage-cmd-download-action-compile-off): New.
-	(defgroup epackage): Lowercase group name.
-	(epackage--batch-ui-menu-string): Document t, T.
-	(epackage--batch-ui-menu-actions): New user command to turn
-	on/off automatic enable install of package after download.
-	(epackage-cmd-download-action-display-status): devel Nre.
-	(epackage-download-package): Update docstring.
-	(epackage-layout-mapping-file): New.
-	(epackage-directory-packages-control-file): Use
-	`epackage-layout-mapping-file'.
-	(epackage-byte-compile-package): New.
-	(epackage-byte-compile-package-maybe): New.
-	(epackage-run-action-list): New.
-	(epackage--batch-ui-menu-header): Show
-	`epackage--download-action-list'.
-	(epackage-cmd-download-action-activate-toggle): New.
-	(epackage-cmd-download-action-autoload-toggle): New.
-	(epackage-cmd-download-action-enable-toggle): New.
-	(epackage-cmd-download-action-compile-toggle): New.
-	(epackage-batch-ui-download-action-enable-toggle): New.
-	(epackage-batch-ui-download-action-activate-toggle): New.
-	(epackage-cmd-download-package): Call `epackage-run-action-list'.
-	(epackage-directory-packages): Rewrite.
-	(epackage-file-name-package-compose): Rewrite.
-	(epackage-directory-package-root): New.
-	(epackage-byte-compile-package): Implement.
-	(epackage-cmd-build-sources-list): update message.
-	(epackage-directory-list): Adjust docstring. Add arg EXCLUDE.
-	Remove `epackage--directory-exclude-regexp'.
-	(epackage-directory-recursive-list-default): New.
-	(epackage-loader-insert-file-path-list-by-path): Change to
-	`epackage-directory-recursive-list-default'.
-	(epackage--directory-exclude-regexp): Remove
-	`epackage--directory-name'.
-	(epackage--directory-exclude-regexp): Use `regexp-opt'.
-	(epackage-cmd-byte-compile-package): New.
-	(epackage-batch-ui-byte-compile-package): New.
-	(epackage-batch-ui-loader-file-byte-compile): New.
-	(epackage-batch-ui-download-action-compile-toggle): New.
-	(epackage-push): Remove `edebug-form-spec'.
-	(epackage-asscoc): Remove `edebug-form-spec'.
-	(epackage-error): Remove `edebug-form-spec'.
-	(epackage-warn): Remove `edebug-form-spec'.
-	(epackage-message): Remove `edebug-form-spec'.
-	(epackage--loader-file-load-path): New.
-	(epackage-file-name-loader-load-path): New.
-	(epackage-loader-file-generate-load-path): New.
-	(epackage-loader-file-insert-header): Edit message.
-	(epackage-loader-file-insert-load-path): New.
-	(epackage-loader-file-generate-boot): Call
-	`epackage-loader-file-generate-load-path'.
-	(epackage-eval-file): New.
-	(epackage--byte-compile-buffer): New.
-	(epackage--finder-commentary-buffer-name): Rename. Was
-	`epackage--finder-commentary-buffer'. Set to defconst.
-	(epackage-with-byte-compile-buffer): New.
-	(epackage-with-verbose): Remove.
-	(epackage-upgrade-package): Simplify by using
-	`epackage-with-message'.
-	(epackage-config-delete-action): Use `epackage-verbose-message'.
-	(epackage-config-delete-all): Use `epackage-verbose-message'.
-	(epackage-require-directories): Use `epackage-verbose-message'.
-	(epackage--batch-ui-menu-actions): Change B command from
-	`epackage-batch-ui-loader-file-byte-compile' to
-	`epackage-batch-ui-byte-compile-package'.
-	(epackage--byte-compile-buffer-name): Check Emacs 24.1 variable
-	`byte-compile-log-buffer'.
-	(epackage-lisp-file-list): New.
-	(epackage-byte-compile-package-standard): New.
-	(epackage-byte-compile-package-guess): New.
-	(epackage-byte-compile-package-main): New.
-	(epackage-byte-compile-package-maybe): Remove.
-	(epackage-eval-file): Use `eval-buffer'.
-	(epackage-file-name-compose): Correct to use
-	`epackage-directory-packages'.
-	(epackage-pkg-info-display): Correct all to `erase-buffer'.
-	(epackage-loader-file-insert-header): Remove `format'.
-	(epackage-batch-ui-menu): Move `epackage-initialize' call
-	after debug is active.
-	(epackage-pkg-info-field-read): New.
-	(epackage-pkg-info-documentation): New.
-	(epackage-cmd-display-package-documentation): New.
-	(epackage-batch-ui-display-package-documentation): New.
-	(epackage-with-package-info-file): Correct macro.
+        * epackage.el
+        (top level): Document *-compile.el in "Epackage specification.
+        Add `lm-version' autoload.
+        (epackage-cmd-display-package-info): New.
+        (epackage--buffer-doc): Rename. Was `epackage--doc-buffer'.
+        (epackage--buffer-info): New.
+        (epackage-with-buffer-info): New.
+        (epackage-pkg-info-display): New.
+        (epackage--pkg-info-file-name): New.
+        (epackage-directory-package-control): Rename. Was
+        `epackage-file-name-vcs-package-control-directory'.
+        (epackage-file-name-package-info): New.
+        (epackage-package-info-p): New.
+        (epackage-file-content-as-string): New.
+        (epackage-pkg-info-display): New.
+        (epackage-with-package-info-file): New.
+        (epackage--batch-ui-menu-actions): Rename i, I commands to e, E.
+        Add command i to display package info.
+        (epackage--batch-ui-menu-help): Update.
+        (epackage-batch-ui-display-package-info): New.
+        (epackage--install-autoload-hook): New.
+        (epackage--install-enable-hook): New.
+        (epackage--install-disable-hook): New.
+        (epackage--install-activate-hook): New.
+        (epackage--install-deactivate-hook): New.
+        (epackage-config-install-autoload): Add hook.
+        (epackage--install-config-delete-hook): New.
+        (epackage--install-config-delete-all-hook): New.
+        (epackage-config-delete-all): Add hook.
+        (epackage--install-type-hook): New.
+        (epackage-config-install-action): Add hook.
+        (epackage-cmd-enable-package): Add hook.
+        (epackage-cmd-disable-package): Add hook.
+        (epackage-cmd-activate-package): Add hook.
+        (epackage-cmd-deactivate-package): Add hook.
+        (epackage-cmd-clean-package): Add hook.
+        (epackage--install-clean-hook): New.
+        (epackage--install-download-hook): New.
+        (epackage--install-remove-hook): New.
+        (epackage-download-package): Add hook.
+        (epackage--initialize-hook): New.
+        (epackage-initialize): Run hook.
+        (epackage--build-sources-list-hook): New.
+        (epackage-build-sources-list): Add hook.
+        (epackage--download-action-list): New.
+        (epackage--layout-mapping): Add `compile'.
+        (epackage-download-action-enable): New.
+        (epackage-download-action-disable): New.
+        (epackage-cmd-download-action-enable-on): New.
+        (epackage-cmd-download-action-enable-off): New.
+        (epackage-cmd-download-action-activate-on): New.
+        (epackage-cmd-download-action-activate-off): New.
+        (epackage-cmd-download-action-autoload-on): New.
+        (epackage-cmd-download-action-autoload-off): New.
+        (epackage-cmd-download-action-compile-on): New.
+        (epackage-cmd-download-action-compile-off): New.
+        (defgroup epackage): Lowercase group name.
+        (epackage--batch-ui-menu-string): Document t, T.
+        (epackage--batch-ui-menu-actions): New user command to turn
+        on/off automatic enable install of package after download.
+        (epackage-cmd-download-action-display-status): devel Nre.
+        (epackage-download-package): Update docstring.
+        (epackage-layout-mapping-file): New.
+        (epackage-directory-packages-control-file): Use
+        `epackage-layout-mapping-file'.
+        (epackage-byte-compile-package): New.
+        (epackage-byte-compile-package-maybe): New.
+        (epackage-run-action-list): New.
+        (epackage--batch-ui-menu-header): Show
+        `epackage--download-action-list'.
+        (epackage-cmd-download-action-activate-toggle): New.
+        (epackage-cmd-download-action-autoload-toggle): New.
+        (epackage-cmd-download-action-enable-toggle): New.
+        (epackage-cmd-download-action-compile-toggle): New.
+        (epackage-batch-ui-download-action-enable-toggle): New.
+        (epackage-batch-ui-download-action-activate-toggle): New.
+        (epackage-cmd-download-package): Call `epackage-run-action-list'.
+        (epackage-directory-packages): Rewrite.
+        (epackage-file-name-package-compose): Rewrite.
+        (epackage-directory-package-root): New.
+        (epackage-byte-compile-package): Implement.
+        (epackage-cmd-build-sources-list): update message.
+        (epackage-directory-list): Adjust docstring. Add arg EXCLUDE.
+        Remove `epackage--directory-exclude-regexp'.
+        (epackage-directory-recursive-list-default): New.
+        (epackage-loader-insert-file-path-list-by-path): Change to
+        `epackage-directory-recursive-list-default'.
+        (epackage--directory-exclude-regexp): Remove
+        `epackage--directory-name'.
+        (epackage--directory-exclude-regexp): Use `regexp-opt'.
+        (epackage-cmd-byte-compile-package): New.
+        (epackage-batch-ui-byte-compile-package): New.
+        (epackage-batch-ui-loader-file-byte-compile): New.
+        (epackage-batch-ui-download-action-compile-toggle): New.
+        (epackage-push): Remove `edebug-form-spec'.
+        (epackage-asscoc): Remove `edebug-form-spec'.
+        (epackage-error): Remove `edebug-form-spec'.
+        (epackage-warn): Remove `edebug-form-spec'.
+        (epackage-message): Remove `edebug-form-spec'.
+        (epackage--loader-file-load-path): New.
+        (epackage-file-name-loader-load-path): New.
+        (epackage-loader-file-generate-load-path): New.
+        (epackage-loader-file-insert-header): Edit message.
+        (epackage-loader-file-insert-load-path): New.
+        (epackage-loader-file-generate-boot): Call
+        `epackage-loader-file-generate-load-path'.
+        (epackage-eval-file): New.
+        (epackage--byte-compile-buffer): New.
+        (epackage--finder-commentary-buffer-name): Rename. Was
+        `epackage--finder-commentary-buffer'. Set to defconst.
+        (epackage-with-byte-compile-buffer): New.
+        (epackage-with-verbose): Remove.
+        (epackage-upgrade-package): Simplify by using
+        `epackage-with-message'.
+        (epackage-config-delete-action): Use `epackage-verbose-message'.
+        (epackage-config-delete-all): Use `epackage-verbose-message'.
+        (epackage-require-directories): Use `epackage-verbose-message'.
+        (epackage--batch-ui-menu-actions): Change B command from
+        `epackage-batch-ui-loader-file-byte-compile' to
+        `epackage-batch-ui-byte-compile-package'.
+        (epackage--byte-compile-buffer-name): Check Emacs 24.1 variable
+        `byte-compile-log-buffer'.
+        (epackage-lisp-file-list): New.
+        (epackage-byte-compile-package-standard): New.
+        (epackage-byte-compile-package-guess): New.
+        (epackage-byte-compile-package-main): New.
+        (epackage-byte-compile-package-maybe): Remove.
+        (epackage-eval-file): Use `eval-buffer'.
+        (epackage-file-name-compose): Correct to use
+        `epackage-directory-packages'.
+        (epackage-pkg-info-display): Correct all to `erase-buffer'.
+        (epackage-loader-file-insert-header): Remove `format'.
+        (epackage-batch-ui-menu): Move `epackage-initialize' call
+        after debug is active.
+        (epackage-pkg-info-field-read): New.
+        (epackage-pkg-info-documentation): New.
+        (epackage-cmd-display-package-documentation): New.
+        (epackage-batch-ui-display-package-documentation): New.
+        (epackage-with-package-info-file): Correct macro.
 
 2010-12-13 Mon  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-build-sources-list): New.
-	(epackage-combine-files): New.
-	(epackage-config-status-of-packages): Correct `add-to-list' call.
-	(epackage-cmd-remove-package): Adjust message.
-	(epackage-cmd-download-package): Adjust message.
-	(epackage-download-package): Adjust message. Pass `verbose'
-	to `epackage-git-command-clone'.
-	(epackage-cmd-enable-package): Check download status.
-	(epackage-cmd-autoload-package): Check download status.
-	(epackage-cmd-activate-package): Check download status.
-	(epackage-cmd-deactivate-package): Check no files.
-	(epackage-cmd-disable-package): Check no files.
-	(epackage-config-delete-all): Return list of deleted files.
-	(epackage-cmd-clean-package): Check nothing to clean.
-	(epackage-cmd-upgrade-package): Improve message.
-	(epackage-initialize): Always call `epackage-cmd-build-sources-list'.
-	(epackage-documentation-header-string): Add arg FILE.
-	(epackage-documentation): pass FILE to
-	`epackage-documentation-header-string'.
-	(epackage-asscoc): New.
-	(epackage-documentation-from-file-main): New.
-	(epackage-documentation-header-string): Use
-	`epackage-documentation-from-file-main'.
-	(epackage-documentation-buffer-version-main): New.
-	(epackage-documentation-buffer-version-defconst): New.
-	(epackage-documentation-by-lisp-file): New.
-	(epackage-documentation): Rewrite.
+        * epackage.el (epackage-build-sources-list): New.
+        (epackage-combine-files): New.
+        (epackage-config-status-of-packages): Correct `add-to-list' call.
+        (epackage-cmd-remove-package): Adjust message.
+        (epackage-cmd-download-package): Adjust message.
+        (epackage-download-package): Adjust message. Pass `verbose'
+        to `epackage-git-command-clone'.
+        (epackage-cmd-enable-package): Check download status.
+        (epackage-cmd-autoload-package): Check download status.
+        (epackage-cmd-activate-package): Check download status.
+        (epackage-cmd-deactivate-package): Check no files.
+        (epackage-cmd-disable-package): Check no files.
+        (epackage-config-delete-all): Return list of deleted files.
+        (epackage-cmd-clean-package): Check nothing to clean.
+        (epackage-cmd-upgrade-package): Improve message.
+        (epackage-initialize): Always call `epackage-cmd-build-sources-list'.
+        (epackage-documentation-header-string): Add arg FILE.
+        (epackage-documentation): pass FILE to
+        `epackage-documentation-header-string'.
+        (epackage-asscoc): New.
+        (epackage-documentation-from-file-main): New.
+        (epackage-documentation-header-string): Use
+        `epackage-documentation-from-file-main'.
+        (epackage-documentation-buffer-version-main): New.
+        (epackage-documentation-buffer-version-defconst): New.
+        (epackage-documentation-by-lisp-file): New.
+        (epackage-documentation): Rewrite.
 
 2010-12-12 Mon  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage--sources-package-name): update docstirng.
-	(epackage--sources-list-url): Add defcustom tags.
-	(epackage--sources-file-list): New.
-	(epackage-file-name-conf-directory): New.
-	(epackage-file-name-sources-list-main): New.
-	(epackage-sources-list-p): Use `epackage--sources-file-name-main'.
-	(epackage-sources-list-verify): Use `epackage--sources-file-name-main'.
-	(epackage-sources-list-p): Use `epackage--sources-file-name-main'.
-	(epackage-sources-list-verify): Use `epackage--sources-file-name-main'.
-	(epackage-with-sources-list): Use `epackage-file-name-sources-list-main'.
-	(epackage-cmd-build-sources-list): New.
-	(epackage-initialize): Call `epackage-cmd-build-sources-list'.
-	(epackage-require-directories): Add more directories.
+        * epackage.el (epackage--sources-package-name): update docstirng.
+        (epackage--sources-list-url): Add defcustom tags.
+        (epackage--sources-file-list): New.
+        (epackage-file-name-conf-directory): New.
+        (epackage-file-name-sources-list-main): New.
+        (epackage-sources-list-p): Use `epackage--sources-file-name-main'.
+        (epackage-sources-list-verify): Use `epackage--sources-file-name-main'.
+        (epackage-sources-list-p): Use `epackage--sources-file-name-main'.
+        (epackage-sources-list-verify): Use `epackage--sources-file-name-main'.
+        (epackage-with-sources-list): Use `epackage-file-name-sources-list-main'.
+        (epackage-cmd-build-sources-list): New.
+        (epackage-initialize): Call `epackage-cmd-build-sources-list'.
+        (epackage-require-directories): Add more directories.
 
 2010-12-09 Thu  Jari Aalto  <jari.aalto@cante.net>
 
-	* README (README::Project Details): Add Wiki URL.
+        * README (README::Project Details): Add Wiki URL.
 
-	* Makefile (ui): Use BIN, remove -nw option.
+        * Makefile (ui): Use BIN, remove -nw option.
 
-	* epackage.el
-	(top level): Update documentation. Run Elint and Checkdoc on code
-	and fix problems. Add *-examples.el to Specification.
-	(epackage-manager): New.
-	(epackage-manager): Add `error'. Not implemented.
-	(epackage-batch-ui-download-sources-list): Remove duplicate.
-	(epackage--batch-ui-menu-actions): Correct function
-	to `epackage-batch-ui-enable-package'.
-	(epackage-sources-list-info-main): Do not require matching anything
-	in DESCRIPTION part.
-	(epackage--sources-list-regexp): New.
-	(epackage-sources-list-info-parse-line): Use
-	`epackage--sources-list-regexp'.
-	(epackage-sources-list-info-main): Use
-	`epackage--sources-list-regexp'.
+        * epackage.el
+        (top level): Update documentation. Run Elint and Checkdoc on code
+        and fix problems. Add *-examples.el to Specification.
+        (epackage-manager): New.
+        (epackage-manager): Add `error'. Not implemented.
+        (epackage-batch-ui-download-sources-list): Remove duplicate.
+        (epackage--batch-ui-menu-actions): Correct function
+        to `epackage-batch-ui-enable-package'.
+        (epackage-sources-list-info-main): Do not require matching anything
+        in DESCRIPTION part.
+        (epackage--sources-list-regexp): New.
+        (epackage-sources-list-info-parse-line): Use
+        `epackage--sources-list-regexp'.
+        (epackage-sources-list-info-main): Use
+        `epackage--sources-list-regexp'.
 
 
 2010-12-08 Wed  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-require-main): Disable
-	`epackage-require-emacs'. url.el not used yet.
-	(epackage--batch-ui-menu-header): New.
-	(epackage-maintainer): New.
-	(epackage-batch-ui-list-installed-packages): Add `interactive'.
-	(epackage-batch-ui-list-not-installed-packages): Add `interactive'.
-	(epackage-batch-ui-list-not-installed-packages): Add `interactive'.
-	(epackage-batch-ui-list-downloaded-packages): Add `interactive'.
-	(epackage-batch-ui-download-sources-list): Add `interactive'.
-	(epackage-batch-ui-upgrade-all-packages): Add `interactive'.
-	(epackage-batch-ui-loader-file-byte-compile): Add `interactive'.
-	(epackage-batch-ui-loader-file-generate): Add `interactive'.
-	(epackage-loader-file-generate): Move
-	`epackage-with-message' outer to include *.elc generate message.
-	(epackage-batch-ui-menu): Add "?" help command.
-	(epackage-sources-list-info-pkg-list): Correct regexp.
-	(epackage-sources-list-verify): Use or, not unless.
-	(epackage-sources-list-p): Rewrite. Return file name.
-	(epackage-cmd-package-check-macro): New.
-	(epackage-cmd-autoload-package): Rewrite.
-	(epackage-cmd-enable-package): Rewrite.
-	(epackage-cmd-disable-package): Rewrite.
-	(epackage-cmd-activate-package): Rewrite.
-	(epackage-cmd-deactivate-package): Rewrite.
-	(epackage-cmd-clean-package): Rewrite.
-	(epackage-sources-list-info-pkg-list): Add sort.
-	(epackage-sources-list-info-main): Correct regexp.
-	(epackage-status-installed-packages): Correct function.
-	(epackage-batch-ui-menu): Add `epackage-batch-ui-menu'.
-	(epackage-file-name-directory-previous): New.
-	(epackage-file-name-basename): New.
+        * epackage.el (epackage-require-main): Disable
+        `epackage-require-emacs'. url.el not used yet.
+        (epackage--batch-ui-menu-header): New.
+        (epackage-maintainer): New.
+        (epackage-batch-ui-list-installed-packages): Add `interactive'.
+        (epackage-batch-ui-list-not-installed-packages): Add `interactive'.
+        (epackage-batch-ui-list-not-installed-packages): Add `interactive'.
+        (epackage-batch-ui-list-downloaded-packages): Add `interactive'.
+        (epackage-batch-ui-download-sources-list): Add `interactive'.
+        (epackage-batch-ui-upgrade-all-packages): Add `interactive'.
+        (epackage-batch-ui-loader-file-byte-compile): Add `interactive'.
+        (epackage-batch-ui-loader-file-generate): Add `interactive'.
+        (epackage-loader-file-generate): Move
+        `epackage-with-message' outer to include *.elc generate message.
+        (epackage-batch-ui-menu): Add "?" help command.
+        (epackage-sources-list-info-pkg-list): Correct regexp.
+        (epackage-sources-list-verify): Use or, not unless.
+        (epackage-sources-list-p): Rewrite. Return file name.
+        (epackage-cmd-package-check-macro): New.
+        (epackage-cmd-autoload-package): Rewrite.
+        (epackage-cmd-enable-package): Rewrite.
+        (epackage-cmd-disable-package): Rewrite.
+        (epackage-cmd-activate-package): Rewrite.
+        (epackage-cmd-deactivate-package): Rewrite.
+        (epackage-cmd-clean-package): Rewrite.
+        (epackage-sources-list-info-pkg-list): Add sort.
+        (epackage-sources-list-info-main): Correct regexp.
+        (epackage-status-installed-packages): Correct function.
+        (epackage-batch-ui-menu): Add `epackage-batch-ui-menu'.
+        (epackage-file-name-directory-previous): New.
+        (epackage-file-name-basename): New.
 
 2010-12-07 Tue  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-push): New. Rewrite all other functions to
-	take advantage of this macro.
-	(epackage-status-installed-packages): New.
-	(epackage-initialize-verify): New.
-	(epackage--symlink-support-flag): New.
-	(epackage-enable-file): New.
-	(epackage-enable-package): Use `epackage-enable-file'.
-	(epackage-activate-package): Use `epackage-enable-file'.
-	(epackage-manager): New.
-	(epackage-version): New.
-	(epackage-documentation): New.
-	(epackage--doc-buffer): New.
-	(epackage--finder-commentary-buffer): New.
-	(epackage-documentation-header-string): New.
-	(epackage-documentation): New.
-	(epackage-version): New.
-	(epackage-batch-macro): New.
-	(epackage-batch-download-packages): New.
-	(epackage-batch-upgrade-package): New.
-	(epackage-batch-upgrade-all-packages): New.
-	(epackage-file-name-package-compose): Rename. Was
-	`epackage-file-name-vcs-compose'.
-	(epackage--directory-name-pkg): Rename. Was
-	`epackage--directory-name-vcs'.
-	(epackage-status-downloaded-packages): New.
-	(epackage-status-enabled-packages): Rename. Was
-	`epackage-status-installed-packages'.
-	(epackage-status-of-packages): New.
-	(epackage-status-installed-packages): New.
-	(epackage-status-activated-packages): New.
-	(epackage-file-name-pkg-directory): Rename. Was
-	`epackage-file-name-vcs-directory'
-	(epackage-cmd-upgrade-all-packages): New.
-	(epackage-message): New.
-	(epackage-with-message): Use `epackage-message'.
-	(epackage-with-verbose): New.
-	(epackage-verbose-message): New.
-	(epackage-cmd-upgrade-all-packages): New.
-	(epackage-error): New.
-	(epackage-cmd-select-package): New.
-	(epackage-cmd-upgrade-package): Use `epackage-cmd-select-package'.
-	(epackage-cmd-download-package): Use `epackage-cmd-select-package'.
-	(epackage-ignore-errors): New.
-	(epackage-require-main): Add arg verbose.
-	(epackage-require-main): Add arg verbose.
-	(epackage-require-directories): Add arg verbose.
-	(epackage-require-git): Add arg verbose.
-	(epackage-require-emacs): Add arg verbose.
-	(epackage-cmd-download-sources-list): Add arg verbose.
-	(epackage-upgrade-sources-list): Add arg verbose.
-	(epackage-download-sources-list): Add arg verbose.
-	(epackage-with-message):  Add arg verbose.
-	(epackage-cmd-enable-package): Rename. Add interactive and autoload.
-	Was `epackage-enable-package'.
-	(epackage-cmd-activate-package): Rename. Add interactive and autoload.
-	Was `epackage-activate-package'.
-	(epackage-cmd-disable-package): Rename. Add interactive and autoload.
-	Was `epackage-disable-package'.
-	(epackage-file-name-pkg-directory-control-file): Change cdr to nth.
-	(epackage-file-name-install-compose): Implement.
-	(epackage-enable-file): Check FROM. Add arg verbose.
-	(epackage-cmd-activate-package): Change compose function.
-	(epackage-file-name-install-directory): Remove.
-	(epackage--directory-name-install): Remove.
-	(epackage--directory-name-link): Chnage value from 00link to 00control.
-	(epackage-initialize-string): New.
-	(epackage-error-no-directory): New.
-	(epackage-error-initialize): New.
-	(epackage--sources-package-name): Change value from 00package to
-	00control.
-	(epackage--directory-name-link): Change 00link to 00packages.
-	(epackage--directory-name-conf): New.
-	(epackage-loader-directory): New.
-	(epackage-file-name-loader-file): Use  `epackage-loader-directory'.
-	(epackage-require-directories): Add `epackage-loader-directory'.
-	(epackage--directory-name-install): Rename. Was
-	`epackage--directory-name-link'.
-	(epackage-file-name-install-directory): Rename. Was
-	`epackage-file-name-link-directory'.
-	(epackage--loader-file-byte-compile-flag): Rename. Was
-	`epackage--byte-compile-loader-file'
-	(epackage-install-package-action): New.
-	(epackage-cmd-remove-package): New.
-	(epackage-warn): New.
-	(epackage-cmd-deactivate-package): New.
-	(epackage-cmd-clean-package): New.
-	(epackage-batch-ignore-errors-macro): New.
-	(epackage-batch-enable-package): New.
-	(epackage-batch-disable-package): New.
-	(epackage-batch-activate-package): New.
-	(epackage-batch-deactivate-package): New.
-	(epackage-batch-clean-package): New.
-	(epackage-batch-remove-package): New.
-	(epackage-config-install-autoload): New.
-	(epackage-config-delete-action): New.
-	(epackage-config-delete-all): New.
-	(epackage--batch-ui-menu-actions): New.
-	(epackage--batch-ui-menu-string): New.
-	(epackage-batch-ui-main): New.
-	(epackage-batch-ui-menu): New.
-	(epackage-batch-ui-list-installed-packages): New.
-	(epackage-batch-ui-list-downloaded-packages): New.
-	(epackage-batch-list-package-summamry): New.
-	(epackage-status-not-installed-packages): New.
+        * epackage.el (epackage-push): New. Rewrite all other functions to
+        take advantage of this macro.
+        (epackage-status-installed-packages): New.
+        (epackage-initialize-verify): New.
+        (epackage--symlink-support-flag): New.
+        (epackage-enable-file): New.
+        (epackage-enable-package): Use `epackage-enable-file'.
+        (epackage-activate-package): Use `epackage-enable-file'.
+        (epackage-manager): New.
+        (epackage-version): New.
+        (epackage-documentation): New.
+        (epackage--doc-buffer): New.
+        (epackage--finder-commentary-buffer): New.
+        (epackage-documentation-header-string): New.
+        (epackage-documentation): New.
+        (epackage-version): New.
+        (epackage-batch-macro): New.
+        (epackage-batch-download-packages): New.
+        (epackage-batch-upgrade-package): New.
+        (epackage-batch-upgrade-all-packages): New.
+        (epackage-file-name-package-compose): Rename. Was
+        `epackage-file-name-vcs-compose'.
+        (epackage--directory-name-pkg): Rename. Was
+        `epackage--directory-name-vcs'.
+        (epackage-status-downloaded-packages): New.
+        (epackage-status-enabled-packages): Rename. Was
+        `epackage-status-installed-packages'.
+        (epackage-status-of-packages): New.
+        (epackage-status-installed-packages): New.
+        (epackage-status-activated-packages): New.
+        (epackage-file-name-pkg-directory): Rename. Was
+        `epackage-file-name-vcs-directory'
+        (epackage-cmd-upgrade-all-packages): New.
+        (epackage-message): New.
+        (epackage-with-message): Use `epackage-message'.
+        (epackage-with-verbose): New.
+        (epackage-verbose-message): New.
+        (epackage-cmd-upgrade-all-packages): New.
+        (epackage-error): New.
+        (epackage-cmd-select-package): New.
+        (epackage-cmd-upgrade-package): Use `epackage-cmd-select-package'.
+        (epackage-cmd-download-package): Use `epackage-cmd-select-package'.
+        (epackage-ignore-errors): New.
+        (epackage-require-main): Add arg verbose.
+        (epackage-require-main): Add arg verbose.
+        (epackage-require-directories): Add arg verbose.
+        (epackage-require-git): Add arg verbose.
+        (epackage-require-emacs): Add arg verbose.
+        (epackage-cmd-download-sources-list): Add arg verbose.
+        (epackage-upgrade-sources-list): Add arg verbose.
+        (epackage-download-sources-list): Add arg verbose.
+        (epackage-with-message):  Add arg verbose.
+        (epackage-cmd-enable-package): Rename. Add interactive and autoload.
+        Was `epackage-enable-package'.
+        (epackage-cmd-activate-package): Rename. Add interactive and autoload.
+        Was `epackage-activate-package'.
+        (epackage-cmd-disable-package): Rename. Add interactive and autoload.
+        Was `epackage-disable-package'.
+        (epackage-file-name-pkg-directory-control-file): Change cdr to nth.
+        (epackage-file-name-install-compose): Implement.
+        (epackage-enable-file): Check FROM. Add arg verbose.
+        (epackage-cmd-activate-package): Change compose function.
+        (epackage-file-name-install-directory): Remove.
+        (epackage--directory-name-install): Remove.
+        (epackage--directory-name-link): Chnage value from 00link to 00control.
+        (epackage-initialize-string): New.
+        (epackage-error-no-directory): New.
+        (epackage-error-initialize): New.
+        (epackage--sources-package-name): Change value from 00package to
+        00control.
+        (epackage--directory-name-link): Change 00link to 00packages.
+        (epackage--directory-name-conf): New.
+        (epackage-loader-directory): New.
+        (epackage-file-name-loader-file): Use  `epackage-loader-directory'.
+        (epackage-require-directories): Add `epackage-loader-directory'.
+        (epackage--directory-name-install): Rename. Was
+        `epackage--directory-name-link'.
+        (epackage-file-name-install-directory): Rename. Was
+        `epackage-file-name-link-directory'.
+        (epackage--loader-file-byte-compile-flag): Rename. Was
+        `epackage--byte-compile-loader-file'
+        (epackage-install-package-action): New.
+        (epackage-cmd-remove-package): New.
+        (epackage-warn): New.
+        (epackage-cmd-deactivate-package): New.
+        (epackage-cmd-clean-package): New.
+        (epackage-batch-ignore-errors-macro): New.
+        (epackage-batch-enable-package): New.
+        (epackage-batch-disable-package): New.
+        (epackage-batch-activate-package): New.
+        (epackage-batch-deactivate-package): New.
+        (epackage-batch-clean-package): New.
+        (epackage-batch-remove-package): New.
+        (epackage-config-install-autoload): New.
+        (epackage-config-delete-action): New.
+        (epackage-config-delete-all): New.
+        (epackage--batch-ui-menu-actions): New.
+        (epackage--batch-ui-menu-string): New.
+        (epackage-batch-ui-main): New.
+        (epackage-batch-ui-menu): New.
+        (epackage-batch-ui-list-installed-packages): New.
+        (epackage-batch-ui-list-downloaded-packages): New.
+        (epackage-batch-list-package-summamry): New.
+        (epackage-status-not-installed-packages): New.
 
 2010-12-06 Mon  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-download-sources-list): Remove argument
-	`message'.
-	(epackage-pkg-lint-git-branches): New.
-	(epackage--layout-mapping): Update.
-	(epackage-pkg-lint-dir-structure): New.
-	(epackage-w32-p): New.
-	(epackage-with-w32): New.
-	(epackage-file-name-nondirectory): New.
-	(epackage-directory-p): New.
-	(epackage-pkg-lint-main): New.
-	(epackage-git-command-branch-list): Add `arg' parameter.
-	(epackage-git-command-tag-list): Fix docstring.
+        * epackage.el (epackage-download-sources-list): Remove argument
+        `message'.
+        (epackage-pkg-lint-git-branches): New.
+        (epackage--layout-mapping): Update.
+        (epackage-pkg-lint-dir-structure): New.
+        (epackage-w32-p): New.
+        (epackage-with-w32): New.
+        (epackage-file-name-nondirectory): New.
+        (epackage-directory-p): New.
+        (epackage-pkg-lint-main): New.
+        (epackage-git-command-branch-list): Add `arg' parameter.
+        (epackage-git-command-tag-list): Fix docstring.
 
 2010-12-05 Sun  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (defgroup Epackage): New.
-	(epackage-sources-list-info-parse-line): Fix `format'.
-	(epackage-download-sources-list): define variable `dir'.
-	(epackage-with-debug): New.
-	(epackage-with-message): New.
+        * epackage.el (defgroup Epackage): New.
+        (epackage-sources-list-info-parse-line): Fix `format'.
+        (epackage-download-sources-list): define variable `dir'.
+        (epackage-with-debug): New.
+        (epackage-with-message): New.
 
-	* doc/index.css: New.
+        * doc/index.css: New.
 
-	* doc/Makefile: New.
+        * doc/Makefile: New.
 
-	* Makefile: New.
+        * Makefile: New.
 
 2010-12-04  Jari Aalto  <jari.aalto@cante.net>
 
-	* AUTHORS, COPYING, INSTALL, README: New.
+        * AUTHORS, COPYING, INSTALL, README: New.
 
-	* epackage.el:
-	(top-level): Rename package. Add "Compat" levels and explaint it.
-	Add acronym DELPS = Distributed Emacs Lisp Package System. Add
-	###autoload stanzas.
-	(ti::macrof-minor-mode-wizard): comment out unused code.
-	(epackage-git-command-fetch): New.
-	(epackage-git-directory-p): New.
-	(epackage-sources-list-info-description): New.
-	(epackage--sources-list-url): No leading whitespaces before
-	PACKAGE-NAME.
-	(epackage-sources-list-info-parse-line): New.
-	(epackage-sources-list-info-pkg-list): New.
-	(epackage-string-p): New.
-	(epackage-package-downloaded-p): Use `epackage-stringp-p'.
-	(epackage-package-activated-p): Use `epackage-string-p'.
-	(epackage-package-enabled-p): Use `epackage-string-p'.
-	(epackage-cmd-download-package): Complete function.
-	(epackage-cmd-upgrade-package): New.
-	(epackage-initialize): Add `interactive'.
-	(epackage-package-downloaded-p): Return DIR.
-	(epackage-download-package): Correct dir. Call
-	`epackage-file-name-vcs-directory'.
-	(epackage-git-command-clone): Fix running directory and
-	clone command args.
-	(epackage-git-command-tag-list): Correct git command.
-	(epackage-git-command-branch-parse-1): New.
-	(epackage-git-command-branch-parse-main): New.
-	(epackage-git-command-branch-list): Split into smaller pieces.
-	(epackage-with-git-command): Correct macro expansion in variable
-	`verbose'.
-	(epackage-with-git-command): Fix mapconcat call.
+        * epackage.el:
+        (top-level): Rename package. Add "Compat" levels and explaint it.
+        Add acronym DELPS = Distributed Emacs Lisp Package System. Add
+        ###autoload stanzas.
+        (ti::macrof-minor-mode-wizard): comment out unused code.
+        (epackage-git-command-fetch): New.
+        (epackage-git-directory-p): New.
+        (epackage-sources-list-info-description): New.
+        (epackage--sources-list-url): No leading whitespaces before
+        PACKAGE-NAME.
+        (epackage-sources-list-info-parse-line): New.
+        (epackage-sources-list-info-pkg-list): New.
+        (epackage-string-p): New.
+        (epackage-package-downloaded-p): Use `epackage-stringp-p'.
+        (epackage-package-activated-p): Use `epackage-string-p'.
+        (epackage-package-enabled-p): Use `epackage-string-p'.
+        (epackage-cmd-download-package): Complete function.
+        (epackage-cmd-upgrade-package): New.
+        (epackage-initialize): Add `interactive'.
+        (epackage-package-downloaded-p): Return DIR.
+        (epackage-download-package): Correct dir. Call
+        `epackage-file-name-vcs-directory'.
+        (epackage-git-command-clone): Fix running directory and
+        clone command args.
+        (epackage-git-command-tag-list): Correct git command.
+        (epackage-git-command-branch-parse-1): New.
+        (epackage-git-command-branch-parse-main): New.
+        (epackage-git-command-branch-list): Split into smaller pieces.
+        (epackage-with-git-command): Correct macro expansion in variable
+        `verbose'.
+        (epackage-with-git-command): Fix mapconcat call.
 
-	** MOVE tinyepkg.el out of tiny tools to a separate package **
+        ** MOVE tinyepkg.el out of tiny tools to a separate package **
 
 2010-12-03  Jari Aalto  <jari.aalto@cante.net>
 
-	* tinyepkg.el (epackage--directory-name-vcs):
-	Set value from 'vc' to more descriptive 'packages'.
+        * tinyepkg.el (epackage--directory-name-vcs):
+        Set value from 'vc' to more descriptive 'packages'.
 
 2010-12-02 Fri  Jari Aalto  <jari.aalto@cante.net>
 
-	* tinyepkg.el
-	(top level): Draw picture about epackage framewrk.
-	(epackage-git-command-branch-current-name): New.
-	(epackage-git-branch-list-current-branch): New.
-	(epackage-git-command-branch-list): New.
-	(epackage-git-command-tag-list): New.
-	(epackage-with-last-git-output): New.
-	(epackage-git-branch-list-master-p): New.
-	(epackage-master-p): New.
+        * tinyepkg.el
+        (top level): Draw picture about epackage framewrk.
+        (epackage-git-command-branch-current-name): New.
+        (epackage-git-branch-list-current-branch): New.
+        (epackage-git-command-branch-list): New.
+        (epackage-git-command-tag-list): New.
+        (epackage-with-last-git-output): New.
+        (epackage-git-branch-list-master-p): New.
+        (epackage-master-p): New.
 
 2010-11-30 Tue  Jari Aalto  <jari.aalto@cante.net>
 
-	* tinyepkg.el:
-	(top level) Untabify (big diff). Revise spec: introduce 00epackage/
-	and 00link/ directories. Add [ERROR] to every error message. Sources
-	list is no longer file retrieved by HTTP, but also a Git repository.
-	(epackage-upgrade-package): New.
-	(epackage-upgrade-sources-list): New.
+        * tinyepkg.el:
+        (top level) Untabify (big diff). Revise spec: introduce 00epackage/
+        and 00link/ directories. Add [ERROR] to every error message. Sources
+        list is no longer file retrieved by HTTP, but also a Git repository.
+        (epackage-upgrade-package): New.
+        (epackage-upgrade-sources-list): New.
 
 2010-11-29 Mon  Jari Aalto  <jari.aalto@cante.net>
 
-	* tinyepkg.el: Proof of concept implemented. The core
-	functionality is ready. External Emacs Packages can be downloaded,
-	enabled, activated, disabled. Boot loader epackage-loader.el is also
-	functional.
+        * tinyepkg.el: Proof of concept implemented. The core
+        functionality is ready. External Emacs Packages can be downloaded,
+        enabled, activated, disabled. Boot loader epackage-loader.el is also
+        functional.
 
 2010-11-28 Sun  Jari Aalto  <jari.aalto@cante.net>
 
-	* tinyepkg.el: Revise epackage specification.
+        * tinyepkg.el: Revise epackage specification.
 
 2010-11-27 Sat  Jari Aalto  <jari.aalto@cante.net>
 
-	* tinyepkg.el: Update epackage specification.
+        * tinyepkg.el: Update epackage specification.
 
 2009-03-29  Jari Aalto  <jari.aalto@cante.net>
 
-	* tinyepkg.el: New.
+        * tinyepkg.el: New.
 
 License
 
-	This program is free software; you can redistribute and/or modify
-	program under the terms of GNU General Public license either version 2
-	of the License, or (at your option) any later version.
+        This program is free software; you can redistribute and/or modify
+        program under the terms of GNU General Public license either version 2
+        of the License, or (at your option) any later version.
 
 End of file

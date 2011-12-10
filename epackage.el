@@ -79,6 +79,12 @@
 ;;      (autoload 'epackage-version                     "epackage" "" t)
 ;;      (autoload 'epackage-documentation               "epackage" "" t)
 ;;
+;;      ;; .. Developer functions
+;;      ;; 1. Convert single *.el into epackage; provided it's well behaving
+;;      (autoload 'epackage-devel-compose-main          "epackage" "" t)
+;;      ;; 2. Or, Write initial templates. Work from there manually
+;;      (autoload 'epackage-devel-compose-package-dir    "epackage" "" t)
+;;
 ;;  In addition to full UI (M-x epackage), there is also a minimal
 ;;  command line UI:
 ;;
@@ -4019,9 +4025,11 @@ under `epackage--directory-name'."
 	(install (epackage-layout-file-name dir package 'enable)))
     ;; By default we copy all interactive functions to install.
     (if (file-exists-p install)
-	(epackage-verbose-message "Already created, not touching %s" install)
+	(epackage-verbose-message
+	  "Already created, not touching %s" install)
       (if (not (file-exists-p autoloads))
-	  (epackage-verbose-message "[NOTE] File does not exist %s" autoloads)
+	  (epackage-verbose-message
+	    "[NOTE] File does not exist %s" autoloads)
 	(with-temp-buffer
 	  (insert-file-contents autoloads)
 	  (goto-char (point-min))
@@ -4038,7 +4046,8 @@ under `epackage--directory-name'."
 			epackage--package-control-directory
 			"info")))
       (if (file-exists-p file)
-	  (epackage-verbose-message "[NOTE] Not touching existing file %s" file)
+	  (epackage-verbose-message
+	    "[NOTE] Not touching existing file %s" file)
 	(with-temp-buffer
 	  (insert epackage--layout-template-info)
 	  (epackage-write-region (point-min) (point-max) file)
@@ -4128,6 +4137,20 @@ Notes:
 	"checkout" "-b" "master")
       alist))))
 
+(defun epackage-devel-compose-1-interactive ()
+  "Ask DIR and PACKAGE name."
+  (let* ((dir (read-directory-name
+	       "Lisp package root directory: "
+	       default-directory
+	       default-directory
+	       'must-match
+	       (not 'initial-value)))
+	 (default (if (string-match "/\\([^/]+\\)/$" dir)
+		      (match-string 1 dir)))
+	 (package (read-string "Epackage name: " default)))
+    (list dir
+	  package)))
+
 ;; (epackage-devel-compose-main "~/tmp/ep" "test" t)
 ;;;###autoload
 (defun epackage-devel-compose-main (dir package &optional verbose)
@@ -4138,22 +4161,12 @@ Notes:
   Only single file packages are handled.
   See caveats from `epackage-devel-compose-git-import'."
   (interactive
-   (let* ((dir (read-directory-name
-		"Lisp package root directory: "
-		default-directory
-		default-directory
-		'must-match
-		(not 'initial-value)))
-	  (default (if (string-match "/\\([^/]+\\)/$" dir)
-		       (match-string 1 dir)))
-	  (package (read-string "Epackage name: " default)))
-     (list dir
-	   package
-	   'interactive)))
+   (append (epackage-devel-compose-1-interactive)
+	   (list 'interactive)))	;
   (if (interactive-p)
       (setq verbose 'interactive))
   (unless (file-directory-p dir)
-    (epackage-error "No such directory %s" dir))
+    (epackage-error "[compose-main] No such directory %s" dir))
   (epackage-devel-compose-git-import dir verbose)
   (epackage-devel-compose-package-dir package dir verbose)
   (when verbose
