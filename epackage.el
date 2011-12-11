@@ -1176,6 +1176,10 @@
 ;;          => Offer mailing the Yellow Page maintainer
 ;;      o   What if user manually deletes directories? Left over config files?
 ;;
+;;      o   Sources List: If package A is no longer in there, but it is
+;;          downloaded, the package has been removed. Notify user about
+;;          obsolete package. It may also have been renamed.
+;;
 ;;      REPO
 ;;
 ;;      o   Check validity of "git tag -l" and upstream/* against the
