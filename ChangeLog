@@ -5,6 +5,20 @@
 	`epackage-add-provide-to-buffer'.
 	(epackage-devel-compose-package-dir): Use
 	`epackage-add-provide-to-buffer'.
+	(epackage-package-name-valid-p): New.
+	(epackage-error-if-invalid-package-name): New.
+	(epackage-devel-compose-main): Chnage argument order:
+	PACKAGE, DIR.
+	(epackage-field-goto): New.
+	(epackage-field-fetch-value): New.
+	(epackage-field-set): New.
+	(epackage-devel-compose-package-info): New.
+	(epackage-devel-compose-package-dir): Add argument ALIST.
+	Call `epackage-devel-compose-package-info'.
+	(epackage-devel-information-wiki): New.
+	(epackage-devel-compose-package-info-from-file): New.
+	(epackage-devel-compose-package-info-from-current-buffer): New.
+	(epackage-devel-information-buffer): Correct license search.
 
 2011-12-10 Sun  Jari Aalto  <jari.aalto@cante.net>
 

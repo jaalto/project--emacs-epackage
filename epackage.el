@@ -1978,7 +1978,6 @@ Y         Action toggle: after every download, b(y)te compile epackage
 (defconst epackage--batch-ui-menu-actions
   '((?a epackage-cmd-activate-package)
     (?b epackage-batch-ui-loader-file-generate)
-    ;; (?B epackage-batch-ui-byte-compile-package)
     (?A epackage-batch-ui-deactivate-package)
     (?c epackage-batch-ui-clean-package)
     (?d epackage-batch-ui-download-package)
@@ -2280,10 +2279,22 @@ Return nil of there is nothing to remove .i.e. the result wold be \"/\"."
       (match-string 1 dir))))
 
 (defsubst epackage-string-p (string)
-  "Return STRING of value is non-empty. Otherwise return nil."
+  "Return STRING if value is non-empty. Otherwise return nil."
   (and (stringp string)
        (not (string-match "^[ \t\r\n]*$" string))
        string))
+
+(defsubst epackage-package-name-valid-p (package)
+  "Check if PACKAGE name is valid."
+  (unless (stringp package)
+    (epackage-error "package name is not a string"))
+  (let (case-fold-search)
+    (string-match "^[a-z]\\(?:[a-z-]+\\)?[a-z]$" package)))
+
+(defsubst epackage-error-if-invalid-package-name (package &optional msg)
+  "Check if PACKAGE name is valid or signal error with optional MSG."
+  (unless (epackage-package-name-valid-p package)
+    (epackage-error "Not a valid package name: %s" package)))
 
 (defsubst epackage-directory-root ()
   "Return root directory."
@@ -2941,6 +2952,24 @@ Kill buffer after BODY."
 
 ;;; ............................................. &functions-info-file ...
 
+(defun epackage-field-goto (field)
+  "Go to the beginning of FIELD only if it exists."
+  (let (end
+	(case-fold-search t))
+    (goto-char (point-min))
+    (when (re-search-forward (concat "^" (regexp-quote field) ":") end t)
+      (if (looking-at " ")
+	  (forward-char 1)
+	(insert " "))
+      t)))
+
+(defsubst epackage-field-fetch-value (field)
+  "Like `mail-fetch-field', but return FIELD's value only if it exists.
+If FIELD is empty or does not exist, return nil."
+  (let ((value (mail-fetch-field field)))
+    (if (epackage-string-p value)
+        value)))
+
 (defsubst epackage-field-forward ()
   "Search for 'field:' forward. Submatch 1 contains field name."
   (re-search-forward "^\\([^ \t\r\n]+\\):" nil t))
@@ -2960,7 +2989,7 @@ If optional REGION is non-nil, return position of field '(beginning end)."
 		(match-end 1))
 	(match-string-no-properties 1)))))
 
-(defun epackage-narrow-to-field (&optional full) ;; FIXME: implement
+(defun epackage-field-narrow-to (&optional full) ;; FIXME: implement
   "Narrow the buffer to the field data area of the current line.
 If optional FULL is non-nil, include field in narrowed region."
   (let ((region (epackage-field-name 'region)) ;; moves backward
@@ -2983,17 +3012,22 @@ If optional FULL is non-nil, include field in narrowed region."
 	  (setq beg (1+ beg)))))
     (narrow-to-region beg end)))
 
-(defsubst epackage-fetch-field (field)
-  "Like `mail-fetch-field', but return FIELD's value only if it exists.
-If FIELD is empty or does not exist, return nil."
-  (let ((value (mail-fetch-field field)))
-    (if (epackage-string-p value)
-        value)))
+(defsubst epackage-field-set (field value &optional overwrite)
+  "Set FIELD if it exists to VALUE. If OVERWITE is non-nil, replace old."
+  (let ((old (epackage-field-fetch-value field)))
+    (when (or overwrite
+	      (null old))
+      (epackage-field-goto field)
+      (when (and overwrite old)
+	(delete-region (point) (+ (point) (length old))))
+      (if value
+	  (insert value))
+      t)))
 
-(defun epackage-fetch-field-description ()
+(defun epackage-field-fetch-description ()
   "Return content of 'Description:' '(\"short desc\" \"long desc\").
 Remove 1 space indentation and paragraph separator(.) characters."
-  (let ((str (epackage-fetch-field "Description"))
+  (let ((str (epackage-field-fetch "Description"))
         short
         long)
     (if (string-match "^\\(.+\\)$" str)
@@ -3007,9 +3041,9 @@ Remove 1 space indentation and paragraph separator(.) characters."
     (setq long (replace-regexp-in-string "^\\.[ \t]*$" "" long))
     (list short long)))
 
-(defun epackage-fetch-field-status ()
+(defun epackage-field-fetch-status ()
   "Return content of 'Status:'. Items are separated by spaces."
-  (let ((str (epackage-fetch-field "Status")))
+  (let ((str (epackage-field-fetch "Status")))
     (when str
       (replace-regexp-in-string "[ \t\r\n]+" " " str))))
 
@@ -3069,10 +3103,10 @@ See `epackage-depends-parse-collect' for returned value format."
    (insert string)
    (epackage-depends-parse-buffer)))
 
-(defsubst epackage-fetch-field-depends ()
+(defsubst epackage-field-fetch-depends ()
   "Return preformatted content of 'Depends:' field.
 See `epackage-depends-parse-collect' for returned value format."
-  (let ((str (epackage-fetch-field "Depends")))
+  (let ((str (epackage-field-fetch "Depends")))
     (if (stringp str)
         (epackage-depends-parse-string str))))
 
@@ -3080,18 +3114,18 @@ See `epackage-depends-parse-collect' for returned value format."
   "Read PACKAGE and raw information from FIELD.
 If field is empty or does not exist, return nil."
   (epackage-with-package-info-file package
-    (epackage-fetch-field field)))
+    (epackage-field-fetch field)))
 
 (defsubst epackage-pkg-info-fetch-field-depends (package)
   "Read PACKAGE and information field 'Depends:' (preformatted).
 See `epackage-depends-parse-collect' for returned value format."
   (epackage-with-package-info-file package
-    (epackage-fetch-field-depends)))
+    (epackage-field-fetch-depends)))
 
 (defsubst epackage-pkg-info-fetch-field-status (package)
   "Read PACKAGE and information field 'Status:'."
   (epackage-with-package-info-file package
-    (epackage-fetch-field-status)))
+    (epackage-field-fetch-status)))
 
 (defsubst epackage-pkg-info-status-p (package regexp)
   "Check if PACKAGE's status match REGEXP.
@@ -3812,6 +3846,7 @@ Input:
                 Interactive call sets this."
   (interactive
    "sPackage name: \nDPackage root dir: \nDRead loaddefs from dir: \np")
+  (epackage-error-if-invalid-package-name package)
   (when (or (not (stringp dir))
 	    (not (file-directory-p dir)))
     (epackage-error "Drectory does not exist: %s" dir))
@@ -3880,6 +3915,7 @@ Notes:
    So, you must manually check and possibly edit the generated results."
   (interactive
    "sPackage name: \nDPackage root dir: \nDRead autoloads from dir: \np")
+  (epackage-error-if-invalid-package-name package)
   (when (or (not (stringp dir))
 	    (not (file-directory-p dir)))
     (epackage-error "Drectory does not exist: %s" dir))
@@ -3981,6 +4017,15 @@ Point is not preserved."
       (lm-header "Home")
       (lm-header "URL")))
 
+(defun epackage-devel-information-wiki ()
+  "Return homepage from current buffer.
+Point is not preserved."
+  (let ((str (or (lm-header "Wiki")
+		 (lm-header "Emacswiki"))))
+    (if (and str
+	     (string-match "emacswiki.org" str))
+	str)))
+
 (defun epackage-devel-information-date-lm ()
   "Return date from current buffer.
 Point is not preserved. Use `lm-header'."
@@ -4020,20 +4065,23 @@ Point is not preserved."
 (defun epackage-devel-information-buffer ()
   "Examine current buffer and return list '((field value) ...)
 FIELD can be:
-  maintainer
-  license
-  version
+  date
   homepage
-  date."
+  license
+  upstream
+  version.
+  wiki"
   (let (str
         list)
     (save-excursion
-      (when str (epackage-devel-information-license-main)
+      (when (setq str (epackage-devel-information-license-main))
 	(epackage-push (list "license" str) list))
       (when (setq str (epackage-devel-information-maintainer))
-	(epackage-push (list "maintainer" str) list))
+	(epackage-push (list "upstream" str) list))
       (when (setq str (epackage-devel-information-homepage))
 	(epackage-push (list "homepage" str) list))
+      (when (setq str (epackage-devel-information-wiki))
+	(epackage-push (list "wiki" str) list))
       (when (setq str (epackage-devel-information-date-main))
 	  (epackage-push (list "date" str) list))
       (when (setq str (epackage-devel-information-version-main))
@@ -4041,15 +4089,103 @@ FIELD can be:
       list)))
 
 ;;;###autoload
-(defun epackage-devel-compose-package-dir (package dir &optional verbose)
-  "Compose initial templates for PACKAGE in DIR.
-If VERBOSE is non-nil, display informational messages.
+(defun epackage-devel-compose-package-info
+  (package dir &optional verbose alist)
+  "Compose initial info file for PACKAGE in DIR.
 
-Generate autoloads, loaddefs file and write other template files
-under `epackage--directory-name'."
+Input:
+  PACKAGE	Package name. All lowercase.
+  DIR		Package root directory.
+  VERBOSE	Optional. If non-nil, display informational messages.
+  ALIST		Optional. See `epackage-devel-information-buffer'
+
+Notes:
+  File is written under `epackage--directory-name' in DIR.
+  Do nothing if file already exists."
   (interactive "sEpackage name: \nDLisp package root dir: ")
   (if (interactive-p)
       (setq verbose 'interactive))
+  (let ((file (format "%s%s/%s"
+			(file-name-as-directory dir)
+			epackage--package-control-directory
+			"info"))
+	(maintainer (and user-full-name
+			 user-mail-address
+			 (format "%s <%s>"
+				 user-full-name
+				 user-mail-address))))
+    (if (file-exists-p file)
+	  (epackage-verbose-message
+	    "[NOTE] Not touching existing info file %s" file)
+	(with-temp-buffer
+	  (insert epackage--layout-template-info)
+	  (epackage-field-set "Package" package)
+	  (when maintainer
+	    (epackage-field-set "Maintainer" maintainer 'replace))
+	  (when alist
+	    (let (elt)
+	      (dolist (item '("license"
+			      "upstream"
+			      "homepage"
+			      "wiki"))
+	      (when (setq elt (assoc item alist))
+		(epackage-field-set item (nth 1 elt) 'replace)))))
+	  (epackage-write-region (point-min) (point-max) file)
+	  (epackage-verbose-message "Wrote %s" file)
+	  t))))
+
+;;;###autoload
+(defun epackage-devel-compose-package-info-from-current-buffer
+  (package dir &optional verbose)
+  "Compose initial info file for PACKAGE in DIR by readig current buffer.
+The buffer should be the *.el file that contains all the License and
+Version information.
+
+Input:
+  PACKAGE	Package name. All lowercase.
+  DIR		Package root directory.
+  VERBOSE	Optional. If non-nil, display informational messages."
+  (interactive "sEpackage name: \nDLisp package root dir: \n")
+  (if (interactive-p)
+      (setq verbose 'interactive))
+  (let ((alist (epackage-devel-information-buffer)))
+    (epackage-devel-compose-package-info package dir verbose alist)))
+
+;;;###autoload
+(defun epackage-devel-compose-package-info-from-file
+  (package dir file &optional verbose)
+  "Compose initial info file for PACKAGE in DIR by readig FILE.
+
+Input:
+  PACKAGE	Package name. All lowercase.
+  DIR		Package root directory.
+  FILE          The *.el file user to extract information: version etc.
+  VERBOSE	Optional. If non-nil, display informational messages."
+  (interactive
+   "sEpackage name: \nDLisp package root dir: \nfSource *.el file: ")
+  (if (interactive-p)
+      (setq verbose 'interactive))
+  (with-temp-buffer
+    (insert-file-contents file)
+    (epackage-devel-compose-package-info-from-current-buffer
+     package dir verbose)))
+
+;;;###autoload
+(defun epackage-devel-compose-package-dir
+  (package dir &optional verbose alist)
+  "Compose initial templates for PACKAGE in DIR.
+Generate autoloads, loaddefs file and write other template files
+under `epackage--directory-name'.
+
+Input:
+  PACKAGE	Package name. All lowercase.
+  DIR		Package root directory.
+  VERBOSE	Optional. if non-nil, display informational messages.
+  ALIST		Optional. See`epackage-devel-information-buffer'."
+  (interactive "sEpackage name: \nDLisp package root dir: ")
+  (if (interactive-p)
+      (setq verbose 'interactive))
+  (epackage-error-if-invalid-package-name package)
   (epackage-devel-generate-autoloads package dir dir 'recursive verbose)
   (epackage-devel-generate-loaddefs package dir dir 'recursive verbose)
   (let ((autoloads (epackage-layout-file-name dir package 'autoload))
@@ -4072,18 +4208,8 @@ under `epackage--directory-name'."
 	  (epackage-add-provide-to-buffer install)
 	  (epackage-write-region (point-min) (point-max) install)
 	  (epackage-verbose-message "Wrote %s" install))))
-    ;; Write info file
-    (let ((file (format "%s%s/%s"
-			(file-name-as-directory dir)
-			epackage--package-control-directory
-			"info")))
-      (if (file-exists-p file)
-	  (epackage-verbose-message
-	    "[NOTE] Not touching existing file %s" file)
-	(with-temp-buffer
-	  (insert epackage--layout-template-info)
-	  (epackage-write-region (point-min) (point-max) file)
-	  (epackage-verbose-message "Wrote %s" file))))
+    (epackage-devel-compose-package-info
+     package dir verbose alist)
     t))
 
 ;;;###autoload
@@ -4106,7 +4232,11 @@ Notes:
   must be handled manually.
 
   Also the lisp file being imported must contain information about
-  version and last modification date."
+  version and last modification date.
+
+Return:
+
+  alist    See function `epackage-devel-information-buffer'."
   (interactive "DLisp package root dir to import: ")
   (if (interactive-p)
       (setq verbose 'interactive))
@@ -4185,7 +4315,7 @@ Notes:
 
 ;; (epackage-devel-compose-main "~/tmp/ep" "test" t)
 ;;;###autoload
-(defun epackage-devel-compose-main (dir package &optional verbose)
+(defun epackage-devel-compose-main (package dir &optional verbose)
   "Convert Emacs Lisp Package DIR into Epackage.
 If VERBOSE is non-nil, display informational messages.
 
@@ -4199,15 +4329,16 @@ Notes:
       (setq verbose 'interactive))
   (unless (file-directory-p dir)
     (epackage-error "[compose-main] No such directory %s" dir))
-  (epackage-devel-compose-git-import dir verbose)
-  (epackage-devel-compose-package-dir package dir verbose)
-  (when verbose
-    (let ((file (format "%s%s/%s"
-			(file-name-as-directory dir)
-			epackage--package-control-directory
-			(epackage-layout-mapping-file 'info))))
-      (epackage-message
-       "Epackage %s done, edit %s" package file))))
+  (let ((alist (epackage-devel-compose-git-import dir verbose)))
+    (prog1
+	(epackage-devel-compose-package-dir package dir verbose alist)
+      (when verbose
+	(let ((file (format "%s%s/%s"
+			    (file-name-as-directory dir)
+			    epackage--package-control-directory
+			    (epackage-layout-mapping-file 'info))))
+	  (epackage-message
+	   "Epackage %s done, edit %s" package file))))))
 
 ;;; ............................................... &functions-package ...
 
@@ -4821,11 +4952,11 @@ Return:
       t)))
 
 (defun epackage-byte-compile-package-standard (package &optional verbose)
-  "Run byte compile on PACKAGE with standard epacage compile file.
+  "Run byte compile on PACKAGE with standard compile file.
 If optional VERBOSE is non-nil, display progress message.
 
-Note: No error checking about existence of
-`epackage-directory-packages-control-file' is done."
+Note: No error checking is done about existence of
+`epackage-directory-packages-control-file'."
   (let ((load-path load-path)
         (file (epackage-directory-packages-control-file package 'compile))
         (dir (epackage-directory-package-root package))
@@ -5128,7 +5259,7 @@ If optional VERBOSE is non-nil, display progress message."
     (dolist (elt epackage--info-layout-mapping)
       (setq field  (nth 0 elt)
             regexp (nth 1 elt)
-            value  (epackage-fetch-field field))
+            value  (epackage-field-fetch field))
       (cond
        ((not (stringp value))
         (epackage-verbose-message
@@ -5148,7 +5279,7 @@ If optional VERBOSE is non-nil, display progress message."
     (let* ((dir (epackage-file-name-directory-previous
                  (file-name-directory file)))
            (name (epackage-file-name-basename dir))
-           (package (epackage-fetch-field "Package")))
+           (package (epackage-field-fetch "Package")))
       (when (and verbose
                (stringp package)
                (not (string= package name)))
@@ -5541,8 +5672,8 @@ function description of `epackage-info-mode-tab-command'.
 (defun epackage-info-mode-cmd-email-maintainer ()
   "Compose mail to epackage maintainer."
   (interactive)
-  (let ((package (epackage-fetch-field "Package"))
-        (email (epackage-fetch-field "Maintainer")))
+  (let ((package (epackage-field-fetch "Package"))
+        (email (epackage-field-fetch "Maintainer")))
     (if email
         (epackage-mail-macro
             (epackage-mail-buffer-name package " maintainer")
@@ -5552,8 +5683,8 @@ function description of `epackage-info-mode-tab-command'.
 (defun epackage-info-mode-cmd-email-upstream ()
   "Compose mail to upstream of extension."
   (interactive)
-  (let ((package (epackage-fetch-field "Package"))
-        (email (epackage-fetch-field "Upstream")))
+  (let ((package (epackage-field-fetch "Package"))
+        (email (epackage-field-fetch "Upstream")))
     (if email
         (epackage-mail-macro
             (epackage-mail-buffer-name package " maintainer")
@@ -5563,7 +5694,7 @@ function description of `epackage-info-mode-tab-command'.
 (defun epackage-info-mode-cmd-url-homepage ()
   "Visit Homepage."
   (interactive)
-  (let ((url (epackage-fetch-field "Homepage")))
+  (let ((url (epackage-field-fetch "Homepage")))
     (if url
         (browse-url url)
       (epackage-message "No Homepage URL"))))
@@ -5571,7 +5702,7 @@ function description of `epackage-info-mode-tab-command'.
 (defun epackage-info-mode-cmd-url-wiki ()
   "Visit Wikipage."
   (interactive)
-  (let ((url (epackage-fetch-field "Wiki")))
+  (let ((url (epackage-field-fetch "Wiki")))
     (if url
         (browse-url url)
       (epackage-message "No Wiki URL"))))
@@ -5579,7 +5710,7 @@ function description of `epackage-info-mode-tab-command'.
 (defun epackage-info-mode-cmd-url-commentary ()
   "Run `finder-commentary' on field 'Commentary:'."
   (interactive)
-  (let ((file (epackage-fetch-field "Commentary")))
+  (let ((file (epackage-field-fetch "Commentary")))
     (if (not file)
         (epackage-message "No Commentary field defined")
       (let* ((root (epackage-file-name-directory-previous
