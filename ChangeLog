@@ -5,6 +5,8 @@
         (epackage-devel-compose-epkg-dir): New.
         (epackage-devel-compose-1-interactive): New.
         (epackage-devel-compose-main): Simplify.
+	(epackage-devel-generate-loaddefs): Write provide statement.
+	(epackage-add-provide): New.
 
 2011-12-09 Fri  Jari Aalto  <jari.aalto@cante.net>
 

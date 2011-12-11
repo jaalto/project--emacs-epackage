@@ -2208,6 +2208,26 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
       (goto-char (point-max)))
     (insert string)))
 
+(defsubst epackage-add-provide (&optional file)
+  "Add `provide' based on FILE to the end if not yet there.
+Optional FILE defaults to `buffer-file-name'.
+Point is not preserved.
+Return:
+  point, if added."
+  (goto-char (point-min))
+  (unless (re-search-forward "^(provide" nil t)
+    (let ((name (file-name-sans-extension
+		 (file-name-nondirectory
+		  (or file
+		      buffer-file-name
+		      (epackage-error
+		       "Can't add provide from empty buffer-file-name"))))))
+      (goto-char (point-max))
+      (unless (looking-at "^[ \t]*$")
+	(insert "\n"))
+      (insert (format "(provide '%s)\n" name))
+      (point))))
+
 (defsubst epackage-write-region (start end file)
   "Like  'write-region' START END FILE; but disable backup etc."
   (epackage-with-write-file
@@ -3779,7 +3799,8 @@ Input:
 		Interactive prefix.
     VERBOSE	Optional. If non-nil, display verbose message.
                 Interactive call sets this."
-  (interactive "sPackage name: \nDPackage root dir: \nDRead loaddefs from dir: \np")
+  (interactive
+   "sPackage name: \nDPackage root dir: \nDRead loaddefs from dir: \np")
   (when (or (not (stringp dir))
 	    (not (file-directory-p dir)))
     (epackage-error "Drectory does not exist: %s" dir))
@@ -3800,7 +3821,13 @@ Input:
       (if (stringp dir)
 	  (epackage-autoload-generate-loaddefs-dir dir file nil verbose)
 	(dolist (elt dir)
-	  (epackage-autoload-generate-loaddefs-dir dir file nil verbose)))))))
+	  (epackage-autoload-generate-loaddefs-dir dir file nil verbose)))))
+    ;; FIXME: Make this part a defsubst
+    (when (file-exists-p file)
+      (with-temp-buffer
+	(insert-file-contents file)
+	(when (epackage-add-provide file)
+	  (epackage-write-region (point-min) (point-max) file))))))
 
 ;; Copy of tinylisp-batch-autoload-generate-loaddefs-dir
 (defun epackage-batch-autoload-generate-loaddefs-dir (&optional exclude)
