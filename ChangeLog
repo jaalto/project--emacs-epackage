@@ -19,6 +19,8 @@
 	(epackage-devel-compose-package-info-from-file): New.
 	(epackage-devel-compose-package-info-from-current-buffer): New.
 	(epackage-devel-information-buffer): Correct license search.
+	(epackage-byte-compile-package-1): New.
+	(epackage-byte-compile-package-standard): Rewrite.
 
 2011-12-10 Sun  Jari Aalto  <jari.aalto@cante.net>
 

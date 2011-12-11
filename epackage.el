@@ -541,7 +541,7 @@
 ;;      consisting of two files:
 ;;
 ;;          (dolist (file '("foo-lib.el" "foo.el"))
-;;            (byte-compile-file file))
+;;            (byte-compile-file (locate-library file)))
 ;;
 ;;     The *-configure.el
 ;;
@@ -4951,15 +4951,12 @@ Return:
           (display-buffer (current-buffer))))
       t)))
 
-(defun epackage-byte-compile-package-standard (package &optional verbose)
-  "Run byte compile on PACKAGE with standard compile file.
-If optional VERBOSE is non-nil, display progress message.
-
-Note: No error checking is done about existence of
-`epackage-directory-packages-control-file'."
+(defun epackage-byte-compile-package-1 (file &optional verbose)
+  "Byte compile using epackage compile FILE.
+If optional VERBOSE is non-nil, display progress message."
   (let ((load-path load-path)
-        (file (epackage-directory-packages-control-file package 'compile))
-        (dir (epackage-directory-package-root package))
+        (dir (epackage-file-name-directory-previous
+	      (file-name-directory file)))
         list)
     (setq list (epackage-directory-recursive-list
                 dir
@@ -4976,6 +4973,16 @@ Note: No error checking is done about existence of
       (epackage-with-byte-compile-buffer
         (display-buffer (current-buffer))))
     t))
+
+(defun epackage-byte-compile-package-standard (package &optional verbose)
+  "Run byte compile on PACKAGE with standard compile file.
+If optional VERBOSE is non-nil, display progress message.
+
+Note: No error checking is done about existence of
+`epackage-directory-packages-control-file'."
+  (let ((file (epackage-directory-packages-control-file package 'compile)))
+        ;; (dir (epackage-directory-package-root package))
+    (epackage-byte-compile-package-1 file verbose)))
 
 (defun epackage-byte-compile-package-main (package &optional verbose)
   "Run byte compile PACKAGE, if possible.
