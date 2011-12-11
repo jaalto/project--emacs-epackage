@@ -2208,7 +2208,7 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
       (goto-char (point-max)))
     (insert string)))
 
-(defsubst epackage-add-provide (&optional file)
+(defsubst epackage-add-provide-to-buffer (&optional file)
   "Add `provide' based on FILE to the end if not yet there.
 Optional FILE defaults to `buffer-file-name'.
 Point is not preserved.
@@ -2227,6 +2227,13 @@ Return:
 	(insert "\n"))
       (insert (format "(provide '%s)\n" name))
       (point))))
+
+(defsubst epackage-add-provide-to-file (file)
+  "Add `provide' statement to FILE if not yet there."
+  (with-temp-buffer
+    (insert-file-contents file)
+    (when (epackage-add-provide-to-buffer file)
+      (epackage-write-region (point-min) (point-max) file))))
 
 (defsubst epackage-write-region (start end file)
   "Like  'write-region' START END FILE; but disable backup etc."
@@ -3822,12 +3829,8 @@ Input:
 	  (epackage-autoload-generate-loaddefs-dir dir file nil verbose)
 	(dolist (elt dir)
 	  (epackage-autoload-generate-loaddefs-dir dir file nil verbose)))))
-    ;; FIXME: Make this part a defsubst
     (when (file-exists-p file)
-      (with-temp-buffer
-	(insert-file-contents file)
-	(when (epackage-add-provide file)
-	  (epackage-write-region (point-min) (point-max) file))))))
+      (epackage-add-provide-to-file file))))
 
 ;; Copy of tinylisp-batch-autoload-generate-loaddefs-dir
 (defun epackage-batch-autoload-generate-loaddefs-dir (&optional exclude)
@@ -3871,9 +3874,8 @@ Notes:
 	utils/
 
    So, you must manually check and possibly edit the generated results."
-  ;; (read-file-name "Make directory: " default-directory default-directory nil nil)
-  ;;
-  (interactive "sPackage name: \nDPackage root dir: \nDRead autoloads from dir: \np")
+  (interactive
+   "sPackage name: \nDPackage root dir: \nDRead autoloads from dir: \np")
   (when (or (not (stringp dir))
 	    (not (file-directory-p dir)))
     (epackage-error "Drectory does not exist: %s" dir))
@@ -3899,9 +3901,7 @@ Notes:
 	    (epackage-autoload-create-on-directory elt)))))
       (cond
        ((not (eq (point-min) (point-max)))
-	(goto-char (point-max))
-	(insert (format "(provide '%s)\n" (file-name-sans-extension
-					 (file-name-nondirectory file))))
+	(epackage-add-provide-to-buffer file)
 	(epackage-write-region (point-min) (point-max) file)
 	(epackage-verbose-message "Wrote %s" file)
 	t)
@@ -4065,6 +4065,7 @@ under `epackage--directory-name'."
 	  ;; (autoload 'command "package" "" t)
 	  ;; (autoload 'command "package" "" nil 'macro)
 	  (delete-non-matching-lines "t)[ \t]*$")
+	  (epackage-add-provide-to-buffer install)
 	  (epackage-write-region (point-min) (point-max) install)
 	  (epackage-verbose-message "Wrote %s" install))))
     ;; Write info file
