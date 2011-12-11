@@ -537,8 +537,9 @@
 ;;      needed. Possible variables and functions defined here must
 ;;      have `PACKAGE-*' prefix to keep the Emacs name space clean.
 ;;      *Exception:* packages that only have a single '*.el' file do
-;;      not need to define this file. An example for simple extension
-;;      consisting of two files:
+;;      not need to define this file. There is no `provide' statement
+;;      in this file. An example for simple extension consisting of
+;;      two files:
 ;;
 ;;          (dolist (file '("foo-lib.el" "foo.el"))
 ;;            (byte-compile-file (locate-library file)))
