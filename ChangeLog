@@ -21,6 +21,10 @@
 	(epackage-devel-information-buffer): Correct license search.
 	(epackage-byte-compile-package-1): New.
 	(epackage-byte-compile-package-standard): Rewrite.
+	(epackage--layout-template-compile-main): New.
+	(epackage-devel-generate-compile-1): New.
+	(epackage--directory-exclude-regexp): Add 'tests'.
+	(epackage-files-recursive-lisp): New.
 
 2011-12-10 Sun  Jari Aalto  <jari.aalto@cante.net>
 

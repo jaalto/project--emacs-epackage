@@ -1835,6 +1835,7 @@ packages.")
       "/images"
       "/pics"
       "/patches"
+      "/tests"
       "/doc"
       "/tex"
       "/texinfo"
@@ -2053,6 +2054,20 @@ Other actions
 \(g)et           Get new sources list and store it locally. This is the basis
                 for selecting packages to install. Must be run periodically."
   "UI menu help.")
+
+(defconst epackage--layout-template-compile
+  "\
+\(dolist (file
+         '(%s))
+  (let ((path (locate-library file)))
+    (if (and (boundp 'verbose)
+             verbose)
+        (message \"Compiling %%s\" path))
+    (byte-compile-file path)))
+"
+  "Format string containing the epackage/*-compile.el file.
+The files are written to %s. See function
+`epackage-devel-generate-compile'.")
 
 (defconst epackage--layout-template-info
   "\
@@ -2571,7 +2586,7 @@ and `epackage--directory-name'."
      (concat epackage--directory-exclude-regexp
              "\\|/" epackage--directory-name "$"))))
 
-(defsubst epackage-directory-recursive-lisp-files (dir)
+(defsubst epackage-directory-recursive-lisp (dir)
   "Return all Emacs Lisp file directories under DIR recursively.
 See `epackage-directory-recursive-list-default' for more information."
   (let (ret)
@@ -2579,6 +2594,14 @@ See `epackage-directory-recursive-list-default' for more information."
       ;; Check remaining directories if they contain Emacs Lisp files."
       (if (directory-files elt nil "\\.el$")
           (epackage-push elt ret)))
+    ret))
+
+(defsubst epackage-files-recursive-lisp (dir)
+  "Return all Emacs Lisp files under DIR recursively.
+See `epackage-directory-recursive-list-default' for more information."
+  (let (ret)
+    (dolist (elt (epackage-directory-recursive-lisp dir))
+      (setq ret (nconc (directory-files elt nil "\\.el$") ret)))
     ret))
 
 (defun epackage-directory-packages-control-file (package type)
@@ -3245,7 +3268,7 @@ Would match:
   (string-match
    ;; At the beginning, or at end, or in the middle by spaces
    "\\(?:^\\| \\)\\*master\\(?: \\|$\\)"
-   (mapconcat 'concat list " ")))
+   (mapconcat #'concat list " ")))
 
 (defun epackage-git-command-tag-list (dir &optional verbose)
   "Run 'git tag -l' in DIR.
@@ -3829,30 +3852,93 @@ If optional ERROR is non-nil, signal error if DIRECTORY was not created."
 	  (epackage-error "Directory creation not confirmed: %d" directory))
       nil))))
 
-(defun epackage-devel-generate-loaddefs
-  (package root dir &optional recursive verbose)
-  "Generate PACKAGE loaddefs relative to ROOT from DIR.
-The loaddefs are stored under directory ROOT/`epackage--directory-name'.
+(defun epackage-devel-generate-compile-write-file (file list)
+  "Write to FILE commands to compile LIST of files."
+  (when list
+    (with-temp-buffer
+      (insert
+       (format
+	epackage--layout-template-compile
+	(mapconcat
+	 (lambda (x)
+	   (format "\"%s\"" x))
+	 (epackage-sort list)
+	 "\n")))
+      (emacs-lisp-mode)
+      (goto-char (point-min))
+      (indent-sexp)
+      (epackage-write-region (point-min) (point-max) file)
+      t)))
+
+(defun epackage-devel-generate-compile-main
+  (package root &optional dir recursive verbose)
+  "Generate PACKAGE compile file relative to ROOT from DIR.
+The compile file is stored under directory ROOT/`epackage--directory-name'.
 
 Input:
 
     PACKAGE	Epackage name
     ROOT	Epackage root directory (must exists).
-    DIR   	Emacs Lisp package directories. This can be a one string
-                or list of strings.
-    RECURSIVE   Optional. If non-nil, read all *.el files under DIR-LIST.
+    DIR   	Optional. Emacs Lisp package directories. This can be a 
+                one string or list of strings. Defaults to ROOT.
+    RECURSIVE   Optional. If non-nil, read all *.el files under DIR.
 		Interactive prefix.
-    VERBOSE	Optional. If non-nil, display verbose message.
+    VERBOSE	Optional. If non-nil, display verbose messages.
                 Interactive call sets this."
   (interactive
-   "sPackage name: \nDPackage root dir: \nDRead loaddefs from dir: \np")
+   (let ((root (read-directory-name "Epackage root dir: ")))
+     (list
+      package
+      root
+      root
+      'interactive)))
   (epackage-error-if-invalid-package-name package)
   (when (or (not (stringp dir))
 	    (not (file-directory-p dir)))
-    (epackage-error "Drectory does not exist: %s" dir))
+    (epackage-error "Drectory DIR does not exist: %s" dir))
   (when (or (not (stringp root))
 	    (not (file-directory-p root)))
-    (epackage-error "Drectory does not exist: %s" dir))
+    (epackage-error "Directory ROOT does not exist: %s" dir))
+  (if (interactive-p)
+      (setq verbose t))
+  (let* ((file (epackage-layout-file-name root package 'compile))
+	 (edir (file-name-directory file))
+	 (list (if recursive
+		   (epackage-files-recursive-lisp dir)
+		 (directory-files dir nil "\\.el$"))))
+    (epackage-make-directory edir 'no-question 'error)
+    (epackage-devel-generate-compile-write-file file list)))
+
+(defun epackage-devel-generate-loaddefs
+  (package root &optional dir recursive verbose)
+  "Generate PACKAGE loaddefs relative to ROOT from DIR.
+The loaddefs file is stored under directory ROOT/`epackage--directory-name'.
+
+Input:
+
+    PACKAGE	Epackage name
+    ROOT	Epackage root directory (must exists).
+    DIR   	Optional. Emacs Lisp package directories. This can be a 
+                one string or list of strings. Defaults to ROOT.
+    RECURSIVE   Optional. If non-nil, read all *.el files under DIR.
+		Interactive prefix.
+    VERBOSE	Optional. If non-nil, display verbose messages.
+                Interactive call sets this."
+  (interactive
+   (let ((package (read-string "Package name: "))
+	 (root (read-directory-name "Epackage root dir: ")))
+     (list
+      package
+      root
+      root
+      'interactive)))
+  (epackage-error-if-invalid-package-name package)
+  (when (or (not (stringp dir))
+	    (not (file-directory-p dir)))
+    (epackage-error "Drectory DIR does not exist: %s" dir))
+  (when (or (not (stringp root))
+	    (not (file-directory-p root)))
+    (epackage-error "Directory ROOT does not exist: %s" dir))
   (let* ((file (epackage-layout-file-name root package 'loaddefs))
 	 (edir (file-name-directory file))
 	 (buffer epackage--buffer-autoload))
@@ -3861,7 +3947,7 @@ Input:
     (epackage-make-directory edir 'no-question 'error)
     (cond
      (recursive
-      (dolist (elt (epackage-directory-recursive-lisp-files dir))
+      (dolist (elt (epackage-directory-recursive-lisp dir))
 	(epackage-autoload-generate-loaddefs-dir elt file nil verbose)))
      (t
       (if (stringp dir)
@@ -3932,7 +4018,7 @@ Notes:
       (delete-region (point-min) (point-max))
       (cond
        (recursive
-	(dolist (elt (epackage-directory-recursive-lisp-files dir))
+	(dolist (elt (epackage-directory-recursive-lisp dir))
 	  (epackage-autoload-create-on-directory elt)))
        (t
 	(if (stringp dir)
@@ -4188,6 +4274,7 @@ Input:
   (epackage-error-if-invalid-package-name package)
   (epackage-devel-generate-autoloads package dir dir 'recursive verbose)
   (epackage-devel-generate-loaddefs package dir dir 'recursive verbose)
+  (epackage-devel-generate-compile-main package dir dir 'recursive verbose)
   (let ((autoloads (epackage-layout-file-name dir package 'autoload))
 	(install (epackage-layout-file-name dir package 'enable)))
     ;; By default we copy all interactive functions to install.
@@ -4245,7 +4332,7 @@ Return:
   (let ((git (format "%s.git" (file-name-as-directory dir))))
     (when (file-directory-p git)
       (epackage-error "Already Git repository in directory %s" git)))
-  (let ((dirs (epackage-directory-recursive-lisp-files dir))
+  (let ((dirs (epackage-directory-recursive-lisp dir))
 	files
 	list)
     (if (> (length dirs) 1)
@@ -4841,7 +4928,7 @@ If optional VERBOSE is non-nil, display progress message."
 
 (defun epackage-loader-insert-file-path-list-by-path (path)
   "Insert `load-path' definitions to `current-buffer' from PATH."
-  (dolist (dir (epackage-directory-recursive-lisp-files path))
+  (dolist (dir (epackage-directory-recursive-lisp path))
     ;; Convert absolute paths into HOME (~)
     (setq dir (abbreviate-file-name dir))
     (insert (format
