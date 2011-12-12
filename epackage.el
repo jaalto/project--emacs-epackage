@@ -131,7 +131,7 @@
 ;;      borrows the Debian style package management and it uses
 ;;      version control for distributing packages.
 ;;
-;;      Each Emacs extension is wrapped into a epackage format which
+;;      Each Emacs extension is wrapped into a specific format which
 ;;      basically follows the Debian [4] packaging style where a
 ;;      separate control directory named `epackage/' is used for all
 ;;      the packaging details: activation, autoloads and installation
@@ -426,7 +426,7 @@
 ;;
 ;;      The Git repository branches used are:
 ;;
-;;      o   *master*, required. The published epackage.
+;;      o   *master*, required. The published package.
 ;;          Branched off from *upstream*. Adds directory
 ;;          `epackage/' where the packaging information resides.
 ;;      o   *patches*, optional. Patches to *upstream* code, if any.
@@ -451,7 +451,7 @@
 ;;                       \      \ (merge)
 ;;          master        o ---- o - =>         contains epackage/ directory
 ;;
-;;      The epackage method borrows concept from Debian where a
+;;      The packaging method borrows concept from Debian where a
 ;;      separate control directory is used for packaging information.
 ;;      The control directory name `epackage/' is not configurable.
 ;;      The layout of an epackaged Emacs extension looks like following:
@@ -514,12 +514,11 @@
 ;;     The *-clean.el
 ;;
 ;;      This file contains command(s) to remove files that can be
-;;      generated. This file is very rarely neeed. It may be useful
-;;      with bigger packages that come with a `Makefile' or
-;;      `./configure' script. Mnemonic: "Same as if you would run
-;;      'make clean'". Exception: the byte compiled files do not need
-;;      deleting. They will be deleted by epackage.el prior calling
-;;      this file.
+;;      generated. This file is very rarely neeed. It may be useful with
+;;      bigger packages that come with a `Makefile' or `./configure'
+;;      script. Mnemonic: "Same as if you would run 'make clean'".
+;;      Exception: the byte compiled files do not need deleting. They are
+;;      deleted prior calling this file.
 ;;
 ;;     The *-compile.el
 ;;
@@ -705,12 +704,16 @@
 ;;
 ;;     Bugs
 ;;
-;;      URL to report epackaging issues of current extension. The URL
-;;      can be an email address or a link to an issue tracker. In case
-;;      the field is empty or missing, the `Maintainer' field is used.
-;;      Epackaging problmes that are candidate for bugs: update to newest
-;;      upstream release, update *Description* or other field, broken
-;;      URLs etc.
+;;      URL to report epackaging issues of current extension. The URL can
+;;      be an email address or a link to an issue tracker. In case the
+;;      field is empty or missing, the `Maintainer' field is used.
+;;      Epackaging issues that are candidate for reporting: request to
+;;      update to the newest upstream release, suggestions for updating
+;;      *Description* or other fields, broken URLs in the *Description*
+;;      or other fields etc.
+;;
+;;      See *Upstream-Bugs* or *Upstream* for reporting Emacs extension
+;;      usage problems.
 ;;
 ;;     Commentary
 ;;
@@ -718,7 +721,7 @@
 ;;      directory, to a single Emacs Lisp file which contains
 ;;      documentation suitable for `M-x' `finder-commentary'. In order
 ;;      to find documentation, this field must exist even for
-;;      epackages that contain single Emacs Lisp file. Extension
+;;      packages that contain single Emacs Lisp file. Extension
 ;;      developers should study core Emacs *lisp-mnt.el* and function
 ;;      `lm-commentary'. The documentation read from file is enclosed
 ;;      in between tags:
@@ -729,12 +732,15 @@
 ;;
 ;;     Compat
 ;;
-;;      The compatibility level used in the epackage. The Epackage
-;;      format may change in time and this field indicates which
-;;      epackage layout was used. If the value is missing or is empty,
-;;      the latest is assumed. Usually an epackage maintainer should
-;;      follow the latest format to prevent installation problems. See
-;;      section "Epackage Compatibility Levels" for more information.
+;;      The compatibility level used in the package. The format may
+;;      change in time and this field indicates which layout was used. If
+;;      the value is missing or is empty, the latest is assumed. Usually
+;;      an epackage maintainer should follow the latest format to prevent
+;;      installation problems. See section "Epackage Compatibility
+;;      Levels" for more information.
+;;
+;;      Note: yhis field should be left empty. It is part of the
+;;      specification, but hopefully never needed.
 ;;
 ;;     Conflicts
 ;;
@@ -785,7 +791,7 @@
 ;;      this information should be written to the end of `Description'
 ;;      (which see). Old packages that are not updated to work for
 ;;      latest Emacs releases are candidate for removal from the
-;;      official Epackage Yellow Pages sources list. Examples:
+;;      official Epackage Sources List. Examples:
 ;;
 ;;          Depends: foo
 ;;          Depends: emacs (>= 22.2) | xemacs (>= 20), foo
@@ -854,17 +860,16 @@
 ;;      "Custom". In that case, the full license text should be
 ;;      included in field "License-Text".
 ;;
-;;     Maintainer
+;;     Maintainer (required)
 ;;
-;;      The extension's epackage maintainer. Format is the same as in
-;;      *Email* field. Contains the name and address of the person who
-;;      made the extension available in epackage format. If the
+;;      The epackage maintainer. Contains the name and address of the
+;;      person who maintains ad hosts the epackage Git repository. If the
 ;;      upstream is also the epackage maintainer, the content of this
-;;      field is identical to *Email* field.
+;;      field is identical to *Upstream* field.
 ;;
 ;;     Package (required)
 ;;
-;;      The name of the epackage in all lowercase satisfying regexp
+;;      The name of the package in all lowercase satisfying regexp
 ;;      "[a-z][a-z0-9-]+". Usually base name of the extension file or
 ;;      the canonical known name in case of bigger packages like
 ;;      "gnus". An example "html-helper-mode.el" => package name is
@@ -884,15 +889,14 @@
 ;;          these on minibuffer prompts easily.
 ;;
 ;;      Note: There may be exotically named extensions like "crypt++",
-;;      but the *epackage* name must not contains special characters.
-;;      Name the epackage "crypt-plusplus" if nothing else comes to a
-;;      mind. Consider contacting upstream to discuss about possible
-;;      name change.
+;;      but the *epackage* name must not contains special characters. Use
+;;      name "crypt-plusplus" if nothing else comes to a mind. Consider
+;;      contacting upstream to discuss about possible name change.
 ;;
 ;;     Recommends
 ;;
 ;;      List of packages which the extension can support or take
-;;      advantage of. E.g. this field would list epackage B if A can
+;;      advantage of. E.g. this field would list package B if A can
 ;;      take advantage of package B. However it is not a requirement
 ;;      to install B for package A to work. This field is must *not*
 ;;      be used to announce related packages. That information can be
@@ -2337,7 +2341,8 @@ Return nil of there is nothing to remove .i.e. the result wold be \"/\"."
   (unless (stringp package)
     (epackage-error "package name is not a string"))
   (let (case-fold-search)
-    (string-match "^[a-z]\\(?:[a-z-]+\\)?[a-z]$" package)))
+    ;; "a-" is an invalid package name
+    (string-match "^[a-z]\\(?:[a-z0-9-]+\\)?[a-z0-9]$" package)))
 
 (defsubst epackage-error-if-invalid-package-name (package &optional msg)
   "Check if PACKAGE name is valid or signal error with optional MSG."

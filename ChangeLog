@@ -1,3 +1,9 @@
+2011-12-12 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage--root-directory): Remove ~/elisp
+	support and migrate to ~/.emacs.d
+	(epackage-package-name-valid-p): Correct regexp.
+
 2011-12-11 Sun  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-add-provide-to-file): New.
