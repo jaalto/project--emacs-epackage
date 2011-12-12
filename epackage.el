@@ -461,8 +461,8 @@
 ;;
 ;;      The epackage method borrows concept from Debian where a
 ;;      separate control directory is used for packaging information.
-;;      The directory name is `epackage/' and it is not configurable.
-;;      The layout of an epackaged Emacs extension looks like:
+;;      The control directory name `epackage/' is not configurable.
+;;      The layout of an epackaged Emacs extension looks like following:
 ;;
 ;;          <PACKAGE, the Emacs extension root dir>
 ;;          | <upstream files and possible directories>
@@ -505,7 +505,7 @@
 ;;      load this file, you can start calling extension's features".
 ;;      The file ends in:
 ;;
-;;          (provide 'PACKAGE-0loaddefs)
+;;          (provide 'PACKAGE-epkg-0loaddefs)
 ;;
 ;;     The *-autoloads.el
 ;;
@@ -517,28 +517,29 @@
 ;;      code to call the functions, or you can call extension's
 ;;      interactive functions via `M-x'". The file ends in:
 ;;
-;;          (provide 'PACKAGE-autoloads)
+;;          (provide 'PACKAGE-epkg-autoloads)
 ;;
 ;;     The *-clean.el
 ;;
-;;      This file contains command to remove files that can be
-;;      generated. It is used only with bigger packages that come with
-;;      a `Makefile' or `./configure' script. Mnemonic: "Same as if
-;;      you would run 'make clean'". Exception: the byte compiled
-;;      files do not need deleting. They will be deleted by
-;;      epackage.el prior calling this file.
+;;      This file contains command(s) to remove files that can be
+;;      generated. This file is very rarely neeed. It may be useful
+;;      with bigger packages that come with a `Makefile' or
+;;      `./configure' script. Mnemonic: "Same as if you would run
+;;      'make clean'". Exception: the byte compiled files do not need
+;;      deleting. They will be deleted by epackage.el prior calling
+;;      this file.
 ;;
 ;;     The *-compile.el
 ;;
-;;      This file contains Emacs Lisp command to byte compile the
-;;      extension. The file is run at the root directory of the
-;;      extension with `load-path' set to include all the relevant
-;;      directories. Evaluating the file must byte compile all that is
-;;      needed. Possible variables and functions defined here must
-;;      have `PACKAGE-*' prefix to keep the Emacs name space clean.
-;;      *Exception:* packages that only have a single '*.el' file do
+;;      This file contains commands to byte compile the extension. The
+;;      file is run at the root directory of the extension with
+;;      `load-path' set to include all the relevant directories.
+;;      Evaluating the file must byte compile all that is needed.
+;;      Possible variables and functions defined here must have
+;;      `PACKAGE-epkg-*' prefix to keep the Emacs name space clean.
+;;      *Exception:* packages that only have a single "*.el" file do
 ;;      not need to define this file. There is no `provide' statement
-;;      in this file. An example for simple extension consisting of
+;;      in this file. An example for a simple extension consisting of
 ;;      two files:
 ;;
 ;;          (dolist (file '("foo-lib.el" "foo.el"))
@@ -547,12 +548,13 @@
 ;;     The *-configure.el
 ;;
 ;;      This file contains command to configure the extension's build
-;;      system. It is used only with bigger packages that come with a
-;;      `Makefile' or `./configure' script. Mnemonic: "Same as if you would
-;;      invoke ./configure". This file is only necessary of the provided *.el
-;;      files cannot be used "as is" to install the package. The `./configure'
-;;      may e.g. write loaddefs or autoloads or assemble package in a way
-;;      that produces the installable extension.
+;;      system. This file is very rarely neeed. It may be useful with
+;;      bigger packages that come with a `Makefile' or `./configure'
+;;      script. Mnemonic: "Same as if you would invoke ./configure".
+;;      This file is only necessary if the *.el files cannot be used
+;;      "as is" to install the package. The `./configure' may e.g.
+;;      write loaddefs or autoloads or assemble package in a way that
+;;      produces an installable extension.
 ;;
 ;;     The *-examples.el
 ;;
@@ -562,10 +564,11 @@
 ;;      scratch book, to present anything that might be useful to be
 ;;      put into `~/.emacs' startup file. Mnemonic: "Look examples in
 ;;      this file for ideas how to make more out of the extension".
-;;      This file is not intended to be loadable and it must _not_
+;;
+;;      This file is not intended to be loadable and it must not
 ;;      contain any `provide' statements. All functions and private
 ;;      variables written must start with prefix `my-PACKAGE-* so
-;;      that they can be easily copied tp user's own setup.
+;;      that they can be easily be copied to user's own setup.
 ;;
 ;;      It is recommend that any attempt to load this file generates
 ;;      an error. Add something like this to the beginning of file to
@@ -583,14 +586,14 @@
 ;;      `auto-mode-alist' or setting up hooks. The *-install* in name
 ;;      refers to standard installation, or availability for that
 ;;      matter, of interactive functions. *Note:* try to avoid
-;;      `require' or `load' commands as much as possible. Arrange and
-;;      use `autoload' statements instead. That helps keeping Emacs
-;;      startup fast and lean. Mnemonic: "if you load this file, the
-;;      extension is up and ready to be used in your Emacs. You can
-;;      start calling extension's functions or load new files that
-;;      activate the extension's features". The file ends in:
+;;      `require' or `load' commands as much as possible. That helps
+;;      keeping Emacs startup fast and lean. Mnemonic: "if you load
+;;      this file, the extension is up and ready to be used in your
+;;      Emacs. You can start calling extension's functions or load new
+;;      files that activate the extension's features". The file ends
+;;      in:
 ;;
-;;          (provide 'PACKAGE-install)
+;;          (provide 'PACKAGE-epkg-install)
 ;;
 ;;     The *-uninstall.el
 ;;
@@ -598,13 +601,13 @@
 ;;      `*-activate.el' It runs commands to remove the extension as if
 ;;      it has never been loaded. Due to the nature of Emacs, it is
 ;;      not really practical to completely try to uninstall the
-;;      package. The uninstallation usually covers undoing the changes
-;;      to *-hook, *-functions and `auto-mode-alist' and to similar
-;;      variables. The actual symbols (defined functions and
-;;      variables) are not removed. To shake extension completely,
-;;      restart Emacs after uninstall of epackage. The file ends in:
+;;      package. The actual symbols (defined functions and variables)
+;;      are not removed. The uninstallation usually covers undoing
+;;      changes to *-hook, *-function and `auto-mode-alist' and to
+;;      similar variables. To shake free from extension completely,
+;;      restart Emacs after uninstall a epackage. The file ends in:
 ;;
-;;          (provide 'PACKAGE-uninstall)
+;;          (provide 'PACKAGE-epkg-uninstall)
 ;;
 ;;     The *-xactivate.el
 ;;
@@ -613,7 +616,7 @@
 ;;      environment by adding more custom functions to hooks or
 ;;      arrange key bindings so that when pressed, a feature is loaded
 ;;      and activated. It may also loop through `buffer-list' to
-;;      activate features immediately in running Emacs. It is best
+;;      activate features in existing buffers immediately. It is best
 ;;      that any custom settings, like variables and prefix keys, are
 ;;      defined in `~/.emacs' *before* this file gets loaded. As with
 ;;      `*-install.el', try to avoid any `require' or `load' commands
@@ -622,7 +625,7 @@
 ;;      name is to help proper sorting ordering of configuration
 ;;      files. The file ends in:
 ;;
-;;          (provide 'PACKAGE-xactivate)
+;;          (provide 'PACKAGE-ekg-xactivate)
 ;;
 ;;  The info file
 ;;
