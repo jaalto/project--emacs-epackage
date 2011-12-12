@@ -1673,6 +1673,14 @@ Never set this variable directly, use the command
     "----"
     ["Lint epackage" epackage-info-mode-cmd-lint t] ))
 
+;; Color design concepts:
+;; - Required fields with one color
+;; - Optional fields with rest color
+;; - Licence field needs special treatment:
+;;   * GPL, ok
+;;   * OSI, ok but a deviation from status quo in Emacs Lisp
+;;   * Custom, bring to reader's attention
+
 (defvar epackage-info-mode-font-lock-keywords
   '(("^\\(Package\\): *\\(.*\\)"
      (1 'font-lock-keyword-face)
@@ -1680,22 +1688,28 @@ Never set this variable directly, use the command
     ("^\\(Description\\): *\\(.*\\)"
      (1 'font-lock-keyword-face)
      (2 'font-lock-type-face))
-    ;; If license if different from GPL, mark it with different color.
-    ("^\\(License\\): *\\(Custom\\)"
+    ("^\\(License\\): *\\([^ \t\r\n]+\\)"
+     (1 'font-lock-keyword-face t)
+     (2 'font-lock-type-face))
+    ("^\\(License\\): *\\(GPL\\)"
+     (1 'font-lock-keyword-face t)
+     (2 'default t))
+    ("^\\(License\\): *\\(Custom\\|None\\)"
      (1 'font-lock-doc-face t)
      (2 'font-lock-warning-face t))
-    ("^\\(License\\): *\\([^ Gg\t\r\n]+\\)"
-     (1 'font-lock-doc-face t)
-     (2 'font-lock-comment-face t)
-     t)
-    ("^\\(License-Text\\):\\(.*[\r\n]\\(?: .+[\r\n]\\)+\\)"
-     (1 'font-lock-doc-face t)
+    ;; FIXME: The color does mumbo-jumbo. Try editing
+    ;; text at first line, then second. It sets colors on/off
+    ("^\\(License-Text\\):\\(.*\\(?:[\r\n] .*\\)+\\)"
+     (1 'font-lock-builtin-face)
      (2 'font-lock-type-face t))
-    ("^\\(Status\\): .*\\(unmaintained\\|broken\\)"
-     (1 'font-lock-doc-face t)
-     (2 'font-lock-warning-face t))
+    ("^\\(Status\\):"
+     (1 'font-lock-keyword-face))
+    ("^Status: .*\\(unmaintained\\)"
+     (1 'font-lock-comment-face t))
+    ("^Status: .*\\(broken\\)"
+     (1 'font-lock-warning-face t))
     ;; Required fields
-    ("^\\(Package\\|Section\\|Maintainer\\|Upstream\\|Description\\):"
+    ("^\\(Section\\|Maintainer\\|Upstream\\|Description\\):"
      1 'font-lock-keyword-face)
     ("^\\(X-[^ \t\r\n]+\\):"
      1 'font-lock-string-face)
