@@ -857,7 +857,13 @@
 ;;      If License is not any of the OSI known standard licenses
 ;;      <http://www.opensource.org/licenses>, or if it contains
 ;;      additional text to an existing licence, it must be labelled
-;;      "Custom". See field *License-Text*. 
+;;      "Custom". See field *License-Text*.
+;;
+;;      In case the software is dual licenced, or there is different
+;;      license for documentation, it would be good to explain these
+;;      in additial extra field:
+;;
+;;          X-License-Comment: code GPL-2+, documentation GFDL
 ;;
 ;;     License-Text
 ;;
@@ -869,6 +875,7 @@
 ;;
 ;;          License: Custom
 ;;          License-Text: http://spdx.org/licenses/Ruby
+;;          X-License-Comment: Ruby license is dual: GPL or custom text
 ;;
 ;;     Maintainer (required)
 ;;
