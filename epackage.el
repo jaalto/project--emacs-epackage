@@ -2141,7 +2141,7 @@ The files are written to %s. See function
 Package:
 Section: data | extensions | files | languages | mail | tools <M-x finder-list-keywords>
 License: GPL-2+ | BSD | Apache-2.0 | ... | Custom | None
-License-Text: <only for type Custom>
+License-Text: <only for type Custom; full text or URL to page in http://spdx.org/licenses/>
 Depends: emacs (>= 22)
 Status: core-emacs[-NN.N] unmaintained broken unsafe stable unstable experimental
 Compat:
