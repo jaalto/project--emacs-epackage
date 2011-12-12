@@ -1176,23 +1176,31 @@
 ;;      in a safe fashion, the dependency graphs of all packages would
 ;;      need to be collected and maintained.
 ;;
-;;      Indeed, writing a depends system is challenging. Currently this
-;;      software lacks dependency checks during package removals.
+;;      Currently there are no removal dependecy checks of any kind.
 ;;
 ;;     Version
 ;;
-;;      Why is there no "Version:" field in the `info' file that would
-;;      announce which "version of the extension is"? The Git
-;;      repository is supposed to have tags for all upstream versions
-;;      of the package. It would be duplicate work to manually keep
-;;      the info::Version field in synch with the tags of Git
-;;      repository. The user is 90% interested in downloading an
-;;      extension, not really some specific versions of the extention.
-;;      This is a little different than in Redhat or Debian/Ubuntu,
-;;      where one can upgrade from version to newer version of the
-;;      package. In Epackage, you actually update full Git repository,
-;;      thus bringing all possible version of the extension available;
-;;      and activating always the latest.
+;;      Why is there no "Version:" field in the `info' file that
+;;      would announce the extension version? The Git repository is
+;;      supposed to have tags for all upstream versions of the
+;;      package. It would be duplicate and manual work to keep the
+;;      info::Version field in synch with the tags of Git repository.
+;;      The user is 90% interested in downloading an extension, not
+;;      really some specific versions of the extension. This is a
+;;      little different than in Linux distributions, where one can
+;;      upgrade from one version to a newer version. In Epackage, one
+;;      always updates full Git repository, thus bringing all
+;;      possible versions of the extension available; and activating
+;;      the latest.
+;;
+;;      To select old versions, user must work on the git repos
+;;      directly. There are no plans to support selecting previous
+;;      versions because that would bring instability to the whole
+;;      system. Imagine this: A depends on B, but user selects
+;;      specific version of B - which is older and won't work with
+;;      other packages. Multiply this problem with N versions of
+;;      several extensions. Summary: it's best to stick with the
+;;      latest and send bug reports to upstream on errors.
 ;;
 ;; TODO
 ;;
