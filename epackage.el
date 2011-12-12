@@ -39,7 +39,7 @@
 ;;      ;; If you're behing proxy, be sure to define connection
 ;;      ;; details before you start Emacs at command line.
 ;;      ;; Consult http://stackoverflow.com/questions/496277/git-error-fatal-unable-to-connect-a-socket-invalid-argument
-;;      ;; for in depth details. From bash shell:
+;;      ;; for details. From bash shell:
 ;;      ;;
 ;;      ;;    export http_proxy=http://<username>:<password>@<proxy host>:<proxy port>
 ;;      ;;
@@ -48,7 +48,7 @@
 ;;      ;;    git config --global http.proxy http://<username>:<password>@<proxy host>:<proxy port>
 ;;
 ;;      ;; If you're behind firewall and Git port 9418 is blocked, you
-;;      ;; may want to use HTTP and translate addresses with this table:
+;;      ;; want to use HTTP and translate addresses with this table:
 ;;      ;;
 ;;      ;; (setq epackage--sources-replace-table
 ;;      ;;       '(("git://github" "http://github")))
@@ -85,40 +85,31 @@
 ;;      ;; 2. Or, Write initial templates. Work from there manually
 ;;      (autoload 'epackage-devel-compose-package-dir    "epackage" "" t)
 ;;
-;;  In addition to full UI (M-x epackage), there is also a minimal
+;;  In addition to Emacs UI M-x epackage, there is also a minimal
 ;;  command line UI:
 ;;
 ;;      emacs --batch -Q -l /path/to/epackage.el -f epackage-ui
 ;;
-;; WARNING: Make sure no *alias* override those of standard git
-;; commands in your ~/.gitocnfig or this creates problems. Alias
-;; definitions that are not standard git commands are fine.
+;; WARNING: Make sure no *alias* override standard git commands in
+;; your ~/.gitocnfig or they will create problems.
 
 ;;; Commentary:
 
 ;;  Preface 2009
 ;;
-;;      NOTE: This extension is in early state;
-;;      meaning that it is not in full use yet. The core elements are
-;;      being planned, written and tested. For preview, see available `M-x'
-;;      `epackage-*' commands. Currently it is best to use the batch
-;;      command line UI:
+;;      NOTE: This extension is in early state; meaning that it is
+;;      not in full use yet. The core elements are being planned,
+;;      written and tested. Currently there is only the batch command
+;;      line UI:
 ;;
 ;;          # Or run the provided Makefile: "make ui"
 ;;          emacs --batch -Q -l /path/to/epackage.el -f epackage-batch-ui-menu
 ;;
-;;      ....expect full UI with nice menus, font-lock, mode command
-;;      and Emacs buffers like in ELPA somewhere around 2012.
-;;      the earliest.
-;;
-;;          # Or run the provided Makefile target: "make ui"
-;;          emacs --batch -Q -l /path/to/epackage.el -f epackage-batch-ui-menu
-;;
 ;;      Emacs has been around for decades now. Many new version have
 ;;      come and gone. And yet there are wealth of useful extensions
-;;      available e.g. at <http://emacswiki.org> which add new
-;;      features not included in standard Emacs. The typical procedure
-;;      to add a new extension to Emacs has been:
+;;      available e.g. at <http://emacswiki.org> which enhance
+;;      standard Emacs. The typical procedure to add a new extension
+;;      to Emacs has been:
 ;;
 ;;      o   Find an extension at places like
 ;;          http://dir.gmane.org/gmane.emacs.sources or
@@ -130,40 +121,40 @@
 ;;          to arrange loading the extension to one's liking.
 ;;
 ;;      That's quite a bit of work for each extension; reaching
-;;      thousands out there. Many Linux distributions offer package
-;;      managers to download and install programs. E.g. Debian has
-;;      command *apt-get/aptitude* [1], Redhat uses *rpm* [2], Suse
-;;      uses *yast* [3]. So why not make one for Emacs as well.
+;;      thousands out there. Not to mention keeping up to date. Many
+;;      Linux distributions offer package managers to download and
+;;      install programs. E.g. Debian has command *apt-get/aptitude*
+;;      [1], Redhat uses *rpm* [2], Suse uses *yast* [3]. So why not
+;;      make one for Emacs as well.
 ;;
-;;      The DELPS has been designed around two concepts: it borrows
-;;      the Debian style package management and it uses version
-;;      control for distributing packages.
+;;      The DELPS concept has been designed around two ideas: it
+;;      borrows the Debian style package management and it uses
+;;      version control for distributing packages.
 ;;
-;;      Each Emacs extension is wrapped into epackage format which
+;;      Each Emacs extension is wrapped into a epackage format which
 ;;      basically follows the Debian [4] packaging style where a
 ;;      separate control directory named `epackage/' is used for all
 ;;      the packaging details: activation, autoloads and installation
-;;      etc. In addition, each epackage is imported in and deployed
+;;      etc. In addition, each package is imported in and deployed
 ;;      using Git Distributed Version Control System (DVCS). A
-;;      specific "Yellow pages" file(s) list the available distributed
-;;      Git repositories from where users can download epackages. Once
-;;      an epackage has been downloaded, subsequent downloads are very
+;;      specific *Sources* *List* file(s) list the available Git
+;;      repositories from where users can download packages. Once a
+;;      package has been downloaded, subsequent downloads are very
 ;;      efficient because, due to benefits of version control, only
 ;;      deltas are transferred.
 ;;
-;;      If you're an Emacs user, all these details do not concern you.
-;;      From `M-x' `epackage' management view, select items to
-;;      download and install them. There are several ways how to
-;;      install: an *autoload* install (no Emacs setup changes),
-;;      *standard* install (= enabling), or *activation* install (the
-;;      activation code can change Emacs environment). Later you can
-;;      upgrade packages. To get updates of new packages, ask to "get"
-;;      the sources list, the "Yellow pages", that holds information
-;;      about Git repositories.
+;;      If you're a Emacs user, all these details do not concern you.
+;;      From `M-x' `epackage' management view you can the packages.
+;;      There are several ways how to install: an *autoload* install
+;;      (no Emacs setup changes), *enable* install (hooks, intractive
+;;      commands), or *activation* install (the activation code can
+;;      change Emacs environment). Later you can upgrade packages. To
+;;      refresh list of packages, ask to "get" new *Sources* *List*
+;;      that holds information about Git repositories.
 ;;
 ;;      If you're a developer who would like to make an extension
-;;      available for others, that will require familiarizing with the
-;;      `Git' distributed version control system.
+;;      available for others, you need to be familiar with the `Git'
+;;      distributed version control system.
 ;;
 ;;      The epackage system can co-exist with any other packaging
 ;;      system like ELPA [4]. User's standard Emacs startup files,
@@ -182,11 +173,11 @@
 ;;
 ;;  Epackage - the DVCS packaging format
 ;;
-;;      The DELPS epackages are in the form of distributed[1] Git[2]
+;;      The epackages are in the form of distributed[1] Git[2]
 ;;      version control repositories. The traditional packaging
-;;      methods, like ELPA[3], have previously relied on archives like
-;;      *.tar.gz. In contrast, the DVCS approach offers interesting
-;;      features over the traditional archive distribution approach:
+;;      methods, like ELPA[3], rely on archives like *.tar.gz. In
+;;      contrast, the DVCS approach offers interesting features over
+;;      the traditional archive distribution approach:
 ;;
 ;;      o   Efficient downloads; fast, only deltas are transferred.
 ;;      o   Local modifications are possible; users can create their own
@@ -202,17 +193,18 @@
 ;;          with the upstream e.g. through http://github.com
 ;;          push/pull.
 ;;
-;;      Each Emacs extension is prepared for use in DELPS: an upstream
-;;      code is imported into a Git repository, the epackage system is
-;;      installed on top of upstream code in a separate directory, the
-;;      whole git repository is made available online and information
-;;      about the availability of new epackage is recorded to a
-;;      separate seources list file. The epackaging work can be done
-;;      by anyone who wants to set up a repository. It doesn't
-;;      necesarily need to be done by the original Emacs extension
-;;      author (upstream) who may not be familiar with the `Git'
-;;      distributed version control system. For more information about
-;;      the packaging, refer to section "The DELPS framework".
+;;      Each extension is prepared for distribution as follows: an
+;;      upstream code is imported into a Git repository, the epackage
+;;      system is installed on top of upstream code in a separate
+;;      directory, the whole git repository is made available online
+;;      and information about the availability of new package is
+;;      recorded to a separate *Sources* *List* file. The packaging
+;;      work can be done by anyone who wants to set up a repository.
+;;      It doesn't necesarily need to be done by the original Emacs
+;;      extension author (upstream) who may not be familiar with the
+;;      `Git' distributed version control system. For more
+;;      information about the packaging, refer to section "The DELPS
+;;      framework".
 ;;
 ;;      [1] DVCS = Distributed Version Control System
 ;;          http://en.wikipedia.org/wiki/Distributed_revision_control
@@ -223,7 +215,7 @@
 ;;
 ;;  User commands
 ;;
-;;	[PLANNED: does not exist yet; Use command like UI]
+;;	[PLANNED: not yet implemented; Use makefile: "make ui"]
 ;;
 ;;      Command `M-x' `epackage' is alias for function
 ;;      `epackage-manager'. It builds buffer where packages can be
@@ -319,11 +311,11 @@
 ;;
 ;;     Private repositories
 ;;
-;;      Private installed epackage repositories, or other sources, can
-;;      be defined in variable `epackage--sources-file-list'. The list
-;;      of files included in there will be combined variable with
-;;      `epackage--url-sources-list'. The order of the entries matter:
-;;      the packages are read first-served basis. An example:
+;;      Private installed package repositories, or other sources, can
+;;      be defined in variable `epackage--sources-file-list'. The
+;;      list of files included in there will be combined variable
+;;      with `epackage--url-sources-list'. The order of the entries
+;;      matter: the packages are read first-served basis. An example:
 ;;
 ;;          (setq epackage--sources-file-list  ;; This is the default
 ;;                '("~/.emacs.d/epackage-local.lst"))
@@ -411,8 +403,8 @@
 ;;  Local directory layout
 ;;
 ;;      The packages are installed under root `epackage--root-directory',
-;;      which defaults to `~/.emacs.d' or `~/elisp' respectively. The
-;;      components below the root directory are organized as follows:
+;;      which defaults to `~/.emacs.d' respectively. The components below
+;;      the root directory are organized as follows:
 ;;
 ;;          epackage/               Under epackage--root-directory
 ;;          |
@@ -1208,30 +1200,37 @@
 ;;
 ;;      General
 ;;
-;;      o   Download problem, broken link:
-;;          => Offer mailing the Yellow Page maintainer
-;;      o   What if user manually deletes directories? Left over config files?
+;;      o   Sources List: Download problem, broken repository link.
+;;          => Offer sending error report mail the Sources List maintainer
+;;
+;;      o   Boot: What if user manually deletes directories?
+;;          What to do with left over config files? Do we need self health
+;;          check on boot?
 ;;
 ;;      o   Sources List: If package A is no longer in there, but it is
 ;;          downloaded, the package has been removed. Notify user about
-;;          obsolete package. It may also have been renamed.
+;;          obsolete package. Package may also have been renamed.
+;;
+;;      o   [already implemented?] After download. Trying to install or
+;;          activate package, check emacs compatibility and refuse to
+;;          install if not met.
 ;;
 ;;      REPO
 ;;
 ;;      o   Check validity of "git tag -l" and upstream/* against the
 ;;          specification. Two dashes etc.
 ;;
-;;      o   Better Fetch, pull conflict notifications. Now Git error.
+;;      o   Better Fetch, pull conflict notifications. Now a Git error.
 ;;
 ;;      o   What if epackage maintainer kills the repo and re-instantiates it
 ;;          from fresh? Symptoms: can't pull, because repos have diverged and
 ;;          do not have common objects. SOLUTION: offer deleting repo and
 ;;          downloading it again. Warn if there are any local modifications,
-;;          the user might want ot have a backup (*.b). Can we do that? What
+;;          the user might want to have a backup (*.b). Can we do that? What
 ;;          if a backup already exists?
 ;;
 ;;      o   Git tags (versions of packages), where is this information kept?
-;;          Affects GUI.
+;;          Cache? Affects GUI.
 ;;
 ;;      o   New updates available? Git polling mechanism with idle timers?
 ;;
@@ -1240,8 +1239,6 @@
 ;;      o   Write M-x epackage-manager
 ;;      o   Cache. Build it dynamically from packages and
 ;;          combine with package information (e.g. version).
-;;      o   After download. Trying to install or activate package,
-;;          check emacs compatibility and refuse to install if not met.
 ;;
 ;;      o   If user selects DETAIL view, collect
 ;;          information to another buffer dynamically (info, git tags,
@@ -1258,13 +1255,16 @@
 ;;
 ;;      o   Verify Compatibility Level of downloaded epackage
 ;;      o   Handle Conflicts field
+;;
 ;;      o   Edit yellow pages catalog?
 ;;          => Submit/update yellow pages catalog changes?
 ;;          => version controlled, patches? Interface to automatic email?
+;;
 ;;      o   The epackage/*-compile.el is run with `eval-current-buffer'.
 ;;          What about security considerations? Is there any need, because
 ;;          these are Git repositories and maintainers should be trusted
 ;;          => possible solution: require detached GPG signing of *-compile.el
+;;
 ;;      o   Package removal: present some analysis command to show what
 ;;          would happen if package X would be removed. Are other packages
 ;;          depending on X or can it be removed safely?
@@ -1736,27 +1736,24 @@ time in `epackage-info-mode-tab-command'.")
 The %s marks the package name.")
 
 (defcustom epackage--root-directory
-  (let ((default (if (featurep 'xemacs)
-		     "~/.xemacs.d"
-		   "~/.emacs.d"))
-	 ret)
-    (dolist (elt (list
-		  default
-                  "~/elisp"))
-      (if (and elt
-               (null ret)
-               (file-directory-p elt))
-          (setq ret elt)))
+  (let ((dir (if (featurep 'xemacs)
+		 "~/.xemacs.d"
+	       "~/.emacs.d")))
     (cond
-     (ret
-      ret)
-     (t
-      ;; No known package installation root directory
+     ((file-directory-p dir)
+      dir)
+     ((null (getenv "HOME"))
+      ;; (memq system-type '(windows-nt ms-dos))
+      ;; No known package installation root directory.
       (error
-       (concat "Epackage: [ERROR] Can't determine location of lisp packages."
-               "Please See `epackage--root-directory'."
-	       (format "You should create directory %s" default))))))
-  "*Location of Emacs Lisp files. Typically ~/.emacs.d or ~/elisp.
+       (concat
+	"Epackage: [ERROR] Can't determine location of Emacs Lisp files."
+	"See `epackage--root-directory'."
+	"Please define environment variable HOME")))
+     (t
+      (make-directory dir)
+      dir)))
+  "*Location of Emacs Lisp files. The default is ~/.emacs.d directory.
 Directory must not contain a trailing slash."
   :type  'directory
   :group 'epackage)
