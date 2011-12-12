@@ -1343,7 +1343,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1212.2029"
+(defconst epackage--version-time "2011.1212.2046"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -3041,6 +3041,14 @@ location of `epackage--sources-file-name-official'."
   (let ((file (epackage-file-name-sources-list-main)))
     (if (file-exists-p file)
         file)))
+
+(defsubst epackage-sources-list-kill-buffer ()
+  "Kill file buffer `epackage-file-name-sources-list-main'."
+  (let ((buffer (get-file-buffer (epackage-file-name-sources-list-main))))
+    (when buffer
+      (with-current-buffer buffer
+	(set-buffer-modified-p (not 'modified))
+	(kill-buffer (current-buffer))))))
 
 (defsubst epackage-sources-list-verify ()
   "Signal error if `epackage--sources-file-name-main' does not exist."
@@ -4963,8 +4971,9 @@ If optional VERBOSE is non-nil, display progress message."
 (defun epackage-sources-list-build (&optional verbose)
   "Build sources list file.
 If optional VERBOSE is non-nil, display progress messages.
-This fucntion is meant forinteractive use: the message differs
+This fucntion is meant for interactive use: the message differs
 if sources list has already been downloaded or not."
+  (epackage-sources-list-kill-buffer)
   (if (epackage-sources-list-p)
       (epackage-with-message verbose "Building package sources list"
         (epackage-sources-list-initialize verbose))
@@ -7228,15 +7237,20 @@ If optional VERBOSE is non-nil, display progress messages."
 If optional VERBOSE is non-nil, display progress message."
   (interactive
    (list 'interactive))
+  ;; Git, directories etc.
   (epackage-require-main verbose)
   ;; There are few checks that need this
   (let ((dir (epackage-sources-list-official-directory)))
-    (unless (and (epackage-sources-list-p) ;sources list exists (has been installed)
-		 (file-directory-p dir))   ;and sources list git repository exists
+    (unless (and
+	     ;; sources list exists (has been installed)
+	     (epackage-sources-list-p)
+	     ;; and sources list git repository exists
+	     (file-directory-p dir))
       (let ((epackage--initialize-flag t))
 	(epackage-cmd-sources-list-download verbose))))
   (setq epackage--initialize-flag t)
-  (epackage-sources-list-build verbose)
+  (unless (epackage-sources-list-p)
+    (epackage-sources-list-build verbose))
   (run-hooks 'epackage--initialize-hook))
 
 ;;;###autoload

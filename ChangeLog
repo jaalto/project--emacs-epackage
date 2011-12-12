@@ -26,6 +26,11 @@
 	(epackage-devel-licence-list-http-get): New.
 	(epackage-devel-licence-list-http-insert): New.
 	(epackage--info-mode-license-list): New.
+	(epackage-sources-list-kill-buffer): New.
+	(epackage-sources-list-build): Call
+	`epackage-sources-list-kill-buffer'.
+	(epackage-initialize): Call `epackage-sources-list-build'
+	only if needed.
 
 2011-12-11 Sun  Jari Aalto  <jari.aalto@cante.net>
 
