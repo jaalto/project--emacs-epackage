@@ -1340,7 +1340,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1212.2235"
+(defconst epackage--version-time "2011.1212.2248"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -5390,9 +5390,13 @@ Return:
           (display-buffer (current-buffer))))
       t)))
 
-(defun epackage-byte-compile-package-1 (file &optional verbose)
+(defun epackage-byte-compile-run-file (file &optional verbose)
   "Byte compile using epackage compile FILE.
 If optional VERBOSE is non-nil, display progress message."
+  (unless (stringp file)
+    (epackage-error "Compile, file path argument is not string: %s" file))
+  (unless (file-exists-p file)
+    (epackage-error "Compile, file does not exisit: %s" file))
   (let ((load-path load-path)
         (dir (epackage-file-name-directory-previous
 	      (file-name-directory file)))
@@ -5421,7 +5425,7 @@ Note: No error checking is done about existence of
 `epackage-directory-packages-control-file'."
   (let ((file (epackage-directory-packages-control-file package 'compile)))
         ;; (dir (epackage-directory-package-root package))
-    (epackage-byte-compile-package-1 file verbose)))
+    (epackage-byte-compile-run-file file verbose)))
 
 (defun epackage-byte-compile-package-main (package &optional verbose)
   "Run byte compile PACKAGE, if possible.
