@@ -761,7 +761,7 @@
 ;;      Guidelines:
 ;;
 ;;	o   For modes, start short description with
-;;          "major mode..." or "minor mode..."
+;;          "major mode for ..." or "minor mode for..."
 ;;      o   For libraryies, start short description with
 ;;          "library of ..."
 ;;      o   If extension is related to a specific operating system,
@@ -969,8 +969,22 @@
 ;;      just like in email. The role can be expressed in RFC 2822
 ;;      comment-parenthesis. An example:
 ;;
-;;              Upstream: John Doe (Author) <jdoe@example.com>,
-;;               Joe Average (Co-developer) <jave@example.com>
+;;          Upstream: John Doe (Author) <jdoe@example.com>,
+;;           Joe Average (Co-developer) <jave@example.com>
+;;
+;;      Note: Don't just copy the addresses from source code. It is of no
+;;      use for anybody if the address is no longer valid. Contact
+;;      upstream to verify the address before making epackage available:
+;;
+;;          To: upstream@example.com
+;;          Subject: Emacs package.el
+;;
+;;          Hi, I'm making your package available at XXXX. Is this
+;;          your prefered contact address for reporting possible
+;;          feature suggestions and other issues?
+;;
+;;	    Thanks,
+;;          John Doe
 ;;
 ;;     Upstream-Bugs
 ;;
