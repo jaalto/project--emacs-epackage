@@ -534,7 +534,7 @@
 ;;      two files:
 ;;
 ;;          (dolist (file '("foo-lib.el" "foo.el"))
-;;            (byte-compile-file (locate-library file)))
+;;            (byte-compile-file file))
 ;;
 ;;     The *-configure.el
 ;;
@@ -1340,7 +1340,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1212.2248"
+(defconst epackage--version-time "2011.1212.2258"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2352,15 +2352,12 @@ Other actions
   "\
 \(dolist (file
          '(%s))
-  (let ((path (locate-library file)))
-    (cond
-     (path
-      (if (and (boundp 'verbose)
-               verbose)
-          (message \"Byte Compile %%s\" path))
-       (byte-compile-file path))
-      (t
-       (message \"** Byte compile error. Not found: %%s\" file)))))
+   (if (and (boundp 'verbose)
+            verbose)
+       (message \"Byte Compile %%s\" file))
+   (if (file-exists-p file)
+       (byte-compile-file file)
+     (message \"** Byte compile error. Not found: %%s\" file)))
 "
   "Format string containing the epackage/*-compile.el file.
 The files are written to %s. See function
@@ -5390,16 +5387,17 @@ Return:
           (display-buffer (current-buffer))))
       t)))
 
-(defun epackage-byte-compile-run-file (file &optional verbose)
+(defun epackage-byte-compile-package-run-file (file &optional verbose)
   "Byte compile using epackage compile FILE.
 If optional VERBOSE is non-nil, display progress message."
   (unless (stringp file)
     (epackage-error "Compile, file path argument is not string: %s" file))
   (unless (file-exists-p file)
     (epackage-error "Compile, file does not exisit: %s" file))
-  (let ((load-path load-path)
-        (dir (epackage-file-name-directory-previous
-	      (file-name-directory file)))
+  (let* ((load-path load-path)
+	 (dir (epackage-file-name-directory-previous
+	       (file-name-directory file)))
+	 (default-directory dir)
         list)
     (setq list (epackage-directory-recursive-list
                 dir
@@ -5425,7 +5423,7 @@ Note: No error checking is done about existence of
 `epackage-directory-packages-control-file'."
   (let ((file (epackage-directory-packages-control-file package 'compile)))
         ;; (dir (epackage-directory-package-root package))
-    (epackage-byte-compile-run-file file verbose)))
+    (epackage-byte-compile-package-run-file file verbose)))
 
 (defun epackage-byte-compile-package-main (package &optional verbose)
   "Run byte compile PACKAGE, if possible.

@@ -1,9 +1,8 @@
 2011-12-12 Tue  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage--layout-template-compile): Check path.
-	(epackage-byte-compile-run-file): Rename. Was
-	`epackage-byte-compile-package-1'.
-	(epackage-byte-compile-run-file): Add argument error checks.
+	(epackage-byte-compile-package-run-file): Rename. Was
+	`epackage-byte-compile-package-1'. Add argument checks.
 
 2011-12-12 Mon  Jari Aalto  <jari.aalto@cante.net>
 
