@@ -1047,10 +1047,10 @@
 ;; Epackage compatibility levels
 ;;
 ;;      The latest epackage format is always described in section
-;;      "Epackage specification" above. In here you can find list of
-;;      older formats and changes.
+;;      "Epackage specification" above. Below you can find list of
+;;      formats and changes.
 ;;
-;;      o   2010-12-03 Draft spec. Compatibility level 1.
+;;      o   2011-12-03 Draft spec. Compatibility level 1.
 ;;
 ;;
 ;; Batch command line interface
