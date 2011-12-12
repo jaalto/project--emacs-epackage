@@ -1040,8 +1040,7 @@
 ;;     X-*
 ;;
 ;;      Any other custom fields can be inserted by using the `X-*' field
-;;      notation. It is recommended that X-fields are listed at the
-;;      bottom, just before the *Description:* field.
+;;      notation. Examples:
 ;;
 ;;          X-Comment: This comment.
 ;;          X-Upstream-Homepage: URL
