@@ -852,13 +852,23 @@
 ;;      has no license information in any of the source files.
 ;;      Examples of valid license tokens:
 ;;
-;;              GPL-2, GPL-2+, GPL-3, GPL-3+, BSD-2-clause, Apache-2.0
+;;          GPL-2, GPL-2+, GPL-3, GPL-3+, BSD-2-clause, Apache-2.0
 ;;
 ;;      If License is not any of the OSI known standard licenses
 ;;      <http://www.opensource.org/licenses>, or if it contains
 ;;      additional text to an existing licence, it must be labelled
-;;      "Custom". In that case, the full license text should be
-;;      included in field "License-Text".
+;;      "Custom". See field *License-Text*. 
+;;
+;;     License-Text
+;;
+;;      In case "License: Custom" the full license text should be
+;;      included here. In case the License is known to The Linux
+;;      Foundation SPDX database, URL to that database is enough. Do not
+;;      point to any other web page, as these may be changed, removed or
+;;      updated without a notice. An example:
+;;
+;;          License: Custom
+;;          License-Text: http://spdx.org/licenses/Ruby
 ;;
 ;;     Maintainer (required)
 ;;
