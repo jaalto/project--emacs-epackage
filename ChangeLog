@@ -14,6 +14,14 @@
 	(epackage--url-doc-emacswiki): New.
 	(epackage--info-mode-email-ping-subject): New.
 	(epackage-mail-macro): Correct `lisp-indent-function' spec.
+	(epackage-pkg-lint-directory-interactive): Add
+	`epackage-initialize'.
+	(epackage-pkg-lint-info-buffer-field-all): New.
+	(epackage-pkg-lint-info-buffer-field-status): New.
+	(epackage-pkg-lint-info-buffer-field-section): New.
+	(epackage-pkg-lint-info-buffer-field-maintainer): New.
+	(epackage-pkg-lint-finder-known-keywords): New.
+	(epackage-pkg-lint-info-buffer-field-section): New.
 
 2011-12-11 Sun  Jari Aalto  <jari.aalto@cante.net>
 

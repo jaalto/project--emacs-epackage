@@ -1343,7 +1343,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1212.1841"
+(defconst epackage--version-time "2011.1212.1943"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1405,7 +1405,7 @@ To install also dependant packages, add:
 
     package-depeds
 
-To check package validity and colloect information in
+To check package validity and colloct information in
 `epackage--buffer-lint', add:
 
     lint
@@ -5468,7 +5468,96 @@ If optional VERBOSE is non-nil, display progress message."
 
 ;;; .................................................. &functions-lint ...
 
-(defun epackage-pkg-lint-info-buffer (&optional verbose)
+(defun epackage-pkg-lint-info-buffer-field-section (&optional verbose)
+  "Check validity of info in current buffer.
+If optional VERBOSE is non-nil, display progress message."
+  (let* ((status t)
+	 (str (epackage-field-fetch-value "Package")))
+    (when (and str
+	       (not (epackage-package-name-valid-p str)))
+      (epackage-verbose-message
+	"[ERROR] Lint - field Package, invalid value: %s" value)
+      (setq status nil))
+    status))
+
+(defun epackage-pkg-lint-finder-known-keywords ()
+  "Return list of valid finder keywords."
+  (require 'finder)
+  (mapcar
+   (lambda (x)
+     (symbol-name (car x)))
+   finder-known-keywords))
+
+(defun epackage-pkg-lint-info-buffer-field-section (&optional verbose)
+  "Check validity of info in current buffer.
+If optional VERBOSE is non-nil, display progress message."
+  (let* ((status t)
+	 (str (epackage-field-fetch-value "Section"))
+	 (list (and str
+		    (split-string str))))
+    (when list
+      (let ((keywords (epackage-pkg-lint-finder-known-keywords)))
+	(dolist (value list)
+	  (unless (member value keywords)
+	    (epackage-verbose-message
+	      "[ERROR] Lint - field Section, invalid value: %s" value)
+	    (setq status nil)))))
+    status))
+
+(defun epackage-pkg-lint-info-buffer-field-maintainer (&optional verbose)
+  "Check validity of info in current buffer.
+If optional VERBOSE is non-nil, display progress message."
+  (let ((status t)
+	(str (epackage-field-fetch-value "Maintainer")))
+    (when (and str
+	       (not (string-match "@" str)))
+	(epackage-verbose-message
+	  "[ERROR] Lint - field Maintainer, invalid email: %s" value)
+	(setq status nil))
+    status))
+
+(defun epackage-pkg-lint-info-buffer-field-upstream (&optional verbose)
+  "Check validity of info in current buffer.
+If optional VERBOSE is non-nil, display progress message."
+  (let ((status t)
+	(str (epackage-field-fetch-value "Upstream")))
+    (when (and str
+	       (not (string-match "@" str)))
+	(epackage-verbose-message
+	  "[ERROR] Lint - field Upstream, invalid email: %s" value)
+	(setq status nil))
+    status))
+
+(defun epackage-pkg-lint-info-buffer-field-status (&optional verbose)
+  "Check validity of info in current buffer.
+If optional VERBOSE is non-nil, display progress message."
+  (let* ((status t)
+	 (str (epackage-field-fetch-value "Status"))
+	 (list (and str
+		    (split-string str))))
+    (dolist (value list)
+      (unless (member value epackage--info-mode-completions-status)
+	(epackage-verbose-message
+	  "[ERROR] Lint - field Status, unknown value: %s" value)
+	(setq status nil)))
+    status))
+
+(defun epackage-pkg-lint-info-buffer-field-all (&optional verbose)
+  "Check validity of info in current buffer.
+If optional VERBOSE is non-nil, display progress message."
+  (let ((status t))
+    (dolist (function
+	     '(epackage-pkg-lint-info-buffer-field-package
+	       epackage-pkg-lint-info-buffer-field-section
+	       epackage-pkg-lint-info-buffer-field-license
+	       epackage-pkg-lint-info-buffer-field-status
+	       epackage-pkg-lint-info-buffer-field-upstream
+	       epackage-pkg-lint-info-buffer-field-maintainer))
+    (unless (funcall function verbose)
+      (setq status nil)))
+    status))
+
+(defun epackage-pkg-lint-info-buffer-main (&optional verbose)
   "Check validity of info in current buffer.
 If optional VERBOSE is non-nil, display progress message."
   (let ((status t)
@@ -5489,6 +5578,8 @@ If optional VERBOSE is non-nil, display progress message."
           "[WARN] Lint - required field syntax error: %s => '%s'"
           field value)
         (setq status nil))))
+    (unless (epackage-pkg-lint-info-buffer-field-all verbose)
+      (setq status nil))
     status))
 
 (defun epackage-pkg-lint-info-file (file &optional verbose)
@@ -5505,7 +5596,7 @@ If optional VERBOSE is non-nil, display progress message."
         (epackage-verbose-message
          "[WARN] Lint - field Package does not match directory name: %s, %s"
          package name))
-    (epackage-pkg-lint-info-buffer verbose))))
+    (epackage-pkg-lint-info-buffer-main verbose))))
 
 (defun epackage-pkg-lint-git-branches (dir &optional verbose)
   "Check validity Git branches of package in DIR.
@@ -5677,6 +5768,7 @@ Display DIR in heading. Optional DISPLAY show `epackage--buffer-lint'."
       (epackage-error "Can't Lint. No director: %s" dir)
     (let ((point (epackage-with-buffer-emacs-messages
                    (point))))
+      (epackage-initialize)
       (epackage-pkg-lint-directory dir)
       (epackage-pkg-lint-results point dir 'display))))
 
@@ -5970,10 +6062,13 @@ use for contacts."
         (finder-commentary file)))))
 
 (defun epackage-info-mode-cmd-lint (dir)
-  "Lint epackage in DIR."
+  "Lint epackage in DIR.
+In interactive call, the point must be in buffer visiting
+`epackage--pkg-info-file-name' under directory `epackage--directory-name'."
   (interactive
-   (epackage-file-name-directory-previous
-    (file-name-directory buffer-file-name)))
+   (list
+    (epackage-file-name-directory-previous
+     (file-name-directory buffer-file-name))))
   (epackage-pkg-lint-directory-interactive dir))
 
 (defun epackage-info-mode-move-beginning-of-line ()
