@@ -761,7 +761,7 @@
 ;;      Guidelines:
 ;;
 ;;	o   For modes, start short description with
-;;          "Major mode..." or "Minor mode..."
+;;          "major mode..." or "minor mode..."
 ;;      o   For libraryies, start short description with
 ;;          "library of ..."
 ;;      o   If extension is related to a specific operating system,
