@@ -760,7 +760,9 @@
 ;;
 ;;      Guidelines:
 ;;
-;;      o   If extension is a library, start first line with words
+;;	o   For modes, start short description with
+;;          "Major mode..." or "Minor mode..."
+;;      o   For libraryies, start short description with
 ;;          "library of ..."
 ;;      o   If extension is related to a specific operating system,
 ;;          add this information in to the first line. E.g. add word
@@ -896,10 +898,10 @@
 ;;      Guidelines:
 ;;
 ;;      o   Length of package name is not limited.
-;;	o   In case of minor or major modes, always
-;;          add `*-mode' to package name even if extension name does not
-;;          explicitly say so. An example "python.el" => package name is
-;;          "python-mode". This helps searching for "Mode" packages.
+;;      o   Add `*-mode', In case of minor or major modes. Always
+;;          add this suffix even if extension name does not
+;;          explicitly say so. An example "python.el" => name package
+;;          "python-mode". This helps searching for package names.
 ;;      o   In extension is ment to be a library (e.g. xml-rpc.el), start
 ;;          package name with `lib-*'. This way user
 ;;          who is browsing the list of packages can ignore or complete
