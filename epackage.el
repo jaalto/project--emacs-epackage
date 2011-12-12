@@ -760,6 +760,24 @@
 ;;      are separated from each other with a single dot(.) on their
 ;;      own lines. The paragraphs are indented by one space.
 ;;
+;;      Guidelines:
+;;
+;;      o   If extension is a library, start first line with words
+;;          "library of ..."
+;;      o   If extension is for a specific operating system only,
+;;          add this information in to the first line. E.g. add word
+;;          "Cygwin" or "(ms)" to the end of first line for "Microsoft". If
+;;          extension only has some specific Windows integration, explain
+;;          details in a separate paragraph in the long description part.
+;;
+;;      Examples:
+;;
+;;          Package: cygwin-mount
+;;	    Description: Add Cygwin mount point support
+;;
+;;          Package: lib-xml-rpm
+;;	    Description: library of remote procedure calls alls over HTTP
+;;
 ;;     Depends (required)
 ;;
 ;;      List of dependencies in all lowercase: Emacs flavor and
@@ -859,30 +877,35 @@
 ;;      the canonical known name in case of bigger packages like
 ;;      "gnus". An example "html-helper-mode.el" => package name is
 ;;      "html-helper-mode". No two packages can have the same name.
-;;      Please notify upstream if about package name problems. Rules:
+;;      Please notify upstream if about package name problems.
 ;;
+;;      Guidelines:
+;;
+;;      o   Length of package name is not limited.
 ;;	o   In case of minor or major modes, always
-;;          add *-mode even if file name does not explicitly say so. An
-;;          example "python.el" => package name is "python-mode".
-;;      o   In extension is ment to be a library (e.g. xml-rpc), start
-;;          package name with "lib-<rest of the name>". This way user
+;;          add `*-mode' to package name even if extension name does not
+;;          explicitly say so. An example "python.el" => package name is
+;;          "python-mode". This helps searching for "Mode" packages.
+;;      o   In extension is ment to be a library (e.g. xml-rpc.el), start
+;;          package name with `lib-*'. This way user
 ;;          who is browsing the list of packages can ignore or complete
-;;          these packages easily.
+;;          these on minibuffer prompts easily.
 ;;
 ;;      Note: There may be exotically named extensions like "crypt++",
-;;      but the *epackage* name must not contains special characters
-;;      like "+". Name the epackage "crypt-plusplus" if nothing else
-;;      comes to mind or if upstream can't rename the package.
+;;      but the *epackage* name must not contains special characters.
+;;      Name the epackage "crypt-plusplus" if nothing else comes to a
+;;      mind. Consider contacting upstream to discuss about possible
+;;      name change.
 ;;
 ;;     Recommends
 ;;
 ;;      List of packages which the extension can support or take
 ;;      advantage of. E.g. this field would list epackage B if A can
 ;;      take advantage of package B. However it is not a requirement
-;;      to install B for package A to work. This field is *not* used
-;;      to announce related packages. That information can be
-;;      mentioned in the end of *Description* field in a separate
-;;      paragraph like "SEE ALSO". The *Recommends* field follows
+;;      to install B for package A to work. This field is must *not*
+;;      be used to announce related packages. That information can be
+;;      mentioned in a separarate paragraph like "SEE ALSO" in the end
+;;      of *Description* field. The *Recommends* field follows
 ;;      guidelines of
 ;;      <http://www.debian.org/doc/debian-policy/ch-relationships.html#s-binarydeps>
 ;;
@@ -1010,10 +1033,10 @@
 ;;          X-Comment: This comment.
 ;;          X-Upstream-Homepage: URL
 ;;
-;;      If making the epackaging needs special treatment for the
-;;      extension, please document those in field like:
+;;      If converting extension to a epackage needs special treatment
+;;      please document those in field like:
 ;;
-;;              X-Development:
+;;              X-Packaging:
 ;;               Before BBDB can be used, the autoloads file must be generated.
 ;;               Run command:
 ;;               .
