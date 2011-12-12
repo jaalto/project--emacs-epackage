@@ -636,6 +636,7 @@
 ;;          License: <GPL-[23]+ | BSD | Apache-2.0 | ... | Custom | None>
 ;;          Licence-Text: <only, if license is "Custom">
 ;;          *Depends: emacs (>= 20)
+;;          Recommends:
 ;;          Status: [ <keyword> ...]
 ;;          Compat: [ <epackage version> ]
 ;;          *Maintainer: First Last <first.last@example.com>
@@ -660,27 +661,21 @@
 ;;      An example:
 ;;
 ;;          Package: test-package
-;;          Section: tools
+;;          Section: extensions
 ;;          License: GPL-2+
 ;;          Depends: emacs (>= 21)
 ;;          Status: unmaintained
-;;          Compat:
-;;          Maintainer: Joe Average < joe@example.org >
-;;          Bugs:
-;;          Upstream: John doe < jdoe@example.com >
-;;          Upstream-Bugs:
+;;          Maintainer: Joe Average <joe@example.org>
+;;          Upstream: John doe <jdoe@example.com>
 ;;          Vcs-Type: http
 ;;          Vcs-Url: http://www.emacswiki.org/emacs/download/test-package.el
-;;          Vcs-Browser:
-;;          Vcs-User:
-;;          Vcs-Password:
-;;          Homepage:
+;;          Homepage: http://example.com
 ;;          Wiki: http://www.emacswiki.org/emacs/TheTestPackage
 ;;          Commentary: test-package.el
 ;;          Description: test package with various functions
-;;           Main command [C-u] M-x test-package runs various tests on the
-;;           current lisp code. With a prefix argument, shows also notes and minor
-;;           details.
+;;           Main command [C-u] M-x test-package runs various tests on
+;;           the current lisp code. With a prefix argument, shows also
+;;           notes and minor details.
 ;;           .
 ;;           Note: 2010-12-03 the code hasn't been touched since 2004.
 ;;
@@ -762,8 +757,10 @@
 ;;
 ;;	o   For modes, start short description with
 ;;          "major mode for ..." or "minor mode for..."
-;;      o   For libraryies, start short description with
+;;      o   For libraries, start short description with
 ;;          "library of ..."
+;;      o   For client communication, start short description with
+;;          "client for ..."
 ;;      o   If extension is related to a specific operating system,
 ;;          add this information in to the first line. E.g. add word
 ;;          "Cygwin" or "(ms)" to mark "Microsoft" OS. The details of
@@ -920,8 +917,8 @@
 ;;      to install B for package A to work. This field is must *not*
 ;;      be used to announce related packages. That information can be
 ;;      mentioned in a separarate paragraph like "SEE ALSO" in the end
-;;      of *Description* field. The *Recommends* field follows
-;;      guidelines of
+;;      of *Description* field or in file `*-examples.el'. The
+;;      *Recommends* field follows guidelines of
 ;;      <http://www.debian.org/doc/debian-policy/ch-relationships.html#s-binarydeps>
 ;;
 ;;     Section (required)
@@ -1343,7 +1340,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1212.2046"
+(defconst epackage--version-time "2011.1212.2218"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
