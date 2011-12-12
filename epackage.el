@@ -979,9 +979,11 @@
 ;;          To: upstream@example.com
 ;;          Subject: Emacs package.el
 ;;
-;;          Hi, I'm making your package available at XXXX. Is this
-;;          your prefered contact address for reporting possible
-;;          feature suggestions and other issues?
+;;          Your software is bundled with the Distributed Emacs Lisp
+;;          Package System called epackage. Would you verify that this
+;;          address is still your preferred contact. Simply reply
+;;          shortly "ok" or let me know if you prefer to use another
+;;          address.
 ;;
 ;;	    Thanks,
 ;;          John Doe
@@ -1339,13 +1341,16 @@
 (eval-and-compile
   (if (featurep 'xemacs)
       (message
-       "** WARNING: epacakge.el has not been tested or designed to work in XEmacs")))
+       "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage-version-time "2011.1209.1859"
+(defconst epackage--version-time "2011.1212.1839"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
-(defconst epackage-maintainer "jari.aalto@cante.net"
+(defconst epackage--maintainer "jari.aalto@cante.net"
   "Maintainer's email address.")
+
+(defconst epackage--url-doc-emacswiki "http://www.emacswiki.org/emacs/DELPS"
+  "URL to documentation: Emacswiki")
 
 (eval-and-compile                       ;We need this at runtim
   (defconst epackage-w32-p
@@ -1631,24 +1636,13 @@ See also `epackage--sources-replace-table'."
 ;;; ............................................. &variables-info-mode ...
 ;;; No two-dash variables due to `define-minor-mode'.
 
-(defcustom epackage-info-mode-text " eInfo"
+(defcustom epackage-info-mode-name " eInfo"
   "String to display in the mode line when Epackage Info Mode is active.
 
 \(When the string is not empty, make sure that it has a leading space.)"
   :tag "Epackage Info Mode Text"
   :group 'epackage
   :type 'string)
-
-(defcustom epackage-devel-template-directory nil
-  "Directry of template files to make an Epackage.
-Used by `epackage-devel-compose-main'."
-  :group 'epackage
-  :type 'directory)
-
-(defvar epackage-whitespace-trailing-regexp
-  "\\(\\(\t\\| \\|\xA0\\|\x8A0\\|\x920\\|\xE20\\|\xF20\\|\x0C\\)+\\)$"
-  "Specify trailing characters regexp.
-Copy from whitespace.el with ^L character added.")
 
 (defvar epackage-info-mode nil
   "*Non-nil when Epackage Info Mode is active.
@@ -1699,11 +1693,51 @@ Never set this variable directly, use the command
     ["Goto field Status" epackage-info-mode-cmd-goto-status]
     ["Email maintainer" epackage-info-mode-cmd-email-maintainer]
     ["Email upstream" epackage-info-mode-cmd-email-upstream]
+    ["Email upstream ping" epackage-info-mode-cmd-email-upstream-ping]
     ["Visit URL commentary" epackage-info-mode-cmd-url-commentary]
     ["Visit URL homepage" epackage-info-mode-cmd-url-homepage]
     ["Visit URL wiki" epackage-info-mode-cmd-url-wiki]
     "----"
     ["Lint epackage" epackage-info-mode-cmd-lint t] ))
+
+;; Other than standard mode variables (two dash)
+
+(defcustom epackage--devel-template-directory nil
+  "Directry of template files to make an Epackage.
+Used by `epackage-devel-compose-main'."
+  :group 'epackage
+  :type 'directory)
+
+(defvar epackage--whitespace-trailing-regexp
+  "\\(\\(\t\\| \\|\xA0\\|\x8A0\\|\x920\\|\xE20\\|\xF20\\|\x0C\\)+\\)$"
+  "Specify trailing characters regexp.
+Copy from whitespace.el with ^L character added.")
+
+(defcustom epackage--info-mode-email-ping-subject "Emacs epackage: %s"
+  "Subject in `epackage-info-mode-cmd-email-upstream-ping'.
+Format string %s is used to inser package name."
+  :tag "Email message subject for initial upstream contact."
+  :group 'epackage
+  :type 'string)
+
+(defcustom epackage--info-mode-email-ping-body
+  (format "\
+Hi,
+
+Your software is bundled with the Distributed Emacs Lisp Package
+System[*] called epackage. Would you verify that this address is
+still your preferred contact. Simply reply shortly \"ok\" or let me
+know if you prefer to use another address.
+
+\[*] %s
+
+Thanks,
+"
+	  epackage--url-doc-emacswiki)
+  "Body text in `epackage-info-mode-cmd-email-upstream-ping'."
+  :tag "Email message body text for initial upstream contact."
+  :group 'epackage
+  :type 'string)
 
 ;; Color design concepts:
 ;; - Required fields with one color
@@ -1713,7 +1747,7 @@ Never set this variable directly, use the command
 ;;   * OSI, ok but a deviation from status quo in Emacs Lisp
 ;;   * Custom, bring to reader's attention
 
-(defvar epackage-info-mode-font-lock-keywords
+(defvar epackage--info-mode-font-lock-keywords
   '(("^\\(Package\\): *\\(.*\\)"
      (1 'font-lock-keyword-face)
      (2 'font-lock-type-face))
@@ -2622,7 +2656,7 @@ Return:
   "Clear end of line whitespaces from whole buffer. Including ^L."
   (require 'whitespace) ;; Define whitespace-trailing-regexp
   (let ((whitespace-trailing-regexp
-         epackage-whitespace-trailing-regexp))
+         epackage--whitespace-trailing-regexp))
     (whitespace-replace-action
      'delete-region (point-min) (point-max)
      whitespace-trailing-regexp 1)))
@@ -3141,7 +3175,7 @@ If optional FULL is non-nil, include field in narrowed region."
 (defun epackage-field-fetch-description ()
   "Return content of 'Description:' '(\"short desc\" \"long desc\").
 Remove 1 space indentation and paragraph separator(.) characters."
-  (let ((str (epackage-field-fetch "Description"))
+  (let ((str (epackage-field-fetch-value "Description"))
         short
         long)
     (if (string-match "^\\(.+\\)$" str)
@@ -3157,7 +3191,7 @@ Remove 1 space indentation and paragraph separator(.) characters."
 
 (defun epackage-field-fetch-status ()
   "Return content of 'Status:'. Items are separated by spaces."
-  (let ((str (epackage-field-fetch "Status")))
+  (let ((str (epackage-field-fetch-value "Status")))
     (when str
       (replace-regexp-in-string "[ \t\r\n]+" " " str))))
 
@@ -3220,7 +3254,7 @@ See `epackage-depends-parse-collect' for returned value format."
 (defsubst epackage-field-fetch-depends ()
   "Return preformatted content of 'Depends:' field.
 See `epackage-depends-parse-collect' for returned value format."
-  (let ((str (epackage-field-fetch "Depends")))
+  (let ((str (epackage-field-fetch-value "Depends")))
     (if (stringp str)
         (epackage-depends-parse-string str))))
 
@@ -3228,7 +3262,7 @@ See `epackage-depends-parse-collect' for returned value format."
   "Read PACKAGE and raw information from FIELD.
 If field is empty or does not exist, return nil."
   (epackage-with-package-info-file package
-    (epackage-field-fetch field)))
+    (epackage-field-fetch-value field)))
 
 (defsubst epackage-pkg-info-fetch-field-depends (package)
   "Read PACKAGE and information field 'Depends:' (preformatted).
@@ -3970,7 +4004,7 @@ Input:
 
     PACKAGE	Epackage name
     ROOT	Epackage root directory (must exists).
-    DIR   	Optional. Emacs Lisp package directories. This can be a 
+    DIR   	Optional. Emacs Lisp package directories. This can be a
                 one string or list of strings. Defaults to ROOT.
     RECURSIVE   Optional. If non-nil, read all *.el files under DIR.
 		Interactive prefix.
@@ -4009,7 +4043,7 @@ Input:
 
     PACKAGE	Epackage name
     ROOT	Epackage root directory (must exists).
-    DIR   	Optional. Emacs Lisp package directories. This can be a 
+    DIR   	Optional. Emacs Lisp package directories. This can be a
                 one string or list of strings. Defaults to ROOT.
     RECURSIVE   Optional. If non-nil, read all *.el files under DIR.
 		Interactive prefix.
@@ -5444,7 +5478,7 @@ If optional VERBOSE is non-nil, display progress message."
     (dolist (elt epackage--info-layout-mapping)
       (setq field  (nth 0 elt)
             regexp (nth 1 elt)
-            value  (epackage-field-fetch field))
+            value  (epackage-field-fetch-value field))
       (cond
        ((not (stringp value))
         (epackage-verbose-message
@@ -5464,7 +5498,7 @@ If optional VERBOSE is non-nil, display progress message."
     (let* ((dir (epackage-file-name-directory-previous
                  (file-name-directory file)))
            (name (epackage-file-name-basename dir))
-           (package (epackage-field-fetch "Package")))
+           (package (epackage-field-fetch-value "Package")))
       (when (and verbose
                (stringp package)
                (not (string= package name)))
@@ -5726,7 +5760,7 @@ Return package name or nil."
     (t
      (epackage-error ,message))))
 
-(put 'epackage-mail-macro 'lisp-indent-function 1)
+(put 'epackage-mail-macro 'lisp-indent-function 2)
 (put 'epackage-mail-macro 'edebug-form-spec '(body))
 (defmacro epackage-mail-macro (buffer-name to &rest body)
   "Compose mail in BUFFER-NAME, set TO and run BODY."
@@ -5804,7 +5838,7 @@ Return package name or nil."
 (defun epackage-info-mode-set-font-lock ()
   "Define font-lock variable for buffer."
   (set (make-local-variable 'font-lock-defaults)
-       '(epackage-info-mode-font-lock-keywords nil t nil nil))
+       '(epackage--info-mode-font-lock-keywords nil t nil nil))
   (if (or font-lock-mode
           global-font-lock-mode)
       (font-lock-fontify-buffer)))
@@ -5820,7 +5854,7 @@ See TAB behavior in various fields and positions in
 function description of `epackage-info-mode-tab-command'.
 
 \\{epackage-info-mode-map}"
-  :group 'epackage :lighter epackage-info-mode-text
+  :group 'epackage :lighter epackage-info-mode-name
   (epackage-info-mode-set-variables)
   (epackage-info-mode-set-pcomplete-variables)
   (epackage-info-mode-set-font-lock)
@@ -5857,29 +5891,53 @@ function description of `epackage-info-mode-tab-command'.
 (defun epackage-info-mode-cmd-email-maintainer ()
   "Compose mail to epackage maintainer."
   (interactive)
-  (let ((package (epackage-field-fetch "Package"))
-        (email (epackage-field-fetch "Maintainer")))
+  (let ((package (epackage-field-fetch-value "Package"))
+        (email (epackage-field-fetch-value "Maintainer")))
     (if email
         (epackage-mail-macro
             (epackage-mail-buffer-name package " maintainer")
-          email)
+	    email)
       (epackage-message "No maintainer information to email to."))))
 
 (defun epackage-info-mode-cmd-email-upstream ()
   "Compose mail to upstream of extension."
   (interactive)
-  (let ((package (epackage-field-fetch "Package"))
-        (email (epackage-field-fetch "Upstream")))
+  (let ((package (epackage-field-fetch-value "Package"))
+        (email (epackage-field-fetch-value "Upstream")))
     (if email
         (epackage-mail-macro
-            (epackage-mail-buffer-name package " maintainer")
+            (epackage-mail-buffer-name package " upstream")
+	    email)
+      (epackage-message "No upstream information to email to."))))
+
+(defun epackage-info-mode-cmd-email-upstream-ping ()
+  "Compose a ping mail to upstream of extension.
+Use this function for the first time contact of Upstream to
+verify his email address and to and what address he prefers to
+use for contacts."
+  (interactive)
+  (let ((package (epackage-field-fetch-value "Package"))
+        (email (epackage-field-fetch-value "Upstream")))
+    (if email
+        (epackage-mail-macro
+            (epackage-mail-buffer-name package " upstream")
+	    email
+	  (if (stringp epackage--info-mode-email-ping-subject)
+	      (epackage-field-set
+	       "Subject"
+	       (format
+		epackage--info-mode-email-ping-subject
+		package)))
+	  (goto-char (mail-text-start))
+	  (if (stringp epackage--info-mode-email-ping-body)
+	      (insert epackage--info-mode-email-ping-body))
           email)
       (epackage-message "No upstream information to email to."))))
 
 (defun epackage-info-mode-cmd-url-homepage ()
   "Visit Homepage."
   (interactive)
-  (let ((url (epackage-field-fetch "Homepage")))
+  (let ((url (epackage-field-fetch-value "Homepage")))
     (if url
         (browse-url url)
       (epackage-message "No Homepage URL"))))
@@ -5887,7 +5945,7 @@ function description of `epackage-info-mode-tab-command'.
 (defun epackage-info-mode-cmd-url-wiki ()
   "Visit Wikipage."
   (interactive)
-  (let ((url (epackage-field-fetch "Wiki")))
+  (let ((url (epackage-field-fetch-value "Wiki")))
     (if url
         (browse-url url)
       (epackage-message "No Wiki URL"))))
@@ -5895,7 +5953,7 @@ function description of `epackage-info-mode-tab-command'.
 (defun epackage-info-mode-cmd-url-commentary ()
   "Run `finder-commentary' on field 'Commentary:'."
   (interactive)
-  (let ((file (epackage-field-fetch "Commentary")))
+  (let ((file (epackage-field-fetch-value "Commentary")))
     (if (not file)
         (epackage-message "No Commentary field defined")
       (let* ((root (epackage-file-name-directory-previous
@@ -6328,7 +6386,7 @@ If optional VERBOSE is non-nil, display progress message."
          (t
           (epackage-mail-macro
               (epackage-mail-buffer-name package " maintainer")
-            to)))))
+	      to)))))
     (t
      (if (eq verbose 'interactive)
          (epackage-message
@@ -6368,7 +6426,7 @@ If optional VERBOSE is non-nil, display progress message."
          (t
           (epackage-mail-macro
               (format "*mail epackage %s upstream*" package)
-            to)))))
+	      to)))))
     (t
      (if (eq verbose 'interactive)
          (epackage-message
@@ -6857,9 +6915,9 @@ If optional VERBOSE is non-nil, display progress message."
 
 ;;;###autoload
 (defun epackage-version ()
-  "Display `epackage-version-time'."
+  "Display `epackage--version-time'."
   (interactive)
-  (message epackage-version-time))
+  (message epackage--version-time))
 
 (defun epackage-documentation-buffer-version-defconst ()
   "Return version from current buffer.
@@ -7026,11 +7084,11 @@ Summary, Version, Maintainer etc."
   (message epackage--batch-ui-menu-string))
 
 (defun epackage-batch-ui-display-version ()
-  "Display `epackage-version-time' and `epackage-maintainer'."
+  "Display `epackage--version-time' and `epackage--maintainer'."
   (interactive)
   (message "== Version: %s <%s>"
-           epackage-version-time
-           epackage-maintainer))
+           epackage--version-time
+           epackage--maintainer))
 
 (defsubst epackage-batch-ui-display-package-action-list ()
   "Display `epackage--download-action-list'."

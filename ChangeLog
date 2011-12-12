@@ -5,6 +5,15 @@
 	(epackage-package-name-valid-p): Correct regexp.
 	(epackage--layout-template-info): (License): Add tag Custom.
 	(epackage-info-mode-font-lock-keywords): Add Licence-Text.
+	(epackage-info-mode-cmd-email-upstream-ping): New.
+	(epackage--info-mode-email-ping-body): New.
+	(epackage-info-mode-name): Rename. Was
+	`epackage-info-mode-text'.
+	(epackage--version-time): Add two dashes to variable name.
+	(epackage--maintainer): Add two dashes to variable name.
+	(epackage--url-doc-emacswiki): New.
+	(epackage--info-mode-email-ping-subject): New.
+	(epackage-mail-macro): Correct `lisp-indent-function' spec.
 
 2011-12-11 Sun  Jari Aalto  <jari.aalto@cante.net>
 
