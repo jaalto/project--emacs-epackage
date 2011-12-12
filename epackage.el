@@ -923,9 +923,9 @@
 ;;     Upstream
 ;;
 ;;      The upstream developer's name and email address. Multiple
-;;      developers or alternative addresses are separated by commas.
-;;      The role can be expressed in RFC 2822 comment-parenthesis. An
-;;      example:
+;;      developers or alternative addresses are separated by commas,
+;;      just like in email. The role can be expressed in RFC 2822
+;;      comment-parenthesis. An example:
 ;;
 ;;              Upstream: John Doe (Author) <jdoe@example.com>,
 ;;               Joe Average (Co-developer) <jave@example.com>
@@ -933,7 +933,7 @@
 ;;     Upstream-Bugs
 ;;
 ;;      URL to report issues of current extension. The URL can be an
-;;      email address or a link to an issue tracker. In case the field
+;;      email address(es) or a link to an issue tracker. In case the field
 ;;      is empty or missing, the `Upstream' field is used.
 ;;
 ;;     Vcs-Browser
