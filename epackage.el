@@ -762,16 +762,16 @@
 ;;
 ;;      o   If extension is a library, start first line with words
 ;;          "library of ..."
-;;      o   If extension is for a specific operating system only,
+;;      o   If extension is related to a specific operating system,
 ;;          add this information in to the first line. E.g. add word
-;;          "Cygwin" or "(ms)" to the end of first line for "Microsoft". If
-;;          extension only has some specific Windows integration, explain
-;;          details in a separate paragraph in the long description part.
+;;          "Cygwin" or "(ms)" to mark "Microsoft" OS. The details of
+;;          Operating system integration can be explained in the long
+;;          description part.
 ;;
 ;;      Examples:
 ;;
 ;;          Package: cygwin-mount
-;;	    Description: Add Cygwin mount point support
+;;	    Description: Add Cygwin mount point support (ms)
 ;;
 ;;          Package: lib-xml-rpm
 ;;	    Description: library of remote procedure calls alls over HTTP
