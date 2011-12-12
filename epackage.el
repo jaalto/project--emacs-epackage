@@ -1343,7 +1343,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1212.1839"
+(defconst epackage--version-time "2011.1212.1841"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -5929,9 +5929,10 @@ use for contacts."
 		epackage--info-mode-email-ping-subject
 		package)))
 	  (goto-char (mail-text-start))
-	  (if (stringp epackage--info-mode-email-ping-body)
-	      (insert epackage--info-mode-email-ping-body))
-          email)
+	  (when (stringp epackage--info-mode-email-ping-body)
+	    (insert epackage--info-mode-email-ping-body)
+	    (when (stringp user-full-name)
+	      (insert user-full-name "\n"))))
       (epackage-message "No upstream information to email to."))))
 
 (defun epackage-info-mode-cmd-url-homepage ()
