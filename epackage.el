@@ -567,12 +567,13 @@
 ;;      variables written must start with prefix `my-PACKAGE-* so
 ;;      that they can be easily copied tp user's own setup.
 ;;
-;;      It may be even recommendable that any attempt to load this
-;;      file generates an error. Add something like this to the
-;;      beginning of file to remind that it is user's responsibility
-;;      to copy the relevant code:
+;;      It is recommend that any attempt to load this file generates
+;;      an error. Add something like this to the beginning of file to
+;;      remind that it is user's responsibility to copy the relevant
+;;      code:
 ;;
-;;          (error "PACKAGE-examples.el is not a config file. Study the examples.")
+;;          ;; Prevent loading this file. Study the examples.
+;;          (error "PACKAGE-epkg-examples.el is not a config file.")
 ;;
 ;;     The *-install.el
 ;;
