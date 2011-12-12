@@ -1343,7 +1343,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1212.1943"
+(defconst epackage--version-time "2011.1212.2029"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1813,6 +1813,179 @@ time in `epackage-info-mode-tab-command'.")
 
 (defvar epackage--info-mode-completions-current nil
   "Set dynamically in `epackage-info-mode-tab-command'.")
+
+(defconst epackage--info-licence-list-url
+  "http://spdx.org/licenses/"
+  "URL of offical licence list.")
+
+(defconst epackage--info-mode-license-list
+  '( ;; Special cases
+    "Custom"
+    "None"
+
+    ;; Call at this point, M-x epackage-devel-licence-list-http-insert
+    "AFL-1.2"
+    "AFL-2"
+    "AFL-2.1"
+    "AFL-3"
+    "APL-1"
+    "ANTLR-PD"
+    "Apache-1"
+    "Apache-1.1"
+    "Apache-2"
+    "APSL-1"
+    "APSL-1.1"
+    "APSL-1.2"
+    "APSL-2"
+    "Artistic-1"
+    "Artistic-2"
+    "AAL"
+    "BSL-1"
+    "BSD-2-Clause"
+    "BSD-3-Clause"
+    "BSD-4-Clause"
+    "CECILL-1"
+    "CECILL-1.1English"
+    "CECILL-2"
+    "CECILL-B"
+    "CECILL-C"
+    "ClArtistic"
+    "CDDL-1"
+    "CPAL-1"
+    "CPL-1"
+    "CATOSL-1.1"
+    "CC-BY-1"
+    "CC-BY-2"
+    "CC-BY-2.5"
+    "CC-BY-3"
+    "CC-BY-ND-1"
+    "CC-BY-ND-2"
+    "CC-BY-ND-2.5"
+    "CC-BY-ND-3"
+    "CC-BY-NC-1"
+    "CC-BY-NC-2"
+    "CC-BY-NC-2.5"
+    "CC-BY-NC-3"
+    "CC-BY-NC-ND-1"
+    "CC-BY-NC-ND-2"
+    "CC-BY-NC-ND-2.5"
+    "CC-BY-NC-ND-3"
+    "CC-BY-NC-SA-1"
+    "CC-BY-NC-SA-2"
+    "CC-BY-NC-SA-2.5"
+    "CC-BY-NC-SA-3"
+    "CC-BY-SA-1"
+    "CC-BY-SA-2"
+    "CC-BY-SA-2.5"
+    "CC-BY-SA-3"
+    "CC0-1"
+    "CUA-OPL-1"
+    "EPL-1"
+    "eCos-2"
+    "ECL-1"
+    "ECL-2"
+    "EFL-1"
+    "EFL-2"
+    "Entessa"
+    "ErlPL-1.1"
+    "EUDatagrid"
+    "EUPL-1"
+    "EUPL-1.1"
+    "Fair"
+    "Frameworx-1"
+    "AGPL-3"
+    "GFDL-1.1"
+    "GFDL-1.2"
+    "GFDL-1.3"
+    "GPL-1"
+    "GPL-1.0+"
+    "GPL-2"
+    "GPL-2.0+"
+    "GPL-2.0-with-autoconf-exception"
+    "GPL-2.0-with-bison-exception"
+    "GPL-2.0-with-classpath-exception"
+    "GPL-2.0-with-font-exception"
+    "GPL-2.0-with-GCC-exception"
+    "GPL-3"
+    "GPL-3.0+"
+    "GPL-3.0-with-autoconf-exception"
+    "GPL-3.0-with-GCC-exception"
+    "LGPL-2.1"
+    "LGPL-2.1+"
+    "LGPL-3"
+    "LGPL-3.0+"
+    "LGPL-2"
+    "LGPL-2.0+"
+    "gSOAP-1.3b"
+    "HPND"
+    "IPL-1"
+    "IPA"
+    "ISC"
+    "LPPL-1"
+    "LPPL-1.1"
+    "LPPL-1.2"
+    "LPPL-1.3c"
+    "Libpng"
+    "LPL-1.02"
+    "MS-PL"
+    "MS-RL"
+    "MirOS"
+    "MIT"
+    "Motosoto"
+    "MPL-1"
+    "MPL-1.1"
+    "Multics"
+    "NASA-1.3"
+    "Naumen"
+    "NGPL"
+    "Nokia"
+    "NPOSL-3"
+    "NTP"
+    "OCLC-2"
+    "ODbL-1"
+    "PDDL-1"
+    "OGTSL"
+    "OSL-1"
+    "OSL-2"
+    "OSL-3"
+    "OLDAP-2.8"
+    "OpenSSL"
+    "PHP-3.01"
+    "PostgreSQL"
+    "Python-2"
+    "QPL-1"
+    "RPSL-1"
+    "RPL-1.5"
+    "RHeCos-1.1"
+    "RSCPL"
+    "Ruby"
+    "SAX-PD"
+    "OFL-1.1"
+    "SimPL-2"
+    "Sleepycat"
+    "SugarCRM-1.1.3"
+    "SPL-1"
+    "Watcom-1"
+    "NCSA"
+    "VSL-1"
+    "W3C"
+    "WXwindows"
+    "Xnet"
+    "XFree86-1.1"
+    "YPL-1.1"
+    "Zimbra-1.3"
+    "Zlib"
+    "ZPL-1.1"
+    "ZPL-2"
+    "ZPL-2.1"
+    )
+  "Valid license abbreviations. See http://spdx.org/licenses/
+Last updated 2011-12-12.")
+
+(defconst epackage--info-mode-license-regexp
+  (regexp-opt
+   epackage--info-mode-license-list)
+  "Regexp of `epackage--info-mode-license-list'.")
 
 ;;; ............................................... &variables-private ...
 
@@ -3977,6 +4150,50 @@ If optional ERROR is non-nil, signal error if DIRECTORY was not created."
 	  (epackage-error "Directory creation not confirmed: %d" directory))
       nil))))
 
+(defun epackage-devel-licence-list-http-get ()
+  "Retrive list of valid licence indentifiers.
+Connects to `epackage--info-licence-list-url'.
+Return buffer."
+  (interactive)
+  (let* ((url epackage--info-licence-list-url)
+	 (dest (get-buffer-create "*epackage-licenses-spdx.org*"))
+	 (buffer (url-retrieve-synchronously url)))
+    (if (not buffer)
+        (epackage-error "Failed to connect to %s" url)
+      buffer)))
+
+(defun epackage-devel-licence-list-http-parse ()
+  "Parse result of `epackage-devel-licence-list-http-get'."
+  ;; <td about="./AFL-1.2" typeof="spdx:License">
+  (let ((regexp `,(concat
+		   "<td +about=\"\\./\\([^ \"\t\r\n]+\\)\" *"
+		   "typeof=\"spdx:License\">"))
+	str
+	list)
+    (goto-char (point-min))
+    (while (re-search-forward regexp nil t)
+      (setq str (match-string-no-properties 1))
+      ;; Drop dot-zero "*.0"
+      (if (string-match "^\\(.+\\)\\(?:\\.0\\)+$" str)
+	  (setq str (match-string 1 str)))
+      (epackage-push str list))
+    (nreverse list)))
+
+(defun epackage-devel-licence-list-http-insert (&optional raw)
+  "Insert list of valid licences to current point.
+If RAW is non-nil, do not surround lincense names with quotes.
+Note: Connects to `epackage--info-licence-list-url'."
+  (interactive "P")
+  (let ((buffer (epackage-devel-licence-list-http-get))
+	list)
+    (when buffer
+      (with-current-buffer buffer
+	(setq list (epackage-devel-licence-list-http-parse)))
+      (dolist (str list)
+	(if raw
+	    (insert str "\n")
+	  (insert (format "\"%s\"\n" str)))))))
+
 (defun epackage-devel-generate-compile-write-file (file list)
   "Write to FILE commands to compile LIST of files."
   (when list
@@ -5468,15 +5685,28 @@ If optional VERBOSE is non-nil, display progress message."
 
 ;;; .................................................. &functions-lint ...
 
-(defun epackage-pkg-lint-info-buffer-field-section (&optional verbose)
+(defun epackage-pkg-lint-info-buffer-field-license (&optional verbose)
   "Check validity of info in current buffer.
 If optional VERBOSE is non-nil, display progress message."
-  (let* ((status t)
-	 (str (epackage-field-fetch-value "Package")))
+  (let ((status t)
+	(str (epackage-field-fetch-value "License"))
+	(regexp `,(concat "^" epackage--info-mode-license-regexp)))
+    (when (and str
+	       (not (string-match regexp str)))
+      (epackage-verbose-message
+	"[ERROR] Lint - field Licence, invalid value: %s" str)
+      (setq status nil))
+    status))
+
+(defun epackage-pkg-lint-info-buffer-field-package (&optional verbose)
+  "Check validity of info in current buffer.
+If optional VERBOSE is non-nil, display progress message."
+  (let ((status t)
+	(str (epackage-field-fetch-value "Package")))
     (when (and str
 	       (not (epackage-package-name-valid-p str)))
       (epackage-verbose-message
-	"[ERROR] Lint - field Package, invalid value: %s" value)
+	"[ERROR] Lint - field Package, invalid value: %s" str)
       (setq status nil))
     status))
 
@@ -5500,7 +5730,7 @@ If optional VERBOSE is non-nil, display progress message."
 	(dolist (value list)
 	  (unless (member value keywords)
 	    (epackage-verbose-message
-	      "[ERROR] Lint - field Section, invalid value: %s" value)
+	      "[ERROR] Lint - field Section, invalid value: %s" str)
 	    (setq status nil)))))
     status))
 

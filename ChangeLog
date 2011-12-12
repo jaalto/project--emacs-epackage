@@ -21,7 +21,11 @@
 	(epackage-pkg-lint-info-buffer-field-section): New.
 	(epackage-pkg-lint-info-buffer-field-maintainer): New.
 	(epackage-pkg-lint-finder-known-keywords): New.
-	(epackage-pkg-lint-info-buffer-field-section): New.
+	(epackage-pkg-lint-info-buffer-field-package): New.
+	(epackage-devel-licence-list-http-parse): New.
+	(epackage-devel-licence-list-http-get): New.
+	(epackage-devel-licence-list-http-insert): New.
+	(epackage--info-mode-license-list): New.
 
 2011-12-11 Sun  Jari Aalto  <jari.aalto@cante.net>
 
