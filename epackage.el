@@ -1340,7 +1340,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1212.2218"
+(defconst epackage--version-time "2011.1212.2228"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2353,10 +2353,12 @@ Other actions
 \(dolist (file
          '(%s))
   (let ((path (locate-library file)))
-    (if (and (boundp 'verbose)
-             verbose)
-        (message \"Compiling %%s\" path))
-    (byte-compile-file path)))
+     (if (not path)
+         (message "** Byte compile error. Not found: %s" file)
+       (if (and (boundp 'verbose)
+		verbose)
+	   (message \"Compiling %%s\" path))
+       (byte-compile-file path))))
 "
   "Format string containing the epackage/*-compile.el file.
 The files are written to %s. See function

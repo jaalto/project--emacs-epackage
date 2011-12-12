@@ -1,3 +1,7 @@
+2011-12-12 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage--layout-template-compile): Check path.
+
 2011-12-12 Mon  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage--root-directory): Remove ~/elisp
