@@ -4,6 +4,7 @@
 	support and migrate to ~/.emacs.d
 	(epackage-package-name-valid-p): Correct regexp.
 	(epackage--layout-template-info): (License): Add tag Custom.
+	(epackage-info-mode-font-lock-keywords): Add Licence-Text.
 
 2011-12-11 Sun  Jari Aalto  <jari.aalto@cante.net>
 

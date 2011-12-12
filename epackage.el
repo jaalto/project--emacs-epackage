@@ -1681,10 +1681,16 @@ Never set this variable directly, use the command
      (1 'font-lock-keyword-face)
      (2 'font-lock-type-face))
     ;; If license if different from GPL, mark it with different color.
+    ("^\\(License\\): *\\(Custom\\)"
+     (1 'font-lock-doc-face t)
+     (2 'font-lock-warning-face t))
     ("^\\(License\\): *\\([^ Gg\t\r\n]+\\)"
      (1 'font-lock-doc-face t)
-     (2 'font-lock-warning-face t)
+     (2 'font-lock-comment-face t)
      t)
+    ("^\\(License-Text\\):\\(.*[\r\n]\\(?: .+[\r\n]\\)+\\)"
+     (1 'font-lock-doc-face t)
+     (2 'font-lock-type-face t))
     ("^\\(Status\\): .*\\(unmaintained\\|broken\\)"
      (1 'font-lock-doc-face t)
      (2 'font-lock-warning-face t))
