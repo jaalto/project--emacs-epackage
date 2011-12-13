@@ -1340,7 +1340,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1213.1958"
+(defconst epackage--version-time "2011.1213.2124"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -7780,7 +7780,6 @@ Summary, Version, Maintainer etc."
   (let (epackage--buffer-princ)
     (epackage-batch-ui-menu-run)))
 
-;;;###autoload
 (defun epackage-batch-ui-menu-run ()
   "Present an UI to run basic command."
   (let ((epackage--install-action-list epackage--install-action-list)
