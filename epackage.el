@@ -61,7 +61,7 @@
 ;;      (load "~/.emacs.d/epackage/00conf/epackage-loader" 'noerr)
 ;;
 ;;      ;;  M-x epackage to start the epackage manager
-;;      (autoload 'epackage "epackage" "" t)
+;;      (autoload 'epackage-manager "epackage" "" t)
 ;;
 ;;      (autoload 'epackage-loader-file-generate-boot   "epackage" "" t)
 ;;      (autoload 'epackage-cmd-autoload-package        "epackage" "" t)
@@ -85,8 +85,7 @@
 ;;      ;; 2. Or, Write initial templates. Work from there manually
 ;;      (autoload 'epackage-devel-compose-package-dir    "epackage" "" t)
 ;;
-;;  In addition to Emacs UI M-x epackage, there is also a minimal
-;;  command line UI:
+;;  In addition to Emacs UI, there is also a minimal command line UI:
 ;;
 ;;      emacs --batch -Q -l /path/to/epackage.el -f epackage-ui
 ;;
@@ -1272,7 +1271,7 @@
 ;;
 ;;      GUI
 ;;
-;;      o   Write M-x epackage-manager
+;;      o   Write M-x epackage-manager (the real interface).
 ;;      o   Cache. Build it dynamically from packages and
 ;;          combine with package information (e.g. version).
 ;;
@@ -1341,7 +1340,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1213.1955"
+(defconst epackage--version-time "2011.1213.1958"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
