@@ -1340,7 +1340,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1213.2124"
+(defconst epackage--version-time "2011.1213.2205"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2254,27 +2254,27 @@ And the packages to roll back would be only A and C.")
 
 (defconst epackage--batch-ui-menu-string "
 a       Install (a)ctivate configuration; modifies Emacs environment
-A       Uninstall activate configuration
-b         Generate boot loader
+A       Uninstall (A)ctivate configuration
+b         Generate (b)oot loader
 c       Clean install configuration files (whole uninstall)
-d       Download epackage
-e       Install standard (e)nable configuration from epackage
-E       Uninstall standard enable configuration from epackage
-g       Get sources list; update available packages data
-i         Display (i)nfo file of epackage
-I         Display documentation of extension.
-l       List installed epackages
-L       List downloaded epackages
-n       List (n)ot installed epackages
-o       Install aut(o)load configuration from epackage
-p       List available (p)ackages in sources list
-r       Remove; delete package physically from local disk
-t          Ac(t)ion toggle: after download, install (e)nable configuration
-T          Ac(T)ion toggle: after download, install (a)ctivate configuration
-u       Upgrade single epackage
-U       Upgrade all epackages
-y         B(y)te compile epackage
-Y         Action toggle: after every download, b(y)te compile epackage
+d       Download package
+e       Install standard (e)nable configuration
+E       Uninstall standard (E)nable configuration
+g       Get sources list; update list of available packages
+i         Display (i)nfo file
+I         Display commentary (I)nfo (if any)
+l       List installed packages
+L       List downloaded packages
+n       List (n)ot installed packages
+o       Install aut(o)load configuration from package
+p       List available (p)ackages
+r       Remove package physically from local disk
+t          Ac(t)ion toggle: after download, install enable configuration
+T          Ac(T)ion toggle: after download, install activate configuration
+u       Upgrade single package
+U       Upgrade all packages
+y         B(y)te compile package
+Y         Action toggle: after download, b(y)te compile package
 ?,q,m,v   Help, Quit, Menu, Version"
   "UI menu to run epackage from command line.")
 

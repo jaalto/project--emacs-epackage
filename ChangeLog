@@ -1,3 +1,7 @@
+2011-12-13 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage--batch-ui-menu-string): Adjust wording.
+
 2011-12-13 Tue  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-princ): New.
