@@ -1,3 +1,17 @@
+2011-12-13 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-princ): New.
+	(epackage--princ-buffer): New.
+	(epackage-ui-simple): New.
+	(epackage-manager): New.
+	(epackage--buffer-princ-default): New.
+	(epackage--batch-ui-menu-help): Start output with newline.
+	(epackage--batch-ui-menu-string): Start output with newline.
+	(epackage--batch-ui-menu-header): Start output with newline.
+	(epackage-batch-ui-simple-p): New.
+	(epackage--batch-separator-insert): New.
+	(epackage-batch-ui-menu-run): New.
+
 2011-12-12 Tue  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage--layout-template-compile): Check path.

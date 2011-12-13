@@ -766,6 +766,7 @@
 ;;          "Cygwin" or "(ms)" to mark "Microsoft" OS. The details of
 ;;          Operating system integration can be explained in the long
 ;;          description part.
+;;      o   Don't use word "Emacs" on the first line. It's redundant.
 ;;
 ;;      Examples:
 ;;
@@ -1340,7 +1341,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1212.2258"
+(defconst epackage--version-time "2011.1213.1955"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1986,6 +1987,15 @@ Last updated 2011-12-12.")
 
 ;;; ............................................... &variables-private ...
 
+(defvar epackage--buffer-ui-simple "*Epackage Batch UI*"
+  "Epackage Manager buffer for `epackage-ui-simple'.")
+
+(defconst epackage--buffer-princ-default (get-buffer "*Messages*")
+  "Default value for `epackage--buffer-princ-default'.")
+
+(defvar epackage--buffer-princ epackage--buffer-princ-default
+  "Output stream destination buffer.")
+
 (defvar epackage--sources-list-regexp
   `,(concat "^\\(%s\\)\\>"
             "[ \t]+\\([^ \t\r\n]+\\)"
@@ -2243,7 +2253,7 @@ And the packages to roll back would be only A and C.")
 ;; Indent less used commands; but keep in alphabetical order,
 ;; so that we know what keys are left to use.
 
-(defconst epackage--batch-ui-menu-string "\
+(defconst epackage--batch-ui-menu-string "
 a       Install (a)ctivate configuration; modifies Emacs environment
 A       Uninstall activate configuration
 b         Generate boot loader
@@ -2303,7 +2313,7 @@ Use from command line:
 
   emacs --batch -Q -l ./epackage.el -f epackage-batch-ui-menu")
 
-(defconst epackage--batch-ui-menu-help "\
+(defconst epackage--batch-ui-menu-help "
 In a nutshell
 -------------
 To install: (d)ownload, (e)enable, (b)oot loader generate, (q)uit.
@@ -2410,6 +2420,10 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
 (defmacro epackage-error (format &rest args)
   "Call `error' with FORMAT and ARGS. mark message with ERROR tag."
   `(error (concat "Epackage: [ERROR] " ,format) ,@args))
+
+(defmacro epackage-princ (format &rest args)
+  "Call `message' with FORMAT and ARGS. Mark message with WARN tag."
+  `(princ (concat (format ,format ,@args) "\n") epackage--buffer-princ))
 
 (defmacro epackage-warn (format &rest args)
   "Call `message' with FORMAT and ARGS. Mark message with WARN tag."
@@ -5628,8 +5642,8 @@ SOLUTIONS
     (let ((host (epackage-url-extract-host url)))
       (or (and (stringp host)
 	       (epackage-ssh-p host))
-	  (let ((message (epackage-ssh-help-string host)))
-	    (message message)		;Record user help to *Messages* buffer
+	  (let ((epackage-princ (epackage-ssh-help-string host)))
+	    (epackage-princ message) ;Record user help to *Messages* buffer
 	    (let ((debug-on-error nil)) ;; batch UI: don't display stack trace
 	      (error
 	       (substitute-command-keys
@@ -7260,7 +7274,7 @@ If optional VERBOSE is non-nil, display progress message."
 (defun epackage-version ()
   "Display `epackage--version-time'."
   (interactive)
-  (message epackage--version-time))
+  (epackage-princ epackage--version-time))
 
 (defun epackage-documentation-buffer-version-defconst ()
   "Return version from current buffer.
@@ -7351,11 +7365,32 @@ Summary, Version, Maintainer etc."
        epackage--buffer-doc))
     (display-buffer (get-buffer epackage--buffer-doc))))
 
+(defsubst epackage-batch-ui-simple-p ()
+  "Check if running inside `epackage-ui-simple'."
+  ;; Running inside epackage-ui-simple?
+  (when epackage--buffer-princ
+    (let ((buffer (get-buffer epackage--buffer-ui-simple)))
+      (eq epackage--buffer-princ
+	  buffer))))
+
 ;;;###autoload
-(defun epackage-manager ()
-  "Start User Interface."
+(defun epackage-ui-simple ()
+  "User intrface. Simple."
+  (interactive)
   (epackage-initialize)
-  (error "Not yet implemented. Estimate: late spring 2011.")) ;; FIXME
+  (let* ((buffer (get-buffer-create epackage--buffer-ui-simple))
+	 (epackage--buffer-princ buffer))
+    (switch-to-buffer buffer)
+    (delete-other-windows)
+    (goto-char (point-max))
+    (epackage-batch-ui-menu-run)))
+
+;;;###autoload
+(defun epackage-manager () ;; FIXME
+  "User intrface. A sketch. Not like the final interface at all."
+  (interactive)
+  (epackage-initialize)
+  (call-interactively 'epackage-ui-simple))
 
 ;;;###autoload (autoload 'epackage-mode          "epackage" "" t)
 ;;;###autoload (autoload 'turn-on-epackage-mode  "epackage" "" t)
@@ -7419,26 +7454,29 @@ Summary, Version, Maintainer etc."
             (epackage-sources-list-info-description package))
       (if description
           (message "%-25s %s" package description)
-        (message package)))))
+        (epackage-princ package)))))
 
 (defun epackage-batch-ui-display-menu ()
   "Display `epackage--batch-ui-menu-string'."
   (interactive)
-  (message epackage--batch-ui-menu-string))
+  (epackage-batch-separator-insert)
+  (epackage-princ epackage--batch-ui-menu-string))
 
 (defun epackage-batch-ui-display-version ()
   "Display `epackage--version-time' and `epackage--maintainer'."
   (interactive)
-  (message "== Version: %s <%s>"
-           epackage--version-time
-           epackage--maintainer))
+  (epackage-princ
+   "== Version: %s <%s>"
+   epackage--version-time
+   epackage--maintainer))
 
 (defsubst epackage-batch-ui-display-package-action-list ()
   "Display `epackage--download-action-list'."
-  (message "== Package activation list after download:%s"
-           (if epackage--download-action-list
-               (format " %s" epackage--download-action-list)
-             "")))
+  (epackage-princ
+   "== Package activation list after download:%s"
+   (if epackage--download-action-list
+       (format " %s" epackage--download-action-list)
+     "")))
 
 ;;;###autoload
 (defun epackage-batch-ui-display-package-info ()
@@ -7455,7 +7493,7 @@ Summary, Version, Maintainer etc."
       (let ((file (epackage-file-name-package-info package)))
         (if (not file)
             (epackage-message "Broken epackage. Missing file: %s" file)
-          (message (epackage-file-content-as-string file)))))
+          (epackage-princ (epackage-file-content-as-string file)))))
      (t
       (epackage-message "Can't display info. Package not downloaded: %s"
                         package))))))
@@ -7482,7 +7520,7 @@ Summary, Version, Maintainer etc."
             (epackage-message
               "Missing 'Commentary:' field in epackage info file")
           (if (setq str (lm-commentary path))
-              (message str)
+              (epackage-princ str)
             (epackage-message
               "No standard 'Commentary:' section found in %s"path)))))
      (t
@@ -7600,8 +7638,8 @@ Summary, Version, Maintainer etc."
   (interactive)
   (let ((list (epackage-status-downloaded-packages)))
     (if (not list)
-        (message "No packages downloaded.")
-      (message "Downloaded packages:")
+        (epackage-princ "No packages downloaded.")
+      (epackage-princ "Downloaded packages:")
       (epackage-batch-list-package-summamry list))))
 
 ;;;###autoload
@@ -7610,8 +7648,8 @@ Summary, Version, Maintainer etc."
   (interactive)
   (let ((list (epackage-status-not-installed-packages)))
     (if (not list)
-        (message "All downloaded packages are installed.")
-      (message "Not installed packages:")
+        (epackage-princ "All downloaded packages are installed.")
+      (epackage-princ "Not installed packages:")
       (epackage-batch-list-package-summamry list))))
 
 ;;;###autoload
@@ -7620,8 +7658,8 @@ Summary, Version, Maintainer etc."
   (interactive)
   (let ((list (epackage-status-installed-packages)))
     (if (not list)
-        (message "No packages installed.")
-      (message "Installed packages:")
+        (epackage-princ "No packages installed.")
+      (epackage-princ "Installed packages:")
       (epackage-batch-list-package-summamry list))))
 
 ;;;###autoload
@@ -7630,8 +7668,8 @@ Summary, Version, Maintainer etc."
   (interactive)
   (let ((list (epackage-sources-list-info-pkg-list)))
     (if (not list)
-        (message "No sources list downloaded.")
-      (message "All available packages for download:")
+        (epackage-princ "No sources list downloaded.")
+      (epackage-princ "All available packages for download:")
       (epackage-batch-list-package-summamry list))))
 
 ;;; Command line batch commands
@@ -7695,30 +7733,62 @@ Summary, Version, Maintainer etc."
          (menu (assq char epackage--batch-ui-menu-actions))
          (choice (nth 1 menu)))
     (epackage-with-debug
-      (message "debug: str %s | char %s | menu %s"
+      (epackage-princ "debug: str %s | char %s | menu %s"
                (length str)
                char
                menu))
     (or choice
         char)))
 
-(defsubst epackage--batch-ui-menu-header ()
+(defun epackage-batch-separator ()
+  "princ separator string."
+  (epackage-princ "\
+== ==================================================================="))
+
+(defun epackage-batch-separator-insert ()
+  "Princ separator only if `epackage-batch-ui-simple-p'."
+  (if (epackage-batch-ui-simple-p)
+      (epackage-batch-separator)))
+
+(defsubst epackage-batch-ui-menu-header ()
   "Display menu header."
-  (message "\
+  (epackage-princ "
 == ===================================================================
 == Epackage - Distributed Emacs Lisp Package System (DELPS)")
   (epackage-batch-ui-display-version)
-  (message "\
+  (epackage-princ "\
 == ==================================================================="))
+
+(defsubst epackage-recenter-bottom ()
+  "Recenter buffer to bottom."
+    (goto-char (point-max))
+    ;; (when (> (point) (window-end nil t))
+    ;;   (overlay-recenter (point))
+    ;;   (recenter -3))))
+    (let ((last-command 'ignore)
+	  (recenter-positions '(bottom)))
+      (recenter-top-bottom)))
+
+(defsubst epackage-batch-ui-menu-goto-point-max ()
+  "Position point at `point-max'."
+  ;; Running inside epackage-ui-simple?
+  (if (epackage-batch-ui-simple-p)
+      (epackage-recenter-bottom)))
 
 ;;;###autoload
 (defun epackage-batch-ui-menu ()
   "Present an UI to run basic command."
+  (let (epackage--buffer-princ)
+    (epackage-batch-ui-menu-run)))
+
+;;;###autoload
+(defun epackage-batch-ui-menu-run ()
+  "Present an UI to run basic command."
   (let ((epackage--install-action-list epackage--install-action-list)
-        debug-ignored-errors
         (debug-on-error t)
         (vc-handled-backends nil)
         (loop t)
+        debug-ignored-errors
         choice)
     (epackage-initialize 'verbose)
     (setq epackage--debug nil)
@@ -7726,26 +7796,29 @@ Summary, Version, Maintainer etc."
     ;;  current Emacs
     (setq epackage--install-action-list
           (delq 'enable epackage--install-action-list))
-    (epackage--batch-ui-menu-header)
+    (epackage-batch-ui-menu-header)
     (while loop
+      (epackage-batch-ui-menu-goto-point-max)
       (setq choice (epackage-batch-ui-menu-selection
 		    epackage--batch-ui-menu-prompt))
       (epackage-with-debug
-        (message "debug: choice %s" choice))
+        (epackage-princ "debug: choice %s" choice))
       (cond
        ((null choice)
-        (message "** Unknown selection"))
+        (epackage-princ "** Unknown selection"))
        ((eq choice 'ignore)
-        (message "** Not implmented yet"))
+        (epackage-princ "** Not implmented yet"))
        ((eq choice 'quit)
-        (message "** Exit")
+        (epackage-princ "** Exit")
         (setq loop nil))
        ((functionp choice)
         (call-interactively choice))
        ((eq choice ?\?)
-        (message epackage--batch-ui-menu-help))
+	(epackage-batch-separator-insert)
+        (epackage-princ epackage--batch-ui-menu-help))
        (t
-        (message "** Unknown menu selection: %s" choice))))))
+        (epackage-princ "** Unknown menu selection: %s" choice))))
+    (epackage-batch-ui-menu-goto-point-max)))
 
 (defun epackage-run-action-list (package actions &optional verbose)
   "Run PACKAGE ACTIONS. See  `epackage--download-action-list'.
