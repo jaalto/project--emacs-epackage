@@ -1341,7 +1341,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1214.1225"
+(defconst epackage--version-time "2011.1214.1232"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4252,9 +4252,56 @@ Note: Connects to `epackage--info-licence-list-url'."
       (epackage-write-region (point-min) (point-max) file)
       t)))
 
-(defun epackage-devel-generate-examples
+(defun epackage-devel-generate-uninstall
   (package root &optional dir recursive verbose)
   "Generate PACKAGE examples file relative to ROOT from DIR.
+The file is stored under directory ROOT/`epackage--directory-name'.
+
+Input:
+
+    PACKAGE	Epackage name
+    ROOT	Epackage root directory (must exists).
+    DIR   	Optional. Emacs Lisp package directories. This can be a
+                one string or list of strings. Defaults to ROOT.
+    RECURSIVE   Optional. If non-nil, read all *.el files under DIR.
+		Interactive prefix.
+    VERBOSE	Optional. If non-nil, display verbose messages.
+                Interactive call sets this."
+  (interactive
+   (let ((root (read-directory-name "Epackage root dir: ")))
+     (list
+      package
+      root
+      root
+      'interactive)))
+  (epackage-error-if-invalid-package-name package)
+  (when (or (not (stringp dir))
+	    (not (file-directory-p dir)))
+    (epackage-error "Drectory DIR does not exist: %s" dir))
+  (when (or (not (stringp root))
+	    (not (file-directory-p root)))
+    (epackage-error "Directory ROOT does not exist: %s" dir))
+  (if (interactive-p)
+      (setq verbose t))
+  (let* ((file (epackage-layout-file-name root package 'uninstall))
+	 (edir (file-name-directory file)))
+    (epackage-make-directory edir 'no-question 'error)
+    (cond
+     ((file-exists-p file)
+      (if interactive
+	  (epackage-message "Not writing, already exists: %s" file)))
+     (t
+      (with-temp-buffer
+	(insert (format "\
+;; Template. Add remove-hook etc calls here.
+\(error \"%s is not a configuration file.\")
+"
+			(file-name-nondirectory file)))
+	(epackage-write-region (point-min) (point-max) file))))))
+
+(defun epackage-devel-generate-examples
+  (package root &optional dir recursive verbose)
+  "Generate PACKAGE uninstall file relative to ROOT from DIR.
 The file is stored under directory ROOT/`epackage--directory-name'.
 
 Input:
@@ -4708,6 +4755,7 @@ Input:
   (epackage-devel-generate-loaddefs package dir dir 'recursive verbose)
   (epackage-devel-generate-compile-main package dir dir 'recursive verbose)
   (epackage-devel-generate-examples package dir dir 'recursive verbose)
+  (epackage-devel-generate-uninstall package dir dir 'reursive verbose)
   (let ((autoloads (epackage-layout-file-name dir package 'autoload))
 	(install (epackage-layout-file-name dir package 'enable)))
     ;; By default we copy all interactive functions to install.
