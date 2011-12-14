@@ -2,6 +2,10 @@
 
 	* epackage.el (epackage-info-mode-map): Add
 	`epackage-info-mode-cmd-email-upstream-ping'.
+	(epackage--layout-mapping): Add examples.
+	(epackage-devel-generate-examples): New.
+	(epackage-devel-compose-package-dir): Use
+	`epackage-devel-generate-examples'.
 
 2011-12-13 Wed  Jari Aalto  <jari.aalto@cante.net>
 

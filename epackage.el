@@ -1341,7 +1341,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1214.0910"
+(defconst epackage--version-time "2011.1214.1225"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2166,6 +2166,7 @@ Format is:
   '((activate   "-epkg-xactivate.el")
     (autoload   "-epkg-autoloads.el")
     (enable     "-epkg-install.el"  'required)
+    (examples   "-epkg-examples.el")
     (compile    "-epkg-compile.el")
     (info       "info"  'required)
     (lisp       "lisp")
@@ -4251,10 +4252,60 @@ Note: Connects to `epackage--info-licence-list-url'."
       (epackage-write-region (point-min) (point-max) file)
       t)))
 
+(defun epackage-devel-generate-examples
+  (package root &optional dir recursive verbose)
+  "Generate PACKAGE examples file relative to ROOT from DIR.
+The file is stored under directory ROOT/`epackage--directory-name'.
+
+Input:
+
+    PACKAGE	Epackage name
+    ROOT	Epackage root directory (must exists).
+    DIR   	Optional. Emacs Lisp package directories. This can be a
+                one string or list of strings. Defaults to ROOT.
+    RECURSIVE   Optional. If non-nil, read all *.el files under DIR.
+		Interactive prefix.
+    VERBOSE	Optional. If non-nil, display verbose messages.
+                Interactive call sets this."
+  (interactive
+   (let ((root (read-directory-name "Epackage root dir: ")))
+     (list
+      package
+      root
+      root
+      'interactive)))
+  (epackage-error-if-invalid-package-name package)
+  (when (or (not (stringp dir))
+	    (not (file-directory-p dir)))
+    (epackage-error "Drectory DIR does not exist: %s" dir))
+  (when (or (not (stringp root))
+	    (not (file-directory-p root)))
+    (epackage-error "Directory ROOT does not exist: %s" dir))
+  (if (interactive-p)
+      (setq verbose t))
+  (let* ((file (epackage-layout-file-name root package 'examples))
+	 (edir (file-name-directory file)))
+    ;; FIXME: Add some extraction code that would rip code examples
+    ;; from inside source code files.
+    ;; For now, just write dummy template file.
+    (epackage-make-directory edir 'no-question 'error)
+    (cond
+     ((file-exists-p file)
+      (if interactive
+	  (epackage-message "Not writing, already exists: %s" file)))
+     (t
+      (with-temp-buffer
+	(insert (format "\
+;; Prevent loading this file. Study the examples.
+\(error \"%s is not a configuration file.\")
+"
+			(file-name-nondirectory file)))
+	(epackage-write-region (point-min) (point-max) file))))))
+
 (defun epackage-devel-generate-compile-main
   (package root &optional dir recursive verbose)
   "Generate PACKAGE compile file relative to ROOT from DIR.
-The compile file is stored under directory ROOT/`epackage--directory-name'.
+The file is stored under directory ROOT/`epackage--directory-name'.
 
 Input:
 
@@ -4656,6 +4707,7 @@ Input:
   (epackage-devel-generate-autoloads package dir dir 'recursive verbose)
   (epackage-devel-generate-loaddefs package dir dir 'recursive verbose)
   (epackage-devel-generate-compile-main package dir dir 'recursive verbose)
+  (epackage-devel-generate-examples package dir dir 'recursive verbose)
   (let ((autoloads (epackage-layout-file-name dir package 'autoload))
 	(install (epackage-layout-file-name dir package 'enable)))
     ;; By default we copy all interactive functions to install.
@@ -7788,11 +7840,34 @@ Summary, Version, Maintainer etc."
 	  (recenter-positions '(bottom)))
       (recenter-top-bottom)))
 
+(defun epackage-shring-window (&optional buffer-name)
+  "Adjust visible `current-buffer' or BUFFER-NAME to minimum."
+  (let* ((buffer-name "*Compile-Log*")
+	 (buffer (get-buffer buffer-name))
+	 current
+	 win
+	 winb)
+    (when (and buffer
+	       (window-live-p buffer))
+      (setq current)
+      (setq winb (window-buffer name))
+      (setq win (get-buffer-window winb))
+      (save-excursion
+	(set-buffer winb)
+	(select-window win)
+	(goto-char (point-max))
+	(unless (window-fixed-size-p)
+	  (let ((size (window-height win))
+		(min window-min-height)
+		(diff (- size min)))
+	    (if (> diff 0)
+		(shrink-window diff))))))))
+
 (defsubst epackage-batch-ui-menu-goto-point-max ()
   "Position point at `point-max'."
-  ;; Running inside epackage-ui-simple?
-  (if (epackage-batch-ui-simple-p)
-      (epackage-recenter-bottom)))
+  (when (epackage-batch-ui-simple-p)
+    (epackage-batch-ui-menu-compile-buffer-adjust)
+    (epackage-recenter-bottom)))
 
 ;;;###autoload
 (defun epackage-batch-ui-menu ()
