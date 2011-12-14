@@ -463,6 +463,7 @@
 ;;          +-- epackage/
 ;;              info                       required: The information file
 ;;              lisp		           optional: Location of Emacs Lisp files
+;;              ignore                     optional: regexp to ignore Emacs Lisp files
 ;;              PACKAGE-epkg-0loaddefs.el  optional: extracted ###autoload statements
 ;;              PACKAGE-epkg-autoloads.el  optional: autoload statements (manual)
 ;;              PACKAGE-epkg-clean.el      optional: Code to run "make clean" equivalent
@@ -622,6 +623,15 @@
 ;;          <activation statements>
 ;;
 ;;          (provide 'PACKAGE-ekg-xactivate)
+;;
+;;  The ignore file
+;;
+;;      List of Emacs regular expression entries on their own lines to
+;;      ignore files in the upstream package. The epackage-devel-*
+;;      functions examine the packaging structure and can create files
+;;      like `*-0autoloads.el'. If this file exists, it is read and
+;;      files matches are ignored. The regexp(s) matches path relative
+;;      to the package root directory.
 ;;
 ;;  The info file
 ;;
@@ -1347,7 +1357,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1214.2203"
+(defconst epackage--version-time "2011.1214.2339"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
