@@ -1347,7 +1347,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1214.1548"
+(defconst epackage--version-time "2011.1214.1944"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2132,25 +2132,28 @@ packages.")
 (defconst epackage--directory-exclude-regexp
   (concat
    (regexp-opt
-    '("/RCS"
-      "/rcs"
-      "/CVS"
+    '("/CVS"
+      "/RCS"
       "/cvs"
-      "/.svn"
-      "/.git"
+      "/rcs"
       "/.bzr"
-      "/.hg"
       "/.darcs"
+      "/.git"
+      "/.hg"
       "/.mtn"
-      "/images"
-      "/pics"
-      "/patches"
-      "/tests"
+      "/.svn"
+      "/cert"
       "/doc"
-      "/tex"
-      "/texinfo"
       "/html"
-      "/test"))
+      "/howto"
+      "/images"
+      "/manual"
+      "/patches"
+      "/pics"
+      "/test"
+      "/tests"
+      "/tex"
+      "/texinfo"))
    "$")
   "Regexp to exclude dirctory names.
 See 'epackage-directory-recursive-list-default'

@@ -7,6 +7,9 @@
 	(epackage-devel-compose-package-dir): Use
 	`epackage-devel-generate-examples'.
 	(epackage-devel-generate-uninstall): New.
+	(epackage-devel-information-date-versionstr): Correct
+	call to `epackage-devel-information-version-main'.
+	(epackage--directory-exclude-regexp): Add more directories.
 
 2011-12-13 Wed  Jari Aalto  <jari.aalto@cante.net>
 
