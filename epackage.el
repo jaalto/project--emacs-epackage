@@ -1288,6 +1288,7 @@
 ;;
 ;;      Some day in the future:
 ;;
+;;      o   Do something for *.texinfo files in big packages.
 ;;      o   Verify Compatibility Level of downloaded epackage
 ;;      o   Handle Conflicts field
 ;;
@@ -1340,7 +1341,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1214.0005"
+(defconst epackage--version-time "2011.1214.0910"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
