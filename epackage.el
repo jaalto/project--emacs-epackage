@@ -1347,7 +1347,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1214.2139"
+(defconst epackage--version-time "2011.1214.2203"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4363,6 +4363,7 @@ Input:
 	(insert (format "\
 ;; Prevent loading this file. Study the examples.
 \(error \"%s is not a configuration file.\")
+;; End of file
 "
 			(file-name-nondirectory file)))
 	(epackage-write-region (point-min) (point-max) file))))))

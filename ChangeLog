@@ -1,3 +1,8 @@
+2011-12-14 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-devel-generate-examples):
+	Adjust template string text for output file.
+
 2011-12-14 Wed  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-info-mode-map): Add
