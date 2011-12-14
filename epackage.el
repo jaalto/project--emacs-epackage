@@ -610,10 +610,16 @@
 ;;      that any custom settings, like variables and prefix keys, are
 ;;      defined in `~/.emacs' *before* this file gets loaded. As with
 ;;      `*-install.el', try to avoid any `require' or `load' commands
-;;      and stick to `autoload'. Mnemonic: "If you load this file, the
-;;      bells and whistles are turned on". The "x" at the start of the
-;;      name is to help proper sorting ordering of configuration
-;;      files. The file ends in:
+;;      and stick to `autoload'. To keep Emacs namespace clean, name
+;;      all custom variables or functions as `PACKAGE-epkg-*'.
+;;      Mnemonic: "If you load this file, the bells and whistles are
+;;      turned on". The "x" at the start of the name is to help proper
+;;      sorting ordering of configuration files. The file layoyt:
+;;
+;;          ;; Description:
+;;          ;; <explain in paragraph or two what is preconfigured>
+;;
+;;          <activation statements>
 ;;
 ;;          (provide 'PACKAGE-ekg-xactivate)
 ;;
@@ -1341,7 +1347,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1214.1327"
+(defconst epackage--version-time "2011.1214.1548"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4603,7 +4609,7 @@ Point is not preserved. Use `lm-header'."
   "Return date from current buffer.
 Point is not preserved. Examine Version string for YYYY.MMDD."
   ;; See if version is in format YYYY.MMDD
-  (let ((version (epackage-devel-information-version)))
+  (let ((version (epackage-devel-information-version-main)))
     (when (and version
 	       (string-match
 		`,(concat
