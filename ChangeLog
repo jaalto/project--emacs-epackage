@@ -1,6 +1,14 @@
+2011-12-14 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-info-mode-map): Add
+	`epackage-info-mode-cmd-email-upstream-ping'.
+
 2011-12-13 Wed  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage--batch-ui-menu-string): Adjust wording.
+	(epackage-files-recursive-lisp): Add TYPE argument.
+	(epackage-devel-generate-compile-main): Correct file path
+	names.
 
 2011-12-13 Tue  Jari Aalto  <jari.aalto@cante.net>
 

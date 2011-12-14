@@ -1340,7 +1340,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1213.2205"
+(defconst epackage--version-time "2011.1214.0005"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1676,6 +1676,7 @@ Never set this variable directly, use the command
     (define-key map (kbd "C-c l") 'epackage-info-mode-cmd-lint)
     (define-key map (kbd "C-c mm") 'epackage-info-mode-cmd-email-maintainer)
     (define-key map (kbd "C-c mu") 'epackage-info-mode-cmd-email-upstream)
+    (define-key map (kbd "C-c mU") 'epackage-info-mode-cmd-email-upstream-ping)
     (define-key map (kbd "C-c s") 'epackage-info-mode-cmd-goto-status)
     (define-key map (kbd "C-c w") 'epackage-info-mode-cmd-url-wiki)
     map)
@@ -2905,13 +2906,31 @@ See `epackage-directory-recursive-list-default' for more information."
           (epackage-push elt ret)))
     ret))
 
-(defsubst epackage-files-recursive-lisp (dir)
+(defsubst epackage-files-recursive-lisp (dir &optional type)
   "Return all Emacs Lisp files under DIR recursively.
+
+TYPE can be:
+  'nopath   Only filenames
+  'relative Path relative to DIR.
+  nil       with full path
+
 See `epackage-directory-recursive-list-default' for more information."
-  (let (ret)
+  (let ((regexp (format "^%s?/?\\(.+\\)$"  ;; Trailing dir/?/?
+			(regexp-quote
+			 (expand-file-name dir))))
+	list)
     (dolist (elt (epackage-directory-recursive-lisp dir))
-      (setq ret (nconc (directory-files elt nil "\\.el$") ret)))
-    ret))
+      (dolist (file (directory-files elt nil "\\.el$"))
+	(setq file
+	      (cond
+	       ((eq type nil)
+		(format "%s/%s" dir file))
+	       ((eq type 'relative)
+		(if (string-match regexp elt)
+		    (concat (match-string 1 elt) "/" file)
+		  (file-name-nondirectory file)))))
+	 (epackage-push file list)))
+    list))
 
 (defun epackage-directory-packages-control-file (package type)
   "Return PACKAGE control file of TYPE.
@@ -4265,7 +4284,7 @@ Input:
   (let* ((file (epackage-layout-file-name root package 'compile))
 	 (edir (file-name-directory file))
 	 (list (if recursive
-		   (epackage-files-recursive-lisp dir)
+		   (epackage-files-recursive-lisp dir 'relative)
 		 (directory-files dir nil "\\.el$"))))
     (epackage-make-directory edir 'no-question 'error)
     (epackage-devel-generate-compile-write-file file list)))
