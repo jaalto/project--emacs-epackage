@@ -2,6 +2,7 @@
 
 	* epackage.el (epackage-devel-generate-examples):
 	Adjust template string text for output file.
+	(epackage--layout-mapping): add 'ignore' entry.
 
 2011-12-14 Wed  Jari Aalto  <jari.aalto@cante.net>
 

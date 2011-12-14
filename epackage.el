@@ -627,7 +627,7 @@
 ;;  The ignore file
 ;;
 ;;      List of Emacs regular expression entries on their own lines to
-;;      ignore files in the upstream package. The epackage-devel-*
+;;      ignore files in upstream package. The epackage-devel-*
 ;;      functions examine the packaging structure and can create files
 ;;      like `*-0autoloads.el'. If this file exists, it is read and
 ;;      files matches are ignored. The regexp(s) matches path relative
@@ -1357,7 +1357,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1214.2339"
+(defconst epackage--version-time "2011.1214.2341"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2193,6 +2193,7 @@ Format is:
     (compile    "-epkg-compile.el")
     (info       "info"  'required)
     (lisp       "lisp")
+    (ignore     "ignore")
     (loaddefs   "-epkg-0loaddefs.el")
     (uninstall  "-epkg-uninstall.el"))
   "File type mapping table for files in `epackage--package-control-directory'.
