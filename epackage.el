@@ -650,8 +650,8 @@
 ;;          Upstream-Bugs: [ URL ]
 ;;          Vcs-Type:
 ;;          Vcs-Url:
-;;          Vcs-Args:
 ;;          Vcs-Browser:
+;;          Vcs-Args:
 ;;          Vcs-User:
 ;;          Vcs-Password:
 ;;          Homepage:
@@ -1347,7 +1347,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1214.1958"
+(defconst epackage--version-time "2011.1214.2139"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2131,7 +2131,7 @@ packages.")
 (defconst epackage--lisp-file-exclude-regexp
   "\\(?:^\\|/\\)\\(?:test\\.el\\)"
   "Regexp to exclude lisp files.
-Used in function `'.")
+Used in function `epackage-devel-generate-compile-main'.")
 
 (defconst epackage--directory-exclude-regexp
   (concat
@@ -2403,8 +2403,8 @@ Upstream:
 Upstream-Bugs:
 Vcs-Type:
 Vcs-Url:
-Vcs-Args:
 Vcs-Browser:
+Vcs-Args:
 Vcs-User:
 Vcs-Password:
 Homepage:

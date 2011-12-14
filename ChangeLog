@@ -14,6 +14,7 @@
 	(epackage-devel-generate-compile-main): Use
 	'epackage--lisp-file-exclude-regexp'.
 	(epackage--lisp-file-exclude-regexp): New.
+	(epackage--layout-template-info): Move Vcs-Args.
 
 2011-12-13 Wed  Jari Aalto  <jari.aalto@cante.net>
 
