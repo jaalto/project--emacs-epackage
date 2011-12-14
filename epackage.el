@@ -1341,7 +1341,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1214.1232"
+(defconst epackage--version-time "2011.1214.1327"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4338,7 +4338,7 @@ Input:
     (epackage-make-directory edir 'no-question 'error)
     (cond
      ((file-exists-p file)
-      (if interactive
+      (if verbose
 	  (epackage-message "Not writing, already exists: %s" file)))
      (t
       (with-temp-buffer
