@@ -624,16 +624,30 @@
 ;;
 ;;          (provide 'PACKAGE-ekg-xactivate)
 ;;
-;;  The ignore file
+;;  The 'ignore' file
 ;;
 ;;      List of Emacs regular expression entries on their own lines to
 ;;      ignore files in upstream package. The epackage-devel-*
 ;;      functions examine the packaging structure and can create files
 ;;      like `*-0autoloads.el'. If this file exists, it is read and
 ;;      files matches are ignored. The regexp(s) matches path relative
-;;      to the package root directory.
+;;      to the package root directory. An example:
 ;;
-;;  The info file
+;;          ;; Comments on their own lines start with a semicolon
+;;	    one.el\|two.el
+;;          tree.el
+;;
+;;  The 'lisp' file
+;;
+;;	This file contains Emacs Lisp file directories relative to the
+;;	root of package. Empty lines and standalone comments on their
+;;	own lines starting with semicolon(;) are ignored. Comments
+;;	must not be placed at the directory lines. If all the Emacs
+;;	Lisp files are in the package's root directory, this file not
+;;	needed. The file is used internally to find out if the package
+;;	has been byte compiled or not.
+;;
+;;  The 'info' file
 ;;
 ;;      A RFC 2822 (email) formatted file, which contains information
 ;;      about the extension. The header field names are not case
@@ -693,16 +707,6 @@
 ;;           notes and minor details.
 ;;           .
 ;;           Note: 2010-12-03 the code hasn't been touched since 2004.
-;;
-;;  The 'lisp' file
-;;
-;;	This file contains Emacs Lisp file directories relative to the
-;;	root of package. Empty lines and standalone comments on their
-;;	own lines starting with "#" are ignored. Comments must not be
-;;	placed at the directory lines. If all the Emacs Lisp files are
-;;	in the package's root directory, this file not needed. The
-;;	file is used internally to find out if the package has been
-;;	byte compiled or not.
 ;;
 ;;  Details of the info file fields
 ;;
@@ -1357,7 +1361,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1214.2341"
+(defconst epackage--version-time "2011.1214.2357"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -3579,6 +3583,31 @@ Return subexpression 1, or 0; the one that exists."
 			" ")))
       status)))
 
+(defun epackage-read-file-content-regexp (file)
+  "Return concatenated regexps from FILE.
+Empty lines and comments on their own lines started with ';' are
+ignored"
+  (let (str
+	regexp)
+    (when (file-exists-p file)
+      (with-temp-buffer
+	(insert-file-contents-literally file)
+	(goto-char (point-min))
+	(while (re-search-forward "^[ \t]*\\([^ ;\t\r\n].*\\)" nil t)
+	  (setq str (match-string-no-properties 1))
+	  (if regexp
+	      (setq regexp (format "%s\\|%s" regexp str))
+	    (setq regexp str)))))
+    regexp))
+
+(defun epackage-pkg-ignore-file-content (package)
+  "Return content of ignore file from PACKAGE."
+  (let ((dir (epackage-directory-package-root package))
+	(file (epackage-file-name-package-compose package 'ignore)))
+    (when (and (file-directory-p dir)  ;; FIXME: redundant?
+	       (file-exists-p file))
+	(epackage-read-file-content-regexp file))))
+
 (defun epackage-pkg-lisp-directory (package)
   "Return list of lisp directories of PACKAGE."
   (let ((dir (epackage-directory-package-root package))
@@ -3589,10 +3618,10 @@ Return subexpression 1, or 0; the one that exists."
       (if (not (file-exists-p file))
 	  (setq list (list dir))
 	(with-temp-buffer
-	  (find-file-literally file)
+	  (insert-file-contents-literally file)
 	  (goto-char (point-min))
 	  (setq dir (file-name-as-directory dir))
-	  (while (re-search-forward "^[ \t]*\\([^ \t\r\n#]+\\)" nil t)
+	  (while (re-search-forward "^[ \t]*\\([^ ;\t\r\n]+\\)" nil t)
 	    (setq elt (format "%s%s" dir (match-string-no-properties 1)))
 	    (epackage-push elt list)))))
     list))

@@ -3,6 +3,12 @@
 	* epackage.el (epackage-devel-generate-examples):
 	Adjust template string text for output file.
 	(epackage--layout-mapping): add 'ignore' entry.
+	(epackage-pkg-ignore-file-content): New.
+	(epackage-read-file-content-regexp): New.
+	(epackage-pkg-lisp-directory): Correct to use
+	`insert-file-contents-literally'.
+	(epackage-pkg-lisp-directory): Drop suppert for comments
+	in hash-marks.
 
 2011-12-14 Wed  Jari Aalto  <jari.aalto@cante.net>
 
