@@ -1347,7 +1347,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1214.1944"
+(defconst epackage--version-time "2011.1214.1958"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2128,7 +2128,11 @@ packages.")
      "\\>")
   "Regexp matching short month names.")
 
-;;;###autoload
+(defconst epackage--lisp-file-exclude-regexp
+  "\\(?:^\\|/\\)\\(?:test\\.el\\)"
+  "Regexp to exclude lisp files.
+Used in function `'.")
+
 (defconst epackage--directory-exclude-regexp
   (concat
    (regexp-opt
@@ -2156,7 +2160,7 @@ packages.")
       "/texinfo"))
    "$")
   "Regexp to exclude dirctory names.
-See 'epackage-directory-recursive-list-default'
+See function 'epackage-directory-recursive-list-default'
 which also excludes directories than contain file .nosearch.")
 
 (defconst epackage--info-layout-mapping
@@ -2897,8 +2901,7 @@ or whose path name matches EXCLUDE."
 
 (defsubst epackage-directory-recursive-list-default (dir)
   "Return all directories under DIR recursively.
-Exclude directories than contain file .nosearch
-or which match `epackage--directory-exclude-regexp'
+Exclude directories matching `epackage--directory-exclude-regexp'
 and `epackage--directory-name'."
   (let (list)
     (epackage-directory-recursive-list
@@ -2917,13 +2920,16 @@ See `epackage-directory-recursive-list-default' for more information."
           (epackage-push elt ret)))
     ret))
 
-(defsubst epackage-files-recursive-lisp (dir &optional type)
+(defsubst epackage-files-recursive-lisp (dir &optional type exclude)
   "Return all Emacs Lisp files under DIR recursively.
 
-TYPE can be:
-  'nopath   Only filenames
-  'relative Path relative to DIR.
-  nil       with full path
+Input:
+
+   TYPE     How to return path names:
+            'nopath    Only filenames.
+            'relative  Path relative to DIR.
+            nil        With full path.
+   EXCLUDE  Regexp to exclude path names
 
 See `epackage-directory-recursive-list-default' for more information."
   (let ((regexp (format "^%s?/?\\(.+\\)$"  ;; Trailing dir/?/?
@@ -2932,15 +2938,17 @@ See `epackage-directory-recursive-list-default' for more information."
 	list)
     (dolist (elt (epackage-directory-recursive-lisp dir))
       (dolist (file (directory-files elt nil "\\.el$"))
-	(setq file
-	      (cond
-	       ((eq type nil)
-		(format "%s/%s" dir file))
-	       ((eq type 'relative)
-		(if (string-match regexp elt)
-		    (concat (match-string 1 elt) "/" file)
-		  (file-name-nondirectory file)))))
-	 (epackage-push file list)))
+	(when (or (null exclude)
+		  (not (string-match exclude file)))
+	  (setq file
+		(cond
+		 ((eq type nil)
+		  (format "%s/%s" dir file))
+		 ((eq type 'relative)
+		  (if (string-match regexp elt)
+		      (concat (match-string 1 elt) "/" file)
+		    (file-name-nondirectory file)))))
+	  (epackage-push file list))))
     list))
 
 (defun epackage-directory-packages-control-file (package type)
@@ -4015,7 +4023,8 @@ The first argument is the the destination file where loaddefs are stored."
   "Generate loaddefs from DIR to FILE.
 Optionally EXCLUDE files by regexp.
 If VERBOSE is non-nil, display informational messages."
-  (interactive "FDLoaddefs from dir: \nFLoaddefs to file: \nsFile ignore regexp: ")
+  (interactive
+   "FDLoaddefs from dir: \nFLoaddefs to file: \nsFile ignore regexp: ")
   (let ((regexp "\\(?:loaddef\\|autoload\\).*\\.el\\|[#~]")
         list)
     (if (and (stringp exclude)
@@ -4392,8 +4401,13 @@ Input:
   (let* ((file (epackage-layout-file-name root package 'compile))
 	 (edir (file-name-directory file))
 	 (list (if recursive
-		   (epackage-files-recursive-lisp dir 'relative)
-		 (directory-files dir nil "\\.el$"))))
+		   (epackage-files-recursive-lisp
+		    dir
+		    'relative
+		    epackage--lisp-file-exclude-regexp)
+		 (epackage-directory-file-list
+		  dir
+		  epackage--lisp-file-exclude-regexp))))
     (epackage-make-directory edir 'no-question 'error)
     (epackage-devel-generate-compile-write-file file list)))
 

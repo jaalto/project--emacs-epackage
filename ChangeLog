@@ -10,6 +10,10 @@
 	(epackage-devel-information-date-versionstr): Correct
 	call to `epackage-devel-information-version-main'.
 	(epackage--directory-exclude-regexp): Add more directories.
+	(epackage-files-recursive-lisp): Add argument EXCLUDE.
+	(epackage-devel-generate-compile-main): Use
+	'epackage--lisp-file-exclude-regexp'.
+	(epackage--lisp-file-exclude-regexp): New.
 
 2011-12-13 Wed  Jari Aalto  <jari.aalto@cante.net>
 
