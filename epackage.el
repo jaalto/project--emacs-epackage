@@ -1361,7 +1361,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1214.2357"
+(defconst epackage--version-time "2011.1215.0016"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2536,6 +2536,12 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
 	(lambda (a b)
 	  (string< a b))))
 
+(defsubst epackage-erase-buffer ()
+  "Disable undo and erase current buffer."
+  (let ((buffer-undo-list t))
+    (unless (eq (point-min) (point-max))
+      (delete-region (point-min) (point-max)))))
+
 (defsubst epackage-url-extract-host (url)
   "Extract from URL the HOST portion."
   (if (or (string-match "^[^:]+@\\([^/:]+\\):" url) ;login@host:
@@ -2770,12 +2776,14 @@ Return `epackage--download-action-list'."
 
 (defsubst epackage-layout-file-name (dir package type)
   "Return file name under DIR of PACKAGE and layout TYPE."
-  (format "%s%s/%s%s"
+  (format "%s%s/%s"
 	  (file-name-as-directory dir)
 	  epackage--package-control-directory
-	  (downcase package)
-	  (or (epackage-layout-mapping-file type)
-	      (error "Unknown epackage layout type: %s" type))))
+	  (let* ((type (or (epackage-layout-mapping-file type)
+			   (error "Unknown epackage layout type: %s" type))))
+	    (if (string-match "^-" type)
+		(concat (downcase package) type)
+	      type))))
 
 (defsubst epackage-eval-file (file &optional security)
   "Evaluate FILE with optionally checking SECURITY.
@@ -4210,7 +4218,7 @@ If optional VERBOSE is non-nil, display progress message."
 
 ;; copy of ti::package-autoload-create-on-directory
 (defun epackage-autoload-create-on-directory
-  (dir &optional buffer)
+  (dir &optional buffer exclude)
   "Create autoloads from lisp files in DIR to current buffer.
 Optionally put results to BUFFER.
 
@@ -4221,12 +4229,15 @@ Note:
 Input:
 
   DIR     Directory to read *.el files.
-  BUFFER  Optional. Defaults to `current-buffer'."
+  BUFFER  Optional. Defaults to `current-buffer'.
+  EXCLUDE Optional. Exlude files."
   (let ((files (directory-files
                 dir
                 'full
                 "\\.el$"))
 	(regexp "\\(?:loaddef\\|autoload\\)\\|[#~]"))
+    (if exclude
+	(setq regexp (concat regexp "\\|" exclude)))
     (dolist (file files)
       (unless (string-match regexp file)
 	(epackage-autoload-create-on-file
@@ -4346,7 +4357,7 @@ Input:
     (epackage-make-directory edir 'no-question 'error)
     (cond
      ((file-exists-p file)
-      (if interactive
+      (if verbose
 	  (epackage-message "Not writing, already exists: %s" file)))
      (t
       (with-temp-buffer
@@ -4484,7 +4495,9 @@ Input:
     (epackage-error "Directory ROOT does not exist: %s" dir))
   (let* ((file (epackage-layout-file-name root package 'loaddefs))
 	 (edir (file-name-directory file))
-	 (buffer epackage--buffer-autoload))
+	 (buffer epackage--buffer-autoload)
+	 (exclude (epackage-read-file-content-regexp
+		   (epackage-layout-file-name root package 'ignore))))
     (if (interactive-p)
 	(setq verbose t))
     (epackage-make-directory edir 'no-question 'error)
@@ -4553,21 +4566,23 @@ Notes:
     (epackage-error "Drectory does not exist: %s" dir))
   (let* ((file (epackage-layout-file-name root package 'autoload))
 	 (edir (file-name-directory file))
-	 (buffer epackage--buffer-autoload))
+	 (buffer epackage--buffer-autoload)
+	 (exclude (epackage-read-file-content-regexp
+		   (epackage-layout-file-name root package 'ignore))))
     (if (interactive-p)
 	(setq verbose t))
     (epackage-make-directory edir 'error)
     (epackage-with-buffer-autoload
-      (delete-region (point-min) (point-max))
+      (epackage-erase-buffer)
       (cond
        (recursive
 	(dolist (elt (epackage-directory-recursive-lisp dir))
-	  (epackage-autoload-create-on-directory elt)))
+	  (epackage-autoload-create-on-directory elt nil exclude)))
        (t
 	(if (stringp dir)
-	    (epackage-autoload-create-on-directory dir)
+	    (epackage-autoload-create-on-directory dir nil exclude)
 	  (dolist (elt dir)
-	    (epackage-autoload-create-on-directory elt)))))
+	    (epackage-autoload-create-on-directory elt nil exclude)))))
       (cond
        ((not (eq (point-min) (point-max)))
 	(epackage-add-provide-to-buffer file)

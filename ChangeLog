@@ -1,3 +1,14 @@
+2011-12-15 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-erase-buffer): New.
+	(epackage-devel-generate-autoloads): Use
+	`epackage-erase-buffer'.
+	(epackage-autoload-create-on-directory): Add argument
+	EXCLUDE.
+	(epackage-layout-file-name): Correct function.
+	(epackage-devel-generate-uninstall): Correct variable.
+	(epackage-devel-generate-autoloads): Support ignore file.
+
 2011-12-14 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-devel-generate-examples):
