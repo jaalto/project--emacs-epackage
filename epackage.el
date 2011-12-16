@@ -1361,7 +1361,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1215.0016"
+(defconst epackage--version-time "2011.1216.1858"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4400,7 +4400,9 @@ Input:
   (if (interactive-p)
       (setq verbose t))
   (let* ((file (epackage-layout-file-name root package 'examples))
-	 (edir (file-name-directory file)))
+	 (edir (file-name-directory file))
+	 (exclude (epackage-read-file-content-regexp
+		   (epackage-layout-file-name root package 'ignore))))
     ;; FIXME: Add some extraction code that would rip code examples
     ;; from inside source code files.
     ;; For now, just write dummy template file.
@@ -4452,14 +4454,15 @@ Input:
       (setq verbose t))
   (let* ((file (epackage-layout-file-name root package 'compile))
 	 (edir (file-name-directory file))
+	 (regexp epackage--lisp-file-exclude-regexp)
+	 (ignore (epackage-read-file-content-regexp
+		   (epackage-layout-file-name root package 'ignore)))
+	 (exclude (if ignore
+		      (format "%s\\|%s" ignore regexp)
+		    regexp))
 	 (list (if recursive
-		   (epackage-files-recursive-lisp
-		    dir
-		    'relative
-		    epackage--lisp-file-exclude-regexp)
-		 (epackage-directory-file-list
-		  dir
-		  epackage--lisp-file-exclude-regexp))))
+		   (epackage-files-recursive-lisp dir 'relative exclude)
+		 (epackage-directory-file-list dir exclude))))
     (epackage-make-directory edir 'no-question 'error)
     (epackage-devel-generate-compile-write-file file list)))
 
@@ -4493,23 +4496,27 @@ Input:
   (when (or (not (stringp root))
 	    (not (file-directory-p root)))
     (epackage-error "Directory ROOT does not exist: %s" dir))
+  (if (interactive-p)
+      (setq verbose t))
   (let* ((file (epackage-layout-file-name root package 'loaddefs))
 	 (edir (file-name-directory file))
 	 (buffer epackage--buffer-autoload)
-	 (exclude (epackage-read-file-content-regexp
-		   (epackage-layout-file-name root package 'ignore))))
-    (if (interactive-p)
-	(setq verbose t))
+	 (regexp "\\(?:loaddef\\|autoload\\).*\\.el\\|[#~]")
+	 (ignore (epackage-read-file-content-regexp
+		   (epackage-layout-file-name root package 'ignore)))
+	 (exclude (if ignore
+		      (format "%s\\|%s" ignore regexp)
+		    regexp)))
     (epackage-make-directory edir 'no-question 'error)
     (cond
      (recursive
       (dolist (elt (epackage-directory-recursive-lisp dir))
-	(epackage-autoload-generate-loaddefs-dir elt file nil verbose)))
+	(epackage-autoload-generate-loaddefs-dir elt file exclude verbose)))
      (t
       (if (stringp dir)
-	  (epackage-autoload-generate-loaddefs-dir dir file nil verbose)
+	  (epackage-autoload-generate-loaddefs-dir dir file exclude verbose)
 	(dolist (elt dir)
-	  (epackage-autoload-generate-loaddefs-dir dir file nil verbose)))))
+	  (epackage-autoload-generate-loaddefs-dir dir file eclude verbose)))))
     (when (file-exists-p file)
       (epackage-add-provide-to-file file))))
 

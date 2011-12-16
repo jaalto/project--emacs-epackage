@@ -1,3 +1,11 @@
+2011-12-16 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-devel-generate-loaddefs): Support
+	ignore file.
+	(epackage-devel-generate-compile-main): Support ignore file.
+	(epackage-devel-generate-examples): Add preliminary ignore
+	file support.
+
 2011-12-15 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-erase-buffer): New.
