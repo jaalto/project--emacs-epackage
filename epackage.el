@@ -1361,7 +1361,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1216.1858"
+(defconst epackage--version-time "2011.1217.2302"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2433,6 +2433,10 @@ Description: <short one line>
   "String containing the epackage/info file.")
 
 ;;; ................................................ &functions-simple ...
+
+(defmacro epackage-nconc (list place)
+  "Add LIST to PLACE, modify PLACE."
+  `(setq ,place (nconc ,list ,place)))
 
 (defmacro epackage-push (x place)
   "A close `push' CL library macro equivalent: (push X PLACE)."
@@ -4243,7 +4247,8 @@ Input:
 	(epackage-autoload-create-on-file
 	 file
 	 (or buffer
-	     (current-buffer)))))))
+	     (current-buffer)))))
+    files))
 
 (defun epackage-make-directory (directory &optional no-question error)
   "Create directory, optionally with NO-QUESTION. Signal error if denied.
@@ -4545,6 +4550,10 @@ Input:
     VERBOSE	Optional. If non-nil, display verbose message.
                 Interactive call sets this.
 
+Return:
+
+    If RECURSIVE, list of files.
+
 Notes:
 
    If RECURSIVE is set, every directory that contains *.el file
@@ -4575,7 +4584,8 @@ Notes:
 	 (edir (file-name-directory file))
 	 (buffer epackage--buffer-autoload)
 	 (exclude (epackage-read-file-content-regexp
-		   (epackage-layout-file-name root package 'ignore))))
+		   (epackage-layout-file-name root package 'ignore)))
+	 list)
     (if (interactive-p)
 	(setq verbose t))
     (epackage-make-directory edir 'error)
@@ -4584,22 +4594,67 @@ Notes:
       (cond
        (recursive
 	(dolist (elt (epackage-directory-recursive-lisp dir))
-	  (epackage-autoload-create-on-directory elt nil exclude)))
+	  (epackage-nconc
+	   (epackage-autoload-create-on-directory elt nil exclude)
+	   list)))
        (t
 	(if (stringp dir)
-	    (epackage-autoload-create-on-directory dir nil exclude)
+	    (setq list (epackage-autoload-create-on-directory dir nil exclude))
 	  (dolist (elt dir)
-	    (epackage-autoload-create-on-directory elt nil exclude)))))
+	    (epackage-nconc
+	     (epackage-autoload-create-on-directory elt nil exclude)
+	     list)))))
       (cond
        ((not (eq (point-min) (point-max)))
 	(epackage-add-provide-to-buffer file)
 	(epackage-write-region (point-min) (point-max) file)
 	(epackage-verbose-message "Wrote %s" file)
-	t)
+	(or list
+	    t))
        (t
 	(epackage-verbose-message
 	  "[WARN] No autoloads found for %s from dir %s" file dir)
 	nil)))))
+
+(defun epackage-devel-generate-install
+  (package root afile &optional verbose)
+  "Generate PACKAGE install relative to ROOT manually from AFILE.
+The install is stored under directory ROOT/`epackage--directory-name'.
+Extract interactive autoload statements from AFILE.
+
+Input:
+
+    PACKAGE	Epackage name
+    ROOT	Epackage root directory (must exists).
+    AFILE       The `autoload' statement file.
+    VERBOSE	Optional. If non-nil, display verbose message.
+                Interactive call sets this."
+  (interactive
+   "sPackage name: \nFAutoload file: ")
+  (epackage-error-if-invalid-package-name package)
+  (when (or (not (stringp root))
+	    (not (file-directory-p root)))
+    (epackage-error "Drectory does not exist: %s" dir))
+  (let ((autoloads afile)
+	(install (epackage-layout-file-name dir package 'enable)))
+    ;; By default we copy all interactive functions to install.
+    (if (file-exists-p install)
+	(epackage-verbose-message
+	  "Already created, not touching %s" install)
+      (if (not (file-exists-p autoloads))
+	  (epackage-verbose-message
+	    "[NOTE] File does not exist %s" autoloads)
+	(with-temp-buffer
+	  (insert-file-contents autoloads)
+	  (goto-char (point-min))
+	  ;; Searh line that have "t" at end:
+	  ;;
+	  ;; (autoload 'command "package" "" t)
+	  ;; (autoload 'command "package" "" nil 'macro)
+	  (delete-non-matching-lines "t)[ \t]*$")
+	  (epackage-add-provide-to-buffer install)
+	  (epackage-write-region (point-min) (point-max) install)
+	  (epackage-verbose-message "Wrote %s" install))))))
 
 (defun epackage-devel-information-license-gpl-standard ()
   "If buffer contains standard GPL stanza, return GPL[-<version>[+]].
@@ -4742,7 +4797,7 @@ FIELD can be:
 ;;;###autoload
 (defun epackage-devel-compose-package-info
   (package dir &optional verbose alist)
-  "Compose initial info file for PACKAGE in DIR.
+  "Generate info file for PACKAGE in DIR.
 
 Input:
   PACKAGE	Package name. All lowercase.
@@ -4754,6 +4809,7 @@ Notes:
   File is written under `epackage--directory-name' in DIR.
   Do nothing if file already exists."
   (interactive "sEpackage name: \nDLisp package root dir: ")
+  (epackage-error-if-invalid-package-name package)
   (if (interactive-p)
       (setq verbose 'interactive))
   (let ((file (format "%s%s/%s"
@@ -4837,33 +4893,22 @@ Input:
   (if (interactive-p)
       (setq verbose 'interactive))
   (epackage-error-if-invalid-package-name package)
-  (epackage-devel-generate-autoloads package dir dir 'recursive verbose)
-  (epackage-devel-generate-loaddefs package dir dir 'recursive verbose)
-  (epackage-devel-generate-compile-main package dir dir 'recursive verbose)
-  (epackage-devel-generate-examples package dir dir 'recursive verbose)
-  (epackage-devel-generate-uninstall package dir dir 'reursive verbose)
-  (let ((autoloads (epackage-layout-file-name dir package 'autoload))
-	(install (epackage-layout-file-name dir package 'enable)))
-    ;; By default we copy all interactive functions to install.
-    (if (file-exists-p install)
-	(epackage-verbose-message
-	  "Already created, not touching %s" install)
-      (if (not (file-exists-p autoloads))
-	  (epackage-verbose-message
-	    "[NOTE] File does not exist %s" autoloads)
-	(with-temp-buffer
-	  (insert-file-contents autoloads)
-	  (goto-char (point-min))
-	  ;; Searh line that have "t" at end:
-	  ;;
-	  ;; (autoload 'command "package" "" t)
-	  ;; (autoload 'command "package" "" nil 'macro)
-	  (delete-non-matching-lines "t)[ \t]*$")
-	  (epackage-add-provide-to-buffer install)
-	  (epackage-write-region (point-min) (point-max) install)
-	  (epackage-verbose-message "Wrote %s" install))))
-    (epackage-devel-compose-package-info
-     package dir verbose alist)
+  (let ((list
+	 (epackage-devel-generate-autoloads
+	  package
+	  dir dir 'recursive verbose)))
+    (let ((file (epackage-layout-file-name dir package 'autoload)))
+      (epackage-devel-generate-install package dir file verbose))
+    (epackage-devel-generate-loaddefs package dir dir 'recursive verbose)
+    (epackage-devel-generate-compile-main package dir dir 'recursive verbose)
+    (epackage-devel-generate-examples package dir dir 'recursive verbose)
+    (epackage-devel-generate-uninstall package dir dir 'reursive verbose)
+    (if (and list
+	     (listp list)
+	     (eq 1 (length list))
+	     (epackage-devel-compose-package-info-from-file
+	      package dir (car list) verbose))
+	(epackage-devel-compose-package-info package dir verbose))
     t))
 
 ;;;###autoload

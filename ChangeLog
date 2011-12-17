@@ -1,3 +1,10 @@
+2011-12-17 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-devel-generate-install): New.
+	(epackage-devel-compose-package-dir): Rewrite. Modular.
+	(epackage-autoload-create-on-directory): Return files.
+	(epackage-nconc): New.
+
 2011-12-16 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-devel-generate-loaddefs): Support
