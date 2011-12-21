@@ -1361,7 +1361,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1217.2307"
+(defconst epackage--version-time "2011.1221.2317"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2821,6 +2821,7 @@ Return:
   (string-match exclude dir))
 
 ;;  Test Drivers:
+;;  (epackage-date-to-iso "20080830")
 ;;  (epackage-date-to-iso "2011.1.12")
 ;;  (epackage-date-to-iso "1/19/98")
 ;;  (epackage-date-to-iso "Wed Jun 17 14:26:21 2009 (-0700)")
@@ -2829,9 +2830,24 @@ Return:
   (cond
    ((not (stringp str))					; skip
     nil)
-   ((string-match "\\<\\([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\\)\\>" str)
-    (match-string-no-properties 1 str))			; Already ISO
-   ((string-match					; YYYY.MM?.DD?
+   ;; YYYY-MM-DD
+   ((string-match "\\<\\([12][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]\\)\\>" str)
+    (match-string-no-properties 1 str))
+   ;; YYYYMMDD
+   ((string-match
+     `,(concat
+	"\\<"
+	"\\([12][0-9][0-9][0-9]\\)"
+	"\\([0-1][0-9]\\)"
+	"\\([0-3][0-9]\\)"
+	"\\>")
+     str)
+    (let ((y (match-string-no-properties 1 str))
+	  (m (string-to-number (match-string-no-properties 2 str)))
+	  (d (string-to-number (match-string-no-properties 3 str))))
+      (format "%s-%02d-%02d" y m d)))
+   ;; YYYY.MM?.DD?
+   ((string-match
      `,(concat "\\<\\([0-9][0-9][0-9][0-9]\\)[.]"
 	       "\\([0-9][0-9]?\\)[.]"
 	       "\\([0-9][0-9]?\\)\\>")
@@ -2840,7 +2856,13 @@ Return:
 	  (m (string-to-number (match-string-no-properties 2 str)))
 	  (d (string-to-number (match-string-no-properties 3 str))))
       (format "%s-%02d-%02d" y m d)))
-   ((string-match "\\<\\([0-9]+\\)/\\([0-9]+\\)/\\([0-9][0-9]+\\)\\>" str)
+   ;; US format MM?/DD?/YY(YY)?
+   ((string-match
+     `,(concat
+	"\\<\\([0-9][0-9]?\\)/"
+	"\\([0-9][0-9]?\\)/"
+	"\\([0-9][0-9]+\\(?:[0-9][0-9]\\)?\\)\\>")
+     str)
     (let ((m (string-to-number (match-string-no-properties 1 str)))
 	  (d (string-to-number (match-string-no-properties 2 str)))
 	  (y (match-string-no-properties 3 str)))
@@ -2849,6 +2871,7 @@ Return:
 	    (setq y (concat "19" y))
 	  (setq y (concat "20" y))))
       (format "%s-%02d-%02d" y m d)))
+   ;; "Wed Jun 17 14:26:21 2009 (-0700)"
    ((string-match
      `,(concat
 	epackage--date-weekday-regexp

@@ -1,5 +1,8 @@
 2011-12-21 Thu  Jari Aalto  <jari.aalto@cante.net>
 
+	* epackage.el (epackage-date-to-iso): Tighten US format.
+	Add YYYYMMDD support.
+
 	* README: untabify.
 	(Important files::AUTHORS): adjust.
 
