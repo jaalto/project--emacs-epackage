@@ -1,3 +1,7 @@
+2011-12-21 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* README: untabify.
+
 2011-12-17 Sun  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-devel-generate-install): New.

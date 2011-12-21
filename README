@@ -12,7 +12,7 @@ Important files
 
         COPYING*        GPL-2+ Source. Docs are dual GPL-2+/GFDL
         INSTALL         Install instructions
-	AUTHORS		Deveoper contacts
+        AUTHORS         Deveoper contacts
         ChangeLog       Project change records
 
 Project details
@@ -28,12 +28,12 @@ Project details
           external libraries are used.
         - Git[1], any version.
 
-	Depends (optional)
+        Depends (optional)
         - Perl, and utilities: ripdoc[2] and t2html[3].
           Used in "make doc" command to generate HTML
           documentation.
         - OpenSSH client, any version. For package maintainers that
-	  host packages at remote git:// repositories.
+          host packages at remote git:// repositories.
 
 References
 
