@@ -4,6 +4,7 @@
 	(epackage-devel-compose-package-dir): Rewrite. Modular.
 	(epackage-autoload-create-on-directory): Return files.
 	(epackage-nconc): New.
+	(epackage--layout-template-info): Fix typo.
 
 2011-12-16 Fri  Jari Aalto  <jari.aalto@cante.net>
 

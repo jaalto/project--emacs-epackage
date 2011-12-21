@@ -1361,7 +1361,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1217.2302"
+(defconst epackage--version-time "2011.1217.2307"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2428,7 +2428,7 @@ Commentary:
 Description: <short one line>
  [<Longer description>]
  .
- Note YYYY-MM-DD the code hasn't been touched since YYYY.
+ Note: YYYY-MM-DD the code hasn't been touched since YYYY.
 "
   "String containing the epackage/info file.")
 
