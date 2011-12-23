@@ -5,6 +5,7 @@
 	(epackage-package-name-valid-p): Use `epackage-with-case-fold-search'.
 	(epackage-sources-list-info-pkg-list): Use
 	`epackage-with-case-fold-search'.
+	(epackage-require-git): Improve error message.
 
 2011-12-21 Thu  Jari Aalto  <jari.aalto@cante.net>
 

@@ -1366,7 +1366,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1223.0845"
+(defconst epackage--version-time "2011.1223.0848"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -5828,7 +5828,7 @@ If optional VERBOSE is non-nil, display progress message."
       (setq epackage--program-git bin)))
    ((and (stringp epackage--program-git)
          (not (file-exists-p epackage--program-git)))
-    (epackage-error "Invalid `epackage--program-git' (%s)"
+    (epackage-error "Invalid or not exists `epackage--program-git' (%s)"
                     epackage--program-git))
    ((file-executable-p epackage--program-git)) ;All ok
    (t
