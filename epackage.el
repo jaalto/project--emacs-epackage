@@ -569,7 +569,7 @@
 ;;          ;; Prevent loading this file. Study the examples.
 ;;          (error "PACKAGE-epkg-examples.el is not a config file.")
 ;;
-;;     The *-install.el
+;;     The *-install.el (required; unless package starts with lib-*)
 ;;
 ;;      This file publishes user variables and interactive `M-x'
 ;;      functions in *autoload* state. It may make conservative
@@ -585,6 +585,11 @@
 ;;      in:
 ;;
 ;;          (provide 'PACKAGE-epkg-install)
+;;
+;;     Note: If package name starts with =lib-=, this file is not
+;;     required. Libraries that are used for building other extensions
+;;     are not requied to provide any install files. The autoloads
+;;     publish available functions.
 ;;
 ;;     The *-uninstall.el
 ;;
@@ -1361,7 +1366,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1221.2317"
+(defconst epackage--version-time "2011.1223.0843"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2192,7 +2197,7 @@ Format is:
 (defconst epackage--layout-mapping
   '((activate   "-epkg-xactivate.el")
     (autoload   "-epkg-autoloads.el")
-    (enable     "-epkg-install.el"  'required)
+    (enable     "-epkg-install.el"  'required) ;; not for lib-* packages
     (examples   "-epkg-examples.el")
     (compile    "-epkg-compile.el")
     (info       "info"  'required)
@@ -2434,6 +2439,13 @@ Description: <short one line>
 
 ;;; ................................................ &functions-simple ...
 
+(put 'epackage-with-write-file 'epackage-with-case-fold-search 0)
+(put 'epackage-with-write-file 'epackage-with-case-fold-search '(body))
+(defmacro epackage-with-case-fold-search (&rest body)
+  "Run BODY with `case-fold-search' set to nil."
+  `(let (case-fold-search)
+     ,@body))
+
 (defmacro epackage-nconc (list place)
   "Add LIST to PLACE, modify PLACE."
   `(setq ,place (nconc ,list ,place)))
@@ -2648,13 +2660,20 @@ Return nil of there is nothing to remove .i.e. the result wold be \"/\"."
        (not (string-match "^[ \t\r\n]*$" string))
        string))
 
+(defsubst epackage-package-name-library-p (package)
+  "Check if PACKAGE name is library."
+  (epackage-with-case-fold-search
+   (unless (stringp package)
+     (epackage-error "package name is not a string")
+     (string-match "^lib-" package))))
+
 (defsubst epackage-package-name-valid-p (package)
   "Check if PACKAGE name is valid."
-  (unless (stringp package)
-    (epackage-error "package name is not a string"))
-  (let (case-fold-search)
-    ;; "a-" is an invalid package name
-    (string-match "^[a-z]\\(?:[a-z0-9-]+\\)?[a-z0-9]$" package)))
+  (epackage-with-case-fold-search
+   (unless (stringp package)
+     (epackage-error "package name is not a string")
+     ;; "a-" is an invalid package name
+     (string-match "^[a-z]\\(?:[a-z0-9-]+\\)?[a-z0-9]$" package))))
 
 (defsubst epackage-error-if-invalid-package-name (package &optional msg)
   "Check if PACKAGE name is valid or signal error with optional MSG."
