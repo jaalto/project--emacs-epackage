@@ -9,6 +9,9 @@
 	(epackage--layout-mapping): Add 3rd parameter.
 	(epackage-pkg-lint-dir-structure): Treat library packages
 	differently.
+	(epackage-sources-list-and-repositories-sync): Use
+	`epackage-warn'.
+	(epackage-combine-files): Use `epackage-warn'.
 
 2011-12-21 Thu  Jari Aalto  <jari.aalto@cante.net>
 

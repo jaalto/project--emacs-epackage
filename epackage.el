@@ -1366,7 +1366,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1223.0905"
+(defconst epackage--version-time "2011.1223.0907"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -5193,9 +5193,9 @@ still in pristine state."
         (cond
          ;; FIXME: should check if repository is not locally modified.
          ((not (epackage-git-master-p package))
-          (epackage-message
+          (epackage-warn
             `,(concat
-               "[WARN] Won't re-create due to changed source URL. "
+               "Won't re-create due to changed source URL. "
                "Branch name is not \"master\" in %s; "
                "possibly changed manually or invalid package repository.")
             dir))
@@ -5247,7 +5247,7 @@ Before saving, apply `epackage--sources-replace-table'."
       (if (file-exists-p elt)
 	  (insert-file-contents elt)
 	(insert "# ERROR: Not found\n")
-	(epackage-message "WARNING: Non-existing file for combine: %s" file)))
+	(epackage-warn "Non-existing file for combine: %s" file)))
     (epackage-with-message
         verbose (format "Write master sources list file %s" file)
       (goto-char (point-min))
