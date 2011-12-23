@@ -1366,7 +1366,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1223.0848"
+(defconst epackage--version-time "2011.1223.0905"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2197,7 +2197,7 @@ Format is:
 (defconst epackage--layout-mapping
   '((activate   "-epkg-xactivate.el")
     (autoload   "-epkg-autoloads.el")
-    (enable     "-epkg-install.el"  'required) ;; not for lib-* packages
+    (enable     "-epkg-install.el"  'required '(file)) ;; not for lib-* packages
     (examples   "-epkg-examples.el")
     (compile    "-epkg-compile.el")
     (info       "info"  'required)
@@ -2207,11 +2207,25 @@ Format is:
     (uninstall  "-epkg-uninstall.el"))
   "File type mapping table for files in `epackage--package-control-directory'.
 Format is:
-  '((TYPE FILENAME [REQUIRED-FLAG]) ...)
+    '((TYPE FILENAME [REQUIRED-FLAG] [TYPE-FLAG]) ...)
 
-If FILENAME starts with '-', then the package name is prefixed to
-the FILENAME. Say package name 'foo', and suffix is '-install',
-the full filename is 'foo-install.el.")
+Description:
+
+    TYPE	    Property type name.
+
+    FILENAME	    If FILENAME starts with '-', then the package name
+		    is prefixed to the FILENAME. Say package name
+		    'foo', and suffix is '-install', the full
+		    filename is 'foo-install.el.
+
+    REQUIRED-FLAG   If non-nil, this configuration file is required
+
+    TYPE-FLAG	    List of types the REQUIRED-FLAG applies. Valid
+		    values are `file' and `lib'. If value is nil,
+		    REQUIREd-FLAG is treated as it this were set to '(file lib).
+
+		    For example, to require that file only exists
+		    only in library packages, set this value to '(lib).")
 
 (defvar epackage--buffer-autoload "*Epackage autoloads*"
   "Buffer to use for gathering manual autoload definitions.
@@ -6178,21 +6192,24 @@ If valid, return list of required branches."
 (defun epackage-pkg-lint-dir-structure (dir &optional verbose)
   "Check valid directories of package in DIR.
 If optional VERBOSE is non-nil, display progress message.
-The base name of DIR is takes as the package name. An example:
+The base name of DIR is taken as the package name. An example:
 
-  ~/.emacs.d/epackage/package/foo  => foo is package name.
+  ~/.emacs.d/epackage/package/foo  => 'foo' is the package name
 
 Return:
     t  if valid."
-  (let ((package (epackage-file-name-nondirectory dir))
-        (status t)
-        list
-        name
-        required
-        path)
+  (let* ((package (epackage-file-name-nondirectory dir))
+	 (lib-p   (epackage-package-name-library-p package))
+	 (status t)
+	 list
+	 name
+	 required
+	 type
+	 path)
     (dolist (elt epackage--layout-mapping)
       (setq name     (nth 1 elt)
-            required (nth 2 elt))
+            required (nth 2 elt)
+            type     (nth 3 elt))
       (if (string-match "-" name)
           (setq path (format "%s%s/%s%s"
                              (file-name-as-directory dir)
@@ -6204,7 +6221,10 @@ Return:
                            epackage--directory-name
                            name)))
       (when (and required
-                 (not (file-exists-p path)))
+		 (or (null type)	;applies to all packages
+		     (and lib-p
+			  (memq 'lib type)))
+		 (not (file-exists-p path)))
         (epackage-verbose-message
           "[ERROR] Lint - missing required file: %s" path)
         (setq status nil)))

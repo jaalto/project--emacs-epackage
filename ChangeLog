@@ -6,6 +6,9 @@
 	(epackage-sources-list-info-pkg-list): Use
 	`epackage-with-case-fold-search'.
 	(epackage-require-git): Improve error message.
+	(epackage--layout-mapping): Add 3rd parameter.
+	(epackage-pkg-lint-dir-structure): Treat library packages
+	differently.
 
 2011-12-21 Thu  Jari Aalto  <jari.aalto@cante.net>
 
