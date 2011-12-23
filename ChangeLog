@@ -3,6 +3,8 @@
 	* epackage.el (epackage-with-case-fold-search): New.
 	(epackage-package-name-library-p): New.
 	(epackage-package-name-valid-p): Use `epackage-with-case-fold-search'.
+	(epackage-sources-list-info-pkg-list): Use
+	`epackage-with-case-fold-search'.
 
 2011-12-21 Thu  Jari Aalto  <jari.aalto@cante.net>
 

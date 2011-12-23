@@ -1366,7 +1366,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1223.0843"
+(defconst epackage--version-time "2011.1223.0845"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -3401,8 +3401,8 @@ Kill buffer after BODY."
 
 (defun epackage-field-goto (field)
   "Go to the beginning of FIELD only if it exists."
-  (let (end
-	(case-fold-search t))
+  (let ((case-fold-search t)
+	end)
     (goto-char (point-min))
     (when (re-search-forward (concat "^" (regexp-quote field) ":") end t)
       (if (looking-at " ")
@@ -5800,13 +5800,13 @@ Format is described in variable `epackage--sources-list-url'."
 (defun epackage-sources-list-info-pkg-list ()
   "Return list of packages in alphabetical order."
   (epackage-with-sources-list
-    (let (case-fold-search
-          list)
-      (goto-char (point-min))
-      (while (re-search-forward "^\\([a-z][a-z0-9-]+\\)[ \t]+[a-z]" nil t)
-        (epackage-push (match-string-no-properties 1) list))
-      (setq list (epackage-sort list))
-      list)))
+    (epackage-with-case-fold-search
+     (let (list)
+       (goto-char (point-min))
+       (while (re-search-forward "^\\([a-z][a-z0-9-]+\\)[ \t]+[a-z]" nil t)
+	 (epackage-push (match-string-no-properties 1) list))
+       (setq list (epackage-sort list))
+       list))))
 
 (defun epackage-require-emacs (&optional verbose)
   "Require Emacs features.
