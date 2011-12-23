@@ -470,7 +470,7 @@
 ;;              PACKAGE-epkg-compile.el    optional: Code to byte compile the extension
 ;;              PACKAGE-epkg-configure.el  optional: Code to run ./configure
 ;;              PACKAGE-epkg-examples.el   optional: Customization examples
-;;              PACKAGE-epkg-install.el    required: Code to make the extension available
+;;              PACKAGE-epkg-install.el    required: Code to make the extension available. Not required fo lib-* packages.
 ;;              PACKAGE-epkg-uninstall.el  optional: Code to remove the extension
 ;;              PACKAGE-epkg-xactivate.el  optional: Code to activate the extension
 ;;
@@ -569,7 +569,7 @@
 ;;          ;; Prevent loading this file. Study the examples.
 ;;          (error "PACKAGE-epkg-examples.el is not a config file.")
 ;;
-;;     The *-install.el (required; unless package starts with lib-*)
+;;     The *-install.el (required; unless package name is lib-*)
 ;;
 ;;      This file publishes user variables and interactive `M-x'
 ;;      functions in *autoload* state. It may make conservative
@@ -1366,7 +1366,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1223.0907"
+(defconst epackage--version-time "2011.1223.0910"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
