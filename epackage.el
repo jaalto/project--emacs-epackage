@@ -80,10 +80,10 @@
 ;;      (autoload 'epackage-documentation               "epackage" "" t)
 ;;
 ;;      ;; .. Developer functions
-;;      ;; 1. Convert single *.el into epackage; provided it's well behaving
-;;      (autoload 'epackage-devel-compose-main          "epackage" "" t)
-;;      ;; 2. Or, Write initial templates. Work from there manually
+;;      ;; 1. Write initial templates for sinle *.el
 ;;      (autoload 'epackage-devel-compose-package-dir    "epackage" "" t)
+;;      ;; 2. Convert single *.el into epackage; rarely works
+;;      (autoload 'epackage-devel-compose-main          "epackage" "" t)
 ;;
 ;;  In addition to Emacs UI, there is also a minimal command line UI:
 ;;
@@ -2685,9 +2685,9 @@ Return nil of there is nothing to remove .i.e. the result wold be \"/\"."
   "Check if PACKAGE name is valid."
   (epackage-with-case-fold-search
    (unless (stringp package)
-     (epackage-error "package name is not a string")
-     ;; "a-" is an invalid package name
-     (string-match "^[a-z]\\(?:[a-z0-9-]+\\)?[a-z0-9]$" package))))
+     (epackage-error "package name is not a string"))
+   ;; "a-" is an invalid package name
+   (string-match "^[a-z]\\(?:[a-z0-9-]+\\)?[a-z0-9]$" package)))
 
 (defsubst epackage-error-if-invalid-package-name (package &optional msg)
   "Check if PACKAGE name is valid or signal error with optional MSG."
@@ -7986,6 +7986,29 @@ Summary, Version, Maintainer etc."
 
 ;;; Command line batch commands
 ;;; emacs -Q --batch -f <command> <args>
+
+(defun epackage-batch-devel-compose-package-dir ()
+  "Run `epackage-devel-compose-package-dir' for first command line arg.
+The argument must be full patch name to a *.el file."
+  (let ((name (nth 0 command-line-args-left))
+	(path (nth 1 command-line-args-left))
+	dir
+	file)
+    (let ((i 0))
+      (dolist (elt command-line-args-left)
+	(epackage-message "ARG %d: %s" i elt)
+	(setq i (1+ i))))
+    (unless (stringp name)
+      (epackage-error "PACKAGE NAME argument 1 is missing"))
+    (unless (epackage-package-name-valid-p name)
+      (epackage-error "Invalid PACKAGE NAME: %s" name))
+    (unless (stringp path)
+      (epackage-error "FILE argument 2 is missing"))
+    (unless (string-match "^\\(.*/\\)\\(.+\\.el\\)" path)
+      (epackage-error "FILE is not a full path name to *.el: %s" path))
+    (setq dir (match-string 1 path)
+	  file (match-string 2 path))
+    (epackage-devel-compose-package-dir name dir)))
 
 (defun epackage-batch-enable-package ()
   "Run `epackage-cmd-enable-package' for command line args."
