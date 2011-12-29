@@ -80,10 +80,8 @@
 ;;      (autoload 'epackage-documentation               "epackage" "" t)
 ;;
 ;;      ;; .. Developer functions
-;;      ;; 1. Write initial templates for sinle *.el
+;;      ;; Write initial templates from a single *.el
 ;;      (autoload 'epackage-devel-compose-package-dir    "epackage" "" t)
-;;      ;; 2. Convert single *.el into epackage; rarely works
-;;      (autoload 'epackage-devel-compose-main          "epackage" "" t)
 ;;
 ;;  In addition to Emacs UI, there is also a minimal command line UI:
 ;;
@@ -1344,6 +1342,8 @@
   (defvar finder-known-keywords)
   (defvar auto-revert-tail-mode)
   (autoload 'lm-header "lisp-mnt")
+  (autoload 'lm-get-package-name "lisp-mnt")
+  (autoload 'lm-summary "lisp-mnt")
   (autoload 'generate-file-autoloads "autoload")
   (autoload 'whitespace-replace-action "whitespace")
   (autoload 'lm-version "lisp-mnt")
@@ -3478,7 +3478,8 @@ If optional FULL is non-nil, include field in narrowed region."
   (let ((old (epackage-field-fetch-value field)))
     (when (or overwrite
 	      (null old))
-      (epackage-field-goto field)
+      (or (epackage-field-goto field)
+	  (epackage-error "No such field to goto: %s" field))
       (when (and overwrite old)
 	(delete-region (point) (+ (point) (length old))))
       (if value
@@ -4733,6 +4734,13 @@ Point is not preserved."
   "Return license information from current buffer."
   (or (epackage-devel-information-license-gpl-standard)))
 
+;; See lm-get-package-name
+(defun epackage-devel-information-description-short ()
+  "Return DESCRIIPTION from the first line \";;; <name>.el --- <description>\""
+  (or (lm-summary)
+      ;; FIXME: see if some package does not follow conventions
+      nil))
+
 (defun epackage-devel-information-version-from-comment ()
   "Return version from current buffer.
 Point is not preserved. An example:
@@ -4828,6 +4836,7 @@ Point is not preserved."
   "Examine current buffer and return list '((field value) ...)
 FIELD can be:
   date
+  description      the first line description string
   homepage
   license
   upstream
@@ -4836,6 +4845,8 @@ FIELD can be:
   (let (str
         list)
     (save-excursion
+      (when (setq str (epackage-devel-information-description-short))
+	(epackage-push (list "description" str) list))
       (when (setq str (epackage-devel-information-license-main))
 	(epackage-push (list "license" str) list))
       (when (setq str (epackage-devel-information-maintainer))
@@ -4876,7 +4887,8 @@ Notes:
 			 user-mail-address
 			 (format "%s <%s>"
 				 user-full-name
-				 user-mail-address))))
+				 user-mail-address)))
+	(desc (assoc "description" alist)))
     (if (file-exists-p file)
 	  (epackage-verbose-message
 	    "[NOTE] Not touching existing info file %s" file)
@@ -4885,6 +4897,11 @@ Notes:
 	  (epackage-field-set "Package" package)
 	  (when maintainer
 	    (epackage-field-set "Maintainer" maintainer 'replace))
+	  (when desc
+	    (epackage-field-goto "Description")
+	    (unless (eq (point) (line-end-position))
+	      (delete-region (point) (line-end-position)))
+	    (insert desc))
 	  (when alist
 	    (let (elt)
 	      (dolist (item '("license"
@@ -5069,7 +5086,6 @@ Return:
 	  package)))
 
 ;; (epackage-devel-compose-main "~/tmp/ep" "test" t)
-;;;###autoload
 (defun epackage-devel-compose-main (package dir &optional verbose)
   "Convert Emacs Lisp Package DIR into Epackage.
 If VERBOSE is non-nil, display informational messages.
@@ -5077,6 +5093,16 @@ If VERBOSE is non-nil, display informational messages.
 Notes:
   Only single file packages are handled.
   See caveats from `epackage-devel-compose-git-import'."
+  ;; FIXME
+  ;; 2011-12-29 It was a nice idea. Unfortunately the Emacs Lisp
+  ;; packages usually do not follow any discipline, so there is almost
+  ;; no file where this "auto imoort to Git" would be useful. Too many
+  ;; chances for error. User is best served to use
+  ;; epackage-devel-compose-package-dir and handle Git on command line.
+  ;;
+  (tinyepackage-error
+   (concat "Disabled due to lisp files being imported lacking proper "
+	   "structure. Please use epackage-devel-compose-package-dir instead"))
   (interactive
    (append (epackage-devel-compose-1-interactive)
 	   (list 'interactive)))	;
