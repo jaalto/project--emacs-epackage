@@ -1335,28 +1335,42 @@
 (eval-when-compile
   ;; Forward declarations, not really variable definitions.
   (defvar auto-revert-mode)
-  (defvar global-auto-revert-mode)
-  (defvar pcomplete-parse-arguments-function)
-  (defvar pcomplete-default-completion-function)
-  (defvar whitespace-style)
-  (defvar finder-known-keywords)
   (defvar auto-revert-tail-mode)
+  (defvar finder-known-keywords)
+  (defvar global-auto-revert-mode)
+
+  (autoload 'lm-copyright-mark "lisp-mnt")
+  (autoload 'lm-commentary-mark "lisp-mnt")
+  (autoload 'lm-commentary-mark "lisp-mnt")
   (autoload 'lm-header "lisp-mnt")
+  (autoload 'lm-history-mark "lisp-mnt")
+  (autoload 'lm-verify "lisp-mnt")
   (autoload 'lm-get-package-name "lisp-mnt")
   (autoload 'lm-summary "lisp-mnt")
-  (autoload 'generate-file-autoloads "autoload")
-  (autoload 'whitespace-replace-action "whitespace")
   (autoload 'lm-version "lisp-mnt")
   (autoload 'lm-summary "lisp-mnt")
   (autoload 'lm-commentary "lisp-mnt")
   (autoload 'lm-creation-date "lisp-mnt")
   (autoload 'lm-last-modified-date "lisp-mnt")
   (autoload 'lm-maintainer "lisp-mnt")
+
+  (defvar checkdoc-diagnostic-buffer)
+  (autoload 'checkdoc-continue "checkdoc")
+  (autoload 'checkdoc-start-section "checkdoc")
+
   (autoload 'dired-make-relative-symlink "dired-x")
+  (autoload 'generate-file-autoloads "autoload")
   (autoload 'mail-position-on-field "sendmail")
   (autoload 'mail-setup "sendmail")
+
+  (defvar pcomplete-default-completion-function)
+  (defvar pcomplete-parse-arguments-function)
+  (autoload 'pcomplete-here "pcomplete" nil 'macro)
+
   (autoload 'url-http-parse-response "url")
-  (autoload 'pcomplete-here "pcomplete" nil 'macro))
+
+  (defvar whitespace-style)
+  (autoload 'whitespace-replace-action "whitespace"))
 
 ;;;###autoload
 (autoload 'mail-fetch-field "mail-utils")
@@ -2517,12 +2531,30 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
      ,@body))
 
 (put 'epackage-with-byte-compile-buffer 'lisp-indent-function 0)
-(put 'epackage-with-byte-compile-buffer 'ebyte-compile-buffer-form-spec '(body))
+(put 'epackage-with-byte-compile-buffer 'edebug-form-spec '(body))
 (defmacro epackage-with-byte-compile-buffer (&rest body)
   "Run BODY if variable `epackage--byte-compile-buffer' is non-nil."
   `(if (get-buffer epackage--byte-compile-buffer-name)
        (with-current-buffer (get-buffer epackage--byte-compile-buffer-name)
          ,@body)))
+
+(put 'epackage-with-lint-buffer 'lisp-indent-function 0)
+(put 'epackage-with-lint-buffer 'edebug-form-spec '(body))
+(defmacro epackage-with-lint-buffer (&rest body)
+  "Run BODY in `epackage--buffer-lint' (will be rcrated is needed)."
+  `(with-current-buffer (get-buffer-create epackage--buffer-lint)
+     ,@body))
+
+(put 'epackage-with-checkdoc-buffer 'lisp-indent-function 0)
+(put 'epackage-with-checkdoc-buffer 'edebug-form-spec '(body))
+(defmacro epackage-with-checkdoc-buffer (&rest body)
+  "Run BODY in `epackage--buffer-checkdoc' (will be rcrated is needed)."
+  `(with-current-buffer (get-buffer-create (or (and (boundp 'checkdoc-diagnostic-buffer)
+						    checkdoc-diagnostic-buffer)
+					       "*Style Warnings*"))
+     (toggle-read-only -1)
+     (let ((buffer-undo-list t))
+       ,@body)))
 
 (put 'epackage-verbose-message 'lisp-indent-function 0)
 (put 'epackage-verbose-message 'edebug-form-spec '(body))
@@ -2935,6 +2967,17 @@ Return:
                    (1- (marker-position marker))
                  (point-max)))
     (setq marker nil)))
+
+(defsubst epackage-buffer-remove-empty-lines ()
+  "Delete empty lines from current point forward."
+  (unless (eq (point-min) (point-max))
+    (while (and (not (eobp))
+		(re-search-forward "^[ \t\f\r]*$" nil t))
+      (delete-region (line-beginning-position)
+		     (if (eobp)
+			 (point-max)
+		       (1+ (point)))))))
+
 (defun epackage-buffer-remove-whitespace-eol ()
   "Clear end of line whitespaces from whole buffer. Including ^L."
   (require 'whitespace) ;; Define whitespace-trailing-regexp
@@ -4231,7 +4274,8 @@ Input:
                          "[ \t]+" " "
                          (subst-char-in-string
                           ;;  Convert multiline args to one line.
-                          ?\n ?\ (buffer-substring point (point)) ))))))
+                          ?\n ?\ (buffer-substring-no-properties
+				  point (point)) ))))))
           (if (or (string-match "define.*mode" type)
                   (re-search-forward
                    "[ \t\n]+([ \t]*interactive"
@@ -6450,6 +6494,176 @@ Return:
         (when verbose
           (epackage-pkg-lint-results point dir 'show))))))
 
+(defsubst epackage-lint-extra-delimiter-string (id &optional stop)
+  "Return start delimiter string ID. ro If STOP is non-nil, stop string."
+  (format "Epackage: %s %s%s"
+	  (if stop
+	      "STOP"
+	    "START")
+	  id
+	  (if buffer-file-name
+	      (format " file: %s" buffer-file-name))))
+
+(defsubst epackage-lint-extra-collect-data (&optional id buffer)
+  "Return data surrounded by optional ID from *Messages* or optional BUFFER."
+  (with-current-buffer (or buffer "*Messages*")
+    (goto-char (point-max))
+    (let (end)
+      (when (re-search-backward
+	     (format "^Epackage: STOP%s" 
+		     (if id
+			 (concat " " id)
+		       ""))
+	     nil t)
+	(setq end (line-beginning-position))
+	(when (re-search-backward
+	       (format "^Epackage: START%s"
+		       (if id
+			   (concat " " id)
+			 ""))
+	       nil t)
+	  (forward-line 1)
+	  (unless (eq (point) end)
+	    (buffer-substring-no-properties (point) end)))))))
+
+(defun epackage-lint-extra-buffer-run-lm ()
+  "Run lm-verify on current buffer."
+  (message (epackage-lint-extra-delimiter-string "lm-verify"))
+  (lm-verify (not 'file) (not 'showok) (not 'verbose) 'non-fsf-ok)
+  ;; Run extra lm checks, see checkdoc-file-comments-engine
+  (unless (lm-summary)
+    (message "Missing: ;;; package --- Summary"))
+  (unless (lm-copyright-mark)
+    (message "Missing: ;; Copyright (C) YYYY First Last <address@example.com>"))
+  (unless (lm-commentary-mark)
+    (message "Missing: ;;; Commentary:"))
+  (unless (lm-history-mark)
+    (message "Missing: ;;; History:"))
+  (unless (lm-code-start)
+    (message "Missing: ;;; Code:"))
+  (message (epackage-lint-extra-delimiter-string "lm-verify" 'stop))
+  (epackage-lint-extra-collect-data))
+
+(defun epackage-lint-extra-buffer-checkdoc-collect-data ()
+  "Return checkdoc data after `epackage-lint-extra-buffer-run-checkdoc'."
+  (epackage-with-checkdoc-buffer
+    (goto-char (point-min))
+    (epackage-buffer-remove-empty-lines)
+    (goto-char (point-min))
+    (when (re-search-forward "^[*][*][*]" nil t)
+      (forward-line 1)
+      (let ((point (point)))
+	;; Delete extra separators
+	(while (re-search-forward "^[*][*][*]" nil t)
+	  (delete-region (1- (line-beginning-position))
+			 (line-end-position)))
+	(goto-char point)
+	(unless (eobp)
+	  (sort-lines nil (point) (point-max))
+	  (buffer-substring-no-properties point (point-max)))))))
+
+(defun epackage-lint-extra-buffer-run-checkdoc ()
+  "Run lm-verify on current buffer."
+  (require 'checkdoc)
+  (let ((file buffer-file-name)
+	(checkdoc-bouncy-flag t)	; No silent fixes
+	(checkdoc-arguments-in-order-flag t)
+	(checkdoc-verb-check-experimental-flag t)
+	checkdoc-spellcheck-documentation-flag ;None, too expensive
+	(checkdoc-force-docstrings-flag t)
+	(checkdoc-force-history-flag t)
+	(checkdoc-permit-comma-termination-flag t)
+	(checkdoc-autofix-flag 'never)
+	(checkdoc-generate-compile-warnings-flag t))
+    ;;  (message (epackage-lint-extra-delimiter-string "checkdoc"))
+    (epackage-with-checkdoc-buffer
+     (epackage-erase-buffer))
+    ;; Too bad (checkdoc-current-buffer 'take-notes) would call
+    ;; `checkdoc-show-diagnostics'
+    ;;
+    ;; The following is slimlined version of checkdoc-current-buffer
+    ;; - Drop `checkdoc-show-diagnostics' as it would also show, but
+    ;;   run aleady ran lm-verify checks.
+    (checkdoc-start-section "checkdoc-current-buffer")
+    (goto-char (point-min))
+    (checkdoc-continue 'take-notes)
+    (checkdoc-message-text 'take-notes)
+    (checkdoc-rogue-spaces 'take-notes)
+    (epackage-lint-extra-buffer-checkdoc-collect-data)))
+
+(defun epackage-lint-extra-buffer-run-other ()
+  "Run miscellaneous checks on current buffer.
+In order to collect results."
+  ;; (message (epackage-lint-extra-delimiter-string "miscellaneous"))
+  ;; (message (epackage-lint-extra-delimiter-string "miscellaneous" 'stop))
+  ;; (epackage-lint-extra-collect-data)
+  (let (str)
+    (goto-char (point-min))
+    (unless (re-search-forward "^;;;###autoload" nil t)
+      (setq str "Missing: ;;;###autoload\n"))
+    str))
+
+;;;###autoload
+(defun epackage-lint-extra-buffer-main (&optional verbose)
+  "Lint current buffer using extra tools.
+If optional VERBOSE is non-nil, display progress message.
+With VERBOSE display `epackage--buffer-lint'.
+
+`buffer-file-name', if exists, is used for identification.
+
+Return:
+  '(ERROR ...)     Type of errors if any."
+  (interactive (list 'interactive))
+  ;; Lint with all we've got and collect results
+  (let ((file (if buffer-file-name
+		  (format " file: %s" buffer-file-name)
+		""))
+	str
+	errors)
+    (epackage-with-lint-buffer
+      (goto-char (point-max))
+      ;; Stars are there to support `outline-minor-mode'.
+      (insert (format "*** Epackage Lint %s%s\n" (epackage-time) file)))
+    (when (setq str (epackage-lint-extra-buffer-run-lm))
+      (epackage-with-lint-buffer
+	(goto-char (point-max))
+	(insert "** Lint lm-verify\n")
+	(insert str)
+	(epackage-push 'lisp-mnt errors)))
+    (when (setq str (epackage-lint-extra-buffer-run-other))
+      (epackage-with-lint-buffer
+	(goto-char (point-max))
+	(insert "** Lint miscellaneous\n")
+	(insert str)
+	(epackage-push 'miscellaneous errors)))
+    (when (setq str (epackage-lint-extra-buffer-run-checkdoc))
+      (epackage-with-lint-buffer
+	(goto-char (point-max))
+	(insert "** Lint checkdoc\n")
+	(insert str)
+	(epackage-push 'checkdoc errors)))
+    (if verbose
+	(display-buffer epackage--buffer-lint))
+    errors))
+
+;;;###autoload
+(defun epackage-lint-extra-file (file &optional verbose)
+  "Lint FILE using extra tools.
+If optional VERBOSE is non-nil, display progress message.
+With VERBOSE display `epackage--buffer-lint'."
+  (interactive
+   (list
+    (read-file-name "File to Lint extra: ")
+    'interactive))
+  (let ((new-p (null (get-file-buffer file)))
+	buffer)
+    (with-current-buffer (find-file-noselect file)
+      (epackage-lint-extra-buffer-main verbose)
+      (if new-p
+	  (setq buffer (current-buffer))))
+    (if buffer				; We loaded it, clean up
+	(kill-buffer buffer))))
+
 ;;; .................................................. &functions-misc ...
 
 (defun epackage-cmd-select-package (&optional message list)
@@ -6724,7 +6938,7 @@ In interactive call, the point must be in buffer visiting
     (save-excursion
       ;; Check if the beginning of indented 'Description:' paragraph.
       (setq para-start
-            (string-match "^[ \t]+$" (buffer-substring
+            (string-match "^[ \t]+$" (buffer-substring-no-properties
                                       (line-beginning-position)
                                       (point))))
       (goto-char (line-beginning-position))
@@ -6779,12 +6993,14 @@ In interactive call, the point must be in buffer visiting
   (cond
    ((and (not (bolp))
          (eolp)
-         (string-match ":" (buffer-substring (- (point) 2) (point))))
+         (string-match ":" (buffer-substring-no-properties
+			    (- (point) 2) (point))))
     (insert "http://www.emacswiki.org/emacs/")
     (goto-char (line-end-position)))
    ((and (not (bolp))
          (eolp)
-         (string-match "/" (buffer-substring (- (point) 1) (point))))
+         (string-match "/" (buffer-substring-no-properties
+			    (- (point) 1) (point))))
     (let ((search
            "http://www.google.fi/search?hl=en&oe=UTF-8&num=100&q=")
           (str (read-string "Google (empty = cancel): "

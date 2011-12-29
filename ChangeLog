@@ -11,6 +11,16 @@
 	(epackage-devel-information-date-lm): Add "Created" search.
 	(epackage-devel-information-homepage): Add "URL(en)" search.
 	(epackage-devel-information-license-mit): New.
+	(epackage-with-lint-buffer-main): New.
+	(epackage-lint-extra-file): New.
+	(epackage-lint-extra-buffer): New.
+	(epackage-lint-extra-delimiter-string): New.
+	(epackage-lint-extra-buffer-run-lm): New.
+	(epackage-with-checkdoc-buffer): New.
+	(epackage-lint-extra-buffer-run-checkdoc): New.
+	(epackage-lint-extra-buffer-run-other): New.
+	(epackage-buffer-remove-empty-lines): New.
+	(epackage-lint-extra-buffer-checkdoc-collect-data): New.
 
 2011-12-27 Tue  Jari Aalto  <jari.aalto@cante.net>
 
