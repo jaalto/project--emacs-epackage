@@ -6656,11 +6656,11 @@ Return:
 	  (epackage-erase-buffer))
       (goto-char (point-max))
       ;; Stars are there to support `outline-minor-mode'.
-      (insert (format "*** Epackage Lint extras %s%s\n" (epackage-time) file)))
+      (insert (format "*** Lint %s%s\n" (epackage-time) file)))
     (when (setq str (epackage-lint-extra-buffer-run-lm))
       (epackage-with-lint-buffer
 	(goto-char (point-max))
-	(insert "** Lint lm-verify\n")
+	(insert "** Lint M-x lm-verify (list-mnt.el) \n")
 	(insert str)
 	(epackage-push 'lisp-mnt errors)))
     (epackage-verbose-message "Lint running: miscellaneous...")
@@ -6674,14 +6674,14 @@ Return:
     (when (setq str (epackage-lint-extra-buffer-run-checkdoc))
       (epackage-with-lint-buffer
 	(goto-char (point-max))
-	(insert "** Lint checkdoc\n")
+	(insert "** Lint M-x checkdoc-current-buffer (checkdoc.el)\n")
 	(insert str)
 	(epackage-push 'checkdoc errors)))
     (epackage-verbose-message "Lint running: elint...")
     (when (setq str (epackage-lint-extra-buffer-run-elint))
       (epackage-with-lint-buffer
 	(goto-char (point-max))
-	(insert "** Lint elint\n")
+	(insert "** Lint M-x elint-current-buffer (elint.el)\n")
 	(insert str)
 	(epackage-push 'checkdoc errors)))
     (if verbose
