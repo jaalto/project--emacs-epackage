@@ -6627,26 +6627,33 @@ In order to collect results."
     str))
 
 ;;;###autoload
-(defun epackage-lint-extra-buffer-main (&optional verbose)
+(defun epackage-lint-extra-buffer-main (&optional clear verbose)
   "Lint current buffer using extra tools.
-If optional VERBOSE is non-nil, display progress message.
-With VERBOSE display `epackage--buffer-lint'.
 
-`buffer-file-name', if exists, is used for identification.
+Input:
 
+  CLEAR    Optional; if non-nil, clear previous lint results.
+           For use interactive, this is the `current-prefix-arg'.
+  VERBOSE  Optional; if non-nil, display progress messages
+           and display `epackage--buffer-lint'.
 Return:
   '(ERROR ...)     Type of errors if any."
-  (interactive (list 'interactive))
+  (interactive
+   (list
+    current-prefix-arg
+    'interactive))
   ;; Lint with all we've got and collect results
   (let ((file (if buffer-file-name
-		  (format " file: %s" buffer-file-name)
+		  (format " file: %s"
+			  (abbreviate-file-name
+			   buffer-file-name))
 		""))
 	str
 	errors)
     (epackage-with-lint-buffer
       (goto-char (point-max))
       ;; Stars are there to support `outline-minor-mode'.
-      (insert (format "*** Epackage Lint %s%s\n" (epackage-time) file)))
+      (insert (format "*** Epackage Lint extras %s%s\n" (epackage-time) file)))
     (when (setq str (epackage-lint-extra-buffer-run-lm))
       (epackage-with-lint-buffer
 	(goto-char (point-max))
