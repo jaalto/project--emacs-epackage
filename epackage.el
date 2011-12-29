@@ -4938,7 +4938,7 @@ Notes:
 			 (format "%s <%s>"
 				 user-full-name
 				 user-mail-address)))
-	(desc (assoc "description" alist)))
+	(desc (nth 1 (assoc "description" alist))))
     (if (file-exists-p file)
 	  (epackage-verbose-message
 	    "[NOTE] Not touching existing info file %s" file)
