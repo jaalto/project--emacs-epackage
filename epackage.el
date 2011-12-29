@@ -4730,9 +4730,42 @@ Point is not preserved."
 	    (setq str (concat str "+"))))
       str)))
 
+(defun epackage-devel-information-license-mit ()
+  "If buffer contains MIT stanza, return MIT.
+Point is not preserved."
+  ;; The MIT License reads:
+  ;; http://en.wikipedia.org/wiki/MIT_License
+  ;;
+  ;; Permission is hereby granted, free of charge, to any person obtaining
+  ;; a copy of this software and associated documentation files (the
+  ;; "Software"), to deal in the Software without restriction, including
+  ;; without limitation the rights to use, copy, modify, merge, publish,
+  ;; distribute, sublicense, and/or sell copies of the Software, and to
+  ;; permit persons to whom the Software is furnished to do so, subject to
+  ;; the following conditions:
+  ;;
+  ;; The above copyright notice and this permission notice shall be
+  ;; included in all copies or substantial portions of the Software.
+  ;;
+  ;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  ;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  ;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  ;; IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+  ;; CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+  ;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+  ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  ;;
+  (let ((max (min (point-max)
+		  (* 50 80))))		; 50 lines
+    (goto-char (point-min))
+    ;; FIXME: fill in other regexps
+    (when (re-search-forward "The MIT license" max t)
+      "MIT")))
+
 (defun epackage-devel-information-license-main ()
   "Return license information from current buffer."
-  (or (epackage-devel-information-license-gpl-standard)))
+  (or (epackage-devel-information-license-gpl-standard)
+      (epackage-devel-information-license-mit)))
 
 ;; See lm-get-package-name
 (defun epackage-devel-information-description-short ()
@@ -4756,6 +4789,18 @@ Point is not preserved. An example:
 Point is not preserved. Call `lm-header'."
   (lm-header "version"))
 
+(defun epackage-devel-information-version-from-header ()
+  "Return version from current buffer.
+Search beginning of buffer for \";;; Version\" or similar.
+Point is not preserved."
+  (let ((max (min (point-max)
+		  (* 15 80))))		; 15 lines
+    (goto-char (point-min))
+    ;; FIXME: More 'or' cases.
+    (if (or (re-search-forward
+	     "^;+[ \t]+version[ \t]+\\([1-9][^ \t\r\n]+\\)" max 'noerr))
+	(match-string-no-properties 1))))
+
 (defun epackage-devel-information-version-from-variable ()
   "Return version from current buffer.
 Point is not preserved. An example:
@@ -4771,6 +4816,7 @@ Point is not preserved. An example:
   "Return version from current buffer.
 Point is not preserved."
   (or (epackage-devel-information-version-from-lm)
+      (epackage-devel-information-version-from-header)
       (epackage-devel-information-version-from-variable)
       (epackage-devel-information-version-from-comment)))
 
@@ -4785,7 +4831,8 @@ Point is not preserved."
 Point is not preserved."
   (or (lm-header "Homepage")
       (lm-header "Home")
-      (lm-header "URL")))
+      (lm-header "URL")
+      (lm-header "URL(en)")))
 
 (defun epackage-devel-information-wiki ()
   "Return homepage from current buffer.
@@ -4802,7 +4849,8 @@ Point is not preserved. Use `lm-header'."
   (or (lm-header "Time-stamp")
       (lm-header "Updated")
       (lm-header "Last-Updated")
-      (lm-header "Modified")))
+      (lm-header "Modified")
+      (lm-header "Created")))
 
 (defun epackage-devel-information-date-versionstr ()
   "Return date from current buffer.
@@ -4867,12 +4915,14 @@ FIELD can be:
   "Generate info file for PACKAGE in DIR.
 
 Input:
+
   PACKAGE	Package name. All lowercase.
   DIR		Package root directory.
   VERBOSE	Optional. If non-nil, display informational messages.
   ALIST		Optional. See `epackage-devel-information-buffer'
 
 Notes:
+
   File is written under `epackage--directory-name' in DIR.
   Do nothing if file already exists."
   (interactive "sEpackage name: \nDLisp package root dir: ")

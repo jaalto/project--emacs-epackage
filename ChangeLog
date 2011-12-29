@@ -5,6 +5,12 @@
 	(epackage-field-set): Add error checking.
 	(epackage-devel-compose-package-info): Insert first line
 	description.
+	(epackage-devel-information-version-from-header): New.
+	(epackage-devel-information-version-main): Call
+	`epackage-devel-information-version-from-header'.
+	(epackage-devel-information-date-lm): Add "Created" search.
+	(epackage-devel-information-homepage): Add "URL(en)" search.
+	(epackage-devel-information-license-mit): New.
 
 2011-12-27 Tue  Jari Aalto  <jari.aalto@cante.net>
 
