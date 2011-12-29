@@ -2373,11 +2373,7 @@ Y         Action toggle: after download, b(y)te compile package
     (?Q quit)
     (?y epackage-batch-ui-byte-compile-package)
     (?Y epackage-batch-ui-download-action-compile-toggle))
-  "UI menucommand and actions. Format: '((KEY FUNCTION) ...).
-
-Use from command line:
-
-  $EMACS --batch -Q -l ./epackage.el -f epackage-batch-ui-menu")
+  "UI menucommand and actions. Format: '((KEY FUNCTION) ...).")
 
 (defconst epackage--batch-ui-menu-help "
 In a nutshell
@@ -4313,7 +4309,7 @@ Input:
       buffer)))
 
 (defun epackage-autoload-write-autoload-files (&rest args)   ;; FIXME remove this
-  "Not implemented yet. ARGS are ignored".
+  "Not implemented yet. ARGS are ignored."
   nil)
 
 (defun epackage-autoload-generate-autoload-file-list
@@ -4624,7 +4620,7 @@ Input:
       (if (stringp dir)
 	  (epackage-autoload-generate-loaddefs-dir dir file exclude verbose)
 	(dolist (elt dir)
-	  (epackage-autoload-generate-loaddefs-dir dir file eclude verbose)))))
+	  (epackage-autoload-generate-loaddefs-dir dir file exclude verbose)))))
     (when (file-exists-p file)
       (epackage-add-provide-to-file file))))
 
@@ -4737,9 +4733,9 @@ Input:
   (epackage-error-if-invalid-package-name package)
   (when (or (not (stringp root))
 	    (not (file-directory-p root)))
-    (epackage-error "Drectory does not exist: %s" dir))
+    (epackage-error "Drectory does not exist: %s" root))
   (let ((autoloads afile)
-	(install (epackage-layout-file-name dir package 'enable)))
+	(install (epackage-layout-file-name root package 'enable)))
     ;; By default we copy all interactive functions to install.
     (if (file-exists-p install)
 	(epackage-verbose-message
@@ -5196,7 +5192,7 @@ Notes:
   ;; chances for error. User is best served to use
   ;; epackage-devel-compose-package-dir and handle Git on command line.
   ;;
-  (tinyepackage-error
+  (epackage-error
    (concat "Disabled due to lisp files being imported lacking proper "
 	   "structure. Please use epackage-devel-compose-package-dir instead"))
   (interactive
@@ -5532,8 +5528,8 @@ If optional VERBOSE is non-nil, display progress message."
             (unless (string-match "^\\x?emacs$" package)
               (if (not (epackage-sources-list-info-url package))
                   (cond
-                   ((eq 'warn epackage--depends-handling verbose)
-                    (epackage-pkg-depends-rollback)
+                   ((eq 'warn epackage--depends-handling)
+                    (epackage-pkg-depends-rollback verbose)
                     (epackage-warn
                      "Downloading required dependency for %s: %s"
                      package elt))
@@ -6070,8 +6066,8 @@ SOLUTIONS
     (let ((host (epackage-url-extract-host url)))
       (or (and (stringp host)
 	       (epackage-ssh-p host))
-	  (let ((epackage-princ (epackage-ssh-help-string host)))
-	    (epackage-princ message) ;Record user help to *Messages* buffer
+	  (let ((msg (epackage-ssh-help-string host)))
+	    (epackage-princ msg) ;Record user help to *Messages* buffer
 	    (let ((debug-on-error nil)) ;; batch UI: don't display stack trace
 	      (error
 	       (substitute-command-keys
@@ -6196,7 +6192,7 @@ If optional VERBOSE is non-nil, display progress message."
     (when (and str
 	       (not (string-match "@" str)))
 	(epackage-verbose-message
-	  "[ERROR] Lint - field Maintainer, invalid email: %s" value)
+	  "[ERROR] Lint - field Maintainer, invalid email: %s" str)
 	(setq status nil))
     status))
 
@@ -6208,7 +6204,7 @@ If optional VERBOSE is non-nil, display progress message."
     (when (and str
 	       (not (string-match "@" str)))
 	(epackage-verbose-message
-	  "[ERROR] Lint - field Upstream, invalid email: %s" value)
+	  "[ERROR] Lint - field Upstream, invalid email: %s" str)
 	(setq status nil))
     status))
 
@@ -6529,10 +6525,10 @@ Return:
 	    (buffer-substring-no-properties (point) end)))))))
 
 (defun epackage-lint-extra-buffer-run-lm ()
-  "Run `lm-verify' and other lm-* checks on current buffer."
+  "Run `lm-verify' on current buffer."
   (message (epackage-lint-extra-delimiter-string "lm-verify"))
   (lm-verify (not 'file) (not 'showok) (not 'verbose) 'non-fsf-ok)
-  ;; Run extra lm checks, see checkdoc-file-comments-engine
+  ;; Run extras, see checkdoc-file-comments-engine
   (unless (lm-summary)
     (message "Missing: ;;; package --- Summary"))
   (unless (lm-copyright-mark)
@@ -6650,6 +6646,8 @@ Return:
 	str
 	errors)
     (epackage-with-lint-buffer
+      (if clear
+	  (epackage-erase-buffer))
       (goto-char (point-max))
       ;; Stars are there to support `outline-minor-mode'.
       (insert (format "*** Epackage Lint extras %s%s\n" (epackage-time) file)))
@@ -8434,33 +8432,30 @@ The argument must be full patch name to a *.el file."
 	  (recenter-positions '(bottom)))
       (recenter-top-bottom)))
 
-(defun epackage-shring-window (&optional buffer-name)
+(defun epackage-shrink-window (&optional buffer-name)
   "Adjust visible `current-buffer' or BUFFER-NAME to minimum."
-  (let* ((buffer-name "*Compile-Log*")
-	 (buffer (get-buffer buffer-name))
-	 current
+  (let* ((buffer (get-buffer buffer-name))
 	 win
 	 winb)
     (when (and buffer
 	       (window-live-p buffer))
-      (setq current)
-      (setq winb (window-buffer name))
+      (setq winb (window-buffer buffer-name))
       (setq win (get-buffer-window winb))
       (save-excursion
 	(set-buffer winb)
 	(select-window win)
 	(goto-char (point-max))
 	(unless (window-fixed-size-p)
-	  (let ((size (window-height win))
-		(min window-min-height)
-		(diff (- size min)))
+	  (let* ((size (window-height win))
+		 (min window-min-height)
+		 (diff (- size min)))
 	    (if (> diff 0)
 		(shrink-window diff))))))))
 
 (defsubst epackage-batch-ui-menu-goto-point-max ()
   "Position point at `point-max'."
   (when (epackage-batch-ui-simple-p)
-    (epackage-batch-ui-menu-compile-buffer-adjust)
+    (epackage-shrink-window "*Compile-Log*")
     (epackage-recenter-bottom)))
 
 ;;;###autoload
