@@ -1,7 +1,7 @@
 2011-12-29 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el
-	(top level): checkdoc.el checked.
+	(top level): checkdoc.el, elint.el, byte compile checked.
 	(epackage-devel-information-description-short): New.
 	(epackage-devel-information-buffer): Add element DESCRIPTION.
 	(epackage-field-set): Add error checking.

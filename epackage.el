@@ -1341,21 +1341,24 @@
 
   (defvar elint-builtin-variables)
   (defvar elint-log-buffer)
+  (autoload 'elint-update-env "elint")
+  (autoload 'elint-clear-log "elint")
 
+  (autoload 'lm-code-start "lisp-mnt")
+  (autoload 'lm-commentary "lisp-mnt")
+  (autoload 'lm-commentary-mark "lisp-mnt")
+  (autoload 'lm-commentary-mark "lisp-mnt")
   (autoload 'lm-copyright-mark "lisp-mnt")
-  (autoload 'lm-commentary-mark "lisp-mnt")
-  (autoload 'lm-commentary-mark "lisp-mnt")
+  (autoload 'lm-creation-date "lisp-mnt")
+  (autoload 'lm-get-package-name "lisp-mnt")
   (autoload 'lm-header "lisp-mnt")
   (autoload 'lm-history-mark "lisp-mnt")
-  (autoload 'lm-verify "lisp-mnt")
-  (autoload 'lm-get-package-name "lisp-mnt")
-  (autoload 'lm-summary "lisp-mnt")
-  (autoload 'lm-version "lisp-mnt")
-  (autoload 'lm-summary "lisp-mnt")
-  (autoload 'lm-commentary "lisp-mnt")
-  (autoload 'lm-creation-date "lisp-mnt")
   (autoload 'lm-last-modified-date "lisp-mnt")
   (autoload 'lm-maintainer "lisp-mnt")
+  (autoload 'lm-summary "lisp-mnt")
+  (autoload 'lm-summary "lisp-mnt")
+  (autoload 'lm-verify "lisp-mnt")
+  (autoload 'lm-version "lisp-mnt")
 
   (defvar checkdoc-diagnostic-buffer)
   (autoload 'checkdoc-continue "checkdoc")
@@ -1369,6 +1372,8 @@
   (defvar pcomplete-default-completion-function)
   (defvar pcomplete-parse-arguments-function)
   (autoload 'pcomplete-here "pcomplete" nil 'macro)
+
+  (autoload 'mail-text-start "sendmail")
 
   (autoload 'url-http-parse-response "url")
 
@@ -2652,17 +2657,17 @@ Return:
       (insert (format "(provide '%s)\n" name))
       (point))))
 
+(defsubst epackage-write-region (start end file)
+  "Like  'write-region' START END FILE; but disable backup etc."
+  (epackage-with-write-file
+    (write-region start end file)))
+
 (defsubst epackage-add-provide-to-file (file)
   "Add `provide' statement to FILE if not yet there."
   (with-temp-buffer
     (insert-file-contents file)
     (when (epackage-add-provide-to-buffer file)
       (epackage-write-region (point-min) (point-max) file))))
-
-(defsubst epackage-write-region (start end file)
-  "Like  'write-region' START END FILE; but disable backup etc."
-  (epackage-with-write-file
-    (write-region start end file)))
 
 (defsubst epackage-save-buffer ()
   "Like 'save-buffer' FILE; but disable backup etc."
@@ -5185,6 +5190,9 @@ If VERBOSE is non-nil, display informational messages.
 Notes:
   Only single file packages are handled.
   See caveats from `epackage-devel-compose-git-import'."
+  (interactive
+   (append (epackage-devel-compose-1-interactive)
+	   (list 'interactive)))	;
   ;; FIXME
   ;; 2011-12-29 It was a nice idea. Unfortunately the Emacs Lisp
   ;; packages usually do not follow any discipline, so there is almost
@@ -5195,9 +5203,6 @@ Notes:
   (epackage-error
    (concat "Disabled due to lisp files being imported lacking proper "
 	   "structure. Please use epackage-devel-compose-package-dir instead"))
-  (interactive
-   (append (epackage-devel-compose-1-interactive)
-	   (list 'interactive)))	;
   (if (interactive-p)
       (setq verbose 'interactive))
   (unless (file-directory-p dir)
@@ -8432,7 +8437,7 @@ The argument must be full patch name to a *.el file."
 	  (recenter-positions '(bottom)))
       (recenter-top-bottom)))
 
-(defun epackage-shrink-window (&optional buffer-name)
+(defun epackage-shrink-window (&optional buffer-name) ; FIXME, not correct
   "Adjust visible `current-buffer' or BUFFER-NAME to minimum."
   (let* ((buffer (get-buffer buffer-name))
 	 win
@@ -8441,8 +8446,7 @@ The argument must be full patch name to a *.el file."
 	       (window-live-p buffer))
       (setq winb (window-buffer buffer-name))
       (setq win (get-buffer-window winb))
-      (save-excursion
-	(set-buffer winb)
+      (with-current-buffer winb
 	(select-window win)
 	(goto-char (point-max))
 	(unless (window-fixed-size-p)
