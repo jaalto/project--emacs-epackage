@@ -1,6 +1,8 @@
 2011-12-29 Thu  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-devel-information-description-short): New.
+	* epackage.el
+	(top level): checkdoc.el checked.
+	(epackage-devel-information-description-short): New.
 	(epackage-devel-information-buffer): Add element DESCRIPTION.
 	(epackage-field-set): Add error checking.
 	(epackage-devel-compose-package-info): Insert first line
