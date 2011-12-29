@@ -6624,7 +6624,7 @@ In order to collect results."
   (let (str)
     (goto-char (point-min))
     (unless (re-search-forward "^;;;###autoload" nil t)
-      (setq str "Missing: ;;;###autoload\n"))
+      (setq str "Missing: ;;;###autoload stanzas for user variables and functions.\n"))
     str))
 
 ;;;###autoload
