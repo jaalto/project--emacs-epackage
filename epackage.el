@@ -1,4 +1,4 @@
-;;; epackage.el --- Distributed Emacs Lisp Package System (DELPS)
+;; epackage.el --- Distributed Emacs Lisp Package System (DELPS)
 
 ;; This file is not part of Emacs
 
@@ -1338,6 +1338,9 @@
   (defvar auto-revert-tail-mode)
   (defvar finder-known-keywords)
   (defvar global-auto-revert-mode)
+
+  (defvar elint-builtin-variables)
+  (defvar elint-log-buffer)
 
   (autoload 'lm-copyright-mark "lisp-mnt")
   (autoload 'lm-commentary-mark "lisp-mnt")
@@ -6560,6 +6563,10 @@ Return:
 	(goto-char point)
 	(unless (eobp)
 	  (sort-lines nil (point) (point-max))
+	  (goto-char (point-max))
+	  ;; Final newline
+	  (unless (eq (point) (line-beginning-position))
+	    (insert "\n"))
 	  (buffer-substring-no-properties point (point-max)))))))
 
 (defun epackage-lint-extra-buffer-run-checkdoc ()
@@ -6590,6 +6597,22 @@ Return:
     (checkdoc-message-text 'take-notes)
     (checkdoc-rogue-spaces 'take-notes)
     (epackage-lint-extra-buffer-checkdoc-collect-data)))
+
+(defun epackage-lint-extra-buffer-run-elint ()
+  "Run `elint-current-buffer' on current buffer.
+This is a heavy check and first time initializing will take time."
+  (require 'elint)
+  ;; From elint-current-buffer, skip displaying buffer
+  (or elint-builtin-variables
+      (elint-initialize))
+  (elint-clear-log (format "Elint %s" (or (buffer-file-name)
+					  (buffer-name))))
+  (mapc 'elint-top-form (elint-update-env))
+  (with-current-buffer elint-log-buffer
+    (goto-char (point-min))
+    (forward-line 2)
+    (unless (eobp)
+      (buffer-substring-no-properties (point) (point-max)))))
 
 (defun epackage-lint-extra-buffer-run-other ()
   "Run miscellaneous checks on current buffer.
@@ -6630,16 +6653,25 @@ Return:
 	(insert "** Lint lm-verify\n")
 	(insert str)
 	(epackage-push 'lisp-mnt errors)))
+    (epackage-verbose-message "Lint running: miscellaneous...")
     (when (setq str (epackage-lint-extra-buffer-run-other))
       (epackage-with-lint-buffer
 	(goto-char (point-max))
 	(insert "** Lint miscellaneous\n")
 	(insert str)
 	(epackage-push 'miscellaneous errors)))
+    (epackage-verbose-message "Lint running: checkdoc...")
     (when (setq str (epackage-lint-extra-buffer-run-checkdoc))
       (epackage-with-lint-buffer
 	(goto-char (point-max))
 	(insert "** Lint checkdoc\n")
+	(insert str)
+	(epackage-push 'checkdoc errors)))
+    (epackage-verbose-message "Lint running: elint...")
+    (when (setq str (epackage-lint-extra-buffer-run-elint))
+      (epackage-with-lint-buffer
+	(goto-char (point-max))
+	(insert "** Lint elint\n")
 	(insert str)
 	(epackage-push 'checkdoc errors)))
     (if verbose

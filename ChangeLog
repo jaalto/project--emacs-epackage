@@ -21,6 +21,7 @@
 	(epackage-lint-extra-buffer-run-other): New.
 	(epackage-buffer-remove-empty-lines): New.
 	(epackage-lint-extra-buffer-checkdoc-collect-data): New.
+	(epackage-lint-extra-buffer-run-elint): New.
 
 2011-12-27 Tue  Jari Aalto  <jari.aalto@cante.net>
 
