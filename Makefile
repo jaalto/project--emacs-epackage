@@ -28,7 +28,7 @@ help:
 	@echo "---------------------"
 	@grep '^# .*-' Makefile | sed 's,# ,,' | sort
 
-# clean - Delete backup and other files that can be generated
+# clean - Delete files that can be generated
 clean:
 	rm -f *.elc *[#~] *.bak
 

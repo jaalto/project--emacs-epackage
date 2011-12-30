@@ -1,5 +1,7 @@
 2011-12-30 Fri  Jari Aalto  <jari.aalto@cante.net>
 
+	* Makefile: (clean): Adjust help string
+
 	* epackage.el (epackage--info-mode-email-ping-subject):
 	Adjust string.
 
