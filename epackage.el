@@ -1388,7 +1388,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1230.0608"
+(defconst epackage--version-time "2011.1230.0811"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1760,7 +1760,7 @@ Used by `epackage-devel-compose-main'."
   "Specify trailing characters regexp.
 Copy from whitespace.el with ^L character added.")
 
-(defcustom epackage--info-mode-email-ping-subject "Emacs epackage: %s"
+(defcustom epackage--info-mode-email-ping-subject "Emacs: epackage %s"
   "Subject in `epackage-info-mode-cmd-email-upstream-ping'.
 Format string %s is used to inser package name."
   :tag "Email message subject for initial upstream contact."
