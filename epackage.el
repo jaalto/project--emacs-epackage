@@ -1388,7 +1388,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1230.0811"
+(defconst epackage--version-time "2011.1230.1317"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -5370,7 +5370,7 @@ Before saving, apply `epackage--sources-replace-table'."
       (insert "###file: " elt "\n")
       (if (file-exists-p elt)
 	  (insert-file-contents elt)
-	(insert "# ERROR: Not found\n")
+	(insert "# WARN: Not found\n")
 	(epackage-warn "Non-existing file for combine: %s" file)))
     (epackage-with-message
         verbose (format "Write master sources list file %s" file)

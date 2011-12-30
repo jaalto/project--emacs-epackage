@@ -4,6 +4,7 @@
 
 	* epackage.el (epackage--info-mode-email-ping-subject):
 	Adjust string.
+	(epackage-combine-files): Change ERROR to WARN message.
 
 2011-12-29 Thu  Jari Aalto  <jari.aalto@cante.net>
 
