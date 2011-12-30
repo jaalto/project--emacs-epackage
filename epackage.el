@@ -1388,7 +1388,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1230.1558"
+(defconst epackage--version-time "2011.1230.1609"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2472,6 +2472,10 @@ Description: <short one line>
 
 ;;; ................................................ &functions-simple ...
 
+(defsubst epackage-point-min ()
+  "Shorthand for (goto-char (point-min))."
+  (goto-char (point-min)))
+
 (put 'epackage-with-write-file 'epackage-with-case-fold-search 0)
 (put 'epackage-with-write-file 'epackage-with-case-fold-search '(body))
 (defmacro epackage-with-case-fold-search (&rest body)
@@ -2634,7 +2638,7 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
   "Append to BUFFER a STRING. Optionally at the BEGIN."
   (with-current-buffer buffer
     (if begin
-        (goto-char (point-min))
+        (epackage-point-min)
       (goto-char (point-max)))
     (insert string)))
 
@@ -2644,7 +2648,7 @@ Optional FILE defaults to variable `buffer-file-name'.
 Point is not preserved.
 Return:
   point, if added."
-  (goto-char (point-min))
+  (epackage-point-min)
   (unless (re-search-forward "^(provide" nil t)
     (let ((name (file-name-sans-extension
 		 (file-name-nondirectory
@@ -3465,7 +3469,7 @@ Kill buffer after BODY."
   "Go to the beginning of FIELD only if it exists."
   (let ((case-fold-search t)
 	end)
-    (goto-char (point-min))
+    (epackage-point-min)
     (when (re-search-forward (concat "^" (regexp-quote field) ":") end t)
       (if (looking-at " ")
 	  (forward-char 1)
@@ -3577,7 +3581,7 @@ Examples:
             "\\)?"))
         list
         value)
-    (goto-char (point-min))
+    (epackage-point-min)
     (while (re-search-forward regexp nil t)
       (setq value (match-string-no-properties 3))
       (epackage-push
@@ -3592,10 +3596,10 @@ Examples:
 
 (defsubst epackage-depends-parse-buffer-prepare ()
   "Arrange all depends entries on their own lines."
-  (goto-char (point-min))
+  (epackage-point-min)
   (while (re-search-forward "[ \t\r\n]*,[ \t\r\n]*" nil t)
     (replace-match "\n"))
-  (goto-char (point-min))
+  (epackage-point-min)
   ;; NOTE: We may use "\n" as field separator. The 1st line must have it.
   (insert "\n"))
 
@@ -3672,7 +3676,7 @@ Return subexpression 1, or 0; the one that exists."
        (string= (file-name-nondirectory buffer-file-name)
                 epackage--pkg-info-file-name)
        (save-excursion
-         (goto-char (point-min))
+         (epackage-point-min)
          (mail-fetch-field "Package"))))
 
 (defsubst epackage-pkg-info-status-warnings (package)
@@ -3709,7 +3713,7 @@ ignored"
     (when (file-exists-p file)
       (with-temp-buffer
 	(insert-file-contents-literally file)
-	(goto-char (point-min))
+	(epackage-point-min)
 	(while (re-search-forward "^[ \t]*\\([^ ;\t\r\n].*\\)" nil t)
 	  (setq str (match-string-no-properties 1))
 	  (if regexp
@@ -3736,7 +3740,7 @@ ignored"
 	  (setq list (list dir))
 	(with-temp-buffer
 	  (insert-file-contents-literally file)
-	  (goto-char (point-min))
+	  (epackage-point-min)
 	  (setq dir (file-name-as-directory dir))
 	  (while (re-search-forward "^[ \t]*\\([^ ;\t\r\n]+\\)" nil t)
 	    (setq elt (format "%s%s" dir (match-string-no-properties 1)))
@@ -3755,7 +3759,7 @@ Would match:
 
 \[remote \"origin\"]
         url = git://example.com/package.git"
-  (goto-char (point-min))
+  (epackage-point-min)
   (when (re-search-forward
          (format "^[ \t]*\\[.*%s.*\\]" tag)
          nil t)
@@ -4258,7 +4262,7 @@ Input:
           (if emacs-lisp-mode-hook  ;; Quiet ByteCompiler "unused var"
               (setq emacs-lisp-mode-hook nil))
           (emacs-lisp-mode)))
-      (goto-char (point-min))
+      (epackage-point-min)
       (while (re-search-forward regexp nil t)
         (setq iact nil                  ;interactive flag
               args nil
@@ -4389,7 +4393,7 @@ Return buffer."
 		   "typeof=\"spdx:License\">"))
 	str
 	list)
-    (goto-char (point-min))
+    (epackage-point-min)
     (while (re-search-forward regexp nil t)
       (setq str (match-string-no-properties 1))
       ;; Drop dot-zero "*.0"
@@ -4426,7 +4430,7 @@ Note: Connects to `epackage--info-licence-list-url'."
 	 (epackage-sort list)
 	 "\n")))
       (emacs-lisp-mode)
-      (goto-char (point-min))
+      (epackage-point-min)
       (indent-sexp)
       (epackage-write-region (point-min) (point-max) file)
       t)))
@@ -4751,7 +4755,7 @@ Input:
 	    "[NOTE] File does not exist %s" autoloads)
 	(with-temp-buffer
 	  (insert-file-contents autoloads)
-	  (goto-char (point-min))
+	  (epackage-point-min)
 	  ;; Searh line that have "t" at end:
 	  ;;
 	  ;; (autoload 'command "package" "" t)
@@ -4779,7 +4783,7 @@ Point is not preserved."
 		  "Public"
 		  any
 		  "License")))
-    (goto-char (point-min))
+    (epackage-point-min)
     (when (re-search-forward regexp max t)
       (setq str "GPL")
       (when (re-search-forward
@@ -4818,7 +4822,7 @@ Point is not preserved."
   ;;
   (let ((max (min (point-max)
 		  (* 50 80))))		; 50 lines
-    (goto-char (point-min))
+    (epackage-point-min)
     ;; FIXME: fill in other regexps
     (when (re-search-forward "The MIT license" max t)
       "MIT")))
@@ -4844,7 +4848,7 @@ Point is not preserved."
 Point is not preserved. An example:
 
   ;; Version: 1.0"
-  (goto-char (point-min))
+  (epackage-point-min)
   (when (re-search-forward
 	 "^;;+ *Version: *\\([0-9][^\"]+\\)" nil t)
     (match-string-no-properties 1)))
@@ -4860,7 +4864,7 @@ Search beginning of buffer for \";;; Version\" or similar.
 Point is not preserved."
   (let ((max (min (point-max)
 		  (* 15 80))))		; 15 lines
-    (goto-char (point-min))
+    (epackage-point-min)
     ;; FIXME: More 'or' cases.
     (if (or (re-search-forward
 	     "^;+[ \t]+version[ \t]+\\([1-9][^ \t\r\n]+\\)" max 'noerr))
@@ -4871,7 +4875,7 @@ Point is not preserved."
 Point is not preserved. An example:
 
    ;; (defconst foo-version \"2011.1119.1749\""
-  (goto-char (point-min))
+  (epackage-point-min)
   (when (re-search-forward
 	 "^(def[a-z].*[ \t\r\n]+[a-z-]+version.* \"\\([0-9][^\"]+\\)"
 	 nil t)
@@ -4885,11 +4889,28 @@ Point is not preserved."
       (epackage-devel-information-version-from-variable)
       (epackage-devel-information-version-from-comment)))
 
-(defun epackage-devel-information-maintainer ()
+(defun epackage-devel-information-maintainer-copyright ()
+  "Read Copyright line and return maintainer."
+  (let ((max (min (point-max)
+		  (* 30 80))))		; 30 lines
+    (epackage-point-min)
+    (cond
+     ((re-search-forward
+       "Copyright.*(C).*[0-9 ,]+\\(.+[^ \t\f\r\n]\\)" max t)
+      (match-string-no-properties 1))
+     ((re-search-forward
+       "Copyright +[0-9 ,]+\\(.+[^ \t\f\r\n]\\)" max t)
+      (match-string-no-properties 1))
+     ((re-search-forward
+       "Copyright.* +\\(.+[^ \t\f\r\n]\\)" max t)
+      (match-string-no-properties 1)))))
+
+(defun epackage-devel-information-maintainer-main ()
   "Return maintainer from current buffer.
 Point is not preserved."
   (or (lm-header "Maintainer")
-      (lm-header "Author")))
+      (lm-header "Author")
+      (epackage-devel-information-maintainer-copyright)))
 
 (defun epackage-devel-information-homepage ()
   "Return homepage from current buffer.
@@ -4962,7 +4983,7 @@ FIELD can be:
 	(epackage-push (list "description" str) list))
       (when (setq str (epackage-devel-information-license-main))
 	(epackage-push (list "license" str) list))
-      (when (setq str (epackage-devel-information-maintainer))
+      (when (setq str (epackage-devel-information-maintainer-main))
 	(epackage-push (list "upstream" str) list))
       (when (setq str (epackage-devel-information-homepage))
 	(epackage-push (list "homepage" str) list))
@@ -5391,7 +5412,7 @@ Before saving, apply `epackage--sources-replace-table'."
 	(epackage-warn "Non-existing file for combine: %s" file)))
     (epackage-with-message
         verbose (format "Write master sources list file %s" file)
-      (goto-char (point-min))
+      (epackage-point-min)
       (unless (re-search-forward "^[^#\r\n]+://" nil t)
         (epackage-error
           "Can't find any Git repository URLs. Check files %s" list))
@@ -5931,7 +5952,7 @@ Point must be at the beginning of line."
   "Return '(pkg url description) for PACKAGE.
 Format is described in variable `epackage--sources-list-url'."
   (epackage-with-sources-list
-    (goto-char (point-min))
+    (epackage-point-min)
     (let ((re (format epackage--sources-list-regexp
                       (regexp-quote package))))
       (when (re-search-forward re nil t)
@@ -5957,7 +5978,7 @@ Format is described in variable `epackage--sources-list-url'."
   (epackage-with-sources-list
     (epackage-with-case-fold-search
      (let (list)
-       (goto-char (point-min))
+       (epackage-point-min)
        (while (re-search-forward "^\\([a-z][a-z0-9-]+\\)[ \t]+[a-z]" nil t)
 	 (epackage-push (match-string-no-properties 1) list))
        (setq list (epackage-sort list))
@@ -6014,7 +6035,7 @@ If optional VERBOSE is non-nil, display progress message."
       (with-current-buffer (find-file-noselect file)
 	;; We need to be notified about changes
 	(epackage-turn-on-auto-revert-mode)
-	(goto-char (point-min))
+	(epackage-point-min)
 	;; <host>,<ip> <key type> <key>
 	(let ((re (format "^[ \t]*%s," (regexp-quote host))))
 	  (re-search-forward re nil t)))))))
@@ -6038,7 +6059,7 @@ If optional VERBOSE is non-nil, display progress message."
       (with-current-buffer (find-file-noselect file)
 	;; We need to be notified about changes
 	(epackage-turn-on-auto-revert-mode)
-	(goto-char (point-min))
+	(epackage-point-min)
 	(let ((re (format "^[ \t]*Host[ \t]+.*%s" (regexp-quote host))))
 	  (re-search-forward re nil t)))))))
 
@@ -6568,9 +6589,9 @@ Return:
 (defun epackage-lint-extra-buffer-checkdoc-collect-data ()
   "Return checkdoc data after `epackage-lint-extra-buffer-run-checkdoc'."
   (epackage-with-checkdoc-buffer
-    (goto-char (point-min))
+    (epackage-point-min)
     (epackage-buffer-remove-empty-lines)
-    (goto-char (point-min))
+    (epackage-point-min)
     (when (re-search-forward "^[*][*][*]" nil t)
       (forward-line 1)
       (let ((point (point)))
@@ -6610,7 +6631,7 @@ Return:
     ;; - Drop `checkdoc-show-diagnostics' as it would also show, but
     ;;   run aleady ran lm-verify checks.
     (checkdoc-start-section "checkdoc-current-buffer")
-    (goto-char (point-min))
+    (epackage-point-min)
     (checkdoc-continue 'take-notes)
     (checkdoc-message-text 'take-notes)
     (checkdoc-rogue-spaces 'take-notes)
@@ -6627,7 +6648,7 @@ This is a heavy check and first time initializing will take time."
 					  (buffer-name))))
   (mapc 'elint-top-form (elint-update-env))
   (with-current-buffer elint-log-buffer
-    (goto-char (point-min))
+    (epackage-point-min)
     (forward-line 2)
     (unless (eobp)
       (buffer-substring-no-properties (point) (point-max)))))
@@ -6639,7 +6660,7 @@ In order to collect results."
   ;; (message (epackage-lint-extra-delimiter-string "miscellaneous" 'stop))
   ;; (epackage-lint-extra-collect-data)
   (let (str)
-    (goto-char (point-min))
+    (epackage-point-min)
     (unless (re-search-forward "^;;;###autoload" nil t)
       (setq str "Missing: ;;;###autoload stanzas for user variables and functions.\n"))
     str))
@@ -7943,7 +7964,7 @@ If optional VERBOSE is non-nil, display progress message."
   "Return version from current buffer.
 Look for:  (defconst VARIABLE-NAME-VERSION* \"VALUE\"..."
   (save-excursion
-    (goto-char (point-min))
+    (epackage-point-min)
     (when (re-search-forward
            "^(defconst [^ ;\t\r\n]+-version.*[ \t]\"\\([^ \"\t\r\n]+\\)"
            nil t)
@@ -8010,7 +8031,7 @@ Summary, Version, Maintainer etc."
       (insert str)
       (with-current-buffer (find-file-noselect file)
         (setq str (epackage-documentation-header-string)))
-      (goto-char (point-min))
+      (epackage-point-min)
       (insert str))
   (kill-buffer epackage--buffer-finder-commentary)
   buffer))

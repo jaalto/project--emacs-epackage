@@ -7,6 +7,8 @@
 	(epackage-combine-files): Change ERROR to WARN message.
 	(epackage-devel-information-license-gpl-standard): Improve
 	matching license text accross lines.
+	(epackage-devel-information-maintainer-copyright): new.
+	(epackage-point-min): New.
 
 2011-12-29 Thu  Jari Aalto  <jari.aalto@cante.net>
 
