@@ -1388,7 +1388,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1230.1317"
+(defconst epackage--version-time "2011.1230.1558"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4764,15 +4764,28 @@ Input:
 (defun epackage-devel-information-license-gpl-standard ()
   "If there is standard GPL stanza, return GPL[-<version>[+]].
 Point is not preserved."
-  (let (str)
+  (let* ((max (min (* 80 70)		; 70 lines
+		   (point-max)))
+	 (any    "[\0-\377]+")		; Match accross lines; Was ".*"
+	 (regexp (concat
+		  "terms"
+		  any
+		  "of"
+		  any
+		  "GNU"
+		  any
+		  "General"
+		  any
+		  "Public"
+		  any
+		  "License")))
     (goto-char (point-min))
-    (when (re-search-forward
-	   "terms.*of.*GNU.*General.*Public.*License" nil t)
+    (when (re-search-forward regexp max t)
       (setq str "GPL")
       (when (re-search-forward
 	     ;;  either version 2 of the License, or (at your option)
 	     ;;  either version 2, or (at your option)
-	     "version[ \t]+\\([2-9]\\)\\(?:,\\|[ \t]+of[ \t].*License\\)" nil t)
+	     "version[ \t]+\\([2-9]\\)\\(?:,\\|[ \t]+of[ \t].*License\\)" max t)
 	(setq str (format "%s-%s" str (match-string-no-properties 1)))
 	(if (re-search-forward "any[ \t]+later[ \t]+version" nil t)
 	    (setq str (concat str "+"))))
@@ -4818,9 +4831,13 @@ Point is not preserved."
 ;; See lm-get-package-name
 (defun epackage-devel-information-description-short ()
   "Return description from the first line \";;; <name>.el --- <description>\"."
-  (or (lm-summary)
-      ;; FIXME: see if some package does not follow conventions
-      nil))
+  (let ((str (lm-summary)))
+    ;; FIXME: see if some package does not follow conventions
+    (when str
+      ;; Clean up: leave out sentence end(.)
+      (if (string-match "^\\(.+\\)\\.[ ]*$" str)
+	  (setq str (match-string-no-properties 1 str)))
+      str)))
 
 (defun epackage-devel-information-version-from-comment ()
   "Return version from current buffer.
