@@ -1388,7 +1388,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1231.1455"
+(defconst epackage--version-time "2011.1231.1637"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4770,26 +4770,39 @@ Input:
 Point is not preserved."
   (let* ((max (min (* 80 70)		; 70 lines
 		   (point-max)))
+	 (spc    "[ ;\tf\r\n]+")
+	 (spc*   "[ ;\tf\r\n]*")
 	 (any    "[\0-\377]+")		; Match accross lines; Was ".*"
-	 (regexp (concat
+	 (re-gpl (concat
 		  "terms"
-		  any
+		  spc
 		  "of"
-		  any
+		  spc
+		  "\\(?:the\\)?"
+		  spc*
 		  "GNU"
-		  any
+		  spc
 		  "General"
-		  any
+		  spc
 		  "Public"
-		  any
-		  "License")))
+		  spc
+		  "License"))
+	 ;;  either version 2 of the License, or (at your option)
+	 ;;  either version 2, or (at your option)
+	 (re-ver  (concat
+		   "version"
+		   spc
+		   "\\([2-9]\\)"
+		   spc*
+		   "\\(?:,"
+		       "\\|"
+		       "of"
+		       spc
+		       "License\\)")))
     (epackage-point-min)
-    (when (re-search-forward regexp max t)
+    (when (re-search-forward re-gpl max t)
       (setq str "GPL")
-      (when (re-search-forward
-	     ;;  either version 2 of the License, or (at your option)
-	     ;;  either version 2, or (at your option)
-	     "version[ \t]+\\([2-9]\\)\\(?:,\\|[ \t]+of[ \t].*License\\)" max t)
+      (when (re-search-forward re-ver max t)
 	(setq str (format "%s-%s" str (match-string-no-properties 1)))
 	(if (re-search-forward "any[ \t]+later[ \t]+version" nil t)
 	    (setq str (concat str "+"))))
