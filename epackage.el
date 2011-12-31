@@ -1388,7 +1388,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1230.1609"
+(defconst epackage--version-time "2011.1231.0212"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4841,6 +4841,9 @@ Point is not preserved."
       ;; Clean up: leave out sentence end(.)
       (if (string-match "^\\(.+\\)\\.[ ]*$" str)
 	  (setq str (match-string-no-properties 1 str)))
+      ;; There may be stanza:  -*-coding: utf-8 -*-
+      (if (string-match "^\\(.+[^ ]\\) *-[*]-" str)
+	  (setq str (match-string-no-properties 1 str)))
       str)))
 
 (defun epackage-devel-information-version-from-comment ()
@@ -6583,6 +6586,23 @@ Return:
     (message "Missing: ;;; History:"))
   (unless (lm-code-start)
     (message "Missing: ;;; Code:"))
+  (unless (lm-header "Author")
+    (message "Missing: ;; Author:"))
+  (unless (lm-header "Maintainer")
+    (message "Missing: ;; Maintainer:"))
+  (let ((str (lm-header "Version")))
+    (cond
+     ((not (stringp str))
+      (message "Missing: ;; Version:"))
+     ((not (string-match "^[0-9.]+$" str))
+      (message "Invalid: Version: %s (expect pure numeric [0-9.]+" str))))
+  (unless (lm-header "Keywords")
+    (message "Missing: ;; Keywords:"))
+  (unless (lm-header "URL")		;ELPA convention
+    (message "Missing: ;; URL:"))
+
+  ;; FIXME: Require order
+  ;; http://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Library-Headers
   (message (epackage-lint-extra-delimiter-string "lm-verify" 'stop))
   (epackage-lint-extra-collect-data))
 
@@ -6653,17 +6673,19 @@ This is a heavy check and first time initializing will take time."
     (unless (eobp)
       (buffer-substring-no-properties (point) (point-max)))))
 
-(defun epackage-lint-extra-buffer-run-other ()
-  "Check miscellaneous problems on current buffer.
-In order to collect results."
-  ;; (message (epackage-lint-extra-delimiter-string "miscellaneous"))
-  ;; (message (epackage-lint-extra-delimiter-string "miscellaneous" 'stop))
-  ;; (epackage-lint-extra-collect-data)
+(defun epackage-lint-extra-buffer-run-other-autoload ()
+  "Check missing ###autoload stanzas."
   (let (str)
     (epackage-point-min)
     (unless (re-search-forward "^;;;###autoload" nil t)
       (setq str "Missing: ;;;###autoload stanzas for user variables and functions.\n"))
     str))
+
+(defun epackage-lint-extra-buffer-run-other-main ()
+  "Check miscellaneous QA problems on current buffer.
+Return list of results '(\"message\" ...)."
+  (let ((list '(epackage-lint-extra-buffer-run-other-autoload)))
+    (delq nil (mapcar 'funcall list))))
 
 ;;;###autoload
 (defun epackage-lint-extra-buffer-main (&optional clear verbose)
@@ -6702,12 +6724,13 @@ Return:
 	(insert str)
 	(epackage-push 'lisp-mnt errors)))
     (epackage-verbose-message "Lint running: miscellaneous...")
-    (when (setq str (epackage-lint-extra-buffer-run-other))
-      (epackage-with-lint-buffer
-	(goto-char (point-max))
-	(insert "** Lint miscellaneous\n")
-	(insert str)
-	(epackage-push 'miscellaneous errors)))
+    (let ((list (epackage-lint-extra-buffer-run-other-main)))
+      (insert "** Lint miscellaneous\n")
+      (dolist (str list)
+	(epackage-with-lint-buffer
+	  (goto-char (point-max))
+	  (insert str)
+	  (epackage-push 'miscellaneous errors))))
     (epackage-verbose-message "Lint running: checkdoc...")
     (when (setq str (epackage-lint-extra-buffer-run-checkdoc))
       (epackage-with-lint-buffer

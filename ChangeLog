@@ -1,3 +1,10 @@
+2011-12-31 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-lint-extra-buffer-run-other-main):
+	Rewrite.
+	(epackage-lint-extra-buffer-run-other-autoload): New.
+	(epackage-devel-information-description-short): Check -*- stanzas.
+
 2011-12-30 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* Makefile: (clean): Adjust help string
