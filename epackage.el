@@ -1388,7 +1388,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1231.1637"
+(defconst epackage--version-time "2011.1231.1702"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4905,21 +4905,50 @@ Point is not preserved."
       (epackage-devel-information-version-from-variable)
       (epackage-devel-information-version-from-comment)))
 
-(defun epackage-devel-information-maintainer-copyright ()
-  "Read Copyright line and return maintainer."
+(defun epackage-devel-information-maintainer-copyright-1 ()
+  "Read Copyright line and return maintainer.
+
+Return
+  ((YER NAME) ...) If multiple copyright lines
+  STRING           If single copyright."
   (let ((max (min (point-max)
 		  (* 30 80))))		; 30 lines
-    (epackage-point-min)
     (cond
      ((re-search-forward
-       "Copyright.*(C).*[0-9 ,]+\\(.+[^ \t\f\r\n]\\)" max t)
+       (concat
+	"Copyright[ \t]*(C)[ \t]*\\([0-9][,0-9 ]*\\)[ \t]+"
+	"\\(?:by *\\)\\(.+[^ \t\f\r\n]\\)")
+       max t)
+      (list (match-string-no-properties 1)
+	    (match-string-no-properties 2)))
+     ((re-search-forward
+       "Copyright[ \t]+[0-9 ,]+[ \t]\\(.+[^ \t\f\r\n]\\)" max t)
       (match-string-no-properties 1))
      ((re-search-forward
-       "Copyright +[0-9 ,]+\\(.+[^ \t\f\r\n]\\)" max t)
-      (match-string-no-properties 1))
-     ((re-search-forward
-       "Copyright.* +\\(.+[^ \t\f\r\n]\\)" max t)
+       "Copyright[ \t]+\\(.+[^ \t\f\r\n]\\)" max t)
       (match-string-no-properties 1)))))
+
+(defun epackage-devel-information-maintainer-copyright ()
+  "Read Copyright line and return maintainer (latest year)."
+  (let ((loop t)
+	elt
+	year
+	ret)
+    (epackage-point-min)
+    (while (and loop
+		(setq elt (epackage-devel-information-maintainer-copyright-1)))
+      (cond
+       ((stringp elt)
+	(setq loop nil
+	      ret str))
+       (year
+	(when (string< year (car elt))
+	  (setq year (car elt)
+		ret (nth 1 elt))))
+       (t
+	(setq year (nth 0 elt)
+	      ret  (nth 1 elt)))))
+    ret))
 
 (defun epackage-devel-information-maintainer-main ()
   "Return maintainer from current buffer.

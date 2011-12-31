@@ -6,6 +6,8 @@
 	(epackage-devel-information-description-short): Check -*- stanzas.
 	(epackage-devel-information-date-lm): Add Last-Modified.
 	(epackage-devel-information-license-gpl-standard): Improve regexps.
+	(epackage-devel-information-maintainer-copyright-1): Improve regexp.
+	(epackage-devel-information-maintainer-copyright): New.
 
 2011-12-30 Fri  Jari Aalto  <jari.aalto@cante.net>
 
