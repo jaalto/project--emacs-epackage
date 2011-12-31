@@ -4,6 +4,7 @@
 	Rewrite.
 	(epackage-lint-extra-buffer-run-other-autoload): New.
 	(epackage-devel-information-description-short): Check -*- stanzas.
+	(epackage-devel-information-date-lm): Add Last-Modified.
 
 2011-12-30 Fri  Jari Aalto  <jari.aalto@cante.net>
 

@@ -1388,7 +1388,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1231.0212"
+(defconst epackage--version-time "2011.1231.1455"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4938,6 +4938,9 @@ Point is not preserved. Use `lm-header'."
   (or (lm-header "Time-stamp")
       (lm-header "Updated")
       (lm-header "Last-Updated")
+      (lm-header "Last Updated")
+      (lm-header "Last-Modified")
+      (lm-header "Last Modified")
       (lm-header "Modified")
       (lm-header "Created")))
 
