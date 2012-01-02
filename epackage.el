@@ -1388,7 +1388,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0102.1826"
+(defconst epackage--version-time "2012.0102.1931"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2475,6 +2475,10 @@ Description: <short one line>
 (defsubst epackage-point-min ()
   "Shorthand for (goto-char (point-min))."
   (goto-char (point-min)))
+
+(defsubst epackage-line-number ()
+  "Return line number."
+  (count-lines (point-min) (point)))
 
 (put 'epackage-with-write-file 'epackage-with-case-fold-search 0)
 (put 'epackage-with-write-file 'epackage-with-case-fold-search '(body))
@@ -6718,18 +6722,50 @@ This is a heavy check and first time initializing will take time."
       (buffer-substring-no-properties (point) (point-max)))))
 
 (defun epackage-lint-extra-buffer-run-other-autoload ()
-  "Check missing ###autoload stanzas."
-  (let (str)
+  "Check missing ###autoload stanzas.
+
+Return:
+  '(\"<error message>\") or nil."
+  (let (ret)
     (epackage-point-min)
     (unless (re-search-forward "^;;;###autoload" nil t)
-      (setq str "Missing: ;;;###autoload stanzas for user variables and functions.\n"))
-    str))
+      (setq ret
+	    (list
+	     `,(concat "Missing: ;;;###autoload, see "
+		       "15.5 Autoload (GNU Emacs Lisp Reference Manual)"))))
+    ret))
+
+(defun epackage-lint-extra-buffer-run-other-keybindings ()
+  "Check if code uses global-set-key.
+Return:
+  '(\"ERROR-TYPE:LINE-NUMBER:LINE\" ...) or nil."
+  (let (space
+	line
+	type
+	list)
+    (epackage-point-min)
+    (while (re-search-forward "^\\(\\([ \t]*\\)(global-set-key.*\\)" nil t)
+      (setq line  (match-string-no-properties 1)
+	    space (match-string-no-properties 2)
+	    type  (if (string= "" space)
+		      ;; Immediately to the left: unconditional call.
+		      "Error"
+		    ;; Indented, possibly inside *-install function.
+		    "Note"))
+      (epackage-push
+       (format "%s:%d:%s" type (epackage-line-number) line)
+       list))
+    list))
 
 (defun epackage-lint-extra-buffer-run-other-main ()
   "Check miscellaneous QA problems on current buffer.
 Return list of results '(\"message\" ...)."
-  (let ((list '(epackage-lint-extra-buffer-run-other-autoload)))
-    (delq nil (mapcar 'funcall list))))
+  (let ((list '(epackage-lint-extra-buffer-run-other-autoload ;; FIXME make user variable
+		epackage-lint-extra-buffer-run-other-keybindings))
+	ret)
+    (dolist (function list)
+      (epackage-nconc (funcall function) ret))
+    (delq nil ret)))
 
 ;;;###autoload
 (defun epackage-lint-extra-buffer-main (&optional clear verbose)
@@ -6780,7 +6816,7 @@ Return:
 	(dolist (str list)
 	  (epackage-with-lint-buffer
 	    (goto-char (point-max))
-	    (insert str)
+	    (insert str "\n")
 	    (epackage-push 'miscellaneous errors)))))
     (epackage-verbose-message "Lint running: checkdoc.el...")
     (when (setq str (epackage-lint-extra-buffer-run-checkdoc))

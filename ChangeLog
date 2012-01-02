@@ -5,6 +5,10 @@
 	(epackage-lint-extra-buffer-run-lm): Reorder checks.
 	(epackage-lint-extra-buffer-main): Fix bug which inserted
 	results into current buffer.
+	(epackage-line-number): New.
+	(epackage-lint-extra-buffer-run-other-keybindings): New.
+	(epackage-lint-extra-buffer-run-other-main): Rewrite
+	using nconc.
 
 2011-12-31 Sat  Jari Aalto  <jari.aalto@cante.net>
 
