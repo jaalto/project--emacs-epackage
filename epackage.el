@@ -1388,7 +1388,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2011.1231.1702"
+(defconst epackage--version-time "2012.0102.1826"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6625,16 +6625,10 @@ Return:
     (message "Missing: ;;; package --- Summary"))
   (unless (lm-copyright-mark)
     (message "Missing: ;; Copyright (C) YYYY First Last <address@example.com>"))
-  (unless (lm-commentary-mark)
-    (message "Missing: ;;; Commentary:"))
-  (unless (lm-history-mark)
-    (message "Missing: ;;; History:"))
-  (unless (lm-code-start)
-    (message "Missing: ;;; Code:"))
-  (unless (lm-header "Author")
-    (message "Missing: ;; Author:"))
   (unless (lm-header "Maintainer")
     (message "Missing: ;; Maintainer:"))
+  (unless (lm-header "Author")
+    (message "Missing: ;; Author:"))
   (let ((str (lm-header "Version")))
     (cond
      ((not (stringp str))
@@ -6645,7 +6639,12 @@ Return:
     (message "Missing: ;; Keywords:"))
   (unless (lm-header "URL")		;ELPA convention
     (message "Missing: ;; URL:"))
-
+  (unless (lm-commentary-mark)
+    (message "Missing: ;;; Commentary:"))
+  (unless (lm-history-mark)
+    (message "Missing: ;;; History:"))
+  (unless (lm-code-start)
+    (message "Missing: ;;; Code:"))
   ;; FIXME: Require order
   ;; http://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Library-Headers
   (message (epackage-lint-extra-delimiter-string "lm-verify" 'stop))
@@ -6755,13 +6754,18 @@ Return:
 			   buffer-file-name))
 		""))
 	str
+	list
 	errors)
     (epackage-with-lint-buffer
       (if clear
-	  (epackage-erase-buffer))
-      (goto-char (point-max))
+	  (epackage-erase-buffer)
+	(goto-char (point-max))
+	(goto-char (line-beginning-position)))
+      (unless (looking-at "^[ t\r]*$")
+	(insert "\n"))
       ;; Stars are there to support `outline-minor-mode'.
       (insert (format "*** Lint %s%s\n" (epackage-time) file)))
+    (epackage-verbose-message "Lint running: lisp-mnt.el...")
     (when (setq str (epackage-lint-extra-buffer-run-lm))
       (epackage-with-lint-buffer
 	(goto-char (point-max))
@@ -6769,27 +6773,31 @@ Return:
 	(insert str)
 	(epackage-push 'lisp-mnt errors)))
     (epackage-verbose-message "Lint running: miscellaneous...")
-    (let ((list (epackage-lint-extra-buffer-run-other-main)))
-      (insert "** Lint miscellaneous\n")
-      (dolist (str list)
-	(epackage-with-lint-buffer
-	  (goto-char (point-max))
-	  (insert str)
-	  (epackage-push 'miscellaneous errors))))
-    (epackage-verbose-message "Lint running: checkdoc...")
+    (when (list (epackage-lint-extra-buffer-run-other-main))
+      (epackage-with-lint-buffer
+	(goto-char (point-max))
+	(insert "** Lint miscellaneous\n")
+	(dolist (str list)
+	  (epackage-with-lint-buffer
+	    (goto-char (point-max))
+	    (insert str)
+	    (epackage-push 'miscellaneous errors)))))
+    (epackage-verbose-message "Lint running: checkdoc.el...")
     (when (setq str (epackage-lint-extra-buffer-run-checkdoc))
       (epackage-with-lint-buffer
 	(goto-char (point-max))
 	(insert "** Lint M-x checkdoc-current-buffer (checkdoc.el)\n")
 	(insert str)
 	(epackage-push 'checkdoc errors)))
-    (epackage-verbose-message "Lint running: elint...")
+    (epackage-verbose-message "Lint running: elint.el...")
     (when (setq str (epackage-lint-extra-buffer-run-elint))
       (epackage-with-lint-buffer
 	(goto-char (point-max))
 	(insert "** Lint M-x elint-current-buffer (elint.el)\n")
 	(insert str)
 	(epackage-push 'checkdoc errors)))
+    (epackage-with-lint-buffer
+      (outline-minor-mode 1))
     (if verbose
 	(display-buffer epackage--buffer-lint))
     errors))

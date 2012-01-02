@@ -1,3 +1,11 @@
+2012-01-02 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-lint-extra-buffer-main): Turn on
+	`outline-minor-mode'.
+	(epackage-lint-extra-buffer-run-lm): Reorder checks.
+	(epackage-lint-extra-buffer-main): Fix bug which inserted
+	results into current buffer.
+
 2011-12-31 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-lint-extra-buffer-run-other-main):
