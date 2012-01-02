@@ -1388,7 +1388,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0102.1931"
+(defconst epackage--version-time "2012.0102.2235"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6850,11 +6850,12 @@ With VERBOSE display `epackage--buffer-lint'."
   (let ((new-p (null (get-file-buffer file)))
 	buffer)
     (with-current-buffer (find-file-noselect file)
-      (epackage-lint-extra-buffer-main verbose)
-      (if new-p
-	  (setq buffer (current-buffer))))
-    (if buffer				; We loaded it, clean up
-	(kill-buffer buffer))))
+      (prog1
+	  (epackage-lint-extra-buffer-main verbose)
+	(if new-p
+	    (setq buffer (current-buffer))))
+      (if buffer			; We loaded it, clean up
+	  (kill-buffer buffer)))))
 
 ;;; .................................................. &functions-misc ...
 
@@ -8473,7 +8474,7 @@ Summary, Version, Maintainer etc."
 
 (defun epackage-batch-devel-compose-package-dir ()
   "Run `epackage-devel-compose-package-dir' for first command line arg.
-The argument must be full patch name to a *.el file."
+The argument must be full path name to a *.el file."
   (let ((name (nth 0 command-line-args-left))
 	(path (nth 1 command-line-args-left))
 	dir
@@ -8493,6 +8494,20 @@ The argument must be full patch name to a *.el file."
     (setq dir (match-string 1 path)
 	  file (match-string 2 path))
     (epackage-devel-compose-package-dir name dir)))
+
+(defun epackage-batch-devel-lint-lisp ()
+  "Run `epackage-lint-extra-file' for all command line args."
+  (let ((debug-on-error t))
+    (auto-compression-mode 1)
+    (dolist (elt command-line-args-left)
+      (cond
+       ((not (file-exists-p elt))
+	(epackage-warn "No such file: %s" elt))
+       ((string-match "\\.elc" elt))
+       (t
+	(epackage-lint-extra-file elt)
+	(epackage-with-lint-buffer
+	  (message (buffer-string))))))))
 
 (defun epackage-batch-enable-package ()
   "Run `epackage-cmd-enable-package' for command line args."
