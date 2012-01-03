@@ -1,11 +1,15 @@
 ;; epackage.el --- Distributed Emacs Lisp Package System (DELPS)
 
-;; This file is not part of Emacs
+;; Copyright (C) 2009-2012 Jari Aalto
 
-;; Copyright (C)    2009-2011 Jari Aalto
-;; Keywords:        tools
-;; Author:          Jari Aalto <jari.aalto@cante.net>
-;; Maintainer:      Jari Aalto <jari.aalto@cante.net>
+;; Author:	Jari Aalto <jari.aalto@cante.net>
+;; Maintainer:	Jari Aalto <jari.aalto@cante.net>
+;; Created:	2009-10-03
+;; Version:	1.5
+;; Keywords:    tools
+;; URL:		http://www.emacswiki.org/emacs/DELPS
+
+;; This file is not part of Emacs
 
 ;; This program is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by the Free
@@ -1391,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0103.2114"
+(defconst epackage--version-time "2012.0103.2118"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
