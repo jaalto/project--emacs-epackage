@@ -1388,7 +1388,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0102.2235"
+(defconst epackage--version-time "2012.0103.1101"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6903,20 +6903,39 @@ Return package name or nil."
     (t
      (epackage-error ,message))))
 
+;; Don't you hate it when new Emacs changes functionsand doesn't
+;; make new ARGS *optional*
 (put 'epackage-mail-macro 'lisp-indent-function 2)
 (put 'epackage-mail-macro 'edebug-form-spec '(body))
-(defmacro epackage-mail-macro (buffer-name to &rest body)
-  "Compose mail in BUFFER-NAME, set TO and run BODY."
-  `(progn
-     (pop-to-buffer ,buffer-name)
-     (mail-setup
-      ,to
-      (not 'subject)
-      (not 'in-reply-to)
-      (not 'cc)
-      (not 'replybuffer)
-      (not 'actions))
-     ,@body))
+(eval-and-compile
+  (cond
+   ((string< emacs-version "24")
+    (defmacro epackage-mail-macro (buffer-name to &rest body)
+      "Compose mail in BUFFER-NAME, set TO and run BODY."
+      `(progn
+	 (pop-to-buffer ,buffer-name)
+	 (mail-setup
+	  ,to
+	  (not 'subject)
+	  (not 'in-reply-to)
+	  (not 'cc)
+	  (not 'replybuffer)
+	  (not 'actions))
+	 ,@body)))
+    (t
+     (defmacro epackage-mail-macro (buffer-name to &rest body)
+       "Compose mail in BUFFER-NAME, set TO and run BODY."
+       `(progn
+	  (pop-to-buffer ,buffer-name)
+	  (mail-setup
+	   ,to
+	   (not 'subject)
+	   (not 'in-reply-to)
+	   (not 'cc)
+	   (not 'replybuffer)
+	   (not 'actions)
+	   (not 'return-action))
+	  ,@body)))))
 
 (defsubst epackage-mail-buffer-name (package &optional string)
   "Compose email buffer name from PACKAGE and optional STRING."
