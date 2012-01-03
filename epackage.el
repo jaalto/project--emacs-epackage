@@ -1385,7 +1385,8 @@
   (autoload 'url-http-parse-response "url")
 
   (defvar whitespace-style)
-  (autoload 'whitespace-replace-action "whitespace"))
+  (autoload 'whitespace-replace-action "whitespace")
+  (require 'advice))
 
 ;;;###autoload
 (autoload 'mail-fetch-field "mail-utils")
@@ -1395,7 +1396,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0103.2234"
+(defconst epackage--version-time "2012.0103.2303"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6687,6 +6688,45 @@ Return:
 	    (insert "\n"))
 	  (buffer-substring-no-properties point (point-max)))))))
 
+;; This effectively diables function to check double spaces.
+(defun epackage-lint-extra-checkdoc-advice (&optional restore)
+  "Turn on `checkdoc-sentencespace-region-engine' with advice.
+Optional RESTORE returns function to original state."
+  ;; Conclusion: Single-spaced sentences: single spacing is the norm
+  ;; in all professional typography.
+  ;; <http://pinboard.in/u:jariaalto/t:language/t:english/t:one-space>
+  ;;
+  ;; Wikipedia: "No known U.S. or international style guide (for
+  ;; languages using a Latin-derived alphabet) currently prescribes
+  ;; the use of a double space after terminal punctuation in final or
+  ;; published work."
+  ;;
+  ;; Associated Press Stylebook: "The Professional
+  ;; industry writing guidelines say: "Use a single space after the
+  ;; period at the end of a sentence."
+  ;;
+  ;; Chicago Manual of Style: "In our efficient, modern world, I think
+  ;; there is no room for two spaces after a period. In the opinion of
+  ;; this particular copyeditor, this is a good thing. "
+  ;;
+  ;; The GPO Style Manual (U.S. Government Printing Office): "Leading
+  ;; and spacing: "2.49. A single justified word space will be used
+  ;; between sentences. This applies to all types of composition."
+  ;;
+  (let ((function 'epackage-lint-extra-checkdoc-advice))
+    ;; Instantiate advice code, only once.
+    (unless (get function 'advice)
+      (put function 'advice t)
+      (defadvice checkdoc-sentencespace-region-engine (around epackage dis)
+	nil))
+    (cond
+     (restore
+      (ad-enable-advice function 'around 'epackage)
+      (ad-activate function))
+     (t
+      (ad-disable-advice function 'around 'epackage)
+      (ad-activate function)))))
+
 (defun epackage-lint-extra-buffer-run-checkdoc ()
   "Run checkdoc on current buffer."
   (require 'checkdoc)
@@ -6711,7 +6751,9 @@ Return:
     ;;   run aleady ran lm-verify checks.
     (checkdoc-start-section "checkdoc-current-buffer")
     (epackage-point-min)
+    (epackage-lint-extra-checkdoc-advice)
     (checkdoc-continue 'take-notes)
+    (epackage-lint-extra-checkdoc-advice 'disable)
     (checkdoc-message-text 'take-notes)
     (checkdoc-rogue-spaces 'take-notes)
     (epackage-lint-extra-buffer-checkdoc-collect-data)))
