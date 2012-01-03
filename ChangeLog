@@ -2,6 +2,7 @@
 
 	* epackage.el (epackage-mail-macro): Emacs 24 fix. Turn
 	on `message-mode'.
+	(epackage-lint-extra-file): add defalias.
 
 2012-01-02 Tue  Jari Aalto  <jari.aalto@cante.net>
 

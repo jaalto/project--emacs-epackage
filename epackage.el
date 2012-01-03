@@ -1391,7 +1391,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0103.2038"
+(defconst epackage--version-time "2012.0103.2111"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6841,6 +6841,11 @@ Return:
 	(display-buffer epackage--buffer-lint))
     errors))
 
+;; More familiar user callable function
+;;;###autoload
+(defalias 'epackage-lint-extra-file 'epackage-lint-file)
+
+;; Want to keep the name prefix `epackage-lint-extra*'
 ;;;###autoload
 (defun epackage-lint-extra-file (file &optional verbose)
   "Lint FILE using extra tools.
