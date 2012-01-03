@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0103.2328"
+(defconst epackage--version-time "2012.0103.2332"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -8574,7 +8574,7 @@ The argument must be full path name to a *.el file."
 	(unless (member dir list)
 	  (epackage-push dir list)
 	  (dolist (elt (epackage-directory-recursive-lisp dir))
-	    (epackage-push elt load-path)))))
+	    (epackage-push elt load-path))))
       (cond
        ((not (file-exists-p elt))
 	(epackage-warn "No such file: %s" elt))
