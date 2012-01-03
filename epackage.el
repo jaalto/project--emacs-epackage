@@ -1388,7 +1388,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0103.1101"
+(defconst epackage--version-time "2012.0103.1107"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6921,7 +6921,10 @@ Return package name or nil."
 	  (not 'cc)
 	  (not 'replybuffer)
 	  (not 'actions))
-	 ,@body)))
+	 (prog1
+	     (progn
+	       ,@body)
+	   (message-mode)))))
     (t
      (defmacro epackage-mail-macro (buffer-name to &rest body)
        "Compose mail in BUFFER-NAME, set TO and run BODY."
@@ -6935,7 +6938,10 @@ Return package name or nil."
 	   (not 'replybuffer)
 	   (not 'actions)
 	   (not 'return-action))
-	  ,@body)))))
+	  (prog1
+	      (progn
+		,@body)
+	    (message-mode)))))))
 
 (defsubst epackage-mail-buffer-name (package &optional string)
   "Compose email buffer name from PACKAGE and optional STRING."

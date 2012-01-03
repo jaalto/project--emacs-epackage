@@ -1,6 +1,7 @@
 2012-01-03 Tue  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-mail-macro): Emacs 24 fix.
+	* epackage.el (epackage-mail-macro): Emacs 24 fix. Turn
+	on `message-mode'.
 
 2012-01-02 Tue  Jari Aalto  <jari.aalto@cante.net>
 
