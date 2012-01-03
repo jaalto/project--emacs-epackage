@@ -1388,7 +1388,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0103.1107"
+(defconst epackage--version-time "2012.0103.1110"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6914,6 +6914,7 @@ Return package name or nil."
       "Compose mail in BUFFER-NAME, set TO and run BODY."
       `(progn
 	 (pop-to-buffer ,buffer-name)
+	 (epackage-erase-buffer)
 	 (mail-setup
 	  ,to
 	  (not 'subject)
@@ -6930,6 +6931,7 @@ Return package name or nil."
        "Compose mail in BUFFER-NAME, set TO and run BODY."
        `(progn
 	  (pop-to-buffer ,buffer-name)
+	  (epackage-erase-buffer)
 	  (mail-setup
 	   ,to
 	   (not 'subject)
