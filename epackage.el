@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0103.2312"
+(defconst epackage--version-time "2012.0103.2328"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -5820,14 +5820,14 @@ If optional VERBOSE is non-nil, display progress message."
             (file-name-nondirectory
              (epackage-file-name-loader-boot))))))
 
-(defun epackage-loader-insert-file-path-list-by-path (path)
-  "Insert `load-path' definitions to `current-buffer' from PATH."
-  (dolist (dir (epackage-directory-recursive-lisp path))
+(defun epackage-loader-insert-file-path-list-by-path (dir)
+  "Insert `load-path' definitions to `current-buffer' from DIR."
+  (dolist (elt (epackage-directory-recursive-lisp dir))
     ;; Convert absolute paths into HOME (~)
-    (setq dir (abbreviate-file-name dir))
+    (setq elt (abbreviate-file-name elt))
     (insert (format
              "(add-to-list 'load-path \"%s\")\n"
-             dir))))
+             elt))))
 
 (defun epackage-loader-file-insert-path-list () ;; FIXME w32
   "Insert `load-path' commands to `current-buffer'."
@@ -8560,9 +8560,21 @@ The argument must be full path name to a *.el file."
 
 (defun epackage-batch-devel-lint-lisp ()
   "Run `epackage-lint-extra-file' for all command line args."
-  (let ((debug-on-error t))
+  (let ((load-path load-path)
+	(debug-on-error t)
+	list
+	dir)
     (auto-compression-mode 1)
+    ;; For elint.el
+    (epackage-push default-directory load-path)
     (dolist (elt command-line-args-left)
+      (when (string-match "[/\\]" elt)
+	;; FIXME: There is better code somewhere above (see compile package)
+	(setq dir (file-name-directory elt))
+	(unless (member dir list)
+	  (epackage-push dir list)
+	  (dolist (elt (epackage-directory-recursive-lisp dir))
+	    (epackage-push elt load-path)))))
       (cond
        ((not (file-exists-p elt))
 	(epackage-warn "No such file: %s" elt))
