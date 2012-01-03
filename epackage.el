@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0103.2311"
+(defconst epackage--version-time "2012.0103.2312"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6690,7 +6690,7 @@ Return:
 (defun epackage-lint-extra-buffer-checkdoc-cleanup ()
   "Clean up entries after checkdoc run."
   (epackage-with-checkdoc-buffer
-    (epackage-pmin)
+    (epackage-point-min)
     ;; http://pinboard.in/u:jariaalto/t:language/t:english/t:one-space
     ;; Conclusion: "No known U.S. or international style guide (for
     ;; languages using a Latin-derived alphabet) currently prescribes
