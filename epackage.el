@@ -1391,7 +1391,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0103.2111"
+(defconst epackage--version-time "2012.0103.2114"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1725,7 +1725,7 @@ Never set this variable directly, use the command
     (define-key map (kbd "C-c d") 'epackage-info-mode-cmd-goto-description)
     (define-key map (kbd "C-c h") 'epackage-info-mode-cmd-url-homepage)
     (define-key map (kbd "C-c ll") 'epackage-info-mode-cmd-lint)
-    (define-key map (kbd "C-c lf") 'epackage-lint-extra-file)
+    (define-key map (kbd "C-c lf") 'epackage-lint-file)
     (define-key map (kbd "C-c mm") 'epackage-info-mode-cmd-email-maintainer)
     (define-key map (kbd "C-c mu") 'epackage-info-mode-cmd-email-upstream)
     (define-key map (kbd "C-c mU") 'epackage-info-mode-cmd-email-upstream-ping)
@@ -6770,6 +6770,11 @@ Return list of results '(\"message\" ...)."
       (epackage-nconc (funcall function) ret))
     (delq nil ret)))
 
+;; More familiar user callable function
+;;;###autoload
+(defalias 'epackage-lint-extra-buffer-main 'epackage-lint-buffer)
+
+;; Want to keep the name prefix `epackage-lint-extra*'
 ;;;###autoload
 (defun epackage-lint-extra-buffer-main (&optional clear verbose)
   "Lint current buffer using extra tools.
