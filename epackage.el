@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0103.2230"
+(defconst epackage--version-time "2012.0103.2234"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6649,7 +6649,7 @@ Return:
      ((not (stringp str))
       (message "Missing: ;; Version:"))
      ((not (string-match "^[0-9.]+$" str))
-      (message "Invalid: Version: %s (expect pure numeric [0-9.]+" str))))
+      (message "Warning: Version: %s (expected pure numeric [0-9][0-9.]+)" str))))
   (unless (lm-header "Keywords")
     (message "Missing: ;; Keywords:"))
   (unless (lm-header "URL")		;ELPA convention
