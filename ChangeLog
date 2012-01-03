@@ -1,3 +1,9 @@
+2012-01-03 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-date): New.
+	(epackage-lint-extra-buffer-main): Add Emacs version to
+	lint log.
+
 2012-01-03 Tue  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (top level): standardize headers.

@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0103.2118"
+(defconst epackage--version-time "2012.0103.2224"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2689,6 +2689,10 @@ Return:
   "Like 'save-buffer' FILE; but disable backup etc."
   (epackage-with-write-file
     (save-buffer)))
+
+(defsubst epackage-date ()
+  "Return ISO 8601 YYYY-MM-DD"
+  (format-time-string "%Y-%m-%d"))
 
 (defsubst epackage-time ()
   "Return ISO 8601 YYYY-MM-DD HH:MM:SS."
@@ -6812,7 +6816,10 @@ Return:
       (unless (looking-at "^[ t\r]*$")
 	(insert "\n"))
       ;; Stars are there to support `outline-minor-mode'.
-      (insert (format "*** Lint %s%s\n" (epackage-time) file)))
+      (insert (format "*** Lint Emacs %s %s%s\n"
+		      emacs-version
+		      (epackage-time)
+		      file)))
     (epackage-verbose-message "Lint running: lisp-mnt.el...")
     (when (setq str (epackage-lint-extra-buffer-run-lm))
       (epackage-with-lint-buffer
