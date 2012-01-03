@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0103.2224"
+(defconst epackage--version-time "2012.0103.2230"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6827,11 +6827,11 @@ Return:
 	(insert "** Lint M-x lm-verify (list-mnt.el)\n")
 	(insert str)
 	(epackage-push 'lisp-mnt errors)))
-    (epackage-verbose-message "Lint running: miscellaneous...")
-    (when (list (epackage-lint-extra-buffer-run-other-main))
+    (epackage-verbose-message "Lint running: extra checks...")
+    (when (setq (list (epackage-lint-extra-buffer-run-other-main)))
       (epackage-with-lint-buffer
 	(goto-char (point-max))
-	(insert "** Lint miscellaneous\n")
+	(insert "** Lint extra checks (epackage.el)\n")
 	(dolist (str list)
 	  (epackage-with-lint-buffer
 	    (goto-char (point-max))
