@@ -704,6 +704,8 @@
 ;;          Homepage: http://example.com
 ;;          Wiki: http://www.emacswiki.org/emacs/TheTestPackage
 ;;          Commentary: test-package.el
+;;          X-Development:
+;;           YYYY-MM-DD upstream email confirmad.
 ;;          Description: test package with various functions
 ;;           Main command [C-u] M-x test-package runs various tests on
 ;;           the current lisp code. With a prefix argument, shows also
@@ -1080,8 +1082,9 @@
 ;;      Any other custom fields can be inserted by using the `X-*' field
 ;;      notation. Examples:
 ;;
-;;          X-Comment: This comment.
+;;          X-Comment: This is a comment.
 ;;          X-Upstream-Homepage: URL
+;;          X-Development: YYYY-MM-DD upstream email confirmed
 ;;
 ;;      If converting extension to a epackage needs special treatment
 ;;      please document those in field like:
@@ -1388,7 +1391,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0103.1110"
+(defconst epackage--version-time "2012.0103.2038"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
