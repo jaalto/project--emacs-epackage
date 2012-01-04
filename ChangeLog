@@ -11,6 +11,10 @@
 	(epackage-files-recursive-lisp): Correct returned dir list.
 	(epackage-autoload-generate-loaddefs-dir): Add RECURSIVE arg.
 	(epackage-autoload-write-loaddefs-clean): Simplify.
+	(epackage-devel-generate-examples): Correct arg DIR handling.
+	(epackage-devel-generate-compile-main): Correct arg DIR handling.
+	(epackage-devel-generate-uninstall): Correct arg DIR handling.
+	(epackage-error-if-not-directory): New.
 
 2012-01-03 Wed  Jari Aalto  <jari.aalto@cante.net>
 

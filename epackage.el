@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0104.1544"
+(defconst epackage--version-time "2012.0104.1709"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2627,6 +2627,14 @@ Use top form (let ((loat-path load-path) ...) before using this macro."
          (version-control 'never)
          make-backup-files)
      ,@body))
+
+(defsubst epackage-error-if-not-directory (directory &optional message)
+  "Signal error unless DIRECTORY. Optional custom MESSAGE."
+  (when (or (not (stringp directory))
+	    (not (file-directory-p directory)))
+    (epackage-error
+     (or messsae
+	 (format "Directory DIR does not exist: %s" directory)))))
 
 (defsubst epackage-sort (list)
   "Sort LIST of string."
@@ -4500,14 +4508,13 @@ Input:
       root
       'interactive)))
   (epackage-error-if-invalid-package-name package)
-  (when (or (not (stringp dir))
-	    (not (file-directory-p dir)))
-    (epackage-error "Drectory DIR does not exist: %s" dir))
-  (when (or (not (stringp root))
-	    (not (file-directory-p root)))
-    (epackage-error "Directory ROOT does not exist: %s" dir))
+  (or dir
+      (setq dir root))
   (if (interactive-p)
       (setq verbose t))
+  (epackage-error-if-not-directory root)
+  (epackage-error-if-not-directory dir)
+  (epackage-error-if-invalid-package-name package)
   (let* ((file (epackage-layout-file-name root package 'uninstall))
 	 (edir (file-name-directory file)))
     (epackage-make-directory edir 'no-question 'error)
@@ -4547,14 +4554,13 @@ Input:
       root
       'interactive)))
   (epackage-error-if-invalid-package-name package)
-  (when (or (not (stringp dir))
-	    (not (file-directory-p dir)))
-    (epackage-error "Drectory DIR does not exist: %s" dir))
-  (when (or (not (stringp root))
-	    (not (file-directory-p root)))
-    (epackage-error "Directory ROOT does not exist: %s" dir))
+  (or dir
+      (setq dir root))
   (if (interactive-p)
       (setq verbose t))
+  (epackage-error-if-not-directory root)
+  (epackage-error-if-not-directory dir)
+  (epackage-error-if-invalid-package-name package)
   (let* ((file (epackage-layout-file-name root package 'examples))
 	 (edir (file-name-directory file))
 	 (exclude (epackage-read-file-content-regexp
@@ -4600,14 +4606,13 @@ Input:
       root
       'interactive)))
   (epackage-error-if-invalid-package-name package)
-  (when (or (not (stringp dir))
-	    (not (file-directory-p dir)))
-    (epackage-error "Drectory DIR does not exist: %s" dir))
-  (when (or (not (stringp root))
-	    (not (file-directory-p root)))
-    (epackage-error "Directory ROOT does not exist: %s" dir))
+  (or dir
+      (setq dir root))
   (if (interactive-p)
       (setq verbose t))
+  (epackage-error-if-not-directory root)
+  (epackage-error-if-not-directory dir)
+  (epackage-error-if-invalid-package-name package)
   (let* ((file (epackage-layout-file-name root package 'compile))
 	 (edir (file-name-directory file))
 	 (regexp epackage--lisp-file-exclude-regexp)
@@ -4645,17 +4650,13 @@ Input:
       root
       root
       'interactive)))
-  (epackage-error-if-invalid-package-name package)
-  (when (or (not (stringp root))
-	    (not (file-directory-p root)))
-    (epackage-error "Drectory DIR does not exist: %s" dir))
-  (or dir
-      (setq dir root))
-  (when (or (not (stringp root))
-	    (not (file-directory-p root)))
-    (epackage-error "Directory ROOT does not exist: %s" dir))
   (if (interactive-p)
       (setq verbose t))
+  (or dir
+      (setq dir root))
+  (epackage-error-if-not-directory root)
+  (epackage-error-if-not-directory dir)
+  (epackage-error-if-invalid-package-name package)
   (let* ((file (epackage-layout-file-name root package 'loaddefs))
 	 (edir (file-name-directory file))
 	 (buffer epackage--buffer-autoload)
