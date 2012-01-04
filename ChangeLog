@@ -1,3 +1,8 @@
+2012-01-04 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage--license-abbreviation-list): Rename.
+	Was `epackage--info-mode-license-list'.
+
 2012-01-03 Wed  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-date): New.

@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0104.0932"
+(defconst epackage--version-time "2012.0104.0940"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1872,7 +1872,7 @@ time in `epackage-info-mode-tab-command'.")
   "http://spdx.org/licenses/"
   "URL of offical licence list.")
 
-(defconst epackage--info-mode-license-list
+(defconst epackage--license-abbreviation-list
   '( ;; Special cases
     "Custom"
     "None"
@@ -2034,12 +2034,12 @@ time in `epackage-info-mode-tab-command'.")
     "ZPL-2.1"
     )
   "Valid license abbreviations; see <http://spdx.org/licenses/>.
-Last updated 2011-12-12.")
+Abbreviation list last updated 2011-12-12.")
 
 (defconst epackage--info-mode-license-regexp
   (regexp-opt
-   epackage--info-mode-license-list)
-  "Regexp of `epackage--info-mode-license-list'.")
+   epackage--license-abbreviation-list)
+  "Regexp of `epackage--license-abbreviation-list'.")
 
 ;;; ............................................... &variables-private ...
 
