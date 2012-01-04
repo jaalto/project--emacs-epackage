@@ -10,6 +10,7 @@
 	names to file.
 	(epackage-files-recursive-lisp): Correct returned dir list.
 	(epackage-autoload-generate-loaddefs-dir): Add RECURSIVE arg.
+	(epackage-autoload-write-loaddefs-clean): Simplify.
 
 2012-01-03 Wed  Jari Aalto  <jari.aalto@cante.net>
 

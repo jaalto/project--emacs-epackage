@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0104.1532"
+(defconst epackage--version-time "2012.0104.1544"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -3098,7 +3098,7 @@ Input:
    EXCLUDE  Regexp to exclude path names
 
 See `epackage-directory-recursive-list-default' for more information."
-  (let ((regexp (format "^%s/?\\(.+\\)$"  ;; Trailing dir/?/?
+  (let ((regexp (format "^%s\\(.+\\)$"
 			(regexp-quote
 			 (file-name-as-directory
 			  (expand-file-name dir)))))
@@ -3110,7 +3110,7 @@ See `epackage-directory-recursive-list-default' for more information."
 	  (setq file
 		(cond
 		 ((eq type nil)
-		  (format "%s/%s" dir file))
+		  (format "%s/%s" elt file))
 		 ((eq type 'relative)
 		  (if (string-match regexp elt)
 		      (concat (match-string 1 elt) "/" file)
@@ -4165,15 +4165,9 @@ Returns:
     list))
 
 (defun epackage-autoload-write-loaddefs-clean ()
-  "Remove paths."
+  "Remove paths from loaddefs `autoload' statements."
   (epackage-point-min)
-  (while (re-search-forward "Generated autoloads from \\(.+/\\)"
-			    nil t)
-    (replace-match "" nil nil nil 1))
-  (epackage-point-min)
-  (while (re-search-forward
-	  "(autoload.+ \"\\(.+/\\)"
-	  nil t)
+  (while (re-search-forward "^(autoload.+ \"\\(.+/\\)" nil t)
     (replace-match "" nil nil nil 1)))
 
 (defun epackage-autoload-write-loaddefs-file (file dest &optional verbose)
