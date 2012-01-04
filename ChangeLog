@@ -8,6 +8,8 @@
 	FIXED. All generated autoload files in
 	epackage/*-epkg-0loaddefs.el incorrectly contained relative apth
 	names to file.
+	(epackage-files-recursive-lisp): Correct returned dir list.
+	(epackage-autoload-generate-loaddefs-dir): Add RECURSIVE arg.
 
 2012-01-03 Wed  Jari Aalto  <jari.aalto@cante.net>
 

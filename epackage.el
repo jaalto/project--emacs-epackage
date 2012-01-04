@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0104.1325"
+(defconst epackage--version-time "2012.0104.1532"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -3098,9 +3098,10 @@ Input:
    EXCLUDE  Regexp to exclude path names
 
 See `epackage-directory-recursive-list-default' for more information."
-  (let ((regexp (format "^%s?/?\\(.+\\)$"  ;; Trailing dir/?/?
+  (let ((regexp (format "^%s/?\\(.+\\)$"  ;; Trailing dir/?/?
 			(regexp-quote
-			 (expand-file-name dir))))
+			 (file-name-as-directory
+			  (expand-file-name dir)))))
 	list)
     (dolist (elt (epackage-directory-recursive-lisp dir))
       (dolist (file (directory-files elt nil "\\.el$"))
@@ -4223,7 +4224,7 @@ The first argument is the the destination file where loaddefs are stored."
 
 ;; Copy of tinylisp-autoload-generate-loaddefs-dir
 (defun epackage-autoload-generate-loaddefs-dir
-  (dir file &optional exclude verbose)
+  (dir file &optional exclude recursive verbose)
   "Generate loaddefs from DIR to FILE.
 Optionally EXCLUDE files by regexp.
 If VERBOSE is non-nil, display informational messages."
@@ -4236,7 +4237,10 @@ If VERBOSE is non-nil, display informational messages."
 		 (string-match "^[ \t\r\n]*$" exclude)))
         ;; Interactive, no answer. Use default.
         (setq exclude regexp))
-    (when (setq list (epackage-directory-file-list dir exclude))
+    (when (setq list
+		(if recursive
+		    (epackage-files-recursive-lisp dir nil exclude)
+		  (epackage-directory-file-list dir exclude)))
       (if (file-exists-p file)
           (delete-file file))
       (let ((buffer (get-file-buffer file)))
@@ -4671,23 +4675,28 @@ Input:
     (cond
      (recursive
       (dolist (elt (epackage-directory-recursive-lisp dir))
-	(epackage-autoload-generate-loaddefs-dir elt file exclude verbose)))
+	(epackage-autoload-generate-loaddefs-dir
+	 elt file exclude recursive verbose)))
      (t
       (if (stringp dir)
-	  (epackage-autoload-generate-loaddefs-dir dir file exclude verbose)
+	  (epackage-autoload-generate-loaddefs-dir
+	   dir file exclude recursive verbose)
 	(dolist (elt dir)
-	  (epackage-autoload-generate-loaddefs-dir dir file exclude verbose)))))
+	  (epackage-autoload-generate-loaddefs-dir
+	   dir file exclude recursive verbose)))))
     (when (file-exists-p file)
       (epackage-add-provide-to-file file))))
 
 ;; Copy of tinylisp-batch-autoload-generate-loaddefs-dir
-(defun epackage-batch-autoload-generate-loaddefs-dir (&optional exclude)
+(defun epackage-batch-autoload-generate-loaddefs-dir
+  (&optional exclude recursive)
   "Call `epackage-autoload-generate-loaddefs-dir' for `command-line-args-left'.
-Optionally EXCLUDE files by regexp."
+Optionally EXCLUDE files by regexp or be RECURSIVE."
   (epackage-with-command-line
    (epackage-autoload-generate-loaddefs-dir
     item
-    exclude)))
+    exclude
+    recursive)))
 
 (defun epackage-devel-generate-autoloads
   (package root dir &optional recursive verbose)
