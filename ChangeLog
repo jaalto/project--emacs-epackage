@@ -8,6 +8,8 @@
 	(epackage-lint-extra-checkdoc-advice): Remove.
 	(epackage-lint-extra-buffer-checkdoc-cleanup): New.
 	(epackage-batch-devel-lint-lisp): Add directoried to load-path.
+	(epackage-with-load-path-recursive): New.
+	(epackage-byte-compile-package-guess): Simplify.
 
 2012-01-03 Tue  Jari Aalto  <jari.aalto@cante.net>
 

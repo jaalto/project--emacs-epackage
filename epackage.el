@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0103.2332"
+(defconst epackage--version-time "2012.0104.0001"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2548,6 +2548,22 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
 (defmacro epackage-with-debug (&rest body)
   "Run BODY if variable `epackage--debug' is non-nil."
   `(when epackage--debug
+     ,@body))
+
+(put 'epackage-with-load-path-recursive 'lisp-indent-function 1)
+(put 'epackage-with-load-path-recursive 'edebug-form-spec '(body))
+(defmacro epackage-with-load-path-recursive (dir &rest body)
+  "Add to `load-path' recursive from DIR and run BODY.
+Use top form (let ((loat-path load-path) ...) before using this macro."
+  `(progn
+     (let (list)
+       (dolist (elt (epackage-directory-recursive-list
+		     dir
+		     list
+		     (concat epackage--directory-exclude-regexp
+			     "\\|/" epackage--directory-name)))
+	 (dolist (elt list)
+	   (epackage-push elt load-path))))
      ,@body))
 
 (put 'epackage-with-byte-compile-buffer 'lisp-indent-function 0)
@@ -5908,22 +5924,13 @@ If optional VERBOSE is non-nil, display progress message.
 
 Return:
   non-nil if byte compile was run."
-  (let ((load-path load-path)
-        (dir (epackage-directory-package-root package))
-        list
-        files
-        file)
-    (setq list (epackage-directory-recursive-list
-                dir
-                list
-                (concat epackage--directory-exclude-regexp
-                        "\\|/" epackage--directory-name)))
-    ;; FIXME: we assume the single file is not in a subdirectory
-    (when (and (eq 1 (length list))
-               (eq 1 (length (setq files (epackage-lisp-file-list list)))))
-      (setq file (car files))
-      (dolist (elt list)
-        (epackage-push elt load-path))
+  (let* ((load-path load-path)
+	 (dir  (epackage-directory-package-root package))
+	 (list (epackage-lisp-file-list dir))
+	 file)
+    (when (eq 1 (length list))
+      (setq file (car list))
+      (epackage-push dir load-path)
       (epackage-loader-file-generate-load-path-maybe)
       (epackage-verbose-message "byte compile %s" file)
       (byte-compile-file file)
