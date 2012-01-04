@@ -17,6 +17,7 @@
 	(epackage-error-if-not-directory): New.
 	(epackage-devel-compose-package-dir): Always select some *.el
 	file for epackage/info base.
+	(epackage-batch-devel-compose-package-dir): Check directory.
 
 2012-01-03 Wed  Jari Aalto  <jari.aalto@cante.net>
 

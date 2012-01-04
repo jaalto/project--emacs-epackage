@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0104.1819"
+(defconst epackage--version-time "2012.0104.2008"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -8586,10 +8586,14 @@ The argument must be full path name to a *.el file."
     (unless (stringp path)
       (epackage-error "FILE argument 2 is missing"))
     (unless (string-match "^\\(.*/\\)\\(.+\\.el\\)" path)
-      (epackage-error "FILE is not a full path name to *.el: %s" path))
+      (epackage-message "Warn: Not a full path name: %s" path))
     (setq dir (match-string 1 path)
 	  file (match-string 2 path))
-    (epackage-devel-compose-package-dir name dir)))
+    (if (string-match "^\\./?$" dir)
+	(setq dir default-directory))
+    (if (not (file-exists-p path))
+	(epackage-message "No such file: %s" path)
+      (epackage-devel-compose-package-dir name dir))))
 
 (defun epackage-batch-devel-lint-lisp ()
   "Run `epackage-lint-extra-file' for all command line args."
