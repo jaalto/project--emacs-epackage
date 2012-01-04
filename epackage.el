@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0104.1120"
+(defconst epackage--version-time "2012.0104.1123"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2750,8 +2750,8 @@ Return nil of there is nothing to remove .i.e. the result wold be \"/\"."
   "Check if PACKAGE name is library."
   (epackage-with-case-fold-search
    (unless (stringp package)
-     (epackage-error "Package name is not a string")
-     (string-match "^lib-" package))))
+     (epackage-error "Package name is not a string"))
+   (string-match "^lib-" package)))
 
 (defsubst epackage-package-name-valid-p (package)
   "Check if PACKAGE name is valid."
