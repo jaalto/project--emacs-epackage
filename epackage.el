@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0104.1709"
+(defconst epackage--version-time "2012.0104.1819"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2633,7 +2633,7 @@ Use top form (let ((loat-path load-path) ...) before using this macro."
   (when (or (not (stringp directory))
 	    (not (file-directory-p directory)))
     (epackage-error
-     (or messsae
+     (or message
 	 (format "Directory DIR does not exist: %s" directory)))))
 
 (defsubst epackage-sort (list)
@@ -5211,12 +5211,18 @@ Input:
       (epackage-devel-generate-compile-main package dir dir 'recursive verbose)
       (epackage-devel-generate-examples package dir dir 'recursive verbose)
       (epackage-devel-generate-uninstall package dir dir 'reursive verbose))
-    (if (and list
-	     (listp list)
-	     (eq 1 (length list))
-	     (epackage-devel-compose-package-info-from-file
-	      package dir (car list) verbose))
-	(epackage-devel-compose-package-info package dir verbose))
+    (when (and list
+	       (listp list))
+      (let ((file (car list)))
+	;; Was (epackage-devel-compose-package-info package dir verbose)
+	(unless (eq 1 (length list))
+	  (dolist (elt list)
+	    ;; Select one without dash(-). Could be the main file
+	    (unless (string-match "-" elt)
+	      (setq file elt))))
+	(epackage-verbose-message "Using %s for creating info file" file)
+	(epackage-devel-compose-package-info-from-file
+	 package dir (car list) verbose)))
     t))
 
 ;;;###autoload
