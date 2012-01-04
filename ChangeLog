@@ -2,6 +2,7 @@
 
 	* epackage.el (epackage--license-abbreviation-list): Rename.
 	Was `epackage--info-mode-license-list'.
+	(epackage-devel-compose-package-dir): Check lib-* package.
 
 2012-01-03 Wed  Jari Aalto  <jari.aalto@cante.net>
 
