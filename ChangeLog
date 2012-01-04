@@ -4,6 +4,10 @@
 	Was `epackage--info-mode-license-list'.
 	(epackage-devel-compose-package-dir): Check lib-* package.
 	(epackage-package-name-library-p): Correct function.
+	(epackage-autoload-write-loaddefs-clean): New. SERIOUS ERROR
+	FIXED. All generated autoload files in
+	epackage/*-epkg-0loaddefs.el incorrectly contained relative apth
+	names to file.
 
 2012-01-03 Wed  Jari Aalto  <jari.aalto@cante.net>
 

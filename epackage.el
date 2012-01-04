@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0104.1126"
+(defconst epackage--version-time "2012.0104.1325"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4163,7 +4163,18 @@ Returns:
         (push elt list)))
     list))
 
-;; Copy of tinylisp-autoload-write-loaddefs-file (simplified)
+(defun epackage-autoload-write-loaddefs-clean ()
+  "Remove paths."
+  (epackage-point-min)
+  (while (re-search-forward "Generated autoloads from \\(.+/\\)"
+			    nil t)
+    (replace-match "" nil nil nil 1))
+  (epackage-point-min)
+  (while (re-search-forward
+	  "(autoload.+ \"\\(.+/\\)"
+	  nil t)
+    (replace-match "" nil nil nil 1)))
+
 (defun epackage-autoload-write-loaddefs-file (file dest &optional verbose)
   "Write ###autoload from FILE to DEST. VERB.
 If optional VERBOSE is non-nil, display progress message."
@@ -4176,6 +4187,7 @@ If optional VERBOSE is non-nil, display progress message."
         (goto-char (point-max))
         (let ((point (point)))
           (generate-file-autoloads file)
+	  (epackage-autoload-write-loaddefs-clean)
           ;;  was something inserted?
           (cond
            ((eq (point) point)
@@ -4219,8 +4231,9 @@ If VERBOSE is non-nil, display informational messages."
    "FDLoaddefs from dir: \nFLoaddefs to file: \nsFile ignore regexp: ")
   (let ((regexp "\\(?:loaddef\\|autoload\\).*\\.el\\|[#~]")
         list)
-    (if (and (stringp exclude)
-             (string-match "^[ \t\r\n]*$" exclude))
+    (if (or (null exclude)
+	    (and (stringp exclude)
+		 (string-match "^[ \t\r\n]*$" exclude)))
         ;; Interactive, no answer. Use default.
         (setq exclude regexp))
     (when (setq list (epackage-directory-file-list dir exclude))
@@ -4635,9 +4648,11 @@ Input:
       root
       'interactive)))
   (epackage-error-if-invalid-package-name package)
-  (when (or (not (stringp dir))
-	    (not (file-directory-p dir)))
+  (when (or (not (stringp root))
+	    (not (file-directory-p root)))
     (epackage-error "Drectory DIR does not exist: %s" dir))
+  (or dir
+      (setq dir root))
   (when (or (not (stringp root))
 	    (not (file-directory-p root)))
     (epackage-error "Directory ROOT does not exist: %s" dir))
