@@ -1,4 +1,4 @@
-;; epackage.el --- Distributed Emacs Lisp Package System (DELPS)
+;; epackage.el --- Distributed Emacs Lisp Package System (DELPS) -*-byte-compile-dynamic: t;-*-
 
 ;; Copyright (C) 2009-2012 Jari Aalto
 
@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0104.0001"
+(defconst epackage--version-time "2012.0104.0932"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
