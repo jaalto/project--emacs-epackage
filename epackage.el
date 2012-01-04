@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0104.1123"
+(defconst epackage--version-time "2012.0104.1126"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -5185,10 +5185,10 @@ Input:
 	 (epackage-devel-generate-autoloads
 	  package
 	  dir dir 'recursive verbose)))
-    (let ((file (epackage-layout-file-name dir package 'autoload)))
-      (epackage-devel-generate-install package dir file verbose))
     (epackage-devel-generate-loaddefs package dir dir 'recursive verbose)
     (unless (epackage-package-name-library-p package)
+      (let ((file (epackage-layout-file-name dir package 'autoload)))
+	(epackage-devel-generate-install package dir file verbose))
       (epackage-devel-generate-compile-main package dir dir 'recursive verbose)
       (epackage-devel-generate-examples package dir dir 'recursive verbose)
       (epackage-devel-generate-uninstall package dir dir 'reursive verbose))
