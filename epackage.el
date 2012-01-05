@@ -1232,10 +1232,9 @@
 ;;      original developer and get the code updated. Compatibility
 ;;      problems between extensions are usually temporary. In case the
 ;;      upstream developer is no longer there to to fix things, the
-;;      extension is best to be left forgotten and removed from
-;;      epackages Yellow Pages. Or, if you have the time and skills,
-;;      you can start maintaining an old extension to bring it new
-;;      life and becoming the new upstream.
+;;      extension is best to be removed from list of packages. Or, if
+;;      you have the time and skills, you can start maintaining an old
+;;      extension to bring it new life and becoming the new upstream.
 ;;
 ;;     Depends and removing packages
 ;;
@@ -1413,7 +1412,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number."
 
-(defconst epackage--version-time "2012.0105.1502"
+(defconst epackage--version-time "2012.0105.1504"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
