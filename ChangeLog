@@ -5,6 +5,8 @@
 	(epackage-devel-information-license-gpl-standard): Increase
 	search from 70 lines to 400.
 	(epackage-interactive-p): New. Emacs 23.3 compatibility.
+	(epackage--layout-template-info): Add "Elpa" field. Document thin
+	in the spec.
 
 2012-01-04 Wed  Jari Aalto  <jari.aalto@cante.net>
 

@@ -669,12 +669,12 @@
 ;;
 ;;          *Package: <unique name, all lowercase>
 ;;          *Section: <data | extensions | files | languages | mail | tools | M-x finder-list-keywords>
-;;          Elpa: <GNU, Marmalade, ...>
 ;;          License: <GPL-[23]+ | BSD | Apache-2.0 | ... | Custom | None>
 ;;          Licence-Text: <only, if license is "Custom">
 ;;          *Depends: emacs (>= 20)
 ;;          Recommends:
 ;;          Status: [ <keyword> ...]
+;;          Elpa: <GNU, Marmalade, ...>
 ;;          Compat: [ <epackage version> ]
 ;;          *Maintainer: First Last <first.last@example.com>
 ;;          Bugs: [ URL ]
@@ -1407,7 +1407,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number."
 
-(defconst epackage--version-time "2012.0105.1445"
+(defconst epackage--version-time "2012.0105.1447"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2468,6 +2468,7 @@ License: GPL-2+ | BSD | Apache-2.0 | ... | Custom | None
 License-Text: <only for type Custom; full text or URL to page in http://spdx.org/licenses/>
 Depends: emacs (>= 22)
 Status: core-emacs[-NN.N] unmaintained broken unsafe stable unstable experimental
+Elpa:
 Compat:
 Maintainer:
 Bugs:
