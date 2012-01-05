@@ -1,6 +1,7 @@
 2012-01-05 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-lint-extra-buffer-run-other-defcustom): New.
+	(epackage-lint-extra-buffer-run-lm): Add 'ends here' check.
 
 2012-01-04 Wed  Jari Aalto  <jari.aalto@cante.net>
 
