@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0105.1115"
+(defconst epackage--version-time "2012.0105.1125"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6695,8 +6695,8 @@ Return:
   (unless (lm-code-start)
     (message "Missing: ;;; Code:"))
   (goto-char (point-max))
-  (unless (re-search-backward "^;; .+\\.el ends here" nil t)
-    (message "Missing: ;; <package>.el ends here"))
+  (unless (re-search-backward "^;;; .+\\.el ends here" nil t)
+    (message "Missing: ;;; <package>.el ends here"))
   ;; FIXME: Require order
   ;; http://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Library-Headers
   (message (epackage-lint-extra-delimiter-string "lm-verify" 'stop))
