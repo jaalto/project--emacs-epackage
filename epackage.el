@@ -1407,7 +1407,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number."
 
-(defconst epackage--version-time "2012.0105.1447"
+(defconst epackage--version-time "2012.0105.1452"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2952,6 +2952,14 @@ Return:
   "Check if EXCLUDE regexp match DIR."
   ;; This fucntion exists so that you can point edebugger to it.
   (string-match exclude dir))
+
+(defun epackage-locate-library (library)
+  "Search LIBRARY source file from `load-path'
+Strip epackage specific 'lib-*' prefix."
+  (let ((name (if (string-match "^lib-\\(.+\\)" library)
+                  (match-string 1 library)
+                library)))
+    (locate-library name)))
 
 ;;  Test Drivers:
 ;;  (epackage-date-to-iso "20080830")
