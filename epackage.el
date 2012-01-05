@@ -1417,7 +1417,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number."
 
-(defconst epackage--version-time "2012.0105.1531"
+(defconst epackage--version-time "2012.0105.1532"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2966,12 +2966,12 @@ Return:
 (defun epackage-locate-library (library)
   "Search LIBRARY source file from `load-path'
 Strip epackage specific 'lib-*' prefix."
-  (let ((name library)
-        (mode (if (string-match "^\\(.+\\)-mode$" library)
-                  ;; python-mode => python.el
-                  (match-string 1 name))))
+  (let* ((name library)
+         (mode (if (string-match "^\\(.+\\)-mode$" library)
+                   ;; python-mode => python.el
+                   (match-string 1 name))))
     ;; Package name to library name conversions
-    (if (string-match "^lib-\\(.+\\)" )
+    (if (string-match "^lib-\\(.+\\)" name)
         (setq name (match-string 1 name)))
     (if (string-match "\\(.+\\)-plusplus" name)
         (setq name (format "%s++" (match-string 1 name))))
