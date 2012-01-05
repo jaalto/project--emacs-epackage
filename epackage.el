@@ -1251,27 +1251,27 @@
 ;;
 ;;     Version
 ;;
-;;      Why is there no "Version:" field in the `info' file that
-;;      would announce the extension version? The Git repository is
-;;      supposed to have tags for all upstream versions of the
-;;      package. It would be duplicate and manual work to keep the
-;;      info::Version field in synch with the tags of Git repository.
-;;      The user is 90% interested in downloading an extension, not
-;;      really some specific versions of the extension. This is a
-;;      little different than in Linux distributions, where one can
-;;      upgrade from one version to a newer version. In Epackage, one
-;;      always updates full Git repository, thus bringing all
-;;      possible versions of the extension available; and activating
-;;      the latest.
+;;      Why is there no "Version:" field in the `info' file that could
+;;      be used to show the extension version to the user? The Git
+;;      repository is supposed to have tags for all upstream versions
+;;      of the package. It would be duplicate and manual work to keep
+;;      the `info::Version' field in synch with the tags of Git
+;;      repository. The version numbers are in fact immateria an
+;;      unnecessary: nice to know, but in daily use you only need know
+;;      if there is update or not. User insn't downloading some
+;;      specific version of the extension, but upgrading his package
+;;      to the latest. In Epackage, an upgrade updates full Git
+;;      repository, thus bringing all possible versions of the
+;;      extension available; only to activating the latest.
 ;;
-;;      To select old versions, user must work on the git repos
-;;      directly. There are no plans to support selecting previous
+;;      To select old versions, user must work on the git repositories
+;;      manually. There are no plans to support selecting previous
 ;;      versions because that would bring instability to the whole
 ;;      system. Imagine this: A depends on B, but user selects
 ;;      specific version of B - which is older and won't work with
 ;;      other packages. Multiply this problem with N versions of
 ;;      several extensions. Summary: it's best to stick with the
-;;      latest and send bug reports to upstream on errors.
+;;      latest and send bug reports from latest versions to upstream.
 ;;
 ;; TODO
 ;;
@@ -1412,7 +1412,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number."
 
-(defconst epackage--version-time "2012.0105.1504"
+(defconst epackage--version-time "2012.0105.1510"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
