@@ -1209,9 +1209,9 @@
 ;;
 ;;      PACKAGE VERSIONS AND DEPENDS
 ;;
-;;      NOTE: upstream shoud use standard Emacs feature `inversion.el'
-;;      which provides means to ensure that a spcific libray version
-;;      is met.
+;;      NOTE: upstream should use standard Emacs package `inversion.el'
+;;      which provides means to ensure that a spcific library version
+;;      is required.
 ;;
 ;;      Regarding the requirement for a specific version of the package
 ;;
@@ -1415,7 +1415,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number."
 
-(defconst epackage--version-time "2012.0105.1501"
+(defconst epackage--version-time "2012.0105.1502"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
