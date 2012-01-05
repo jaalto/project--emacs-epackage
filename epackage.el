@@ -1428,7 +1428,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0105.1632"
+(defconst epackage--version-time "2012.0105.1937"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6909,9 +6909,16 @@ Return:
 		      "Error"
 		    ;; Indented, possibly inside *-install function.
 		    "Note"))
-      (epackage-push
-       (format "%s:%d:%s" type (epackage-line-number) line)
-       list))
+      (let (ok)
+	(when (eq major-mode 'emacs-lisp-mode)
+	  (save-excursion
+	    (beginning-of-defun)
+	    ;;  (defun PACKAGE-install () ...
+	    (setq ok (looking-at "^[ \t]*(def"))))
+	(unless ok
+	  (epackage-push
+	   (format "%s:%d:%s" type (epackage-line-number) line)
+	   list))))
     list))
 
 (defun epackage-lint-extra-buffer-run-other-main ()

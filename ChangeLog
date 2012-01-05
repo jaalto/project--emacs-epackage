@@ -9,6 +9,8 @@
 	in the spec.
 	(epackage-locate-library): New.
 	(epackage-pkg-depends-verify-main): Use `epackage-locate-library'.
+	(epackage-lint-extra-buffer-run-other-keybindings): Check if
+	`global-set-key' is inside defun before reporting.
 
 2012-01-04 Wed  Jari Aalto  <jari.aalto@cante.net>
 
