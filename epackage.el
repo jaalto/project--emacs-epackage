@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0105.1125"
+(defconst epackage--version-time "2012.0105.1132"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2493,6 +2493,13 @@ Description: <short one line>
   "Run BODY with `case-fold-search' set to nil."
   `(let (case-fold-search)
      ,@body))
+
+(defmacro epackage-interactive-p ()
+  "Emacs compatibility.
+`interactive-p' is obsolete in 23.2"
+  (if (string< emacs-version "23.1")
+      `(interactive-p)
+    `(called-interactively-p)))
 
 (defmacro epackage-nconc (list place)
   "Add LIST to PLACE, modify PLACE."
@@ -4253,7 +4260,7 @@ If VERBOSE is non-nil, display informational messages."
       (epackage-autoload-generate-loaddefs-file-list
        file
        list
-       (or verbose (interactive-p))))))
+       (or verbose (epackage-interactive-p))))))
 
 ;; Copy of ti::package-autoload-create-on-file
 (defun epackage-autoload-create-on-file (file buffer)
@@ -4510,7 +4517,7 @@ Input:
   (epackage-error-if-invalid-package-name package)
   (or dir
       (setq dir root))
-  (if (interactive-p)
+  (if (epackage-interactive-p)
       (setq verbose t))
   (epackage-error-if-not-directory root)
   (epackage-error-if-not-directory dir)
@@ -4556,7 +4563,7 @@ Input:
   (epackage-error-if-invalid-package-name package)
   (or dir
       (setq dir root))
-  (if (interactive-p)
+  (if (epackage-interactive-p)
       (setq verbose t))
   (epackage-error-if-not-directory root)
   (epackage-error-if-not-directory dir)
@@ -4608,7 +4615,7 @@ Input:
   (epackage-error-if-invalid-package-name package)
   (or dir
       (setq dir root))
-  (if (interactive-p)
+  (if (epackage-interactive-p)
       (setq verbose t))
   (epackage-error-if-not-directory root)
   (epackage-error-if-not-directory dir)
@@ -4650,7 +4657,7 @@ Input:
       root
       root
       'interactive)))
-  (if (interactive-p)
+  (if (epackage-interactive-p)
       (setq verbose t))
   (or dir
       (setq dir root))
@@ -4745,7 +4752,7 @@ Notes:
 	 (exclude (epackage-read-file-content-regexp
 		   (epackage-layout-file-name root package 'ignore)))
 	 list)
-    (if (interactive-p)
+    (if (epackage-interactive-p)
 	(setq verbose t))
     (epackage-make-directory edir 'error)
     (epackage-with-buffer-autoload
@@ -5112,7 +5119,7 @@ Notes:
   Do nothing if file already exists."
   (interactive "sEpackage name: \nDLisp package root dir: ")
   (epackage-error-if-invalid-package-name package)
-  (if (interactive-p)
+  (if (epackage-interactive-p)
       (setq verbose 'interactive))
   (let ((file (format "%s%s/%s"
 			(file-name-as-directory dir)
@@ -5161,7 +5168,7 @@ Input:
   DIR		Package root directory.
   VERBOSE	Optional. If non-nil, display informational messages."
   (interactive "sEpackage name: \nDLisp package root dir: \n")
-  (if (interactive-p)
+  (if (epackage-interactive-p)
       (setq verbose 'interactive))
   (let ((alist (epackage-devel-information-buffer)))
     (epackage-devel-compose-package-info package dir verbose alist)))
@@ -5178,7 +5185,7 @@ Input:
   VERBOSE	Optional. If non-nil, display informational messages."
   (interactive
    "sEpackage name: \nDLisp package root dir: \nfSource *.el file: ")
-  (if (interactive-p)
+  (if (epackage-interactive-p)
       (setq verbose 'interactive))
   (with-temp-buffer
     (insert-file-contents file)
@@ -5198,7 +5205,7 @@ Input:
   VERBOSE	Optional. if non-nil, display informational messages.
   ALIST		Optional. See`epackage-devel-information-buffer'."
   (interactive "sEpackage name: \nDLisp package root dir: ")
-  (if (interactive-p)
+  (if (epackage-interactive-p)
       (setq verbose 'interactive))
   (epackage-error-if-invalid-package-name package)
   (let ((list
@@ -5252,7 +5259,7 @@ Return:
 
   alist    See function `epackage-devel-information-buffer'."
   (interactive "DLisp package root dir to import: ")
-  (if (interactive-p)
+  (if (epackage-interactive-p)
       (setq verbose 'interactive))
   (unless (file-directory-p dir)
     (epackage-error "No such directory %s" dir))
@@ -5348,7 +5355,7 @@ Notes:
   (epackage-error
    (concat "Disabled due to lisp files being imported lacking proper "
 	   "structure. Please use epackage-devel-compose-package-dir instead"))
-  (if (interactive-p)
+  (if (epackage-interactive-p)
       (setq verbose 'interactive))
   (unless (file-directory-p dir)
     (epackage-error "[compose-main] No such directory %s" dir))
@@ -6500,7 +6507,7 @@ If invalid, return list of classified problems:
   'info     Missing file or required fields in info file.
   'git      Missing required Git branches: upstream, master."
   (interactive "DLint epackage directory: ")
-  (if (interactive-p)
+  (if (epackage-interactive-p)
       (setq verbose 'interactive))
   (let ((edir (format "%s%s"
                       (file-name-as-directory dir)
