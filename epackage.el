@@ -1426,9 +1426,9 @@
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
 (defconst epackage-version "1.5"
-  "Standard Emacs inversion.el supported verison number."
+  "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0105.1600"
+(defconst epackage--version-time "2012.0105.1632"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
