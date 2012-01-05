@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0105.1132"
+(defconst epackage--version-time "2012.0105.1134"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2497,7 +2497,7 @@ Description: <short one line>
 (defmacro epackage-interactive-p ()
   "Emacs compatibility.
 `interactive-p' is obsolete in 23.2"
-  (if (string< emacs-version "23.1")
+  (if (string< emacs-version "23.2")
       `(interactive-p)
     `(called-interactively-p)))
 
