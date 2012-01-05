@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0104.2008"
+(defconst epackage--version-time "2012.0105.0724"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6779,7 +6779,6 @@ This is a heavy check and first time initializing will take time."
 
 (defun epackage-lint-extra-buffer-run-other-autoload ()
   "Check missing ###autoload stanzas.
-
 Return:
   '(\"<error message>\") or nil."
   (let (ret)
@@ -6789,6 +6788,40 @@ Return:
 	    (list
 	     `,(concat "Missing: ;;;###autoload, see "
 		       "15.5 Autoload (GNU Emacs Lisp Reference Manual)"))))
+    ret))
+
+(defun epackage-lint-extra-buffer-run-other-defcustom ()
+  "Check missing defcustom variables.
+Major mode must be `emacs-lisp-mode' for the checks to work.
+Return:
+  '(\"<error message>\") or nil."
+  (let ((elisp (memq major-mode '(emacs-lisp-mode)))
+	defcustom-need
+	point
+	str
+	ret)
+    (epackage-point-min)
+    (when elisp
+      (while (re-search-forward
+	      "^(def\\(?:var\\|const\\) +\\([^ \t\r\n]+\\)" nil t)
+	(setq str (match-string-no-properties 1))
+	(goto-char (setq point (match-beginning 0)))
+	(forward-sexp 1)		; defvar's last ")"
+	(when (and (re-search-backward "^ +\"" point t)
+		   (looking-at "^ +\"\*"))
+	  (setq defcustom-need t)
+	  (epackage-push
+	   (format "Missing:%d: defcustom %s, see %s"
+		   (epackage-line-number)
+		   str
+		   "14.x (GNU Emacs Lisp Reference Manual)")
+	   ret))))
+    (when defcustom-need		; Libraries don't need
+      (epackage-point-min)
+      (unless (re-search-forward "^(defcustom" nil t)
+	(epackage-push "Warning: defcustom not found" ret))
+      (unless (re-search-forward "^(defgroup" nil t)
+	(epackage-push "Warning: defgroup not found" ret)))
     ret))
 
 (defun epackage-lint-extra-buffer-run-other-keybindings ()
@@ -6816,7 +6849,9 @@ Return:
 (defun epackage-lint-extra-buffer-run-other-main ()
   "Check miscellaneous QA problems on current buffer.
 Return list of results '(\"message\" ...)."
-  (let ((list '(epackage-lint-extra-buffer-run-other-autoload ;; FIXME make user variable
+  ;; FIXME make into a user variable
+  (let ((list '(epackage-lint-extra-buffer-run-other-autoload
+		epackage-lint-extra-buffer-run-other-defcustom
 		epackage-lint-extra-buffer-run-other-keybindings))
 	ret)
     (dolist (function list)
