@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0105.1036"
+(defconst epackage--version-time "2012.0105.1057"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4818,10 +4818,10 @@ Input:
 (defun epackage-devel-information-license-gpl-standard ()
   "If there is standard GPL stanza, return GPL[-<version>[+]].
 Point is not preserved."
-  (let* ((max (min (* 80 70)		; 70 lines
+  (let* ((max (min (* 80 400)		; 400 lines
 		   (point-max)))
-	 (spc    "[ ;\tf\r\n]+")
-	 (spc*   "[ ;\tf\r\n]*")
+	 (spc    "[ ;\t\f\r\n]+")
+	 (spc*   "[ ;\t\f\r\n]*")
 	 (any    "[\0-\377]+")		; Match accross lines; Was ".*"
 	 (re-gpl (concat
 		  "terms"
@@ -4836,7 +4836,8 @@ Point is not preserved."
 		  spc
 		  "Public"
 		  spc
-		  "License"))
+		  "License"
+		  ))
 	 ;;  either version 2 of the License, or (at your option)
 	 ;;  either version 2, or (at your option)
 	 (re-ver  (concat
@@ -6695,7 +6696,7 @@ Return:
     (message "Missing: ;;; Code:"))
   (goto-char (point-max))
   (unless (re-search-backward "^;; .+\\.el ends here" nil t)
-    (message "Missing: ;;; <package>.el ends here"))
+    (message "Missing: ;; <package>.el ends here"))
   ;; FIXME: Require order
   ;; http://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Library-Headers
   (message (epackage-lint-extra-delimiter-string "lm-verify" 'stop))

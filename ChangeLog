@@ -2,6 +2,8 @@
 
 	* epackage.el (epackage-lint-extra-buffer-run-other-defcustom): New.
 	(epackage-lint-extra-buffer-run-lm): Add 'ends here' check.
+	(epackage-devel-information-license-gpl-standard): Increase
+	search from 70 lines to 400.
 
 2012-01-04 Wed  Jari Aalto  <jari.aalto@cante.net>
 
