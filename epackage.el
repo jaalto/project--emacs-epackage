@@ -1296,6 +1296,10 @@
 ;;
 ;;      REPO
 ;;
+;;      o   Someone recreated repo: git push --force. It can no longer
+;;          be pulled => recreate from scratch. Problem: User has made his
+;;          local modifications, how to check?
+;;
 ;;      o   Check validity of "git tag -l" and upstream/* against the
 ;;          specification. Two dashes etc.
 ;;
@@ -1412,7 +1416,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number."
 
-(defconst epackage--version-time "2012.0105.1510"
+(defconst epackage--version-time "2012.0105.1512"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
