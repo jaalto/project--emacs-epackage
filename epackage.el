@@ -1417,7 +1417,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number."
 
-(defconst epackage--version-time "2012.0105.1532"
+(defconst epackage--version-time "2012.0105.1535"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2522,7 +2522,7 @@ Description: <short one line>
 `interactive-p' is obsolete in 23.2"
   (if (string< emacs-version "23.2")
       `(interactive-p)
-    `(called-interactively-p)))
+    `(called-interactively-p 'interactive)))
 
 (defmacro epackage-nconc (list place)
   "Add LIST to PLACE, modify PLACE."
