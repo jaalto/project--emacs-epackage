@@ -1407,7 +1407,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number."
 
-(defconst epackage--version-time "2012.0105.1452"
+(defconst epackage--version-time "2012.0105.1456"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -5660,10 +5660,10 @@ Return back depends that are not met."
       (let ((downloaded (epackage-status-downloaded-packages)))
         (dolist (elt depends)
           (setq package (nth 0 elt))
-          (if (not (string-match "^\\x?emacs$" package))
-              (if (not (or (member package downloaded)
-                           (locate-library package)))
-                  (epackage-push elt ret))))))
+          (when (not (string-match "^\\x?emacs$" package))
+            (if (not (or (member package downloaded)
+                         (epackage-locate-library package)))
+                (epackage-push elt ret))))))
     ret))
 
 (defun epackage-pkg-depends-rollback (&optional verbose)

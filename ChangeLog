@@ -8,6 +8,7 @@
 	(epackage--layout-template-info): Add "Elpa" field. Document thin
 	in the spec.
 	(epackage-locate-library): New.
+	(epackage-pkg-depends-verify-main): Use `epackage-locate-library'.
 
 2012-01-04 Wed  Jari Aalto  <jari.aalto@cante.net>
 
