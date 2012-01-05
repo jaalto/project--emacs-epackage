@@ -669,6 +669,7 @@
 ;;
 ;;          *Package: <unique name, all lowercase>
 ;;          *Section: <data | extensions | files | languages | mail | tools | M-x finder-list-keywords>
+;;          Elpa: <GNU, Marmalade, ...>
 ;;          License: <GPL-[23]+ | BSD | Apache-2.0 | ... | Custom | None>
 ;;          Licence-Text: <only, if license is "Custom">
 ;;          *Depends: emacs (>= 20)
@@ -770,6 +771,14 @@
 ;;      List of packages that must be removed before install can be
 ;;      done. This field follows the guidelines of
 ;;      <http://www.debian.org/doc/debian-policy/ch-relationships.html>.
+;;
+;;     Elpa
+;;
+;;      Value of ELPA archive site the packages is also available at.
+;;      The values known are "GNU" <elpa.gnu.org>, "Elpa"
+;;      <http://tromey.com/elpa/index.html> and "Marmalade"
+;;      <http://marmalade-repo.org>. The purpose of this field is to
+;;      mark packages that are also available in other repositories.
 ;;
 ;;     Description (required)
 ;;
@@ -1395,7 +1404,10 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0105.1134"
+(defconst epackage-version "1.5"
+  "Standard Emacs inversion.el supported verison number."
+
+(defconst epackage--version-time "2012.0105.1445"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
