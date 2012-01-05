@@ -1214,8 +1214,6 @@
 ;;      is required.
 ;;
 ;;      Regarding the requirement for a specific version of the package
-;;
-;;
 ;;      in form of:
 ;;
 ;;          Depends: foo (>= 0.9)
