@@ -937,15 +937,16 @@
 ;;          add this suffix even if extension name does not
 ;;          explicitly say so. An example "python.el" => name package
 ;;          "python-mode". This helps searching for package names.
-;;      o   In extension is ment to be a library (e.g. xml-rpc.el), start
+;;      o   If extension is a library (e.g. xml-rpc.el), start
 ;;          package name with `lib-*'. This way user
 ;;          who is browsing the list of packages can ignore or complete
 ;;          these on minibuffer prompts easily.
 ;;
 ;;      Note: There may be exotically named extensions like "crypt++",
-;;      but the *epackage* name must not contains special characters. Use
-;;      name "crypt-plusplus" if nothing else comes to a mind. Consider
-;;      contacting upstream to discuss about possible name change.
+;;      but the *epackage* name must not contains special characters.
+;;      In package name, spell out the used letters: "crypt-plusplus".
+;;      Consider contacting upstream to discuss about possible name
+;;      change.
 ;;
 ;;     Recommends
 ;;
@@ -1416,7 +1417,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number."
 
-(defconst epackage--version-time "2012.0105.1512"
+(defconst epackage--version-time "2012.0105.1524"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2941,7 +2942,7 @@ If SECURITY is non-nil, signal error if
     ;; FIXME: Implement SECURITY
     (eval-buffer)))
 
-(defsubst epackage-eval-file-safe (file &optional security)
+(defsubst epackage-eval-file-safe (file &optional security) ;; FIXME security
   "Evaluate FILE. Optionally check SECURITY.
 See `epackage-eval-file' for SECURITY argument handling.
 
@@ -2965,9 +2966,17 @@ Return:
 (defun epackage-locate-library (library)
   "Search LIBRARY source file from `load-path'
 Strip epackage specific 'lib-*' prefix."
-  (let ((name (if (string-match "^lib-\\(.+\\)" library)
-                  (match-string 1 library)
-                library)))
+  (let ((name library))
+    ;; Package name to library name conversions
+    (if (string-match "^lib-\\(.+\\)" )
+        (setq name (match-string 1 name)))
+    (if (string-match "\\(.+\\)-plusplus" name)
+        (setq name (format "%s++" (match-string 1 name))))
+    (if (string-match "\\(.+\\)-plus" name)
+        (setq name (format "%s+" (match-string 1 name))))
+    (if (string-match "^lib-\\(.+\\)" name)
+        (setq name (match-string 1 name)))
+
     (locate-library name)))
 
 ;;  Test Drivers:
