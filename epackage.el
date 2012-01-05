@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0105.0906"
+(defconst epackage--version-time "2012.0105.0908"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6786,7 +6786,7 @@ Return:
     (unless (re-search-forward "^;;;###autoload" nil t)
       (setq ret
 	    (list
-	     `,(concat "Missing: ;;;###autoload, see "
+	     `,(concat "Missing: ;;;###autoload see "
 		       "15.5 Autoload (GNU Emacs Lisp Reference Manual)"))))
     ret))
 
