@@ -983,23 +983,31 @@
 ;;      The `core-*' values mark the extension or its features being
 ;;      included (or will be) in the mentioned [X]Emacs. The optional
 ;;      NN.N announces in which Emacs flavor the feature was included;
-;;      e.g. *core-emacs-22.1*. Value `unmaintained' means that the
-;;      original developer has vanished or abandoned the project and
-;;      is no longer available for contacting or further development.
+;;      e.g. *core-emacs-22.1*.
+;;
+;;      Value `unmaintained' means that the original developer has
+;;      vanished or abandoned the project and is no longer available
+;;      for contacting or further development.
+;;
 ;;      Value `unsafe' means that the not all the symbols are name
 ;;      space clean (prefix-*); meaning that some of the commands
-;;      might clash with existing function in Emacs. The current
-;;      release status of package can be indicated with terms `stable'
-;;      (no more actively developed, bugs shaken out), `unstable'
-;;      (package is in active development) or `experimental' (no
-;;      guarantees, not necessarily tested, this is the latest code).
-;;      Value `broken' means that there are known problems,
+;;      might clash with existing function in Emacs.
+;;
+;;      The current release status of epackage can be indicated with
+;;      terms `stable' (no active upstream developed recently),
+;;      `unstable' (upstream is active developing) or `experimental'
+;;      (no guarantees, not necessarily tested, this is the latest
+;;      code). Value `broken' means that there are known problems,
 ;;      limitations or that the package may not work in some Emacs
-;;      version. Further information about "brokeness" should be
+;;      version. Further information about "brokenness" should be
 ;;      supplied in the end of *Description:* field in section "BUGS"
-;;      or similar. Value `obsolete' means that the functionality can
-;;      be found in recent Emacs. Obsolete packages are candidate for
-;;      for removal at some point.
+;;      or similar.
+;;
+;;      Value `obsolete' means that the functionality can be found in
+;;      recent Emacs. Obsolete packages are candidate for for removal
+;;      at some point. It would be good idea to mention Emacs version
+;;      and feature where this is available in a paragraph at the end
+;;      of *Description:* field section "NOTE" or similar.
 ;;
 ;;     Upstream
 ;;
@@ -1420,7 +1428,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number."
 
-(defconst epackage--version-time "2012.0105.1554"
+(defconst epackage--version-time "2012.0105.1600"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
