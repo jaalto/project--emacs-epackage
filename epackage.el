@@ -978,6 +978,7 @@
 ;;                     | stable
 ;;                     | unstable
 ;;                     | experimental
+;;                     | obsolete
 ;;
 ;;      The `core-*' values mark the extension or its features being
 ;;      included (or will be) in the mentioned [X]Emacs. The optional
@@ -996,7 +997,9 @@
 ;;      limitations or that the package may not work in some Emacs
 ;;      version. Further information about "brokeness" should be
 ;;      supplied in the end of *Description:* field in section "BUGS"
-;;      or similar.
+;;      or similar. Value `obsolete' means that the functionality can
+;;      be found in recent Emacs. Obsolete packages are candidate for
+;;      for removal at some point.
 ;;
 ;;     Upstream
 ;;
@@ -1417,7 +1420,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number."
 
-(defconst epackage--version-time "2012.0105.1535"
+(defconst epackage--version-time "2012.0105.1554"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
