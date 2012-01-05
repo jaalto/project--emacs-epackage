@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0105.0724"
+(defconst epackage--version-time "2012.0105.0906"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6797,7 +6797,7 @@ Return:
   '(\"<error message>\") or nil."
   (let ((elisp (memq major-mode '(emacs-lisp-mode)))
 	defcustom-need
-	point
+	beg
 	str
 	ret)
     (epackage-point-min)
@@ -6805,23 +6805,26 @@ Return:
       (while (re-search-forward
 	      "^(def\\(?:var\\|const\\) +\\([^ \t\r\n]+\\)" nil t)
 	(setq str (match-string-no-properties 1))
-	(goto-char (setq point (match-beginning 0)))
+	(goto-char (setq beg (match-beginning 0)))
 	(forward-sexp 1)		; defvar's last ")"
-	(when (and (re-search-backward "^ +\"" point t)
-		   (looking-at "^ +\"\*"))
+	(when (re-search-backward "^ +\"\\*" beg t)
 	  (setq defcustom-need t)
 	  (epackage-push
-	   (format "Missing:%d: defcustom %s, see %s"
+	   (format "Missing:%d: defcustom %s"
 		   (epackage-line-number)
-		   str
-		   "14.x (GNU Emacs Lisp Reference Manual)")
+		   str)
 	   ret))))
     (when defcustom-need		; Libraries don't need
       (epackage-point-min)
       (unless (re-search-forward "^(defcustom" nil t)
-	(epackage-push "Warning: defcustom not found" ret))
+	(epackage-push
+	 "Warning: defcustom not found. See "
+	 ret
+	 "14.x (GNU Emacs Lisp Reference Manual)"))
       (unless (re-search-forward "^(defgroup" nil t)
-	(epackage-push "Warning: defgroup not found" ret)))
+	(epackage-push
+	 "Warning: defgroup not found"
+	 "14.x (GNU Emacs Lisp Reference Manual)")))
     ret))
 
 (defun epackage-lint-extra-buffer-run-other-keybindings ()
