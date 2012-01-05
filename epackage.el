@@ -1395,7 +1395,7 @@
       (message
        "** WARNING: epacakge.el has not been designed to work with XEmacs")))
 
-(defconst epackage--version-time "2012.0105.1057"
+(defconst epackage--version-time "2012.0105.1115"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6867,10 +6867,10 @@ Return list of results '(\"message\" ...)."
 
 ;; More familiar user callable function
 ;;;###autoload
-(defalias 'epackage-lint-extra-buffer-main 'epackage-lint-buffer)
+(autoload 'epackage-lint-buffer "epackage" "" t)
+(defalias 'epackage-lint-buffer 'epackage-lint-extra-buffer-main)
 
 ;; Want to keep the name prefix `epackage-lint-extra*'
-;;;###autoload
 (defun epackage-lint-extra-buffer-main (&optional clear verbose)
   "Lint current buffer using extra tools.
 
@@ -6946,10 +6946,10 @@ Return:
 
 ;; More familiar user callable function
 ;;;###autoload
-(defalias 'epackage-lint-extra-file 'epackage-lint-file)
+(autoload 'epackage-lint-file "epackage" "" t)
+(defalias 'epackage-lint-file 'epackage-lint-extra-file)
 
 ;; Want to keep the name prefix `epackage-lint-extra*'
-;;;###autoload
 (defun epackage-lint-extra-file (file &optional verbose)
   "Lint FILE using extra tools.
 If optional VERBOSE is non-nil, display progress message.
