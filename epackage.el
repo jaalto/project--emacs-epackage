@@ -1475,7 +1475,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0106.1926"
+(defconst epackage--version-time "2012.0106.1948"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -3020,6 +3020,19 @@ Return:
   "Check if EXCLUDE regexp match DIR."
   ;; This fucntion exists so that you can point edebugger to it.
   (string-match exclude dir))
+
+(defsubst epackage-search-user-customizable ()
+  "Search first indication of custom."
+  (re-search-forward "^[^;]+(\\(def\\(group\\|custom\\)\\)" nil t))
+
+(defsubst epackage-search-user-function ()
+  "Search first interactive function from current point."
+  ;; This is not perfect. There may be complex interactive functions:
+  ;;
+  ;;  (defun this
+  ;;    (list (read-string ...)))
+  (re-search-forward
+   "^[^;]+(\\(interactive-p\\|called-interactively\\)" nil t))
 
 (defun epackage-locate-library (library)
   "Search LIBRARY source file from `load-path'
@@ -6916,10 +6929,16 @@ Return:
   (let (ret)
     (epackage-point-min)
     (unless (re-search-forward "^;;;###autoload" nil t)
-      (setq ret
-	    (list
-	     `,(concat "Missing: ;;;###autoload see "
-		       "15.5 Autoload (GNU Emacs Lisp Reference Manual)"))))
+      ;; If this is library, there isn't necessarily nothing to
+      ;; autoload. Check 'interactive' or variables.
+      (epackage-point-min)
+      (when (or (epackage-search-user-customizable)
+		(epackage-search-user-function))
+	(setq ret
+	      (list
+	       `,(concat
+		  "Missing: ;;;###autoload see "
+		  "15.5 Autoload (GNU Emacs Lisp Reference Manual)")))))
     ret))
 
 (defun epackage-lint-extra-buffer-run-other-namespace ()

@@ -9,6 +9,10 @@
 	`epackage-autoload-generate-loaddefs-dir'.
 	(epackage-info-mode-cmd-email-upstream): Set initial subject
 	to include package name.
+	(epackage-lint-extra-buffer-run-other-autoload): Check
+	interactive.
+	(epackage-search-user-customizable): New.
+	(epackage-search-user-function): New.
 
 2012-01-05 Thu  Jari Aalto  <jari.aalto@cante.net>
 
