@@ -1475,7 +1475,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0106.1113"
+(defconst epackage--version-time "2012.0106.1124"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4957,6 +4957,8 @@ Point is not preserved."
 		       "\\|"
 		       "of"
 		       spc
+		       "\\(?:the\\)?"
+		       spc*
 		       "License\\)")))
     (epackage-point-min)
     (when (re-search-forward re-gpl max t)
