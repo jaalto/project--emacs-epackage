@@ -677,10 +677,10 @@
 ;;	      devel
 ;;
 ;;	If you compare to the Epackage layout, the upstream is missing
-;;	branch "upstream". This `format' file is there to notify that
-;;	in this repository he "upstream" branch is expected to be
-;;	missing. It also notifis that tag names do not have =upstream/=
-;;      prefix.
+;;	required branch "upstream". This `format' file is there to
+;;	notify that in this repository the "upstream" branch is
+;;	expected to be missing. It also notifies that in this
+;;	repository the tag names do not have =upstream/= prefix.
 ;;
 ;;  The 'lisp' file
 ;;
@@ -1475,7 +1475,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0106.1106"
+(defconst epackage--version-time "2012.0106.1113"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
