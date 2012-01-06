@@ -1475,7 +1475,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0106.1804"
+(defconst epackage--version-time "2012.0106.1926"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -7375,8 +7375,8 @@ function description of `epackage-info-mode-tab-command'.
 	  (epackage-mail-buffer-name package " upstream")
 	  email)
       (epackage-field-set "Subject" (format "Emacs: %s - " package)))
-      (t
-       (epackage-message "No upstream information to email to."))))))
+     (t
+      (epackage-message "No upstream information to email to.")))))
 
 (defun epackage-info-mode-cmd-email-upstream-ping ()
   "Compose a ping mail to upstream of extension.
