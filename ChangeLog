@@ -13,6 +13,7 @@
 	interactive.
 	(epackage-search-user-customizable): New.
 	(epackage-search-user-function): New.
+	(epackage-devel-information-license-apache): New.
 
 2012-01-05 Thu  Jari Aalto  <jari.aalto@cante.net>
 

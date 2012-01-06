@@ -1475,7 +1475,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0106.1948"
+(defconst epackage--version-time "2012.0106.2009"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -5000,6 +5000,28 @@ Point is not preserved."
 	    (setq str (concat str "+"))))
       str)))
 
+(defun epackage-devel-information-license-apache ()
+  "If there is MIT stanza, return MIT.
+Point is not preserved."
+  ;; Licensed under the Apache License, Version 2.0 (the "License");
+  ;; you may not use this file except in compliance with the License.
+  ;; You may obtain a copy of the License at
+  ;;      http://www.apache.org/licenses/LICENSE-2.0
+  (let ((max (min (point-max)
+		  (* 50 80)))		; 50 lines
+	ver
+	ret)
+    (epackage-point-min)
+    ;; FIXME: fill in other regexps
+    (when (re-search-forward "Licensed under the Apache License" max t)
+      (setq ret "Apache")
+      (when (looking-at ".*\\<Version[ \t]+\\([0-9.]+\\)")
+	(setq ver (match-string-no-properties 1))
+	(if (string-match "^\\(.+\\).0" ver) ;Drop POINT.ZERO
+	    (setq ver (match-string 1 ver)))
+	(setq ret (format "%s-%s" ret ver))))
+    ret))
+
 (defun epackage-devel-information-license-mit ()
   "If there is MIT stanza, return MIT.
 Point is not preserved."
@@ -5035,7 +5057,8 @@ Point is not preserved."
 (defun epackage-devel-information-license-main ()
   "Return license information from current buffer."
   (or (epackage-devel-information-license-gpl-standard)
-      (epackage-devel-information-license-mit)))
+      (epackage-devel-information-license-mit)
+      (epackage-devel-information-license-apache)))
 
 ;; See lm-get-package-name
 (defun epackage-devel-information-description-short ()
