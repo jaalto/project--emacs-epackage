@@ -1475,7 +1475,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0106.1651"
+(defconst epackage--version-time "2012.0106.1804"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -7198,7 +7198,7 @@ Return package name or nil."
     (t
      (epackage-error ,message))))
 
-;; Don't you hate it when new Emacs changes functionsand doesn't
+;; Don't you hate it when new Emacs changes functions and doesn't
 ;; make new ARGS *optional*
 (put 'epackage-mail-macro 'lisp-indent-function 2)
 (put 'epackage-mail-macro 'edebug-form-spec '(body))
@@ -7365,15 +7365,18 @@ function description of `epackage-info-mode-tab-command'.
       (epackage-message "No maintainer information to email to."))))
 
 (defun epackage-info-mode-cmd-email-upstream ()
-  "Compose mail to upstream of extension."
+  "Compose mail to upstream."
   (interactive)
   (let ((package (epackage-field-fetch-value "Package"))
         (email (epackage-field-fetch-value "Upstream")))
-    (if email
-        (epackage-mail-macro
-            (epackage-mail-buffer-name package " upstream")
-	    email)
-      (epackage-message "No upstream information to email to."))))
+    (cond
+     (email
+      (epackage-mail-macro
+	  (epackage-mail-buffer-name package " upstream")
+	  email)
+      (epackage-field-set "Subject" (format "Emacs: %s - " package)))
+      (t
+       (epackage-message "No upstream information to email to."))))))
 
 (defun epackage-info-mode-cmd-email-upstream-ping ()
   "Compose a ping mail to upstream of extension.

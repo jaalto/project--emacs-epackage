@@ -7,6 +7,8 @@
 	(epackage-batch-autoload-generate-loaddefs-dir): Rewrite.
 	(epackage-devel-generate-loaddefs): Correct call to
 	`epackage-autoload-generate-loaddefs-dir'.
+	(epackage-info-mode-cmd-email-upstream): Set initial subject
+	to include package name.
 
 2012-01-05 Thu  Jari Aalto  <jari.aalto@cante.net>
 
