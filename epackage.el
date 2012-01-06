@@ -1433,7 +1433,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0106.0848"
+(defconst epackage--version-time "2012.0106.0849"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2494,7 +2494,7 @@ License: GPL-2+ | BSD | Apache-2.0 | ... | Custom | None
 License-Text: <only for type Custom; full text or URL to page in http://spdx.org/licenses/>
 Depends: emacs (>= 22)
 Status: core-emacs[-NN.N] unmaintained broken unsafe stable unstable experimental
-Elpa:
+Archive:
 Compat:
 Maintainer:
 Bugs:
