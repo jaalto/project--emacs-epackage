@@ -1475,7 +1475,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0106.1206"
+(defconst epackage--version-time "2012.0106.1224"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4792,18 +4792,23 @@ Input:
 
 (defun epackage-batch-autoload-generate-loaddefs-dir ()
   "Call `epackage-autoload-generate-loaddefs-dir' for `command-line-args-left'.
-The first argument is directory name."
-  (let* ((dir (or (nth 0 command-line-args-left)
-		  "<empty>"))
+The first argument is the directory name."
+  (let* ((debug-on-error t)
+	 (arg (nth 0 command-line-args-left))
+	 (dir (or arg
+		  default-directory))
 	 (edir (concat (file-name-as-directory dir)
 		       epackage--directory-name))
 	 file)
+    (when (and (stringp dir)
+	       (string-match "^[ \t]*$" dir))
+      (epackage-error "Empty DIRECTORY argument"))
     (unless (file-directory-p dir)
       (epackage-error "No such directory: %s" dir))
     (setq file (car-safe
 		(directory-files
 		 edir
-		 nil
+		 'full
 		 "-epkg-0loaddefs\\.el$")))
     (unless file
       (epackage-error "No such file: %s/*-epkg-0loaddefs.el" edir))
