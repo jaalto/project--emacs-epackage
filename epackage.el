@@ -1433,7 +1433,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0106.0849"
+(defconst epackage--version-time "2012.0106.0921"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6860,6 +6860,54 @@ Return:
 		       "15.5 Autoload (GNU Emacs Lisp Reference Manual)"))))
     ret))
 
+(defun epackage-lint-extra-buffer-run-other-namespace ()
+  "Check name space problems.
+Return:
+  '(\"<error message>\") or nil."
+  (let ((name (if buffer-file-name
+		  (file-name-nondirectory buffer-file-name)
+		buffer-name))
+	(ignore "toggle")
+	primary
+	list
+	point
+	str
+	ret)
+    (epackage-point-min)
+    ;; The primary name space is the onle that is found first.
+    (while (re-search-forward
+	    "^(def[^ \t\r\n]+ +\\([a-zA-Z]+\\)-" nil t)
+	(setq str (match-string-no-properties 1))
+	(unless list
+	  (setq primary str))
+	(when (and list
+		   (not (string-match ignore str))
+		   (not (member str list)))
+	  (epackage-push
+	   (format "%s:%d: Warning, %s-* but new name space: %s-*"
+		   name
+		   (epackage-line-number)
+		   primary
+		   str)
+	   ret))
+	(epackage-push str list))
+    (epackage-point-min)
+    (while (re-search-forward
+	    "^(defalias +'\\([a-zA-Z]+\\)-" nil t)
+	(setq str (match-string-no-properties 1))
+	(when (and list
+		   (not (string-match ignore str))
+		   (not (member str list)))
+	  (epackage-push
+	   (format "%s:%d: Warning, %s-* but new name space: %s-*"
+		   name
+		   (epackage-line-number)
+		   primary
+		   str)
+	   ret))
+	(epackage-push str list))
+    ret))
+
 (defun epackage-lint-extra-buffer-run-other-defcustom ()
   "Check missing defcustom variables.
 Major mode must be `emacs-lisp-mode' for the checks to work.
@@ -6932,6 +6980,7 @@ Return list of results '(\"message\" ...)."
   ;; FIXME make into a user variable
   (let ((list '(epackage-lint-extra-buffer-run-other-autoload
 		epackage-lint-extra-buffer-run-other-defcustom
+		epackage-lint-extra-buffer-run-other-namespace
 		epackage-lint-extra-buffer-run-other-keybindings))
 	ret)
     (dolist (function list)

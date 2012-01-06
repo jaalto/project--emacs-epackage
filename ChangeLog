@@ -2,6 +2,7 @@
 
 	* epackage.el (epackage--layout-template-info): Rename field
 	Elpa to Archve.
+	(epackage-lint-extra-buffer-run-other-namespace): New.
 
 2012-01-05 Thu  Jari Aalto  <jari.aalto@cante.net>
 
