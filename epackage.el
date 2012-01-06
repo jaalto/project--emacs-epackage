@@ -674,7 +674,7 @@
 ;;          *Depends: emacs (>= 20)
 ;;          Recommends:
 ;;          Status: [ <keyword> ...]
-;;          Elpa: <GNU, Marmalade, ...>
+;;          Archive: <ELPA/GNU, ELPA/Marmalade, ...>
 ;;          Compat: [ <epackage version> ]
 ;;          *Maintainer: First Last <first.last@example.com>
 ;;          Bugs: [ URL ]
@@ -726,6 +726,19 @@
 ;;      file must be saved as UTF-8 in case it contains non-ASCII
 ;;      characters.
 ;;
+;;     Archive
+;;
+;;      Value of archive repository where package is also available.
+;;      The known values are "ELPA/GNU" <elpa.gnu.org>,
+;;      "ELPA/Marmalade" <http://marmalade-repo.org> and being phased
+;;      out original "ELPA" <http://tromey.com/elpa/index.html>. The
+;;      purpose of this field is to mark other repositories. The
+;;      "archive" in this context refers to a site where there is a
+;;      specific package manager. It is not used for informal sites
+;;      like <http://www.emacswiki.org> although it technically could
+;;      be accessed with el-get.el; which is not really a package
+;;      manager but download script.
+;;
 ;;     Bugs
 ;;
 ;;      URL to report epackaging issues of current extension. The URL can
@@ -771,14 +784,6 @@
 ;;      List of packages that must be removed before install can be
 ;;      done. This field follows the guidelines of
 ;;      <http://www.debian.org/doc/debian-policy/ch-relationships.html>.
-;;
-;;     Elpa
-;;
-;;      Value of ELPA archive site the packages is also available at.
-;;      The values known are "GNU" <elpa.gnu.org>, "Elpa"
-;;      <http://tromey.com/elpa/index.html> and "Marmalade"
-;;      <http://marmalade-repo.org>. The purpose of this field is to
-;;      mark packages that are also available in other repositories.
 ;;
 ;;     Description (required)
 ;;
@@ -1428,7 +1433,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0105.1937"
+(defconst epackage--version-time "2012.0106.0848"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
