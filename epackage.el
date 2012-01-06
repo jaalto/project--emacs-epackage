@@ -644,6 +644,43 @@
 ;;	    one.el\|two.el
 ;;          tree.el
 ;;
+;;  The 'format' file
+;;
+;;	Type of Git repository. The type is indicated in the first line
+;;      of the file. Valid value in this file is "upstream".
+;;
+;;      This file is used to mark repositories of different origin. In
+;;      a normal case, where a packager downloads code, creates Git
+;;      repository, add `/epackage', and puts it available -- this
+;;      *format* file of no concern. But if upstream and packages is
+;;      the same person and would like to use same repository for both
+;;      the development and epackage distribution, the layout must be
+;;      indicated separately because of branch differes.
+;;
+;;      The standard Epackage has following Git branches. Branch that
+;;      is used for distribution (contains epackage/ directory) is
+;;      marked wit asterisk:
+;;
+;;	    * master	    REQUIRED
+;;	      upstream	    REQUIRED
+;;	      [patches]	    OPTIONAL
+;;
+;;	Compared to upstream development, there may be only on branch:
+;;
+;;	    * master
+;;
+;;	The "master" is effectively the latest development which may
+;;	not be best for direct distribution. Many divide development
+;;	into separate lines:
+;;
+;;	    * master	    (when "devel" is stable, it is merged here)
+;;	      devel
+;;
+;;	If you compare to the Epackage layout, the upstream is missing
+;;	branch "upstream". This `format' file is there to notify that
+;;	in this repository he "upstream" branch is expected to be
+;;	missing.
+;;
 ;;  The 'lisp' file
 ;;
 ;;	This file contains Emacs Lisp file directories relative to the
@@ -1299,6 +1336,9 @@
 ;;      o   Sources List: Download problem, broken repository link.
 ;;          => Offer sending error report mail the Sources List maintainer
 ;;
+;;      o   Lint: if upstream is also packager, then his repository
+;;          does not have "upstream" branch.
+;;
 ;;      o   Boot: What if user manually deletes directories?
 ;;          What to do with left over config files? Do we need self health
 ;;          check on boot?
@@ -1310,6 +1350,7 @@
 ;;      o   [already implemented?] After download. Trying to install or
 ;;          activate package, check emacs compatibility and refuse to
 ;;          install if not met.
+;;
 ;;
 ;;      REPO
 ;;
@@ -1433,7 +1474,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0106.0921"
+(defconst epackage--version-time "2012.0106.1103"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
