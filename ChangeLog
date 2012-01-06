@@ -5,6 +5,8 @@
 	(epackage-lint-extra-buffer-run-other-namespace): New.
 	(epackage-devel-information-license-gpl-standard): Improve regexp.
 	(epackage-batch-autoload-generate-loaddefs-dir): Rewrite.
+	(epackage-devel-generate-loaddefs): Correct call to
+	`epackage-autoload-generate-loaddefs-dir'.
 
 2012-01-05 Thu  Jari Aalto  <jari.aalto@cante.net>
 

@@ -1475,7 +1475,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0106.1224"
+(defconst epackage--version-time "2012.0106.1651"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4476,7 +4476,7 @@ Input:
 	(goto-char save-point))		; Restore position
       buffer)))
 
-(defun epackage-autoload-write-autoload-files (&rest args)   ;; FIXME remove this
+(defun epackage-autoload-write-autoload-files (&rest args);; FIXME remove this
   "Not implemented yet. ARGS are ignored."
   nil)
 
@@ -4779,7 +4779,7 @@ Input:
      (recursive
 ;;;      (dolist (elt (epackage-directory-recursive-lisp dir)) FIXME?
       (epackage-autoload-generate-loaddefs-dir
-       elt file exclude recursive verbose))
+       dir file exclude recursive verbose))
      (t
       (if (stringp dir)
 	  (epackage-autoload-generate-loaddefs-dir
@@ -4792,9 +4792,9 @@ Input:
 
 (defun epackage-batch-autoload-generate-loaddefs-dir ()
   "Call `epackage-autoload-generate-loaddefs-dir' for `command-line-args-left'.
-The first argument is the directory name."
-  (let* ((debug-on-error t)
-	 (arg (nth 0 command-line-args-left))
+The first argument is the directory name. Update existing epackage/*loaddefs*
+files recursively for all Emacs Lisp files."
+  (let* ((arg (nth 0 command-line-args-left))
 	 (dir (or arg
 		  default-directory))
 	 (edir (concat (file-name-as-directory dir)
