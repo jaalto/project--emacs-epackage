@@ -1475,7 +1475,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0106.1124"
+(defconst epackage--version-time "2012.0106.1206"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4777,9 +4777,9 @@ Input:
     (epackage-make-directory edir 'no-question 'error)
     (cond
      (recursive
-      (dolist (elt (epackage-directory-recursive-lisp dir))
-	(epackage-autoload-generate-loaddefs-dir
-	 elt file exclude recursive verbose)))
+;;;      (dolist (elt (epackage-directory-recursive-lisp dir)) FIXME?
+      (epackage-autoload-generate-loaddefs-dir
+       elt file exclude recursive verbose))
      (t
       (if (stringp dir)
 	  (epackage-autoload-generate-loaddefs-dir
@@ -4790,16 +4790,29 @@ Input:
     (when (file-exists-p file)
       (epackage-add-provide-to-file file))))
 
-;; Copy of tinylisp-batch-autoload-generate-loaddefs-dir
-(defun epackage-batch-autoload-generate-loaddefs-dir
-  (&optional exclude recursive)
+(defun epackage-batch-autoload-generate-loaddefs-dir ()
   "Call `epackage-autoload-generate-loaddefs-dir' for `command-line-args-left'.
-Optionally EXCLUDE files by regexp or be RECURSIVE."
-  (epackage-with-command-line
-   (epackage-autoload-generate-loaddefs-dir
-    item
-    exclude
-    recursive)))
+The first argument is directory name."
+  (let* ((dir (or (nth 0 command-line-args-left)
+		  "<empty>"))
+	 (edir (concat (file-name-as-directory dir)
+		       epackage--directory-name))
+	 file)
+    (unless (file-directory-p dir)
+      (epackage-error "No such directory: %s" dir))
+    (setq file (car-safe
+		(directory-files
+		 edir
+		 nil
+		 "-epkg-0loaddefs\\.el$")))
+    (unless file
+      (epackage-error "No such file: %s/*-epkg-0loaddefs.el" edir))
+    (epackage-autoload-generate-loaddefs-dir
+     dir
+     file
+     (not 'exclude)
+     'recursive
+     'verbose)))
 
 (defun epackage-devel-generate-autoloads
   (package root dir &optional recursive verbose)

@@ -4,6 +4,7 @@
 	Elpa to Archve.
 	(epackage-lint-extra-buffer-run-other-namespace): New.
 	(epackage-devel-information-license-gpl-standard): Improve regexp.
+	(epackage-batch-autoload-generate-loaddefs-dir): Rewrite.
 
 2012-01-05 Thu  Jari Aalto  <jari.aalto@cante.net>
 
