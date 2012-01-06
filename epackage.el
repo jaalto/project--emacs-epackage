@@ -651,11 +651,11 @@
 ;;
 ;;      This file is used to mark repositories of different origin. In
 ;;      a normal case, where a packager downloads code, creates Git
-;;      repository, add `/epackage', and puts it available -- this
-;;      *format* file of no concern. But if upstream and packages is
+;;      repository, add `/epackage', and puts it available -- the
+;;      *format* file is not needed. But if upstream and packager is
 ;;      the same person and would like to use same repository for both
 ;;      the development and epackage distribution, the layout must be
-;;      indicated separately because of branch differes.
+;;      indicated separately because of branch differences.
 ;;
 ;;      The standard Epackage has following Git branches. Branch that
 ;;      is used for distribution (contains epackage/ directory) is
@@ -679,7 +679,8 @@
 ;;	If you compare to the Epackage layout, the upstream is missing
 ;;	branch "upstream". This `format' file is there to notify that
 ;;	in this repository he "upstream" branch is expected to be
-;;	missing.
+;;	missing. It also notifis that tag names do not have =upstream/=
+;;      prefix.
 ;;
 ;;  The 'lisp' file
 ;;
@@ -1474,7 +1475,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0106.1103"
+(defconst epackage--version-time "2012.0106.1106"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
