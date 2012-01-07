@@ -1,6 +1,10 @@
 2012-01-07 Sat  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-interactive-p): Remove.
+	* epackage.el
+	(top level): Change all *-epkg-* references to *-epackage-* to
+	avoid clashes with epkg.el by Jonas Bernoulli; author
+	of Github emacsmirror project.
+	(epackage-interactive-p): Remove.
 	(called-interactively-p): Add defun if nor defined.
 
 2012-01-06 Fri  Jari Aalto  <jari.aalto@cante.net>

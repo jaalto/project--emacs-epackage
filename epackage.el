@@ -466,15 +466,15 @@
 ;;              info                       required: The information file
 ;;              lisp		           optional: Location of Emacs Lisp files
 ;;              ignore                     optional: regexp to ignore Emacs Lisp files
-;;              PACKAGE-epkg-0loaddefs.el  optional: extracted ###autoload statements
-;;              PACKAGE-epkg-autoloads.el  optional: autoload statements (manual)
-;;              PACKAGE-epkg-clean.el      optional: Code to run "make clean" equivalent
-;;              PACKAGE-epkg-compile.el    optional: Code to byte compile the extension
-;;              PACKAGE-epkg-configure.el  optional: Code to run ./configure
-;;              PACKAGE-epkg-examples.el   optional: Customization examples
-;;              PACKAGE-epkg-install.el    required: Code to make the extension available. Not required fo lib-* packages.
-;;              PACKAGE-epkg-uninstall.el  optional: Code to remove the extension
-;;              PACKAGE-epkg-xactivate.el  optional: Code to activate the extension
+;;              PACKAGE-epackage-0loaddefs.el  optional: extracted ###autoload statements
+;;              PACKAGE-epackage-autoloads.el  optional: autoload statements (manual)
+;;              PACKAGE-epackage-clean.el      optional: Code to run "make clean" equivalent
+;;              PACKAGE-epackage-compile.el    optional: Code to byte compile the extension
+;;              PACKAGE-epackage-configure.el  optional: Code to run ./configure
+;;              PACKAGE-epackage-examples.el   optional: Customization examples
+;;              PACKAGE-epackage-install.el    required: Code to make the extension available. Not required fo lib-* packages.
+;;              PACKAGE-epackage-uninstall.el  optional: Code to remove the extension
+;;              PACKAGE-epackage-xactivate.el  optional: Code to activate the extension
 ;;
 ;;      All these configuration files are combined in a single loader
 ;;      file. Loading a single file is faster than spending time in
@@ -499,7 +499,7 @@
 ;;      load this file, you can start calling extension's features".
 ;;      The file ends in:
 ;;
-;;          (provide 'PACKAGE-epkg-0loaddefs)
+;;          (provide 'PACKAGE-epackage-0loaddefs)
 ;;
 ;;     The *-autoloads.el
 ;;
@@ -511,7 +511,7 @@
 ;;      code to call the functions, or you can call extension's
 ;;      interactive functions via `M-x'". The file ends in:
 ;;
-;;          (provide 'PACKAGE-epkg-autoloads)
+;;          (provide 'PACKAGE-epackage-autoloads)
 ;;
 ;;     The *-clean.el
 ;;
@@ -529,7 +529,7 @@
 ;;      `load-path' set to include all the relevant directories.
 ;;      Evaluating the file must byte compile all that is needed.
 ;;      Possible variables and functions defined here must have
-;;      `PACKAGE-epkg-*' prefix to keep the Emacs name space clean.
+;;      `PACKAGE-epackage-*' prefix to keep the Emacs name space clean.
 ;;      *Exception:* packages that only have a single "*.el" file do
 ;;      not need to define this file. There is no `provide' statement
 ;;      in this file. An example for a simple extension consisting of
@@ -569,7 +569,7 @@
 ;;      code:
 ;;
 ;;          ;; Prevent loading this file. Study the examples.
-;;          (error "PACKAGE-epkg-examples.el is not a config file")
+;;          (error "PACKAGE-epackage-examples.el is not a config file")
 ;;
 ;;     The *-install.el (required; unless package name is lib-*)
 ;;
@@ -586,7 +586,7 @@
 ;;      files that activate the extension's features". The file ends
 ;;      in:
 ;;
-;;          (provide 'PACKAGE-epkg-install)
+;;          (provide 'PACKAGE-epackage-install)
 ;;
 ;;     Note: If package name starts with =lib-=, this file is not
 ;;     required. Libraries that are used for building other extensions
@@ -605,7 +605,7 @@
 ;;      similar variables. To shake free from extension completely,
 ;;      restart Emacs after uninstall a epackage. The file ends in:
 ;;
-;;          (provide 'PACKAGE-epkg-uninstall)
+;;          (provide 'PACKAGE-epackage-uninstall)
 ;;
 ;;     The *-xactivate.el
 ;;
@@ -619,7 +619,7 @@
 ;;      defined in `~/.emacs' *before* this file gets loaded. As with
 ;;      `*-install.el', try to avoid any `require' or `load' commands
 ;;      and stick to `autoload'. To keep Emacs namespace clean, name
-;;      all custom variables or functions as `PACKAGE-epkg-*'.
+;;      all custom variables or functions as `PACKAGE-epackage-*'.
 ;;      Mnemonic: "If you load this file, the bells and whistles are
 ;;      turned on". The "x" at the start of the name is to help proper
 ;;      sorting ordering of configuration files. The file layoyt:
@@ -1482,7 +1482,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0107.0040"
+(defconst epackage--version-time "2012.0107.0915"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2312,16 +2312,16 @@ Format is:
   '((FIELD CONTENT-TEST-REGEXP) ...).")
 
 (defconst epackage--layout-mapping
-  '((activate   "-epkg-xactivate.el")
-    (autoload   "-epkg-autoloads.el")
-    (enable     "-epkg-install.el"  'required '(file)) ;; not for lib-* packages
-    (examples   "-epkg-examples.el")
-    (compile    "-epkg-compile.el")
+  '((activate   "-epackage-xactivate.el")
+    (autoload   "-epackage-autoloads.el")
+    (enable     "-epackage-install.el"  'required '(file)) ;; not for lib-* packages
+    (examples   "-epackage-examples.el")
+    (compile    "-epackage-compile.el")
     (info       "info"  'required)
     (lisp       "lisp")
     (ignore     "ignore")
-    (loaddefs   "-epkg-0loaddefs.el")
-    (uninstall  "-epkg-uninstall.el"))
+    (loaddefs   "-epackage-0loaddefs.el")
+    (uninstall  "-epackage-uninstall.el"))
   "File type mapping table for files in `epackage--package-control-directory'.
 Format is:
     '((TYPE FILENAME [REQUIRED-FLAG] [TYPE-FLAG]) ...)
@@ -4822,9 +4822,9 @@ files recursively for all Emacs Lisp files."
 		(directory-files
 		 edir
 		 'full
-		 "-epkg-0loaddefs\\.el$")))
+		 "-epackage-0loaddefs\\.el$")))
     (unless file
-      (epackage-error "No such file: %s/*-epkg-0loaddefs.el" edir))
+      (epackage-error "No such file: %s/*-epackage-0loaddefs.el" edir))
     (epackage-autoload-generate-loaddefs-dir
      dir
      file
