@@ -588,10 +588,20 @@
 ;;
 ;;          (provide 'PACKAGE-epackage-install)
 ;;
-;;     Note: If package name starts with =lib-=, this file is not
-;;     required. Libraries that are used for building other extensions
-;;     are not requied to provide any install files. The autoloads
-;;     publish available functions.
+;;      Note: If package name starts with =lib-=, this file is not
+;;      required. Libraries that are used for building other extensions
+;;      are not requied to provide any install files. The autoloads
+;;      publish available functions.
+;;
+;;      Note: If the upsream has arranged to "###autoload" proper
+;;      variables and functions, there is already loaddefs file which
+;;      you can take advantage of. The loaddefs file is always
+;;      preloaded during boot. In simplest case, if there is nothing
+;;      more to install that providing callable M-x functions (no hook
+;;      setu up etc.), the content of the file would be:
+;;
+;;          (require 'PACKAGE-epackage-0loaddefs)
+;;          (provide 'PACKAGE-epackage-install)
 ;;
 ;;     The *-uninstall.el
 ;;
@@ -1482,7 +1492,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0107.0915"
+(defconst epackage--version-time "2012.0109.0556"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
