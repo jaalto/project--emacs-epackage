@@ -1492,7 +1492,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0113.1946"
+(defconst epackage--version-time "2012.0113.1950"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -5574,11 +5574,10 @@ If optional VERBOSE is non-nil, display progress messages."
       (setq actions (reverse actions)) ; Keep alphabetical order
       (epackage-run-action-list package actions verbose))))
 
-(defun epackage-upgrade-package-git (package &optional verbose)
+(defun epackage-upgrade-package-git (package &optional verbose noerr)
   "Upgrade PACKAGE.
 If optional VERBOSE is non-nil, display progress message.
-If VERBOSE it set, display error messages but do not die on
-fatal errors."
+If optional NOERR is non-nil, display error messages but do not die on fatal errors."
   (let ((url (epackage-sources-list-info-url package)))
     (unless url
       (epackage-error "No download URL for package '%s'" package))
@@ -5595,7 +5594,7 @@ fatal errors."
                     "Branch name is not \"master\" in '%s'; "
                     "repository changed manually or invalid dir content.")
                  dir))
-          (if verbose
+          (if noerr
               (epackage-message-error message)
             (epackage-fatal message)))
         (when (and status
@@ -5608,7 +5607,7 @@ fatal errors."
                     "Unclean Git status in '%s'; "
                     "possibly changed manually.")
                  dir))
-          (if verbose
+          (if noerr
               (epackage-message-error message)
             (epackage-fatal message)))
         (when status
