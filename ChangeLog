@@ -1,3 +1,9 @@
+2012-01-13 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-message-error): New.
+	(epackage-upgrade-package-git): Rewrite error logic.In
+	verbose mode, do not signal error.
+
 2012-01-07 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el

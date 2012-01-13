@@ -1492,7 +1492,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0109.0556"
+(defconst epackage--version-time "2012.0113.1946"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2624,6 +2624,10 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
 (defmacro epackage-message (format &rest args)
   "Call `message' with FORMAT and ARGS."
   `(message (concat "Epackage: " ,format) ,@args))
+
+(defmacro epackage-message-error (format &rest args)
+  "Call `message' with FORMAT and ARGS."
+  `(message (concat "Epackage: [ERROR] " ,format) ,@args))
 
 (put 'epackage-ignore-errors 'lisp-indent-function 0)
 (put 'epackage-ignore-errors 'edebug-form-spec '(body))
@@ -5572,27 +5576,43 @@ If optional VERBOSE is non-nil, display progress messages."
 
 (defun epackage-upgrade-package-git (package &optional verbose)
   "Upgrade PACKAGE.
-If optional VERBOSE is non-nil, display progress message."
+If optional VERBOSE is non-nil, display progress message.
+If VERBOSE it set, display error messages but do not die on
+fatal errors."
   (let ((url (epackage-sources-list-info-url package)))
     (unless url
       (epackage-error "No download URL for package '%s'" package))
-    (let ((dir (epackage-directory-package-root package)))
+    (let ((dir (epackage-directory-package-root package))
+          (status 'ok)
+          message)
       (epackage-with-message verbose (format "Upgrading package %s" package)
         (unless (epackage-git-master-p package)
-          (epackage-fatal
-            `,(concat
-               "Can't upgrade. "
-               "Branch name is not \"master\" in '%s'; "
-               "repository changed manually or invalid package dir content.")
-            dir))
-        (unless (epackage-git-status-clean-p package)
-          (epackage-fatal
-            `,(concat
-               "Can't upgrade. "
-               "Unclean Git status in '%s'; "
-               "possibly changed manually.")
-            dir))
-        (epackage-git-command-pull dir verbose)))))
+          (setq status nil)
+          (setq message
+                (format
+                 `,(concat
+                    "Can't upgrade. "
+                    "Branch name is not \"master\" in '%s'; "
+                    "repository changed manually or invalid dir content.")
+                 dir))
+          (if verbose
+              (epackage-message-error message)
+            (epackage-fatal message)))
+        (when (and status
+                   (null (epackage-git-status-clean-p package)))
+          (setq status nil)
+          (setq message
+                (format
+                 `,(concat
+                    "Can't upgrade. "
+                    "Unclean Git status in '%s'; "
+                    "possibly changed manually.")
+                 dir))
+          (if verbose
+              (epackage-message-error message)
+            (epackage-fatal message)))
+        (when status
+          (epackage-git-command-pull dir verbose))))))
 
 (defun epackage-upgrade-package-main (package &optional verbose)
   "Do all steps necessary to upgrade PACKAGE.
