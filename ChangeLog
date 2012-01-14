@@ -5,6 +5,7 @@
 	(epackage-upgrade-package-main): Use `epackage-git-current-sha'
 	(epackage-string-delete-whitespace): New.
 	(epackage-cmd-select-package): Use `epackage-string-delete-whitespace'.
+	(epackage-cmd-clean-package): Call `epackage-loader-file-generate-boot'.
 
 2012-01-13 Fri  Jari Aalto  <jari.aalto@cante.net>
 

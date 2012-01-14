@@ -1492,7 +1492,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0114.0818"
+(defconst epackage--version-time "2012.0114.0822"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -8227,7 +8227,8 @@ If optional VERBOSE is non-nil, display progress message."
     (let ((list (epackage-config-delete-all package verbose)))
       (cond
        (list
-        (run-hooks 'epackage--install-clean-hook))
+        (run-hooks 'epackage--install-clean-hook)
+	(epackage-loader-file-generate-boot verbose))
        (verbose
         (epackage-message
           "Nothing to clean. No files installed for package: %s"
