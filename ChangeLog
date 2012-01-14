@@ -8,11 +8,16 @@
 	(epackage-cmd-clean-package): Call `epackage-loader-file-generate-boot'.
 	(epackage-sort-sym): New.
 	(epackage-run-action-list): Call `epackage-sort-sym'.
+	(epackage-git-command-sha-remote): New.
+	(epackage-package-problems): New epackage-package-problems.
+	(epackage-sources-list-and-repositories-sync): Use `epackage-package-problems'.
+	(epackage-recreate-package-lowlevel): New.
+	(epackage-upgrade-package-main): Recreate package if URL moved.
 
 2012-01-13 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-message-error): New.
-	(epackage-upgrade-package-git): Rewrite error logic.In
+	(epackage-upgrade-package-git): Rewrite error logic. In
 	verbose mode, do not signal error.
 
 2012-01-07 Sat  Jari Aalto  <jari.aalto@cante.net>

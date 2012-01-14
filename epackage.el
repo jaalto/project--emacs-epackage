@@ -1492,7 +1492,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0114.0901"
+(defconst epackage--version-time "2012.0114.1134"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -3390,6 +3390,25 @@ The TYPE is car of list `epackage--layout-mapping'."
     (if (file-exists-p file)
         file)))
 
+(defun epackage-package-problems (package &optional verbose)
+  "Check if PACKAGE is in pristine state
+If optional VERBOSE is non-nil, display informational messages.
+
+Return:
+  nil	everything ok
+  '(PROBLEM ...)."
+  (let (list)
+    (cond
+   ((not (epackage-package-downloaded-p package))
+    (epackage-push 'not-downloaded list)
+    (epackage-verbose-message "Package problem %s: not downloaded" package))
+   ((not (epackage-git-master-p package))
+    (epackage-push 'not-git-master list)
+    ;; FIXME: should check if repository is not locally modified.
+    (epackage-verbose-message
+      "Package probalem %s: Git is not using \"master\" branch" package)))
+    list))
+
 (defsubst epackage-directory-sources-list ()
   "Return sources list build directory.
 Location of `epackage--sources-file-name-main'."
@@ -4132,21 +4151,36 @@ If optional VERBOSE is non-nil, display progress message."
   (epackage-git-branch-list-current-branch
    (epackage-git-command-branch-list dir verbose)))
 
-(defun epackage-git-command-current-sha (dir &optional verbose)
+(defun epackage-git-command-sha-current (dir &optional verbose)
   "Run 'git rev-parse HEAD' in DIR.
 If optional VERBOSE is non-nil, display progress message."
   (epackage-with-git-command dir verbose
     "rev-parse" "HEAD"))
 
-(defun epackage-git-current-sha (dir &optional verbose)
+(defun epackage-git-command-sha-remote (dir &optional remote branch verbose)
+  "Run in DIR 'git ls-remote REMOTE refs/heads/BRANCH'
+REMOTE defaults to \"origin\" and BRANCH to \"master\".
+If optional VERBOSE is non-nil, display progress message.
+
+Return:
+  SHA"
+  (epackage-with-git-command dir verbose
+    "ls-remote"
+    (or remote "origin")
+    (format "refs/heads/%s" (or branch "master")))
+  (epackage-with-last-git-output
+    (when (looking-at "^[a-cA-F0-9]+")
+      (match-string-no-properties 0))))
+
+(defun epackage-git-sha-current (dir &optional verbose)
   "Return SHA of HEAD.
-Faster than `epackage-git-command-current-sha'."
+Faster than `epackage-git-command-sha-current'."
   (let ((file (format "%s.git/refs/heads/master"
 		      (file-name-as-directory dir))))
     (if (file-exists-p file)
 	(epackage-with-insert-file-contents-literally file
 	  (buffer-string))
-      (epackage-git-command-current-sha dir verbose))))
+      (epackage-git-command-sha-current dir verbose))))
 
 (defun epackage-git-command-checkout-force-head (dir &optional verbose)
   "Run 'git checkout -f HEAD' in DIR.
@@ -5577,7 +5611,7 @@ Notes:
 
 ;;; ............................................... &functions-package ...
 
-(defun epackage-upgrade-package-files (package verbose)
+(defun epackage-upgrade-package-files (package &optional verbose)
   "Update installed files from PACKAGE.
 If optional VERBOSE is non-nil, display progress messages."
   ;; FIXME: upgrade
@@ -5592,20 +5626,19 @@ If optional VERBOSE is non-nil, display progress messages."
       (setq to (format "%s/%s" install file))
       (epackage-enable-file from to nil verbose))))
 
-(defun epackage-upgrade-package-actions (package verbose)
-  "After PACKAGE upgrade action: byte compile, install updated files etc.
+(defun epackage-upgrade-package-actions (package &optional verbose)
+  "After PACKAGE upgrade, do byte compile, install files etc.
 If optional VERBOSE is non-nil, display progress messages."
   ;; FIXME: upgrade
   ;; - New or deleted files in epackage/*
   ;; - obsolete 00control/* files ?
-  (let ((list (epackage-rerun-action-list package verbose))
+  (let ((list (epackage-rerun-action-list package verbose)) ; Current installed state
 	actions)
-    ;; Any other actions in effect?
+    ;; Any other actions in effect set by user?
     (dolist (elt epackage--download-action-list)
       (unless (memq elt list)
 	(epackage-push elt actions)))
     (when actions			 ; Run more actions as needed
-      (setq actions (reverse actions)) ; Keep alphabetical order
       (epackage-run-action-list package actions verbose))))
 
 (defun epackage-upgrade-package-git (package &optional verbose noerr)
@@ -5653,22 +5686,52 @@ If optional VERBOSE is non-nil, display progress message.
 
 NOTE: No Git branch check is verified. The caller must have
 ensured that the branch where Git is run is correct e.g. with
-function `epackage-git-master-p'."
+function `epackage-git-master-p'.
+
+NOTE: The boot loader is not generated here.
+
+Return:
+  non-nil if anything upgraded."
   (let ((dir (epackage-directory-package-root package)))
-    (when dir
-	(let ((sha-old (epackage-git-current-sha dir))
-	      sha)
-	  (epackage-upgrade-package-git package verbose)
-	  (setq sha (epackage-git-current-sha dir))
-	  (unless (string= sha sha-old)
+    (when (file-directory-p dir)
+	(let ((sha (epackage-git-sha-current dir))
+	      (sha-remote (epackage-git-command-sha-remote dir))
+	      url)
+	  (cond
+	   ((not (stingp sha-remote))	; Repository moved
+	    (setq url (epackage-sources-list-info-url package))
+	    (epackage-verbose-message "URL moved, recreating from %s" url)
+	    (epackage-recreate-package package verbose))
+	   ((not (string= sha sha-remote))
+	    (epackage-upgrade-package-git package verbose)
 	    (epackage-upgrade-package-files package verbose)
-	    (epackage-upgrade-package-actions package verbose))))))
+	    (epackage-upgrade-package-actions package verbose)
+	    t))))))
 
 (defun epackage-kill-buffer-sources-list ()
   "Kill sources list buffer."
   (let ((buffer (get-file-buffer (epackage-file-name-sources-list-main))))
     (if buffer
         (epackage-kill-buffer buffer))))
+
+(defun epackage-recreate-package-lowlevel (package &optional verbose)
+  "Re-create PACKAGE by deleting old and downloading new.
+If optional VERBOSE is non-nil, display progress message.
+No error checking are done for PACKAGE."
+  (epackage-pkg-kill-buffer-force package verbose)
+  (let ((dir (epackage-package-downloaded-p package)))
+    (if dir
+        (delete-directory dir 'recursive)))
+  (epackage-cmd-download-package package verbose)
+  (epackage-rerun-action-list package verbose))
+
+(defun epackage-recreate-package (package &optional verbose)
+  "Call `epackage-recreate-package-lowlevel' only after checks."
+  (if (epackage-package-problems package verbose)
+      (epackage-warn
+       (format
+	"Won't re-create due to changed source URL. Check %d" dir))
+    (epackage-recreate-package-lowlevel package verbose)))
 
 ;; FIXME: should we run hooks like in epackage-cmd-remove-package
 (defun epackage-sources-list-and-repositories-sync (&optional verbose)
@@ -5685,17 +5748,7 @@ still in pristine state."
         (setq package (nth 0 elt)
               dir     (epackage-directory-package-root package))
         (epackage-verbose-message "Rebuild repository of %s" package)
-        (cond
-         ;; FIXME: should check if repository is not locally modified.
-         ((not (epackage-git-master-p package))
-          (epackage-warn
-            `,(concat
-               "Won't re-create due to changed source URL. "
-               "Branch name is not \"master\" in %s; "
-               "possibly changed manually or invalid package repository.")
-            dir))
-         (t
-          (epackage-recreate-package package verbose)))))))
+	(epackage-recreate-package package verbose)))))
 
 (defun epackage-sources-list-upgrade (&optional verbose)
   "Update list of available packages.
@@ -8364,17 +8417,6 @@ If optional VERBOSE is non-nil, display progress messages."
                  "package status %s: %s"
                  package warnings))))))))
 
-(defun epackage-recreate-package (package &optional verbose)
-  "Re-create PACKAGE by deleting old and downloading new.
-If optional VERBOSE is non-nil, display progress message.
-No error checking are done for PACKAGE."
-  (epackage-pkg-kill-buffer-force package verbose)
-  (let ((dir (epackage-package-downloaded-p package)))
-    (if dir
-        (delete-directory dir 'recursive)))
-  ;; FIXME: handle possibly changed configuration files
-  (epackage-cmd-download-package package verbose))
-
 ;;;###autoload
 (defun epackage-cmd-lint-package (package &optional verbose)
   "Lint, i.e. syntax check, PACKAGE.
@@ -8407,14 +8449,14 @@ If optional VERBOSE is non-nil, display progress message."
         (epackage-verbose-message
           "Remove ignored. Package not downloaded: %s"
           package)
-      ;; If files are open and we delete a directory, clone it
+      ;; If files are open in Emacs and we delete a directory, clone it
       ;; again, the following happens:
       ;;
       ;;  "File info changed on disk.  Reread from disk into <file>? (y or n)"
       ;;
       ;; => We must kill all open buffers. FIXME: see if there is a variable
-      ;; to avoid or to work around the above question and avoid
-      ;; killing buffers.
+      ;;    to avoid or to work around the above question and avoid
+      ;;    killing buffers.
       (epackage-with-message verbose (format "Remove %s" package)
         (epackage-config-delete-all package verbose)
         (epackage-pkg-kill-buffer-force package verbose)
@@ -8441,12 +8483,8 @@ If optional VERBOSE is non-nil, display progress messages."
     (epackage-message "Package name is not set. Nothing to upgrade."))
    ((not (epackage-string-p package))
     (epackage-message "No package selected for upgrade."))
-   ((not (epackage-package-downloaded-p package))
-    (epackage-message "Package not downloaded: %s" package))
-   ((not (epackage-git-master-p package))
-    (epackage-message
-     "Upgrade ignored. Locally modified. Branch is not \"master\" in %s"
-     package))
+   ((epackage-package-problems package verbose)
+    nil)
    (t
     (epackage-upgrade-package-main package verbose))))
 
@@ -9151,10 +9189,10 @@ If optional VERBOSE is non-nil, display progress message."
         (epackage-pkg-depends-satisfy package verbose))))))
 
 (defun epackage-rerun-action-list (package &optional verbose)
-  "Run PACKAGE actions as aready they are.
+  "Run PACKAGE actions based on current status of package.
 If optional VERBOSE is non-nil, display progress message.
 
-The actions are evaluated based on the installation: If there
+The actions are evaluated based on the installation: ff there
 are byte compiled files, then byte compile. If there are autoload
 files, then reinstall autoload files etc.
 
