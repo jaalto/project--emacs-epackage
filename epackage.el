@@ -1492,7 +1492,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0114.0811"
+(defconst epackage--version-time "2012.0114.0818"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2747,6 +2747,12 @@ Use top form (let ((loat-path load-path) ...) before using this macro."
     (epackage-error
      (or message
 	 (format "Directory DIR does not exist: %s" directory)))))
+
+(defsubst epackage-string-delete-whitespace (string)
+  "Delete BOL and EOL whitespaces from STRING."
+  (if (string-match "^[ \t\f\r\n]*\\(.*[^ \t\f\r\n]\\)" string)
+      (match-string-no-properties 1 string)
+    string))
 
 (defsubst epackage-sort (list)
   "Sort LIST of string."
@@ -7266,7 +7272,7 @@ Return package name or nil."
              (not 'predicate)
              'require-match))
       (if (epackage-string-p package)
-          package))))
+          (epackage-string-delete-whitespace package)))))
 
 (put 'epackage-cmd-package-check-macro 'lisp-indent-function 3)
 (put 'epackage-cmd-package-check-macro 'edebug-form-spec '(body))
