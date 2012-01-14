@@ -1492,7 +1492,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0113.1950"
+(defconst epackage--version-time "2012.0114.0811"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2585,8 +2585,18 @@ Description: <short one line>
   "Return line number."
   (count-lines (point-min) (point)))
 
-(put 'epackage-with-write-file 'epackage-with-case-fold-search 0)
-(put 'epackage-with-write-file 'epackage-with-case-fold-search '(body))
+(put 'epackage-with-insert-file-contents-literally 'lisp-indent-function 1)
+(put 'epackage-with-insert-file-contents-literally 'edebug-form-spec '(body))
+(defmacro epackage-with-insert-file-contents-literally (file &rest body)
+  "Like `insert-file-contents-literally' but disable everything."
+  `(with-temp-buffer
+     (let (vc-handled-backends
+	   (buffer-undo-list t))
+       (insert-file-contents-literally ,file)
+       ,@body)))
+
+(put 'epackage-with-case-fold-search 'lisp-indent-function 0)
+(put 'epackage-with-case-fold-search 'edebug-form-spec '(body))
 (defmacro epackage-with-case-fold-search (&rest body)
   "Run BODY with `case-fold-search' set to nil."
   `(let (case-fold-search)
@@ -4114,6 +4124,16 @@ If optional VERBOSE is non-nil, display progress message."
   (epackage-with-git-command dir verbose
     "rev-parse" "HEAD"))
 
+(defun epackage-git-current-sha (dir &optional verbose)
+  "Return SHA of HEAD.
+Faster than `epackage-git-command-current-sha'."
+  (let ((file (format "%s.git/refs/heads/master"
+		      (file-name-as-directory dir))))
+    (if (file-exists-p file)
+	(epackage-with-insert-file-contents-literally file
+	  (buffer-string))
+      (epackage-git-command-current-sha dir verbose))))
+
 (defun epackage-git-command-checkout-force-head (dir &optional verbose)
   "Run 'git checkout -f HEAD' in DIR.
 If optional VERBOSE is non-nil, display progress message."
@@ -5622,10 +5642,10 @@ ensured that the branch where Git is run is correct e.g. with
 function `epackage-git-master-p'."
   (let ((dir (epackage-directory-package-root package)))
     (when dir
-	(let ((sha-old (epackage-git-command-current-sha dir))
+	(let ((sha-old (epackage-git-current-sha dir))
 	      sha)
 	  (epackage-upgrade-package-git package verbose)
-	  (setq sha (epackage-git-command-current-sha dir))
+	  (setq sha (epackage-git-current-sha dir))
 	  (unless (string= sha sha-old)
 	    (epackage-upgrade-package-files package verbose)
 	    (epackage-upgrade-package-actions package verbose))))))

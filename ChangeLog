@@ -1,3 +1,9 @@
+2012-01-14 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-with-insert-file-contents-literally): New.
+	(epackage-git-current-sha): New.
+	(epackage-upgrade-package-main): Use `epackage-git-current-sha'
+
 2012-01-13 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-message-error): New.
