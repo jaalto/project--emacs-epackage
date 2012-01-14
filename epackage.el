@@ -1496,7 +1496,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0114.1633"
+(defconst epackage--version-time "2012.0114.1648"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2453,7 +2453,7 @@ i         Display (i)nfo file
 I         Display commentary (I)nfo (if any)
 l       List installed packages
 L       List downloaded packages
-n       List (n)ot installed packages
+n       List downloaded but (n)ot installed packages
 o       Install aut(o)load configuration from package
 p       List available (p)ackages
 r       Remove package physically from local disk
@@ -8818,7 +8818,7 @@ Summary, Version, Maintainer etc."
        (epackage-ignore-errors
          ,@body))))
 
-(defun epackage-batch-list-package-summamry (list)
+(defun epackage-batch-list-package-summary (list)
   "Display LIST of packages and they summary lines."
   (let (description)
     (dolist (package list)
@@ -9012,17 +9012,17 @@ Summary, Version, Maintainer etc."
     (if (not list)
         (epackage-princ "No packages downloaded.")
       (epackage-princ "Downloaded packages:")
-      (epackage-batch-list-package-summamry list))))
+      (epackage-batch-list-package-summary list))))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-not-installed-packages ()
-  "List downloaded packages."
+  "List downloaded packages that are not installed (enabled, activated)."
   (interactive)
   (let ((list (epackage-status-not-installed-packages)))
     (if (not list)
         (epackage-princ "All downloaded packages are installed.")
-      (epackage-princ "Not installed packages:")
-      (epackage-batch-list-package-summamry list))))
+      (epackage-princ "Downloaded, but not enabled packages:")
+      (epackage-batch-list-package-summary list))))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-installed-packages ()
@@ -9032,7 +9032,7 @@ Summary, Version, Maintainer etc."
     (if (not list)
         (epackage-princ "No packages installed.")
       (epackage-princ "Installed packages:")
-      (epackage-batch-list-package-summamry list))))
+      (epackage-batch-list-package-summary list))))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-available-packages ()
@@ -9042,7 +9042,7 @@ Summary, Version, Maintainer etc."
     (if (not list)
         (epackage-princ "No sources list downloaded.")
       (epackage-princ "All available packages for download:")
-      (epackage-batch-list-package-summamry list))))
+      (epackage-batch-list-package-summary list))))
 
 ;;; Command line batch commands
 ;;; emacs -Q --batch -f <command> <args>
