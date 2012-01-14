@@ -13,6 +13,11 @@
 	(epackage-sources-list-and-repositories-sync): Use `epackage-package-problems'.
 	(epackage-recreate-package-lowlevel): New.
 	(epackage-upgrade-package-main): Recreate package if URL moved.
+	(epackage-git-error-handler): Obey `epackage--no-error'.
+	(epackage--no-error): New variable.
+	(epackage-git-url-valid-p): New.
+	(epackage-cmd-download-package): Improve error checking: Git URL is not
+	listed in Sources List, URL does not respond.
 
 2012-01-13 Fri  Jari Aalto  <jari.aalto@cante.net>
 
