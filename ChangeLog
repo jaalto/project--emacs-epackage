@@ -6,6 +6,8 @@
 	(epackage-string-delete-whitespace): New.
 	(epackage-cmd-select-package): Use `epackage-string-delete-whitespace'.
 	(epackage-cmd-clean-package): Call `epackage-loader-file-generate-boot'.
+	(epackage-sort-sym): New.
+	(epackage-run-action-list): Call `epackage-sort-sym'.
 
 2012-01-13 Fri  Jari Aalto  <jari.aalto@cante.net>
 

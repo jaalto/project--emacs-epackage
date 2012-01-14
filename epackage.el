@@ -1492,7 +1492,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0114.0822"
+(defconst epackage--version-time "2012.0114.0901"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2759,6 +2759,14 @@ Use top form (let ((loat-path load-path) ...) before using this macro."
   (sort list
 	(lambda (a b)
 	  (string< a b))))
+
+(defsubst epackage-sort-sym (list)
+  "Sort LIST of symbols."
+  (sort list
+	(lambda (a b)
+	  (string<
+	   (symbol-name a)
+	   (symbol-name b)))))
 
 (defsubst epackage-erase-buffer ()
   "Disable undo and erase current buffer."
@@ -9110,14 +9118,10 @@ The arguments:
     (epackage-batch-ui-menu-goto-point-max)))
 
 (defun epackage-run-action-list (package actions &optional verbose)
-  "Run PACKAGE ACTIONS. See  `epackage--download-action-list'.
+  "Run PACKAGE ACTIONS. See `epackage--download-action-list'.
 If optional VERBOSE is non-nil, display progress message."
   (let* ((actions epackage--download-action-list)
-         (list (sort actions
-                     (lambda (a b)
-                       (string<
-                        (symbol-name a)
-                        (symbol-name b)))))
+         (list (epackage-sort-sym actions))
          (install-p (epackage-download-action-install-p))
          (enable-p (epackage-download-action-enable-p)))
     (dolist (elt list)
