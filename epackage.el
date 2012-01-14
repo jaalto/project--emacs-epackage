@@ -1492,7 +1492,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0114.1416"
+(defconst epackage--version-time "2012.0114.1418"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -8436,13 +8436,13 @@ If optional VERBOSE is non-nil, display progress messages."
   (if (not (epackage-string-p package))
       (epackage-message "No package selected for download.")
     (if (epackage-package-downloaded-p package)
-	(epackage-message "Ignoring download, already downloaded: %s" package))
+	(epackage-message "Ignoring download. Already downloaded: %s" package))
     (let* ((url (epackage-sources-list-info-url package)))
       (cond
        ((null url)
 	(epackage-warn "Not URL to download package: %s" package))
        ((not (epackage-git-url-valid-p url))
-	(epackage-warn "Sources List error, URL does not respond: %s" url))
+	(epackage-warn "Sources List error. URL does not respond: %s" url))
       (t
        (epackage-download-package package verbose)
        (epackage-download-package-actions package verbose)
