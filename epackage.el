@@ -181,8 +181,6 @@
 ;;      the traditional archive distribution approach:
 ;;
 ;;      o   Efficient downloads; fast, only deltas are transferred.
-;;      o   Local modifications are possible; users can create their own
-;;          customizations and track them easily,
 ;;      o   Helping package authors made easy; have you found an error?
 ;;          Have a spare time to fix it? Generate diff straight from the
 ;;          version control repository.
@@ -325,7 +323,9 @@
 ;;      pointed by `epackage--url-sources-list' also contains package
 ;;      =foo=. Because the files will be combined,
 ;;      *epackage-local.lst* will take precedence; its package =foo=
-;;      will be used for download.
+;;      will be used for download. Run `M-x'
+;;      `epackage-sources-list-build' after any changes either to this
+;;      variable or contents of the files it points to.
 ;;
 ;;     Automatic install of packages
 ;;
@@ -1345,17 +1345,17 @@
 ;;      General
 ;;
 ;;      o   Sources List: Download problem, broken repository link.
-;;          => Offer sending error report mail the Sources List maintainer
+;;          => Suggest sending error report mail the Sources List maintainer
 ;;
 ;;      o   Lint: if upstream is also packager, then his repository
 ;;          does not have "upstream" branch.
 ;;
 ;;      o   Boot: What if user manually deletes directories?
-;;          What to do with left over config files? Do we need self health
+;;          What to do with left over config files? Self health
 ;;          check on boot?
 ;;
-;;      o   Sources List: If package A is no longer in there, but it is
-;;          downloaded, the package has been removed. Notify user about
+;;      o   Sources List: If package is no longer in there, but is
+;;          downloaded, the package may have been removed. Notify user about
 ;;          obsolete package. Package may also have been renamed.
 ;;
 ;;      o   [already implemented?] After download. Trying to install or
@@ -1368,27 +1368,28 @@
 ;;      o   Someone recreated repo: git push --force. It can no longer
 ;;          be pulled => recreate from scratch. Problem: User has made his
 ;;          local modifications, how to check?
-;;
-;;      o   Check validity of "git tag -l" and upstream/* against the
-;;          specification. Two dashes etc.
-;;
-;;      o   Better Fetch, pull conflict notifications. Now a Git error.
-;;
-;;      o   What if epackage maintainer kills the repo and re-instantiates it
+;;          Maintainer kills the repo and re-instantiates it
 ;;          from fresh? Symptoms: can't pull, because repos have diverged and
 ;;          do not have common objects. SOLUTION: offer deleting repo and
 ;;          downloading it again. Warn if there are any local modifications,
 ;;          the user might want to have a backup (*.b). Can we do that? What
 ;;          if a backup already exists?
 ;;
+;;      o   Check validity of "git tag -l" and upstream/* against the
+;;          specification. Two dashes etc.
+;;
+;;      o   Better Fetch, pull conflict notifications. Now a Git error.
+;;
 ;;      o   Git tags (versions of packages), where is this information kept?
 ;;          Cache? Affects GUI.
 ;;
 ;;      o   New updates available? Git polling mechanism with idle timers?
+;;          Auto upgrade?
 ;;
 ;;      GUI
 ;;
 ;;      o   Write M-x epackage-manager (the real interface).
+;;
 ;;      o   Cache. Build it dynamically from packages and
 ;;          combine with package information (e.g. version).
 ;;
@@ -1398,6 +1399,7 @@
 ;;
 ;;      o   Rescan current information? (what is installed, what is not)
 ;;          => Keep cache? Or regenerate, or scan at startup every time?
+;;          Idle timers?
 ;;
 ;;      Extensions
 ;;
@@ -1406,15 +1408,17 @@
 ;;      Some day in the future:
 ;;
 ;;      o   Do something for *.texinfo files in big packages.
-;;      o   Verify Compatibility Level of downloaded epackage
+;;
+;;      o   Verify Compatibility Level of a downloaded epackage
+;;
 ;;      o   Handle Conflicts field
 ;;
 ;;      o   Edit yellow pages catalog?
 ;;          => Submit/update yellow pages catalog changes?
-;;          => version controlled, patches? Interface to automatic email?
+;;          => version controlled, patches? Submit via email? Github Gist?
 ;;
 ;;      o   The epackage/*-compile.el is run with `eval-current-buffer'.
-;;          What about security considerations? Is there any need, because
+;;          Security considerations? Is there any need, because
 ;;          these are Git repositories and maintainers should be trusted
 ;;          => possible solution: require detached GPG signing of *-compile.el
 ;;
@@ -1492,7 +1496,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0114.1418"
+(defconst epackage--version-time "2012.0114.1633"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1663,9 +1667,12 @@ to be used when creating new epackages. Needed by the developers."
   '("~/.emacs.d/epackage-local.lst")
   "*List of files that are in the form of `epackage--sources-list-url'.
 In here you can list additional package repositories. Non-existing files
-will be ignored. Default is:
+will be ignored. Default value is:
 
   '(\"~/.emacs.d/epackage-local.lst\")
+
+After any changes either to this variable or contents of the file
+the variable points to, call `epackage-sources-list-build'.
 
 The files listed will be combined before `epackage--sources-list-url'
 into a the main package sources list file whose path is returned
@@ -3403,14 +3410,14 @@ Return:
   '(PROBLEM ...)."
   (let (list)
     (cond
-   ((not (epackage-package-downloaded-p package))
-    (epackage-push 'not-downloaded list)
-    (epackage-verbose-message "Package problem %s: not downloaded" package))
-   ((not (epackage-git-master-p package))
-    (epackage-push 'not-git-master list)
-    ;; FIXME: should check if repository is not locally modified.
-    (epackage-verbose-message
-      "Package probalem %s: Git is not using \"master\" branch" package)))
+     ((not (epackage-package-downloaded-p package))
+      (epackage-push 'not-downloaded list)
+      (epackage-verbose-message "Package problem %s: not downloaded" package))
+     ((not (epackage-git-master-p package))
+      (epackage-push 'not-git-master list)
+      ;; FIXME: should check if repository is not locally modified.
+      (epackage-verbose-message
+	"Package probalem %s: Git is not using \"master\" branch" package)))
     list))
 
 (defsubst epackage-directory-sources-list ()
@@ -3999,9 +4006,15 @@ Would match:
         (match-string-no-properties 1)))))
 
 (defsubst epackage-git-config-fetch-field (package tag field)
-  "Read PACKAGE's configuration file: TAG.FIELD."
+  "Read PACKAGE's configuration file: TAG.FIELD.
+The TAG is a regexp to match the starting position,
+like \"remote.*origin\"."
   (epackage-with-git-config package
     (epackage-git-buffer-fetch-field tag field)))
+
+(defsubst epackage-git-config-fetch-field-url (package)
+  "Read PACKAGE's configuration file: origin.url."
+  (epackage-git-config-fetch-field package "remote.*origin" "url"))
 
 (defsubst epackage-git-branch-list-master-p (list)
   "Return non-nil if current branch LIST indicates master as current branch."
@@ -5709,13 +5722,17 @@ If optional NOERR is non-nil, display error messages but do not die on fatal err
 (defun epackage-recreate-package-lowlevel (package &optional verbose)
   "Re-create PACKAGE by deleting old and downloading new.
 If optional VERBOSE is non-nil, display progress message.
-No error checking are done for PACKAGE."
+No error checking is done for PACKAGE."
   (epackage-pkg-kill-buffer-force package verbose)
   (let ((dir (epackage-package-downloaded-p package)))
     (if dir
         (delete-directory dir 'recursive)))
-  (epackage-cmd-download-package package verbose)
-  (epackage-rerun-action-list package verbose))
+  (prog1
+      (epackage-cmd-download-package package verbose)
+    ;; Do not run currect action list in effect, only those that
+    ;; are on package already.
+    (let (epackage--download-action-list)
+      (epackage-rerun-action-list package verbose))))
 
 (defun epackage-recreate-package (package &optional verbose)
   "Call `epackage-recreate-package-lowlevel' only after checks."
@@ -5736,18 +5753,36 @@ No error checking are done for PACKAGE."
 (defun epackage-sources-list-and-repositories-sync (&optional verbose)
   "Verify that URLs still match and rebuild package repositories if needed.
 If optional VERBOSE is non-nil, display progress message.
+
 If sources list URLs differ from current Git repositoriy 'origin'
 URLs, recreate each repository provided that they are
 still in pristine state."
   (let (elt
         package
-        dir)
+        dir
+	url)
     (dolist (package (epackage-status-downloaded-packages))
       (when (setq elt (epackage-pkg-lint-git-url package verbose))
         (setq package (nth 0 elt)
-              dir     (epackage-directory-package-root package))
-        (epackage-verbose-message "Rebuild repository of %s" package)
-	(epackage-recreate-package package verbose)))))
+              dir (epackage-directory-package-root package)
+	      url (epackage-sources-list-info-url package))
+	(cond
+	 ((not url)
+	  (epackage-warn
+	   (concat "Packgage %s no longer listed in Sources List")
+	   package))
+	 ((not (epackage-git-url-valid-p url))
+	  (epackage-warn
+	   (substitute-command-keys
+	    `,(concat
+	       "Packgage %s in Sources List "
+	       "points to %s which does not exist. "
+	       "Possibly try \\[epackage-cmd-sources-list-download]"))
+	   package
+	   url))
+	 (t
+	  (epackage-verbose-message "Rebuild repository of %s" package)
+	  (epackage-recreate-package package verbose)))))))
 
 (defun epackage-upgrade-package-main (package &optional verbose)
   "Do all steps necessary to upgrade PACKAGE.
@@ -5764,25 +5799,43 @@ Return:
   (let ((dir (epackage-directory-package-root package))
 	sha
 	sha-remote
-	url)
+	url
+	git)
     (when (file-directory-p dir)
       (setq sha (epackage-git-sha-current dir)
 	    sha-remote (epackage-git-command-sha-remote dir))
       (cond
-       ((not (stringp sha-remote))	; Repository moved
-	(setq url (epackage-sources-list-info-url package))
+       ((not (stringp sha-remote))	; Repository no longer there or moved
+	(setq url (epackage-sources-list-info-url package)
+	      git (epackage-git-config-fetch-field-url package))
 	(cond
 	 ((not url)
-	  (epackage-warn "Packgage %s no longer listed in Sources List"
-			 package))
+	  (epackage-warn
+	   `,(concat "Can't upgrade. Packgage %s no longer "
+		     "listed in Sources List")
+	   package))
+	 ((string= git url)
+	  (epackage-warn
+	   (substitute-command-keys
+	    `,(concat
+	       "Can't upgrade. "
+	       "Packgage %s in Sources List "
+	       "points to %s which does not exist. "
+	       "Try again after \\[epackage-cmd-sources-list-download]"))
+	   package
+	   url))
 	 (t
 	  (epackage-verbose-message "URL moved, recreating from %s" url)
 	  (epackage-recreate-package package verbose))))
        ((not (string= sha sha-remote))
+	;; Standard upgrade. Remote has new commits.
 	(epackage-upgrade-package-git package verbose)
 	(epackage-upgrade-package-files package verbose)
 	(epackage-upgrade-package-actions package verbose)
-	t)))))
+	t)
+       (t
+	(epackage-verbose-message "Package up to date: %s" package)
+	nil)))))
 
 (defun epackage-sources-list-upgrade (&optional verbose)
   "Update list of available packages.
@@ -5868,11 +5921,13 @@ If optional VERBOSE is non-nil, display progress message."
      epackage--build-sources-list-hook ;; Hooks to run before save.
      verbose)))
 
+;;;###autoload
 (defun epackage-sources-list-build (&optional verbose)
   "Build sources list file.
 If optional VERBOSE is non-nil, display progress messages.
-This fucntion is meant for interactive use: the message differs
-if sources list has already been downloaded or not."
+Build internal representation of all available packages.
+See variable `epackage--sources-file-list'."
+  (interactive (list 'verbose))
   (epackage-sources-list-kill-buffer)
   (if (epackage-sources-list-p)
       (epackage-with-message verbose "Building package sources list"
@@ -5885,10 +5940,11 @@ if sources list has already been downloaded or not."
 (defun epackage-download-package-actions (package &optional verbose)
   "Run `epackage--download-action-list' for PACKAGE.
 If optional VERBOSE is non-nil, display progress message."
-  (epackage-run-action-list
-   package
-   epackage--download-action-list
-   verbose))
+  (when epackage--download-action-list
+    (epackage-run-action-list
+     package
+     epackage--download-action-list
+     verbose)))
 
 (defun epackage-download-package (package &optional verbose)
   "Download PACKAGE.
@@ -6526,9 +6582,9 @@ SOLUTIONS
 	    (let ((debug-on-error nil)) ;; batch UI: don't display stack trace
 	      (error
 	       (substitute-command-keys
-		(concat "Epackage: [ERROR] SSH configuration problem. "
-		      "See recent message with "
-		      "\\[view-echo-area-messages]")))))))))
+		`,(concat "Epackage: [ERROR] SSH configuration problem. "
+			  "See recent message with "
+			  "\\[view-echo-area-messages]")))))))))
 
 (defun epackage-require-main (&optional verbose)
   "Check requirements to run Epackage.
@@ -6854,7 +6910,7 @@ Return:
 
    '(PACKAGE SOURCES-URL GIT-URL)."
   (let ((url (epackage-sources-list-info-url package))
-        (git (epackage-git-config-fetch-field package "remote.*origin" "url")))
+        (git (epackage-git-config-fetch-field-url package)))
     (cond
      ((not (stringp url))             ;FIXME: perhaps better handling
       nil)
@@ -8433,26 +8489,39 @@ If optional VERBOSE is non-nil, display progress messages."
   (interactive
    (list (epackage-cmd-select-package "Download epackage: ")
          'interactive))
-  (if (not (epackage-string-p package))
-      (epackage-message "No package selected for download.")
-    (if (epackage-package-downloaded-p package)
-	(epackage-message "Ignoring download. Already downloaded: %s" package))
-    (let* ((url (epackage-sources-list-info-url package)))
+  (cond
+   ((not (epackage-string-p package))
+    (epackage-message "No package selected for download."))
+   ((epackage-package-downloaded-p package)
+    (epackage-message "Ignoring download. Already downloaded: %s" package))
+   (t
+    (let ((url (epackage-sources-list-info-url package)))
       (cond
        ((null url)
-	(epackage-warn "Not URL to download package: %s" package))
+	(epackage-warn
+	 (substitute-command-keys
+	  `,(concat
+	     "Package %s has no download URL. "
+	     "Try \\[epackage-sources-list-build] "
+	     "and check epackage--sources-file-list"))
+	 package))
        ((not (epackage-git-url-valid-p url))
-	(epackage-warn "Sources List error. URL does not respond: %s" url))
-      (t
-       (epackage-download-package package verbose)
-       (epackage-download-package-actions package verbose)
-       (when verbose
-	 (let ((warnings (epackage-pkg-info-status-warnings package)))
-	   (if warnings
-	       (epackage-warn
-		"package status %s: %s"
-		package warnings))))
-       t)))))
+	(epackage-warn
+	 (substitute-command-keys
+	  `,(concat
+	     "Sources List error. URL %s does not respond. "
+	     "Try \\[epackage-cmd-sources-list-download]"))
+	 url))
+       (t
+	(epackage-download-package package verbose)
+	(epackage-download-package-actions package verbose)
+	(when verbose
+	  (let ((warnings (epackage-pkg-info-status-warnings package)))
+	    (if warnings
+		(epackage-warn
+		 "package status %s: %s"
+		 package warnings))))
+	t))))))
 
 ;;;###autoload
 (defun epackage-cmd-lint-package (package &optional verbose)

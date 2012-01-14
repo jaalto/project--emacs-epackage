@@ -18,6 +18,12 @@
 	(epackage-git-url-valid-p): New.
 	(epackage-cmd-download-package): Improve error checking: Git URL is not
 	listed in Sources List, URL does not respond.
+	(epackage--sources-file-list): Improve documentation string.
+	(epackage-sources-list-build): Make interactive.
+	(epackage-git-config-fetch-field-url): New.
+	(epackage-sources-list-and-repositories-sync): Check non-existing Git URL
+	before trying to recreate.
+	(epackage-cmd-download-package): Improve logic.
 
 2012-01-13 Fri  Jari Aalto  <jari.aalto@cante.net>
 
