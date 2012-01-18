@@ -1496,7 +1496,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0114.1648"
+(defconst epackage--version-time "2012.0118.1243"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -9052,7 +9052,8 @@ Summary, Version, Maintainer etc."
 The arguments:
   0  Package name
   1  Directory roo."
-  (let ((name (nth 0 command-line-args-left))
+  (let ((vc-handled-backends nil)
+	(name (nth 0 command-line-args-left))
 	(path (nth 1 command-line-args-left))
 	(root (nth 2 command-line-args-left))
 	dir)
