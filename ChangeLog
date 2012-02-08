@@ -6,6 +6,7 @@
 	* epackage.el (epackage-cmd-sources-list-upgrade): Call
 	`epackage-initialize'.
 	(epackage-interactive-initialize): New.
+	(epackage-batch-setup): New.
 
 2012-01-14 Sat  Jari Aalto  <jari.aalto@cante.net>
 
