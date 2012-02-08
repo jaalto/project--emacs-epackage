@@ -19,7 +19,12 @@
 
 PACKAGE		= epackage
 SRC		= $(PACKAGE).el
+
+#  We can't use variable EMACS, because under Emacs M-x shell, it
+#  would be set to 't' and override anything here.
+
 BIN		= emacs
+INVOKE		= $(BIN) -Q -nw --batch -l $(SRC)
 
 all: help
 
@@ -46,10 +51,23 @@ doc:
 install:
 	@echo "There is no install. Manually copy *.el file to Emacs load-path"
 
+
 # ui - Start command line package manager User Interface
 ui:
-	emacs -Q -nw --batch -l $(SRC) -f epackage-batch-ui-menu
+	$(INVOKE) -f epackage-batch-ui-menu
 
-.PHONY: doc ui
+# update - Update Source List file (available packages)
+update:
+	$(INVOKE) -f epackage-batch-ui-sources-list-upgrade
+
+# examples - Show command line examples
+examples:
+	# Multiple package commands:
+	$(INVOKE) -f epackage-download-package ...
+	$(INVOKE) -f epackage-enable-package ...
+	$(INVOKE) -f epackage-disable-package ...
+	$(INVOKE) -f epackage-remove-package ...
+
+.PHONY: doc ui examples
 
 # End of file
