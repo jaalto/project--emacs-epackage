@@ -1,3 +1,11 @@
+2012-02-08 Wed  root  <jari.aalto@cante.net>
+
+	* Makefile: (examples, update): New targets.
+	(INVOKE): New variable.
+
+	* epackage.el (epackage-cmd-sources-list-upgrade): Call
+	`epackage-initialize'.
+
 2012-01-07 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el

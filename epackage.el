@@ -1482,7 +1482,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0107.0915"
+(defconst epackage--version-time "2012.0208.0625"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -8252,6 +8252,7 @@ Return:
 If optional VERBOSE is non-nil, display progress messages."
   (interactive
    (list 'interactive))
+  (epackage-initialize verbose)
   (epackage-kill-buffer-sources-list)
   (unless (epackage-sources-list-p)
     (epackage-with-message verbose "Wait, downloading sources list"))
