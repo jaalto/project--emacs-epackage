@@ -1496,11 +1496,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-<<<<<<< HEAD
-(defconst epackage--version-time "2012.0114.1648"
-=======
-(defconst epackage--version-time "2012.0208.0625"
->>>>>>> c8b27f4... (epackage-cmd-sources-list-upgrade): Call epackage-initialize
+(defconst epackage--version-time "2012.0208.0638"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
