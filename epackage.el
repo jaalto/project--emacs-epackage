@@ -1496,7 +1496,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0208.0638"
+(defconst epackage--version-time "2012.0208.0644"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -8901,6 +8901,12 @@ Summary, Version, Maintainer etc."
         "Can't documentation . Package not downloaded: %s"
         package))))))
 
+(defmacro epackage-interactive-initialize ()
+  "Set function interactive status and call initialize."
+  `(progn
+     (interactive)
+     (epackage-initialize)))
+
 ;;;###autoload
 (defun epackage-batch-ui-loader-file-generate ()
   "Call `epackage-loader-file-generate-boot'."
@@ -8990,25 +8996,25 @@ Summary, Version, Maintainer etc."
 ;;;###autoload
 (defun epackage-batch-ui-remove-package ()
   "Call `epackage-cmd-remove-package'."
-  (interactive)
+  (epackage-interactive-initialize)
   (call-interactively 'epackage-cmd-remove-package))
 
 ;;;###autoload
 (defun epackage-batch-ui-upgrade-package ()
   "Call `epackage-cmd-upgrade-package'."
-  (interactive)
+  (epackage-interactive-initialize)
   (call-interactively 'epackage-cmd-upgrade-package))
 
 ;;;###autoload
 (defun epackage-batch-ui-upgrade-packages-all ()
   "Call `epackage-cmd-upgrade-packages-all'."
-  (interactive)
+  (epackage-interactive-initialize)
   (call-interactively 'epackage-cmd-upgrade-packages-all))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-downloaded-packages ()
   "List downloaded packages."
-  (interactive)
+  (epackage-interactive-initialize)
   (let ((list (epackage-status-downloaded-packages)))
     (if (not list)
         (epackage-princ "No packages downloaded.")
