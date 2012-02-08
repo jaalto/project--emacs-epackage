@@ -24,7 +24,10 @@ SRC		= $(PACKAGE).el
 #  would be set to 't' and override anything here.
 
 BIN		= emacs
-INVOKE		= $(BIN) -Q -nw --batch -l $(SRC)
+LISP		= --eval '(progn (setq vc-handled-backends nil))'
+PKG		= -l $(SRC)
+COMPILE		= --batch --no-init-file --quick --funcall batch-byte-compile
+INVOKE		= $(BIN) -Q -nw --batch
 
 all: help
 
@@ -38,7 +41,7 @@ clean:
 	rm -f *.elc *[#~] *.bak
 
 $(PACKAGE).elc: $(SRC)
-	$(BIN) --batch --no-init-file --quick --funcall batch-byte-compile $(SRC)
+	$(BIN) $(COMPILE) $(SRC)
 
 # build - Byte compile *.el file
 build: $(PACKAGE).elc
@@ -54,7 +57,7 @@ install:
 
 # ui - Start command line package manager User Interface
 ui:
-	$(INVOKE) -f epackage-batch-ui-menu
+	$(INVOKE) $(LISP) $(PKG) -f epackage-batch-ui-menu
 
 # update - Update Source List file (available packages)
 update:
@@ -63,10 +66,10 @@ update:
 # examples - Show command line examples
 examples:
 	# Multiple package commands:
-	$(INVOKE) -f epackage-download-package ...
-	$(INVOKE) -f epackage-enable-package ...
-	$(INVOKE) -f epackage-disable-package ...
-	$(INVOKE) -f epackage-remove-package ...
+	@echo $(INVOKE) $(PKG) -f epackage-download-package ...
+	@echo $(INVOKE) $(PKG) -f epackage-enable-package ...
+	@echo $(INVOKE) $(PKG) -f epackage-disable-package ...
+	@echo $(INVOKE) $(PKG) -f epackage-remove-package ...
 
 .PHONY: doc ui examples
 
