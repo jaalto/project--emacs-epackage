@@ -1496,7 +1496,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0118.1243"
+(defconst epackage--version-time "2012.0309.1708"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -8459,6 +8459,7 @@ Return:
 If optional VERBOSE is non-nil, display progress messages."
   (interactive
    (list 'interactive))
+  (epackage-initialize verbose)
   (epackage-kill-buffer-sources-list)
   (unless (epackage-sources-list-p)
     (epackage-with-message verbose "Wait, downloading sources list"))
@@ -8900,6 +8901,23 @@ Summary, Version, Maintainer etc."
         "Can't documentation . Package not downloaded: %s"
         package))))))
 
+(put 'epackage-batch-setup 'lisp-indent-function 0)
+(put 'epackage-batch-setup 'edebug-form-spec '(body))
+(defmacro epackage-batch-setup (&rest args)
+  `(let (find-file-hook
+	 global-font-lock-mode
+	 vc-handled-backends   ;; Optimize: prevent loading VC for files.
+	 (debug-on-error t)
+	 debug-ignored-errors)
+     ,@args))
+
+(put 'epackage-interactive-initialize 'lisp-indent-function 0)
+(put 'epackage-interactive-initialize 'edebug-form-spec '(body))
+(defmacro epackage-interactive-initialize ()
+  "Set function interactive status and call initialize."
+  `(progn
+     (epackage-initialize)))
+
 ;;;###autoload
 (defun epackage-batch-ui-loader-file-generate ()
   "Call `epackage-loader-file-generate-boot'."
@@ -8990,49 +9008,56 @@ Summary, Version, Maintainer etc."
 (defun epackage-batch-ui-remove-package ()
   "Call `epackage-cmd-remove-package'."
   (interactive)
+  (epackage-interactive-initialize)
   (call-interactively 'epackage-cmd-remove-package))
 
 ;;;###autoload
 (defun epackage-batch-ui-upgrade-package ()
   "Call `epackage-cmd-upgrade-package'."
   (interactive)
+  (epackage-interactive-initialize)
   (call-interactively 'epackage-cmd-upgrade-package))
 
 ;;;###autoload
 (defun epackage-batch-ui-upgrade-packages-all ()
   "Call `epackage-cmd-upgrade-packages-all'."
   (interactive)
+  (epackage-interactive-initialize)
   (call-interactively 'epackage-cmd-upgrade-packages-all))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-downloaded-packages ()
   "List downloaded packages."
   (interactive)
-  (let ((list (epackage-status-downloaded-packages)))
-    (if (not list)
-        (epackage-princ "No packages downloaded.")
-      (epackage-princ "Downloaded packages:")
-      (epackage-batch-list-package-summary list))))
+  (epackage-interactive-initialize)
+  (epackage-batch-setup
+    (let ((list (epackage-status-downloaded-packages)))
+      (if (not list)
+	  (epackage-princ "No packages downloaded.")
+	(epackage-princ "Downloaded packages:")
+	(epackage-batch-list-package-summary list)))))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-not-installed-packages ()
   "List downloaded packages that are not installed (enabled, activated)."
   (interactive)
-  (let ((list (epackage-status-not-installed-packages)))
-    (if (not list)
-        (epackage-princ "All downloaded packages are installed.")
-      (epackage-princ "Downloaded, but not enabled packages:")
-      (epackage-batch-list-package-summary list))))
+  (epackage-batch-setup
+    (let ((list (epackage-status-not-installed-packages)))
+      (if (not list)
+	  (epackage-princ "All downloaded packages are installed.")
+	(epackage-princ "Downloaded, but not enabled packages:")
+	(epackage-batch-list-package-summary list)))))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-installed-packages ()
   "List installed packages."
   (interactive)
-  (let ((list (epackage-status-installed-packages)))
-    (if (not list)
-        (epackage-princ "No packages installed.")
-      (epackage-princ "Installed packages:")
-      (epackage-batch-list-package-summary list))))
+  (epackage-batch-setup
+    (let ((list (epackage-status-installed-packages)))
+      (if (not list)
+	  (epackage-princ "No packages installed.")
+	(epackage-princ "Installed packages:")
+	(epackage-batch-list-package-summary list)))))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-available-packages ()
@@ -9101,54 +9126,63 @@ The arguments:
 
 (defun epackage-batch-enable-package ()
   "Run `epackage-cmd-enable-package' for command line args."
-  (epackage-batch-ignore-errors-macro
-   (epackage-cmd-enable-package elt 'verbose)))
+  (epackage-batch-setup
+    (epackage-batch-ignore-errors-macro
+      (epackage-cmd-enable-package elt 'verbose))))
 
 (defun epackage-batch-disable-package ()
   "Run `epackage-cmd-enable-package' for command line args."
-  (epackage-batch-ignore-errors-macro
-   (epackage-cmd-enable-package elt 'verbose)))
+  (epackage-batch-setup
+    (epackage-batch-ignore-errors-macro
+      (epackage-cmd-enable-package elt 'verbose))))
 
 (defun epackage-batch-activate-package ()
   "Run `epackage-cmd-enable-package' for command line args."
-  (epackage-batch-ignore-errors-macro
-   (epackage-cmd-activate-package elt 'verbose)))
+  (epackage-batch-setup
+    (epackage-batch-ignore-errors-macro
+      (epackage-cmd-activate-package elt 'verbose))))
 
 ;;;###autoload
 (defun epackage-batch-deactivate-package ()
   "Run `epackage-cmd-enable-package' for command line args."
-  (epackage-batch-ignore-errors-macro
-   (epackage-cmd-deactivate-package elt 'verbose)))
+  (epackage-batch-setup
+    (epackage-batch-ignore-errors-macro
+      (epackage-cmd-deactivate-package elt 'verbose))))
 
 ;;;###autoload
 (defun epackage-batch-clean-package ()
   "Run `epackage-cmd-enable-package' for command line args."
-  (epackage-batch-ignore-errors-macro
-   (epackage-cmd-clean-package elt 'verbose)))
+  (epackage-batch-setup
+    (epackage-batch-ignore-errors-macro
+      (epackage-cmd-clean-package elt 'verbose))))
 
 ;;;###autoload
 (defun epackage-batch-remove-package ()
   "Run `epackage-cmd-enable-package' for command line args."
-  (epackage-batch-ignore-errors-macro
-   (epackage-cmd-remove-package elt 'verbose)))
+  (epackage-batch-setup
+    (epackage-batch-ignore-errors-macro
+      (epackage-cmd-remove-package elt 'verbose))))
 
 ;;;###autoload
 (defun epackage-batch-download-package ()
   "Run `epackage-cmd-download-package' for command line args."
-  (epackage-batch-ignore-errors-macro
-   (epackage-cmd-download-package elt 'verbose)))
+  (epackage-batch-setup
+    (epackage-batch-ignore-errors-macro
+      (epackage-cmd-download-package elt 'verbose))))
 
 ;;;###autoload
 (defun epackage-batch-upgrade-package ()
   "Run `epackage-cmd-upgrade-package' for command line args."
-  (epackage-batch-ignore-errors-macro
-   (epackage-cmd-upgrade-package elt 'verbose)))
+  (epackage-batch-setup
+    (epackage-batch-ignore-errors-macro
+      (epackage-cmd-upgrade-package elt 'verbose))))
 
 ;;;###autoload
 (defun epackage-batch-upgrade-all-packages ()
   "Run `epackage-cmd-upgrade-packages-all'."
-  (epackage-initialize)
-  (epackage-cmd-upgrade-packages-all 'verbose))
+  (epackage-batch-setup
+    (epackage-initialize)
+    (epackage-cmd-upgrade-packages-all 'verbose)))
 
 (defun epackage-batch-ui-menu-selection (prompt)
   "Display UI menu PROMPT."
@@ -9226,41 +9260,39 @@ The arguments:
 
 (defun epackage-batch-ui-menu-run ()
   "Present an UI to run basic command."
-  (let ((epackage--install-action-list epackage--install-action-list)
-        (debug-on-error t)
-        (vc-handled-backends nil)
-        (loop t)
-        debug-ignored-errors
-        choice)
-    (epackage-initialize 'verbose)
-    (setq epackage--debug nil)
-    ;;  This is from command line, no enable action is needed for
-    ;;  current Emacs
-    (setq epackage--install-action-list
-          (delq 'enable epackage--install-action-list))
-    (epackage-batch-ui-menu-header)
-    (while loop
-      (epackage-batch-ui-menu-goto-point-max)
-      (setq choice (epackage-batch-ui-menu-selection
-		    epackage--batch-ui-menu-prompt))
-      (epackage-with-debug
-        (epackage-princ "debug: choice %s" choice))
-      (cond
-       ((null choice)
-        (epackage-princ "** Unknown selection"))
-       ((eq choice 'ignore)
-        (epackage-princ "** Not implmented yet"))
-       ((eq choice 'quit)
-        (epackage-princ "** Exit")
-        (setq loop nil))
-       ((functionp choice)
-        (call-interactively choice))
-       ((eq choice ?\?)
-	(epackage-batch-separator-insert)
-        (epackage-princ epackage--batch-ui-menu-help))
-       (t
-        (epackage-princ "** Unknown menu selection: %s" choice))))
-    (epackage-batch-ui-menu-goto-point-max)))
+  (epackage-batch-setup
+   (let ((epackage--install-action-list epackage--install-action-list)
+	 (loop t)
+	 choice)
+     (epackage-initialize 'verbose)
+     (setq epackage--debug nil)
+     ;;  This is from command line, no enable action is needed for
+     ;;  current Emacs
+     (setq epackage--install-action-list
+	   (delq 'enable epackage--install-action-list))
+     (epackage-batch-ui-menu-header)
+     (while loop
+       (epackage-batch-ui-menu-goto-point-max)
+       (setq choice (epackage-batch-ui-menu-selection
+		     epackage--batch-ui-menu-prompt))
+       (epackage-with-debug
+	 (epackage-princ "debug: choice %s" choice))
+       (cond
+	((null choice)
+	 (epackage-princ "** Unknown selection"))
+	((eq choice 'ignore)
+	 (epackage-princ "** Not implmented yet"))
+	((eq choice 'quit)
+	 (epackage-princ "** Exit")
+	 (setq loop nil))
+	((functionp choice)
+	 (call-interactively choice))
+	((eq choice ?\?)
+	 (epackage-batch-separator-insert)
+	 (epackage-princ epackage--batch-ui-menu-help))
+	(t
+	 (epackage-princ "** Unknown menu selection: %s" choice))))
+     (epackage-batch-ui-menu-goto-point-max))))
 
 (defun epackage-run-action-list (package actions &optional verbose)
   "Run PACKAGE ACTIONS. See `epackage--download-action-list'.
