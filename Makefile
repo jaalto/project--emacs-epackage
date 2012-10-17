@@ -19,7 +19,15 @@
 
 PACKAGE		= epackage
 SRC		= $(PACKAGE).el
+
+#  We can't use variable EMACS, because under Emacs M-x shell, it
+#  would be set to 't' and override anything here.
+
 BIN		= emacs
+LISP		= --eval '(progn (setq vc-handled-backends nil))'
+PKG		= -l $(SRC)
+COMPILE		= --batch --no-init-file --quick --funcall batch-byte-compile
+INVOKE		= $(BIN) -Q -nw --batch
 
 all: help
 
@@ -33,7 +41,7 @@ clean:
 	rm -f *.elc *[#~] *.bak
 
 $(PACKAGE).elc: $(SRC)
-	$(BIN) --batch --no-init-file --quick --funcall batch-byte-compile $(SRC)
+	$(BIN) $(COMPILE) $(SRC)
 
 # build - Byte compile *.el file
 build: $(PACKAGE).elc
@@ -46,10 +54,23 @@ doc:
 install:
 	@echo "There is no install. Manually copy *.el file to Emacs load-path"
 
+
 # ui - Start command line package manager User Interface
 ui:
-	emacs -Q -nw --batch -l $(SRC) -f epackage-batch-ui-menu
+	$(INVOKE) $(LISP) $(PKG) -f epackage-batch-ui-menu
 
-.PHONY: doc ui
+# update - Update Source List file (available packages)
+update:
+	$(INVOKE) -f epackage-batch-ui-sources-list-upgrade
+
+# examples - Show command line examples
+examples:
+	# Multiple package commands:
+	@echo $(INVOKE) $(PKG) -f epackage-batch-download-package ...
+	@echo $(INVOKE) $(PKG) -f epackage-batch-enable-package ...
+	@echo $(INVOKE) $(PKG) -f epackage-batch-disable-package ...
+	@echo $(INVOKE) $(PKG) -f epackage-batch-remove-package ...
+
+.PHONY: doc ui examples
 
 # End of file
