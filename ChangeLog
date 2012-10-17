@@ -1,3 +1,10 @@
+2012-10-17 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-info-mode-tab-command): Add completion
+	fro "Archive:" field.
+	(epackage--info-mode-completions-archive): New.
+	(DOC::Details of the info file fields::Archive): Clarify.
+
 2012-02-08 Wed  root  <jari.aalto@cante.net>
 
 	* Makefile: (examples, update): New targets.
@@ -5,6 +12,48 @@
 
 	* epackage.el (epackage-cmd-sources-list-upgrade): Call
 	`epackage-initialize'.
+<<<<<<< HEAD
+=======
+	(epackage-interactive-initialize): New.
+	(epackage-batch-setup): New.
+
+2012-01-18 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-batch-devel-compose-package-dir): Disable VC.
+
+2012-01-14 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-with-insert-file-contents-literally): New.
+	(epackage-git-current-sha): New.
+	(epackage-upgrade-package-main): Use `epackage-git-current-sha'
+	(epackage-string-delete-whitespace): New.
+	(epackage-cmd-select-package): Use `epackage-string-delete-whitespace'.
+	(epackage-cmd-clean-package): Call `epackage-loader-file-generate-boot'.
+	(epackage-sort-sym): New.
+	(epackage-run-action-list): Call `epackage-sort-sym'.
+	(epackage-git-command-sha-remote): New.
+	(epackage-package-problems): New epackage-package-problems.
+	(epackage-sources-list-and-repositories-sync): Use `epackage-package-problems'.
+	(epackage-recreate-package-lowlevel): New.
+	(epackage-upgrade-package-main): Recreate package if URL moved.
+	(epackage-git-error-handler): Obey `epackage--no-error'.
+	(epackage--no-error): New variable.
+	(epackage-git-url-valid-p): New.
+	(epackage-cmd-download-package): Improve error checking: Git URL is not
+	listed in Sources List, URL does not respond.
+	(epackage--sources-file-list): Improve documentation string.
+	(epackage-sources-list-build): Make interactive.
+	(epackage-git-config-fetch-field-url): New.
+	(epackage-sources-list-and-repositories-sync): Check non-existing Git URL
+	before trying to recreate.
+	(epackage-cmd-download-package): Improve logic.
+
+2012-01-13 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-message-error): New.
+	(epackage-upgrade-package-git): Rewrite error logic. In
+	verbose mode, do not signal error.
+>>>>>>> devel
 
 2012-01-07 Sat  Jari Aalto  <jari.aalto@cante.net>
 

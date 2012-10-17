@@ -1,6 +1,6 @@
 #   Copyright
 #
-#	Copyright (C) 2010-2011 Jari Aalto <jari.aalto@cante.net>
+#	Copyright (C) 2010-2012 Jari Aalto <jari.aalto@cante.net>
 #
 #   License
 #
