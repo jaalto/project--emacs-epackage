@@ -722,7 +722,7 @@
 ;;          *Depends: emacs (>= 20)
 ;;          Recommends:
 ;;          Status: [ <keyword> ...]
-;;          Archive: <ELPA/GNU, ELPA/Marmalade, ...>
+;;          Archive: <ELPA/GNU, ELPA/Marmalade, MELPA, ELPA>
 ;;          Compat: [ <epackage version> ]
 ;;          *Maintainer: First Last <first.last@example.com>
 ;;          Bugs: [ URL ]
@@ -778,14 +778,14 @@
 ;;
 ;;      Value of archive repository where package is also available.
 ;;      The known values are "ELPA/GNU" <elpa.gnu.org>,
-;;      "ELPA/Marmalade" <http://marmalade-repo.org> and being phased
-;;      out original "ELPA" <http://tromey.com/elpa/index.html>. The
-;;      purpose of this field is to mark other repositories. The
-;;      "archive" in this context refers to a site where there is a
-;;      specific package manager. It is not used for informal sites
-;;      like <http://www.emacswiki.org> although it technically could
-;;      be accessed with el-get.el; which is not really a package
-;;      manager but download script.
+;;      "ELPA/Marmalade" <http://marmalade-repo.org>, "MELPA"
+;;      <http://melpa.milkbox.net/>, and being phased out original
+;;      "ELPA" <http://tromey.com/elpa/index.html>. The purpose of
+;;      this field is to list other package repositories where this
+;;      package is available via some package manager. It is not used
+;;      for "dumb archives" like <http://www.emacswiki.org> although
+;;      it technically could be accessed with el-get.el; which is not
+;;      a package manager in itself but only a download script.
 ;;
 ;;     Bugs
 ;;
@@ -1496,7 +1496,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0114.1648"
+(defconst epackage--version-time "2012.1017.0941"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1950,6 +1950,12 @@ Thanks,
     "unstable"
     "experimental")
   "List of completions for Status field.")
+
+(defconst epackage--info-mode-completions-archive
+  '("ELPA/GNU"				; Official Emacs 24.x+ repository
+    "ELPA/Marmalade"			; Google maintained http://marmalade-repo.org/
+    "MELPA")				; http://melpa.milkbox.net/
+  "List of completions for Archive field.")
 
 (defconst epackage--info-mode-completions-license
   '("GPL-2+"                        ;XEmacs is not listed by purpose
@@ -7862,6 +7868,10 @@ In other fields, run `forward-word'."
            (string-match "license" field))
       (epackage-info-mode-pcomplete-list
        epackage--info-mode-completions-license))
+     ((and (stringp field)
+           (string-match "archive" field))
+      (epackage-info-mode-pcomplete-list
+       epackage--info-mode-completions-archive))
      ((and (stringp field)
            (string-match "wiki" field))
       (epackage-info-mode-tab-wiki))

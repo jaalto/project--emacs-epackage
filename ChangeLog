@@ -1,3 +1,10 @@
+2012-10-17 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-info-mode-tab-command): Add completion
+	fro "Archive:" field.
+	(epackage--info-mode-completions-archive): New.
+	(DOC::Details of the info file fields::Archive): Clarify.
+
 2012-01-14 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-with-insert-file-contents-literally): New.
