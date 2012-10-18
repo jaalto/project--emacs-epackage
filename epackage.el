@@ -1496,7 +1496,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.1017.0943"
+(defconst epackage--version-time "2012.1018.1115"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -3293,12 +3293,14 @@ See `epackage-directory-recursive-list-default' for more information."
 		  (not (string-match exclude file)))
 	  (setq file
 		(cond
-		 ((eq type nil)
-		  (format "%s/%s" elt file))
+		 ((eq type 'nopath)
+		  (file-name-nondirectory file))
 		 ((eq type 'relative)
 		  (if (string-match regexp elt)
 		      (concat (match-string 1 elt) "/" file)
-		    (file-name-nondirectory file)))))
+		    (file-name-nondirectory file)))
+		 (t
+		  (format "%s/%s" elt file))))
 	  (epackage-push file list))))
     list))
 
@@ -4466,6 +4468,20 @@ The first argument is the the destination file where loaddefs are stored."
            'verbose)
         (setq dest item)))))
 
+(defun epackage-autoload-remove-path-names (file)
+  "From autoload FILE, remove all references to paths.
+Say you generate autolaods using function
+`tinylisp-autoload-generate-loaddefs-dir' which would record
+relative locations based on the stored autoload FILE. In case
+those lcoations are already in path, there is no need to preserve
+relative locations, like this:
+
+  (custom-autoload 'some-function \"../lisp/some\" t)"
+  (epackage-with-insert-file-contents-literally file
+    (while (re-search-forward "\"\\(.+/\\(.+\\)\\)\"" nil t)
+      (replace-match (match-string 2) nil nil nil 1))
+    (epackage-write-region (point-min) (point-max) file)))
+
 ;; Copy of tinylisp-autoload-generate-loaddefs-dir
 (defun epackage-autoload-generate-loaddefs-dir
   (dir file &optional exclude recursive verbose)
@@ -4474,7 +4490,8 @@ Optionally EXCLUDE files by regexp.
 If VERBOSE is non-nil, display informational messages."
   (interactive
    "FDLoaddefs from dir: \nFLoaddefs to file: \nsFile ignore regexp: ")
-  (let ((regexp "\\(?:loaddef\\|autoload\\).*\\.el\\|[#~]")
+  ;; Ignore dot-files: .files-like-this.el
+  (let ((regexp "\\(?:loaddef\\|autoload\\).*\\.el\\|[#~]\\|/[.][^/]+$")
         list)
     (if (or (null exclude)
 	    (and (stringp exclude)
@@ -4495,7 +4512,8 @@ If VERBOSE is non-nil, display informational messages."
       (epackage-autoload-generate-loaddefs-file-list
        file
        list
-       (or verbose (called-interactively-p 'interactive))))))
+       (or verbose (called-interactively-p 'interactive)))
+      (epackage-autoload-remove-path-names file))))
 
 ;; Copy of ti::package-autoload-create-on-file
 (defun epackage-autoload-create-on-file (file buffer)
