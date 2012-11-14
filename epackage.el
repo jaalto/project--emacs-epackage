@@ -1496,7 +1496,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.0114.1648"
+(defconst epackage--version-time "2012.1114.1321"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4300,6 +4300,8 @@ No pending commits and no modified files."
 
 (defun epackage-config-status-of-packages (type)
   "Return packages of TYPE of `epackage--layout-mapping'."
+  (epackage-initialize-verify
+   "Not initialized. Can't use epackage--directory-name-install")
   (let* ((dir      (epackage-directory-install))
          (template (or (nth 1 (assq type epackage--layout-mapping))
                        (error
@@ -4309,15 +4311,15 @@ No pending commits and no modified files."
                         type)))
          (regexp   (concat (regexp-quote template) "$"))
          (match    (concat "\\(.+\\)" regexp))
-         list)
-    (epackage-initialize-verify
-      "Not initialized. Can't use epackage--directory-name-install")
+         list
+	 package)
     (dolist (elt (directory-files
                   dir
                   (not 'full-path)
                   regexp))
-      (if (string-match match elt)
-          (add-to-list 'list (match-string 1 elt))))
+      (when (and (string-match match elt)
+		 (setq package (match-string 1 elt)))
+	(add-to-list 'list package)))
     (nreverse list)))
 
 (defsubst epackage-status-enabled-packages ()
@@ -4342,12 +4344,12 @@ No pending commits and no modified files."
 
 (defsubst epackage-status-installed-packages ()
   "Return list of packages in `epackage-directory-install'."
-  ;; We don't care autoloads, because 'enable' installation is a
-  ;; REQUIREMENT for epackages.
+  ;; We don't care for autoloads, because 'enable' installation is a
+  ;; *requirement* for all epackages.
   (let ((list (epackage-config-status-of-packages 'enable)))
     ;; FIXME: is there union() outside of CL that we could use?
     (dolist (elt (epackage-config-status-of-packages 'activate))
-      (epackage-push elt list))
+      (add-to-list 'list elt list))
     list))
 
 (defun epackage-status-not-installed-packages ()

@@ -1,3 +1,7 @@
+2012-11-14 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-status-installed-packages): handle duplicates.
+
 2012-01-14 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-with-insert-file-contents-literally): New.
@@ -10,7 +14,8 @@
 	(epackage-run-action-list): Call `epackage-sort-sym'.
 	(epackage-git-command-sha-remote): New.
 	(epackage-package-problems): New epackage-package-problems.
-	(epackage-sources-list-and-repositories-sync): Use `epackage-package-problems'.
+	(epackage-sources-list-and-repositories-sync): Use
+	`epackage-package-problems'.
 	(epackage-recreate-package-lowlevel): New.
 	(epackage-upgrade-package-main): Recreate package if URL moved.
 	(epackage-git-error-handler): Obey `epackage--no-error'.
@@ -21,8 +26,8 @@
 	(epackage--sources-file-list): Improve documentation string.
 	(epackage-sources-list-build): Make interactive.
 	(epackage-git-config-fetch-field-url): New.
-	(epackage-sources-list-and-repositories-sync): Check non-existing Git URL
-	before trying to recreate.
+	(epackage-sources-list-and-repositories-sync): Check non-existing
+	Git URL before trying to recreate.
 	(epackage-cmd-download-package): Improve logic.
 
 2012-01-13 Fri  Jari Aalto  <jari.aalto@cante.net>
