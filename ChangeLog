@@ -1,6 +1,37 @@
 2012-11-14 Wed  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage-status-installed-packages): handle duplicates.
+	* epackage.el (epackage-status-installed-packages): handle duplicates
+	and check also autoload, loaddefs.
+
+2012-10-18 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-files-recursive-lisp): Check FILE before
+	pushing it to list.
+	(epackage-autoload-generate-loaddefs-dir): Add 'nopath case.
+	(epackage-autoload-remove-path-names): New.
+	(epackage-autoload-generate-loaddefs-dir): Use
+	`epackage-autoload-remove-path-names' to remove relative paths.
+
+2012-10-17 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-info-mode-tab-command): Add completion
+	fro "Archive:" field.
+	(epackage--info-mode-completions-archive): New.
+	(DOC::Details of the info file fields::Archive): Clarify.
+
+2012-02-08 Wed  root  <jari.aalto@cante.net>
+
+	* Makefile: (examples, update): New targets.
+	(INVOKE): New variable.
+
+	* epackage.el (epackage-cmd-sources-list-upgrade): Call
+	`epackage-initialize'.
+	(epackage-interactive-initialize): New.
+	(epackage-batch-setup): New.
+
+2012-01-18 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-batch-devel-compose-package-dir): Disable VC.
 
 2012-01-14 Sat  Jari Aalto  <jari.aalto@cante.net>
 

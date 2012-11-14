@@ -721,7 +721,7 @@
 ;;          *Depends: emacs (>= 20)
 ;;          Recommends:
 ;;          Status: [ <keyword> ...]
-;;          Archive: <ELPA/GNU, ELPA/Marmalade, ...>
+;;          Archive: <ELPA/GNU, ELPA/Marmalade, MELPA, ELPA>
 ;;          Compat: [ <epackage version> ]
 ;;          *Maintainer: First Last <first.last@example.com>
 ;;          Bugs: [ URL ]
@@ -777,14 +777,14 @@
 ;;
 ;;      Value of archive repository where package is also available.
 ;;      The known values are "ELPA/GNU" <elpa.gnu.org>,
-;;      "ELPA/Marmalade" <http://marmalade-repo.org> and being phased
-;;      out original "ELPA" <http://tromey.com/elpa/index.html>. The
-;;      purpose of this field is to mark other repositories. The
-;;      "archive" in this context refers to a site where there is a
-;;      specific package manager. It is not used for informal sites
-;;      like <http://www.emacswiki.org> although it technically could
-;;      be accessed with el-get.el; which is not really a package
-;;      manager but download script.
+;;      "ELPA/Marmalade" <http://marmalade-repo.org>, "MELPA"
+;;      <http://melpa.milkbox.net/>, and being phased out original
+;;      "ELPA" <http://tromey.com/elpa/index.html>. The purpose of
+;;      this field is to list other package repositories where this
+;;      package is available via some package manager. It is not used
+;;      for "dumb archives" like <http://www.emacswiki.org> although
+;;      it technically could be accessed with el-get.el; which is not
+;;      a package manager in itself but only a download script.
 ;;
 ;;     Bugs
 ;;
@@ -1495,7 +1495,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.1114.1328"
+(defconst epackage--version-time "2012.1114.1354"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1949,6 +1949,12 @@ Thanks,
     "unstable"
     "experimental")
   "List of completions for Status field.")
+
+(defconst epackage--info-mode-completions-archive
+  '("ELPA/GNU"				; Official Emacs 24.x+ repository
+    "ELPA/Marmalade"			; Google maintained http://marmalade-repo.org/
+    "MELPA")				; http://melpa.milkbox.net/
+  "List of completions for Archive field.")
 
 (defconst epackage--info-mode-completions-license
   '("GPL-2+"                        ;XEmacs is not listed by purpose
@@ -3286,12 +3292,14 @@ See `epackage-directory-recursive-list-default' for more information."
 		  (not (string-match exclude file)))
 	  (setq file
 		(cond
-		 ((eq type nil)
-		  (format "%s/%s" elt file))
+		 ((eq type 'nopath)
+		  (file-name-nondirectory file))
 		 ((eq type 'relative)
 		  (if (string-match regexp elt)
 		      (concat (match-string 1 elt) "/" file)
-		    (file-name-nondirectory file)))))
+		    (file-name-nondirectory file)))
+		 (t
+		  (format "%s/%s" elt file))))
 	  (epackage-push file list))))
     list))
 
@@ -4461,6 +4469,20 @@ The first argument is the the destination file where loaddefs are stored."
            'verbose)
         (setq dest item)))))
 
+(defun epackage-autoload-remove-path-names (file)
+  "From autoload FILE, remove all references to paths.
+Say you generate autolaods using function
+`tinylisp-autoload-generate-loaddefs-dir' which would record
+relative locations based on the stored autoload FILE. In case
+those lcoations are already in path, there is no need to preserve
+relative locations, like this:
+
+  (custom-autoload 'some-function \"../lisp/some\" t)"
+  (epackage-with-insert-file-contents-literally file
+    (while (re-search-forward "\"\\(.+/\\(.+\\)\\)\"" nil t)
+      (replace-match (match-string 2) nil nil nil 1))
+    (epackage-write-region (point-min) (point-max) file)))
+
 ;; Copy of tinylisp-autoload-generate-loaddefs-dir
 (defun epackage-autoload-generate-loaddefs-dir
   (dir file &optional exclude recursive verbose)
@@ -4469,7 +4491,8 @@ Optionally EXCLUDE files by regexp.
 If VERBOSE is non-nil, display informational messages."
   (interactive
    "FDLoaddefs from dir: \nFLoaddefs to file: \nsFile ignore regexp: ")
-  (let ((regexp "\\(?:loaddef\\|autoload\\).*\\.el\\|[#~]")
+  ;; Ignore dot-files: .files-like-this.el
+  (let ((regexp "\\(?:loaddef\\|autoload\\).*\\.el\\|[#~]\\|/[.][^/]+$")
         list)
     (if (or (null exclude)
 	    (and (stringp exclude)
@@ -4490,7 +4513,8 @@ If VERBOSE is non-nil, display informational messages."
       (epackage-autoload-generate-loaddefs-file-list
        file
        list
-       (or verbose (called-interactively-p 'interactive))))))
+       (or verbose (called-interactively-p 'interactive)))
+      (epackage-autoload-remove-path-names file))))
 
 ;; Copy of ti::package-autoload-create-on-file
 (defun epackage-autoload-create-on-file (file buffer)
@@ -7864,6 +7888,10 @@ In other fields, run `forward-word'."
       (epackage-info-mode-pcomplete-list
        epackage--info-mode-completions-license))
      ((and (stringp field)
+           (string-match "archive" field))
+      (epackage-info-mode-pcomplete-list
+       epackage--info-mode-completions-archive))
+     ((and (stringp field)
            (string-match "wiki" field))
       (epackage-info-mode-tab-wiki))
      ((and (stringp field)
@@ -8460,6 +8488,7 @@ Return:
 If optional VERBOSE is non-nil, display progress messages."
   (interactive
    (list 'interactive))
+  (epackage-initialize verbose)
   (epackage-kill-buffer-sources-list)
   (unless (epackage-sources-list-p)
     (epackage-with-message verbose "Wait, downloading sources list"))
@@ -8901,6 +8930,23 @@ Summary, Version, Maintainer etc."
         "Can't documentation . Package not downloaded: %s"
         package))))))
 
+(put 'epackage-batch-setup 'lisp-indent-function 0)
+(put 'epackage-batch-setup 'edebug-form-spec '(body))
+(defmacro epackage-batch-setup (&rest args)
+  `(let (find-file-hook
+	 global-font-lock-mode
+	 vc-handled-backends   ;; Optimize: prevent loading VC for files.
+	 (debug-on-error t)
+	 debug-ignored-errors)
+     ,@args))
+
+(put 'epackage-interactive-initialize 'lisp-indent-function 0)
+(put 'epackage-interactive-initialize 'edebug-form-spec '(body))
+(defmacro epackage-interactive-initialize ()
+  "Set function interactive status and call initialize."
+  `(progn
+     (epackage-initialize)))
+
 ;;;###autoload
 (defun epackage-batch-ui-loader-file-generate ()
   "Call `epackage-loader-file-generate-boot'."
@@ -8991,49 +9037,56 @@ Summary, Version, Maintainer etc."
 (defun epackage-batch-ui-remove-package ()
   "Call `epackage-cmd-remove-package'."
   (interactive)
+  (epackage-interactive-initialize)
   (call-interactively 'epackage-cmd-remove-package))
 
 ;;;###autoload
 (defun epackage-batch-ui-upgrade-package ()
   "Call `epackage-cmd-upgrade-package'."
   (interactive)
+  (epackage-interactive-initialize)
   (call-interactively 'epackage-cmd-upgrade-package))
 
 ;;;###autoload
 (defun epackage-batch-ui-upgrade-packages-all ()
   "Call `epackage-cmd-upgrade-packages-all'."
   (interactive)
+  (epackage-interactive-initialize)
   (call-interactively 'epackage-cmd-upgrade-packages-all))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-downloaded-packages ()
   "List downloaded packages."
   (interactive)
-  (let ((list (epackage-status-downloaded-packages)))
-    (if (not list)
-        (epackage-princ "No packages downloaded.")
-      (epackage-princ "Downloaded packages:")
-      (epackage-batch-list-package-summary list))))
+  (epackage-interactive-initialize)
+  (epackage-batch-setup
+    (let ((list (epackage-status-downloaded-packages)))
+      (if (not list)
+	  (epackage-princ "No packages downloaded.")
+	(epackage-princ "Downloaded packages:")
+	(epackage-batch-list-package-summary list)))))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-not-installed-packages ()
   "List downloaded packages that are not installed (enabled, activated)."
   (interactive)
-  (let ((list (epackage-status-not-installed-packages)))
-    (if (not list)
-        (epackage-princ "All downloaded packages are installed.")
-      (epackage-princ "Downloaded, but not enabled packages:")
-      (epackage-batch-list-package-summary list))))
+  (epackage-batch-setup
+    (let ((list (epackage-status-not-installed-packages)))
+      (if (not list)
+	  (epackage-princ "All downloaded packages are installed.")
+	(epackage-princ "Downloaded, but not enabled packages:")
+	(epackage-batch-list-package-summary list)))))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-installed-packages ()
   "List installed packages."
   (interactive)
-  (let ((list (epackage-status-installed-packages)))
-    (if (not list)
-        (epackage-princ "No packages installed.")
-      (epackage-princ "Installed packages:")
-      (epackage-batch-list-package-summary list))))
+  (epackage-batch-setup
+    (let ((list (epackage-status-installed-packages)))
+      (if (not list)
+	  (epackage-princ "No packages installed.")
+	(epackage-princ "Installed packages:")
+	(epackage-batch-list-package-summary list)))))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-available-packages ()
@@ -9053,7 +9106,8 @@ Summary, Version, Maintainer etc."
 The arguments:
   0  Package name
   1  Directory roo."
-  (let ((name (nth 0 command-line-args-left))
+  (let ((vc-handled-backends nil)
+	(name (nth 0 command-line-args-left))
 	(path (nth 1 command-line-args-left))
 	(root (nth 2 command-line-args-left))
 	dir)
@@ -9101,54 +9155,63 @@ The arguments:
 
 (defun epackage-batch-enable-package ()
   "Run `epackage-cmd-enable-package' for command line args."
-  (epackage-batch-ignore-errors-macro
-   (epackage-cmd-enable-package elt 'verbose)))
+  (epackage-batch-setup
+    (epackage-batch-ignore-errors-macro
+      (epackage-cmd-enable-package elt 'verbose))))
 
 (defun epackage-batch-disable-package ()
   "Run `epackage-cmd-enable-package' for command line args."
-  (epackage-batch-ignore-errors-macro
-   (epackage-cmd-enable-package elt 'verbose)))
+  (epackage-batch-setup
+    (epackage-batch-ignore-errors-macro
+      (epackage-cmd-enable-package elt 'verbose))))
 
 (defun epackage-batch-activate-package ()
   "Run `epackage-cmd-enable-package' for command line args."
-  (epackage-batch-ignore-errors-macro
-   (epackage-cmd-activate-package elt 'verbose)))
+  (epackage-batch-setup
+    (epackage-batch-ignore-errors-macro
+      (epackage-cmd-activate-package elt 'verbose))))
 
 ;;;###autoload
 (defun epackage-batch-deactivate-package ()
   "Run `epackage-cmd-enable-package' for command line args."
-  (epackage-batch-ignore-errors-macro
-   (epackage-cmd-deactivate-package elt 'verbose)))
+  (epackage-batch-setup
+    (epackage-batch-ignore-errors-macro
+      (epackage-cmd-deactivate-package elt 'verbose))))
 
 ;;;###autoload
 (defun epackage-batch-clean-package ()
   "Run `epackage-cmd-enable-package' for command line args."
-  (epackage-batch-ignore-errors-macro
-   (epackage-cmd-clean-package elt 'verbose)))
+  (epackage-batch-setup
+    (epackage-batch-ignore-errors-macro
+      (epackage-cmd-clean-package elt 'verbose))))
 
 ;;;###autoload
 (defun epackage-batch-remove-package ()
   "Run `epackage-cmd-enable-package' for command line args."
-  (epackage-batch-ignore-errors-macro
-   (epackage-cmd-remove-package elt 'verbose)))
+  (epackage-batch-setup
+    (epackage-batch-ignore-errors-macro
+      (epackage-cmd-remove-package elt 'verbose))))
 
 ;;;###autoload
 (defun epackage-batch-download-package ()
   "Run `epackage-cmd-download-package' for command line args."
-  (epackage-batch-ignore-errors-macro
-   (epackage-cmd-download-package elt 'verbose)))
+  (epackage-batch-setup
+    (epackage-batch-ignore-errors-macro
+      (epackage-cmd-download-package elt 'verbose))))
 
 ;;;###autoload
 (defun epackage-batch-upgrade-package ()
   "Run `epackage-cmd-upgrade-package' for command line args."
-  (epackage-batch-ignore-errors-macro
-   (epackage-cmd-upgrade-package elt 'verbose)))
+  (epackage-batch-setup
+    (epackage-batch-ignore-errors-macro
+      (epackage-cmd-upgrade-package elt 'verbose))))
 
 ;;;###autoload
 (defun epackage-batch-upgrade-all-packages ()
   "Run `epackage-cmd-upgrade-packages-all'."
-  (epackage-initialize)
-  (epackage-cmd-upgrade-packages-all 'verbose))
+  (epackage-batch-setup
+    (epackage-initialize)
+    (epackage-cmd-upgrade-packages-all 'verbose)))
 
 (defun epackage-batch-ui-menu-selection (prompt)
   "Display UI menu PROMPT."
@@ -9226,41 +9289,39 @@ The arguments:
 
 (defun epackage-batch-ui-menu-run ()
   "Present an UI to run basic command."
-  (let ((epackage--install-action-list epackage--install-action-list)
-        (debug-on-error t)
-        (vc-handled-backends nil)
-        (loop t)
-        debug-ignored-errors
-        choice)
-    (epackage-initialize 'verbose)
-    (setq epackage--debug nil)
-    ;;  This is from command line, no enable action is needed for
-    ;;  current Emacs
-    (setq epackage--install-action-list
-          (delq 'enable epackage--install-action-list))
-    (epackage-batch-ui-menu-header)
-    (while loop
-      (epackage-batch-ui-menu-goto-point-max)
-      (setq choice (epackage-batch-ui-menu-selection
-		    epackage--batch-ui-menu-prompt))
-      (epackage-with-debug
-        (epackage-princ "debug: choice %s" choice))
-      (cond
-       ((null choice)
-        (epackage-princ "** Unknown selection"))
-       ((eq choice 'ignore)
-        (epackage-princ "** Not implmented yet"))
-       ((eq choice 'quit)
-        (epackage-princ "** Exit")
-        (setq loop nil))
-       ((functionp choice)
-        (call-interactively choice))
-       ((eq choice ?\?)
-	(epackage-batch-separator-insert)
-        (epackage-princ epackage--batch-ui-menu-help))
-       (t
-        (epackage-princ "** Unknown menu selection: %s" choice))))
-    (epackage-batch-ui-menu-goto-point-max)))
+  (epackage-batch-setup
+   (let ((epackage--install-action-list epackage--install-action-list)
+	 (loop t)
+	 choice)
+     (epackage-initialize 'verbose)
+     (setq epackage--debug nil)
+     ;;  This is from command line, no enable action is needed for
+     ;;  current Emacs
+     (setq epackage--install-action-list
+	   (delq 'enable epackage--install-action-list))
+     (epackage-batch-ui-menu-header)
+     (while loop
+       (epackage-batch-ui-menu-goto-point-max)
+       (setq choice (epackage-batch-ui-menu-selection
+		     epackage--batch-ui-menu-prompt))
+       (epackage-with-debug
+	 (epackage-princ "debug: choice %s" choice))
+       (cond
+	((null choice)
+	 (epackage-princ "** Unknown selection"))
+	((eq choice 'ignore)
+	 (epackage-princ "** Not implmented yet"))
+	((eq choice 'quit)
+	 (epackage-princ "** Exit")
+	 (setq loop nil))
+	((functionp choice)
+	 (call-interactively choice))
+	((eq choice ?\?)
+	 (epackage-batch-separator-insert)
+	 (epackage-princ epackage--batch-ui-menu-help))
+	(t
+	 (epackage-princ "** Unknown menu selection: %s" choice))))
+     (epackage-batch-ui-menu-goto-point-max))))
 
 (defun epackage-run-action-list (package actions &optional verbose)
   "Run PACKAGE ACTIONS. See `epackage--download-action-list'.
