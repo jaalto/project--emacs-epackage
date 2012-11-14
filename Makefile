@@ -24,10 +24,14 @@ SRC		= $(PACKAGE).el
 #  would be set to 't' and override anything here.
 
 BIN		= emacs
+<<<<<<< HEAD
+INVOKE		= $(BIN) -Q -nw --batch -l $(SRC)
+=======
 LISP		= --eval '(progn (setq vc-handled-backends nil))'
 PKG		= -l $(SRC)
 COMPILE		= --batch --no-init-file --quick --funcall batch-byte-compile
 INVOKE		= $(BIN) -Q -nw --batch
+>>>>>>> devel
 
 all: help
 
@@ -57,7 +61,11 @@ install:
 
 # ui - Start command line package manager User Interface
 ui:
+<<<<<<< HEAD
+	$(INVOKE) -f epackage-batch-ui-menu
+=======
 	$(INVOKE) $(LISP) $(PKG) -f epackage-batch-ui-menu
+>>>>>>> devel
 
 # update - Update Source List file (available packages)
 update:
@@ -66,10 +74,17 @@ update:
 # examples - Show command line examples
 examples:
 	# Multiple package commands:
+<<<<<<< HEAD
+	$(INVOKE) -f epackage-download-package ...
+	$(INVOKE) -f epackage-enable-package ...
+	$(INVOKE) -f epackage-disable-package ...
+	$(INVOKE) -f epackage-remove-package ...
+=======
 	@echo $(INVOKE) $(PKG) -f epackage-batch-download-package ...
 	@echo $(INVOKE) $(PKG) -f epackage-batch-enable-package ...
 	@echo $(INVOKE) $(PKG) -f epackage-batch-disable-package ...
 	@echo $(INVOKE) $(PKG) -f epackage-batch-remove-package ...
+>>>>>>> devel
 
 .PHONY: doc ui examples
 
