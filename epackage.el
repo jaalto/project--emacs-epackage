@@ -31,16 +31,16 @@
 ;;      o   Emacs 22.1+ (released 2007). Designed only for Emacs.
 ;;          Note that XEmacs has its own packaging system (pui-*).
 ;;          http://www.gnu.org/software/emacs
-;;      o   git(1) Distributed Version Control System (DVCS). Any version.
+;;      o   Git Distributed Version Control System (DVCS). Any version.
 ;;          http://en.wikipedia.org/wiki/Git_(software)
-;;      o   Depends only on standard Emacs. Does not use cl.
+;;      o   Depends only on standard Emacs. Does not use `cl' library.
 
 ;;; Install:
 
 ;;  Put this file along your Emacs-Lisp `load-path' and add following
 ;;  into your ~/.emacs startup file.
 ;;
-;;      ;; If you're behing proxy, be sure to define connection
+;;      ;; If you're behind proxy, be sure to define connection
 ;;      ;; details before you start Emacs at command line.
 ;;      ;; Consult http://stackoverflow.com/questions/496277/git-error-fatal-unable-to-connect-a-socket-invalid-argument
 ;;      ;; for details. From bash shell:
@@ -58,7 +58,7 @@
 ;;      ;;       '(("git://github" "http://github")))
 ;;
 ;;      ;; -- If you want to customize any of the epackages, like BBDB,
-;;      ;; -- do it *here*, before the next `load' command.
+;;      ;; -- do it *here*, at this point, before the next `load' command.
 ;;
 ;;      ;; One big file to boot all installed epackages
 ;;      ;; Automatically generated. Do not edit.
@@ -85,23 +85,22 @@
 ;;
 ;;      ;; .. Developer functions
 ;;      ;; Write initial templates from a single *.el
-;;      (autoload 'epackage-devel-compose-package-dir    "epackage" "" t)
+;;      (autoload 'epackage-devel-compose-package-dir   "epackage" "" t)
 ;;
 ;;  In addition to Emacs UI, there is also a minimal command line UI:
 ;;
 ;;      emacs --batch -Q -l /path/to/epackage.el -f epackage-ui
 ;;
 ;; WARNING: Make sure no *alias* override standard git commands in
-;; your ~/.gitocnfig or they will create problems.
+;; your ~/.gitocnfig or those aliased will cause problems.
 
 ;;; Commentary:
 
 ;;  Preface 2009
 ;;
 ;;      NOTE: This extension is in early state; meaning that it is
-;;      not in full use yet. The core elements are being planned,
-;;      written and tested. Currently there is only the batch command
-;;      line UI:
+;;      experimental. The core elements are being planned, written and
+;;      tested. Currently there is only the batch command line UI:
 ;;
 ;;          # Or run the provided Makefile: "make ui"
 ;;          emacs --batch -Q -l /path/to/epackage.el -f epackage-batch-ui-menu
@@ -1496,7 +1495,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.1018.1115"
+(defconst epackage--version-time "2012.1114.1354"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4308,6 +4307,8 @@ No pending commits and no modified files."
 
 (defun epackage-config-status-of-packages (type)
   "Return packages of TYPE of `epackage--layout-mapping'."
+  (epackage-initialize-verify
+   "Not initialized. Can't use epackage--directory-name-install")
   (let* ((dir      (epackage-directory-install))
          (template (or (nth 1 (assq type epackage--layout-mapping))
                        (error
@@ -4317,15 +4318,15 @@ No pending commits and no modified files."
                         type)))
          (regexp   (concat (regexp-quote template) "$"))
          (match    (concat "\\(.+\\)" regexp))
-         list)
-    (epackage-initialize-verify
-      "Not initialized. Can't use epackage--directory-name-install")
+         list
+	 package)
     (dolist (elt (directory-files
                   dir
                   (not 'full-path)
                   regexp))
-      (if (string-match match elt)
-          (add-to-list 'list (match-string 1 elt))))
+      (when (and (string-match match elt)
+		 (setq package (match-string 1 elt)))
+	(add-to-list 'list package)))
     (nreverse list)))
 
 (defsubst epackage-status-enabled-packages ()
@@ -4350,13 +4351,13 @@ No pending commits and no modified files."
 
 (defsubst epackage-status-installed-packages ()
   "Return list of packages in `epackage-directory-install'."
-  ;; We don't care autoloads, because 'enable' installation is a
-  ;; REQUIREMENT for epackages.
-  (let ((list (epackage-config-status-of-packages 'enable)))
-    ;; FIXME: is there union() outside of CL that we could use?
-    (dolist (elt (epackage-config-status-of-packages 'activate))
-      (epackage-push elt list))
-    list))
+  ;; FIXME: is there union() outside of CL that we could use,
+  ;; so that we could skip dolist?
+  (let (list)
+    (dolist (type '(autoload loaddefs enable activate))
+      (dolist (elt (epackage-config-status-of-packages type))
+	(add-to-list 'list elt)))
+    (sort list 'string<)))
 
 (defun epackage-status-not-installed-packages ()
   "Return list of packages in `epackage-directory-packages'.
@@ -4374,7 +4375,7 @@ Those that are not installed in `epackage-directory-install'."
 See `epackage--download-action-list'.
 
 Returns:
-  '(KEYWORD ...)."
+g  '(KEYWORD ...)."
   (let (list)
     ;; Order if the statements matter: keep 'list' in alphabetical order
     (if (epackage-package-byte-compiled-p package)
