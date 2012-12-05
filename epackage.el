@@ -934,10 +934,10 @@
 ;;
 ;;     License
 ;;
-;;      The valid License abbreviations should follow list defined at
-;;      <http://dep.debian.net/deps/dep5/#license-specification> and
-;;      <http://spdx.org/licenses/>. "License specification / Short
-;;      name". A special word "None" should be used if the software
+;;      The valid License abbreviations must follow Official Linux foundations
+;;      list <http://spdx.org/licenses/> (see also
+;;      <http://dep.debian.net/deps/dep5/#license-specification>).
+;;      A special word "None" should be used if the software
 ;;      has no license information in any of the source files.
 ;;      Examples of valid license tokens:
 ;;
