@@ -488,7 +488,7 @@
 ;;
 ;;     The *-0loaddefs.el
 ;;
-;;      This file contains extracted `##autoload' definitions. The file
+;;      This file contains extracted `###autoload' definitions. The file
 ;;      is usually automatically generated. The file does not modify
 ;;      user's environment. If extension does not contains any
 ;;      `###autoload' definitions, the manually crafted `*-install.el'
