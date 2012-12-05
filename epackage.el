@@ -1136,11 +1136,10 @@
 ;;
 ;;     Vcs-User
 ;;
-;;      Login name used to access The Version Control System
-;;      repository. In case the repository cannot be accessed simply
-;;      by visiting the `Vcs-Url' (or in the case of CVS: pressing
-;;      RETURN at login prompt), this is the used login name;
-;;      typically `anonymous' or the like.
+;;      Login name used to access VCS repository. In case the
+;;      repository cannot be accessed simply by visiting the `Vcs-Url'
+;;      (or in the case of CVS: pressing RETURN at login prompt), this
+;;      is the used login name; typically `anonymous' or the like.
 ;;
 ;;     Vcs-Password
 ;;
@@ -1152,7 +1151,7 @@
 ;;
 ;;      This field points to extension page (or page that talks about
 ;;      it) at <http://www.emacswiki.org>. If the extension does not
-;;      yet have a page, encourage upstream to create one.
+;;      yet have a Emacswiki page, encourage upstream to create one.
 ;;
 ;;     X-*
 ;;
@@ -1163,7 +1162,7 @@
 ;;          X-Upstream-Homepage: URL
 ;;          X-Development: YYYY-MM-DD upstream email confirmed
 ;;
-;;      If converting extension to a epackage needs special treatment
+;;      If converting extension to a epackage needs special treatment,
 ;;      please document those in field like:
 ;;
 ;;              X-Packaging:
@@ -1243,7 +1242,7 @@
 ;;      which was the source of inspiration for the used syntax. The
 ;;      Debian packaging system is centralized, so it has the
 ;;      knowledge about all the available packages and their version
-;;      numbers. In Debian, then commands can build the full
+;;      numbers. In Debian, the commands can build the full
 ;;      dependency list and check if install is even possible. In
 ;;      contrast, the epackage sources list refers to distributed
 ;;      locations. The available versions or further depends
@@ -1252,24 +1251,27 @@
 ;;      this, the distributed system:
 ;;
 ;;      o   Cannot know beforehand what epackages would be required for X
-;;      o   Cannot know beforehand if it is possible to even install
+;;      o   Cannot know beforehand if it is possible to to even install
 ;;          package fully to satisfy all depends.
 ;;      o   Cannot ask to install a specific version because the
 ;;          version information is only available *after* the package
-;;          has been downloaded from the git tags.
+;;          has been downloaded. The version information is in the
+;;          Git tags.
 ;;      o   Cannot easily know en masse to which packages updates
 ;;          would be available. Because there is no central place to
-;;          read, each repository would need to be checked separately
-;;          (network perfomance penalty).
+;;          read, each repository needs to be probed separately
+;;          to determine updates. This causes slight network perfomance
+;;          wear if done frequently (multiple times a day).
 ;;
-;;      In daily use these issues don't much matter. If package X
+;;      In daily use these issues don't matter much. If package X
 ;;      requires Y, the Y will be downloaded. If Y further requires Z,
-;;      the Z will be downloaded etc. Somewhere in the chain the
-;;      downloads stops. It is just that no progress indicator can be
-;;      presented to tell how many more packages there is to load.
-;;      Most of the Emacs Lisp extensions are self standing and have
-;;      no external dependencies; contrast to Linux software that have
-;;      huge library dependencies.
+;;      the Z will be downloaded etc. Somewhere at the end of chain
+;;      the download will stop. It is just that no progress indicator
+;;      can be presented to tell how many more packages there is to
+;;      load. This is no issue actually as most of the Emacs Lisp
+;;      extensions are self standing and have no external
+;;      dependencies; in contrast to Linux packages that may have huge
+;;      number of library dependencies.
 ;;
 ;;      PACKAGE VERSIONS AND DEPENDS
 ;;
@@ -1321,18 +1323,18 @@
 ;;      of the package. It would be duplicate and manual work to keep
 ;;      the `info::Version' field in synch with the tags of Git
 ;;      repository. The version numbers are in fact immateria an
-;;      unnecessary: nice to know, but in daily use you only need know
-;;      if there is update or not. User insn't downloading some
-;;      specific version of the extension, but upgrading his package
-;;      to the latest. In Epackage, an upgrade updates full Git
-;;      repository, thus bringing all possible versions of the
-;;      extension available; only to activating the latest.
+;;      unnecessary: nice to know, but in daily use, not much used.
+;;      User isn't downloading some specific version of extension, but
+;;      upgrading his packages to the latest versions. In Epackage, an
+;;      upgrade updates full Git repository, thus bringing all
+;;      possible versions of the extension available; of these, the
+;;      latest is always activated.
 ;;
-;;      To select old versions, user must work on the git repositories
-;;      manually. There are no plans to support selecting previous
-;;      versions because that would bring instability to the whole
-;;      system. Imagine this: A depends on B, but user selects
-;;      specific version of B - which is older and won't work with
+;;      To select an old version, user must work on the Git
+;;      repositories manually. There are no plans to support selecting
+;;      previous versions because that would bring instability to the
+;;      whole system. Imagine this: A depends on B, but user selects
+;;      specific version of B - which is older one and won't work with
 ;;      other packages. Multiply this problem with N versions of
 ;;      several extensions. Summary: it's best to stick with the
 ;;      latest and send bug reports from latest versions to upstream.
@@ -1495,7 +1497,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.1114.1354"
+(defconst epackage--version-time "2012.1205.1205"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"

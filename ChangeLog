@@ -1,3 +1,7 @@
+2012-12-05 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el: 
+
 2012-11-14 Wed  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-status-installed-packages): handle duplicates
