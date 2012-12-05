@@ -934,7 +934,7 @@
 ;;
 ;;     License
 ;;
-;;      The valid License abbreviations must follow Official Linux foundations
+;;      The valid License abbreviations must follow official Linux foundations
 ;;      list <http://spdx.org/licenses/> (see also
 ;;      <http://dep.debian.net/deps/dep5/#license-specification>).
 ;;      A special word "None" should be used if the software
@@ -1056,7 +1056,7 @@
 ;;      or similar.
 ;;
 ;;      Value `obsolete' means that the functionality can be found in
-;;      recent Emacs. Obsolete packages are candidate for for removal
+;;      recent Emacs. Obsolete packages are candidate for removal
 ;;      at some point. It would be good idea to mention Emacs version
 ;;      and feature where this is available in a paragraph at the end
 ;;      of *Description:* field section "NOTE" or similar.
