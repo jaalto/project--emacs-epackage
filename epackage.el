@@ -1497,7 +1497,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.1205.1205"
+(defconst epackage--version-time "2012.1206.2309"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2718,7 +2718,7 @@ Use top form (let ((loat-path load-path) ...) before using this macro."
   `(with-current-buffer (get-buffer-create (or (and (boundp 'checkdoc-diagnostic-buffer)
 						    checkdoc-diagnostic-buffer)
 					       "*Style Warnings*"))
-     (toggle-read-only -1)
+     (setq buffer-read-only nil)
      (let ((buffer-undo-list t))
        ,@body)))
 
@@ -5135,12 +5135,12 @@ Point is not preserved."
 		       "License\\)")))
     (epackage-point-min)
     (when (re-search-forward re-gpl max t)
-      (setq str "GPL")
-      (when (re-search-forward re-ver max t)
-	(setq str (format "%s-%s" str (match-string-no-properties 1)))
-	(if (re-search-forward "any[ \t]+later[ \t]+version" nil t)
-	    (setq str (concat str "+"))))
-      str)))
+      (let ((str "GPL"))
+	(when (re-search-forward re-ver max t)
+	  (setq str (format "%s-%s" str (match-string-no-properties 1)))
+	  (if (re-search-forward "any[ \t]+later[ \t]+version" nil t)
+	      (setq str (concat str "+"))))
+	str))))
 
 (defun epackage-devel-information-license-apache ()
   "If there is MIT stanza, return MIT.
@@ -5297,8 +5297,8 @@ Return
       (cond
        ((stringp elt)
 	(setq loop nil
-	      ret str))
-       (year
+	      ret elt))
+       (year ;; if set (see next)
 	(when (string< year (car elt))
 	  (setq year (car elt)
 		ret (nth 1 elt))))
@@ -5772,7 +5772,7 @@ No error checking is done for PACKAGE."
      ((epackage-package-problems package verbose)
       (epackage-warn
        (format
-	"Won't re-create due to probles in %d" dir)))
+	"Won't re-create due to probles in package %s" package)))
      (t
       (epackage-recreate-package-lowlevel package verbose)))))
 
@@ -7203,7 +7203,7 @@ Return:
   '(\"<error message>\") or nil."
   (let ((name (if buffer-file-name
 		  (file-name-nondirectory buffer-file-name)
-		buffer-name))
+		(buffer-name)))
 	(ignore "toggle")
 	primary
 	list
@@ -7273,13 +7273,15 @@ Return:
       (epackage-point-min)
       (unless (re-search-forward "^(defcustom" nil t)
 	(epackage-push
-	 "Warning: defcustom not found. See "
-	 ret
-	 "14.x (GNU Emacs Lisp Reference Manual)"))
+	 (concat "Warning: defcustom not found. See "
+		 "14.x (GNU Emacs Lisp Reference Manual)")
+	 ret))
       (unless (re-search-forward "^(defgroup" nil t)
 	(epackage-push
-	 "Warning: defgroup not found"
-	 "14.x (GNU Emacs Lisp Reference Manual)")))
+	 (concat
+	  "Warning: defgroup not found "
+	  "14.x (GNU Emacs Lisp Reference Manual)")
+	 ret)))
     ret))
 
 (defun epackage-lint-extra-buffer-run-other-keybindings ()
