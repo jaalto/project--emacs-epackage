@@ -1497,7 +1497,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.1206.2309"
+(defconst epackage--version-time "2012.1210.0811"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -7221,7 +7221,7 @@ Return:
 		   (not (string-match ignore str))
 		   (not (member str list)))
 	  (epackage-push
-	   (format "%s:%d: Warning, %s-* but new name space: %s-*"
+	   (format "%s:%d: Warning, detected prefix %s-* but found: %s-*"
 		   name
 		   (epackage-line-number)
 		   primary
@@ -7250,7 +7250,9 @@ Return:
 Major mode must be `emacs-lisp-mode' for the checks to work.
 Return:
   '(\"<error message>\") or nil."
-  (let ((elisp (memq major-mode '(emacs-lisp-mode)))
+  (let ((elisp (memq major-mode
+		     '(emacs-lisp-mode
+		       lisp-interaction-mode)))
 	defcustom-need
 	beg
 	str
@@ -7259,10 +7261,17 @@ Return:
     (when elisp
       (while (re-search-forward
 	      "^(def\\(?:var\\|const\\) +\\([^ \t\r\n]+\\)" nil t)
+	(setq beg (match-beginning 0))
 	(setq str (match-string-no-properties 1))
-	(goto-char (setq beg (match-beginning 0)))
+	(goto-char beg)
 	(forward-sexp 1)		; defvar's last ")"
-	(when (re-search-backward "^ +\"\\*" beg t)
+	;; Search for "*". Note the use was made obsolete in 24.x
+	;; to mark user variables.
+	;;
+	;; Ignore buffer name statements like this (no paren at the end):
+	;;    "*Compile-Log*")
+	;;
+	(when (re-search-backward "^ +\"\\*.*[^)][ \t]*\r?\n" beg t)
 	  (setq defcustom-need t)
 	  (epackage-push
 	   (format "Missing:%d: defcustom %s"
