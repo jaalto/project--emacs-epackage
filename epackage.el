@@ -1497,7 +1497,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.1210.0821"
+(defconst epackage--version-time "2012.1210.0841"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2606,7 +2606,8 @@ Description: <short one line>
 (put 'epackage-with-insert-file-contents-literally 'lisp-indent-function 1)
 (put 'epackage-with-insert-file-contents-literally 'edebug-form-spec '(body))
 (defmacro epackage-with-insert-file-contents-literally (file &rest body)
-  "Like `insert-file-contents-literally' but disable everything."
+  "Insert FILE and run BODY.
+Like `insert-file-contents-literally' but disable everything."
   `(with-temp-buffer
      (let (vc-handled-backends
 	   (buffer-undo-list t))
@@ -2683,8 +2684,8 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
 (put 'epackage-with-load-path-recursive 'lisp-indent-function 1)
 (put 'epackage-with-load-path-recursive 'edebug-form-spec '(body))
 (defmacro epackage-with-load-path-recursive (dir &rest body)
-  "Add to `load-path' recursive from DIR and run BODY.
-Use top form (let ((loat-path load-path) ...) before using this macro."
+  "Add to `load-path' recursively all elements starting at DIR and run BODY.
+Save `load-path' before using this macro."
   `(progn
      (let (list)
        (dolist (elt (epackage-directory-recursive-list
@@ -2859,7 +2860,7 @@ Return:
     (save-buffer)))
 
 (defsubst epackage-date ()
-  "Return ISO 8601 YYYY-MM-DD"
+  "Return ISO 8601 YYYY-MM-DD."
   (format-time-string "%Y-%m-%d"))
 
 (defsubst epackage-time ()
@@ -3091,7 +3092,7 @@ Return:
    "^[^;]+(\\(interactive-p\\|called-interactively\\)" nil t))
 
 (defun epackage-locate-library (library)
-  "Search LIBRARY source file from `load-path'
+  "Search LIBRARY source file from `load-path'.
 Strip epackage specific 'lib-*' prefix."
   (let* ((name library)
          (mode (if (string-match "^\\(.+\\)-mode$" library)
@@ -3411,7 +3412,7 @@ The TYPE is car of list `epackage--layout-mapping'."
         file)))
 
 (defun epackage-package-problems (package &optional verbose)
-  "Check if PACKAGE is in pristine state
+  "Check if PACKAGE is in a pristine state.
 If optional VERBOSE is non-nil, display informational messages.
 
 Return:
@@ -4186,7 +4187,7 @@ If optional VERBOSE is non-nil, display progress message."
     "rev-parse" "HEAD"))
 
 (defun epackage-git-command-sha-remote (dir &optional remote branch verbose)
-  "Run in DIR 'git ls-remote REMOTE refs/heads/BRANCH'
+  "Run in DIR 'git ls-remote REMOTE refs/heads/BRANCH'.
 REMOTE defaults to \"origin\" and BRANCH to \"master\".
 If optional VERBOSE is non-nil, display progress message.
 
@@ -4211,7 +4212,7 @@ Return:
   (epackage-git-command-sha-remote default-directory url verbose))
 
 (defun epackage-git-sha-current (dir &optional verbose)
-  "Return SHA of HEAD drectly by reading repository.
+  "Return SHA of HEAD drectly by reading repository DIR.
 If optional VERBOSE is non-nil, display progress message."
   (let ((file (format "%s.git/refs/heads/master"
 		      (file-name-as-directory dir))))
@@ -4489,7 +4490,7 @@ relative locations, like this:
 (defun epackage-autoload-generate-loaddefs-dir
   (dir file &optional exclude recursive verbose)
   "Generate loaddefs from DIR to FILE.
-Optionally EXCLUDE files by regexp.
+Optionally EXCLUDE files by regexp, or run using RECURSIVE option.
 If VERBOSE is non-nil, display informational messages."
   (interactive
    "FDLoaddefs from dir: \nFLoaddefs to file: \nsFile ignore regexp: ")
@@ -5762,7 +5763,8 @@ No error checking is done for PACKAGE."
       (epackage-rerun-action-list package verbose))))
 
 (defun epackage-recreate-package (package &optional verbose)
-  "Call `epackage-recreate-package-lowlevel' only after checks."
+  "Call `epackage-recreate-package-lowlevel' for PACKAGE only after checking.
+If optional VERBOSE is non-nil, display informational message."
   (let ((url (epackage-sources-list-info-url package)))
     (cond
      ((null url)
@@ -7293,7 +7295,7 @@ Return:
     ret))
 
 (defun epackage-lint-extra-buffer-run-other-keybindings ()
-  "Check if code uses global-set-key.
+  "Check use of function `global-set-key'.
 Return:
   '(\"ERROR-TYPE:LINE-NUMBER:LINE\" ...) or nil."
   (let (space
@@ -8944,13 +8946,15 @@ Summary, Version, Maintainer etc."
 
 (put 'epackage-batch-setup 'lisp-indent-function 0)
 (put 'epackage-batch-setup 'edebug-form-spec '(body))
-(defmacro epackage-batch-setup (&rest args)
+(defmacro epackage-batch-setup (&rest body)
+  "Set up variables for batch processing and run BODY.
+Disable `find-file-hook', fontification, version control etc."
   `(let (find-file-hook
 	 global-font-lock-mode
 	 vc-handled-backends   ;; Optimize: prevent loading VC for files.
 	 (debug-on-error t)
 	 debug-ignored-errors)
-     ,@args))
+     ,@body))
 
 (put 'epackage-interactive-initialize 'lisp-indent-function 0)
 (put 'epackage-interactive-initialize 'edebug-form-spec '(body))
