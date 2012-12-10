@@ -487,7 +487,7 @@
 ;;
 ;;     The *-0loaddefs.el
 ;;
-;;      This file contains extracted `##autoload' definitions. The file
+;;      This file contains extracted `###autoload' definitions. The file
 ;;      is usually automatically generated. The file does not modify
 ;;      user's environment. If extension does not contains any
 ;;      `###autoload' definitions, the manually crafted `*-install.el'
@@ -934,10 +934,10 @@
 ;;
 ;;     License
 ;;
-;;      The valid License abbreviations should follow list defined at
-;;      <http://dep.debian.net/deps/dep5/#license-specification> and
-;;      <http://spdx.org/licenses/>. "License specification / Short
-;;      name". A special word "None" should be used if the software
+;;      The valid License abbreviations must follow official Linux foundations
+;;      list <http://spdx.org/licenses/> (see also
+;;      <http://dep.debian.net/deps/dep5/#license-specification>).
+;;      A special word "None" should be used if the software
 ;;      has no license information in any of the source files.
 ;;      Examples of valid license tokens:
 ;;
@@ -1056,7 +1056,7 @@
 ;;      or similar.
 ;;
 ;;      Value `obsolete' means that the functionality can be found in
-;;      recent Emacs. Obsolete packages are candidate for for removal
+;;      recent Emacs. Obsolete packages are candidate for removal
 ;;      at some point. It would be good idea to mention Emacs version
 ;;      and feature where this is available in a paragraph at the end
 ;;      of *Description:* field section "NOTE" or similar.
@@ -1136,11 +1136,10 @@
 ;;
 ;;     Vcs-User
 ;;
-;;      Login name used to access The Version Control System
-;;      repository. In case the repository cannot be accessed simply
-;;      by visiting the `Vcs-Url' (or in the case of CVS: pressing
-;;      RETURN at login prompt), this is the used login name;
-;;      typically `anonymous' or the like.
+;;      Login name used to access VCS repository. In case the
+;;      repository cannot be accessed simply by visiting the `Vcs-Url'
+;;      (or in the case of CVS: pressing RETURN at login prompt), this
+;;      is the used login name; typically `anonymous' or the like.
 ;;
 ;;     Vcs-Password
 ;;
@@ -1152,7 +1151,7 @@
 ;;
 ;;      This field points to extension page (or page that talks about
 ;;      it) at <http://www.emacswiki.org>. If the extension does not
-;;      yet have a page, encourage upstream to create one.
+;;      yet have a Emacswiki page, encourage upstream to create one.
 ;;
 ;;     X-*
 ;;
@@ -1163,7 +1162,7 @@
 ;;          X-Upstream-Homepage: URL
 ;;          X-Development: YYYY-MM-DD upstream email confirmed
 ;;
-;;      If converting extension to a epackage needs special treatment
+;;      If converting extension to a epackage needs special treatment,
 ;;      please document those in field like:
 ;;
 ;;              X-Packaging:
@@ -1243,7 +1242,7 @@
 ;;      which was the source of inspiration for the used syntax. The
 ;;      Debian packaging system is centralized, so it has the
 ;;      knowledge about all the available packages and their version
-;;      numbers. In Debian, then commands can build the full
+;;      numbers. In Debian, the commands can build the full
 ;;      dependency list and check if install is even possible. In
 ;;      contrast, the epackage sources list refers to distributed
 ;;      locations. The available versions or further depends
@@ -1252,24 +1251,27 @@
 ;;      this, the distributed system:
 ;;
 ;;      o   Cannot know beforehand what epackages would be required for X
-;;      o   Cannot know beforehand if it is possible to even install
+;;      o   Cannot know beforehand if it is possible to to even install
 ;;          package fully to satisfy all depends.
 ;;      o   Cannot ask to install a specific version because the
 ;;          version information is only available *after* the package
-;;          has been downloaded from the git tags.
+;;          has been downloaded. The version information is in the
+;;          Git tags.
 ;;      o   Cannot easily know en masse to which packages updates
 ;;          would be available. Because there is no central place to
-;;          read, each repository would need to be checked separately
-;;          (network perfomance penalty).
+;;          read, each repository needs to be probed separately
+;;          to determine updates. This causes slight network perfomance
+;;          wear if done frequently (multiple times a day).
 ;;
-;;      In daily use these issues don't much matter. If package X
+;;      In daily use these issues don't matter much. If package X
 ;;      requires Y, the Y will be downloaded. If Y further requires Z,
-;;      the Z will be downloaded etc. Somewhere in the chain the
-;;      downloads stops. It is just that no progress indicator can be
-;;      presented to tell how many more packages there is to load.
-;;      Most of the Emacs Lisp extensions are self standing and have
-;;      no external dependencies; contrast to Linux software that have
-;;      huge library dependencies.
+;;      the Z will be downloaded etc. Somewhere at the end of chain
+;;      the download will stop. It is just that no progress indicator
+;;      can be presented to tell how many more packages there is to
+;;      load. This is no issue actually as most of the Emacs Lisp
+;;      extensions are self standing and have no external
+;;      dependencies; in contrast to Linux packages that may have huge
+;;      number of library dependencies.
 ;;
 ;;      PACKAGE VERSIONS AND DEPENDS
 ;;
@@ -1321,18 +1323,18 @@
 ;;      of the package. It would be duplicate and manual work to keep
 ;;      the `info::Version' field in synch with the tags of Git
 ;;      repository. The version numbers are in fact immateria an
-;;      unnecessary: nice to know, but in daily use you only need know
-;;      if there is update or not. User insn't downloading some
-;;      specific version of the extension, but upgrading his package
-;;      to the latest. In Epackage, an upgrade updates full Git
-;;      repository, thus bringing all possible versions of the
-;;      extension available; only to activating the latest.
+;;      unnecessary: nice to know, but in daily use, not much used.
+;;      User isn't downloading some specific version of extension, but
+;;      upgrading his packages to the latest versions. In Epackage, an
+;;      upgrade updates full Git repository, thus bringing all
+;;      possible versions of the extension available; of these, the
+;;      latest is always activated.
 ;;
-;;      To select old versions, user must work on the git repositories
-;;      manually. There are no plans to support selecting previous
-;;      versions because that would bring instability to the whole
-;;      system. Imagine this: A depends on B, but user selects
-;;      specific version of B - which is older and won't work with
+;;      To select an old version, user must work on the Git
+;;      repositories manually. There are no plans to support selecting
+;;      previous versions because that would bring instability to the
+;;      whole system. Imagine this: A depends on B, but user selects
+;;      specific version of B - which is older one and won't work with
 ;;      other packages. Multiply this problem with N versions of
 ;;      several extensions. Summary: it's best to stick with the
 ;;      latest and send bug reports from latest versions to upstream.
@@ -1495,7 +1497,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.1114.1354"
+(defconst epackage--version-time "2012.1210.0841"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1800,7 +1802,7 @@ See also `epackage--sources-replace-table'."
   :type 'string)
 
 (defvar epackage-info-mode nil
-  "*Non-nil when Epackage Info Mode is active.
+  "Non-nil when Epackage Info Mode is active.
 Never set this variable directly, use the command
 `epackage-info-mode' instead.")
 
@@ -2604,7 +2606,8 @@ Description: <short one line>
 (put 'epackage-with-insert-file-contents-literally 'lisp-indent-function 1)
 (put 'epackage-with-insert-file-contents-literally 'edebug-form-spec '(body))
 (defmacro epackage-with-insert-file-contents-literally (file &rest body)
-  "Like `insert-file-contents-literally' but disable everything."
+  "Insert FILE and run BODY.
+Like `insert-file-contents-literally' but disable everything."
   `(with-temp-buffer
      (let (vc-handled-backends
 	   (buffer-undo-list t))
@@ -2681,8 +2684,8 @@ An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
 (put 'epackage-with-load-path-recursive 'lisp-indent-function 1)
 (put 'epackage-with-load-path-recursive 'edebug-form-spec '(body))
 (defmacro epackage-with-load-path-recursive (dir &rest body)
-  "Add to `load-path' recursive from DIR and run BODY.
-Use top form (let ((loat-path load-path) ...) before using this macro."
+  "Add to `load-path' recursively all elements starting at DIR and run BODY.
+Save `load-path' before using this macro."
   `(progn
      (let (list)
        (dolist (elt (epackage-directory-recursive-list
@@ -2716,7 +2719,7 @@ Use top form (let ((loat-path load-path) ...) before using this macro."
   `(with-current-buffer (get-buffer-create (or (and (boundp 'checkdoc-diagnostic-buffer)
 						    checkdoc-diagnostic-buffer)
 					       "*Style Warnings*"))
-     (toggle-read-only -1)
+     (setq buffer-read-only nil)
      (let ((buffer-undo-list t))
        ,@body)))
 
@@ -2857,7 +2860,7 @@ Return:
     (save-buffer)))
 
 (defsubst epackage-date ()
-  "Return ISO 8601 YYYY-MM-DD"
+  "Return ISO 8601 YYYY-MM-DD."
   (format-time-string "%Y-%m-%d"))
 
 (defsubst epackage-time ()
@@ -3089,7 +3092,7 @@ Return:
    "^[^;]+(\\(interactive-p\\|called-interactively\\)" nil t))
 
 (defun epackage-locate-library (library)
-  "Search LIBRARY source file from `load-path'
+  "Search LIBRARY source file from `load-path'.
 Strip epackage specific 'lib-*' prefix."
   (let* ((name library)
          (mode (if (string-match "^\\(.+\\)-mode$" library)
@@ -3409,7 +3412,7 @@ The TYPE is car of list `epackage--layout-mapping'."
         file)))
 
 (defun epackage-package-problems (package &optional verbose)
-  "Check if PACKAGE is in pristine state
+  "Check if PACKAGE is in a pristine state.
 If optional VERBOSE is non-nil, display informational messages.
 
 Return:
@@ -4184,7 +4187,7 @@ If optional VERBOSE is non-nil, display progress message."
     "rev-parse" "HEAD"))
 
 (defun epackage-git-command-sha-remote (dir &optional remote branch verbose)
-  "Run in DIR 'git ls-remote REMOTE refs/heads/BRANCH'
+  "Run in DIR 'git ls-remote REMOTE refs/heads/BRANCH'.
 REMOTE defaults to \"origin\" and BRANCH to \"master\".
 If optional VERBOSE is non-nil, display progress message.
 
@@ -4209,7 +4212,7 @@ Return:
   (epackage-git-command-sha-remote default-directory url verbose))
 
 (defun epackage-git-sha-current (dir &optional verbose)
-  "Return SHA of HEAD drectly by reading repository.
+  "Return SHA of HEAD drectly by reading repository DIR.
 If optional VERBOSE is non-nil, display progress message."
   (let ((file (format "%s.git/refs/heads/master"
 		      (file-name-as-directory dir))))
@@ -4487,7 +4490,7 @@ relative locations, like this:
 (defun epackage-autoload-generate-loaddefs-dir
   (dir file &optional exclude recursive verbose)
   "Generate loaddefs from DIR to FILE.
-Optionally EXCLUDE files by regexp.
+Optionally EXCLUDE files by regexp, or run using RECURSIVE option.
 If VERBOSE is non-nil, display informational messages."
   (interactive
    "FDLoaddefs from dir: \nFLoaddefs to file: \nsFile ignore regexp: ")
@@ -5133,12 +5136,12 @@ Point is not preserved."
 		       "License\\)")))
     (epackage-point-min)
     (when (re-search-forward re-gpl max t)
-      (setq str "GPL")
-      (when (re-search-forward re-ver max t)
-	(setq str (format "%s-%s" str (match-string-no-properties 1)))
-	(if (re-search-forward "any[ \t]+later[ \t]+version" nil t)
-	    (setq str (concat str "+"))))
-      str)))
+      (let ((str "GPL"))
+	(when (re-search-forward re-ver max t)
+	  (setq str (format "%s-%s" str (match-string-no-properties 1)))
+	  (if (re-search-forward "any[ \t]+later[ \t]+version" nil t)
+	      (setq str (concat str "+"))))
+	str))))
 
 (defun epackage-devel-information-license-apache ()
   "If there is MIT stanza, return MIT.
@@ -5295,8 +5298,8 @@ Return
       (cond
        ((stringp elt)
 	(setq loop nil
-	      ret str))
-       (year
+	      ret elt))
+       (year ;; if set (see next)
 	(when (string< year (car elt))
 	  (setq year (car elt)
 		ret (nth 1 elt))))
@@ -5760,7 +5763,8 @@ No error checking is done for PACKAGE."
       (epackage-rerun-action-list package verbose))))
 
 (defun epackage-recreate-package (package &optional verbose)
-  "Call `epackage-recreate-package-lowlevel' only after checks."
+  "Call `epackage-recreate-package-lowlevel' for PACKAGE only after checking.
+If optional VERBOSE is non-nil, display informational message."
   (let ((url (epackage-sources-list-info-url package)))
     (cond
      ((null url)
@@ -5770,7 +5774,7 @@ No error checking is done for PACKAGE."
      ((epackage-package-problems package verbose)
       (epackage-warn
        (format
-	"Won't re-create due to probles in %d" dir)))
+	"Won't re-create due to probles in package %s" package)))
      (t
       (epackage-recreate-package-lowlevel package verbose)))))
 
@@ -7201,7 +7205,7 @@ Return:
   '(\"<error message>\") or nil."
   (let ((name (if buffer-file-name
 		  (file-name-nondirectory buffer-file-name)
-		buffer-name))
+		(buffer-name)))
 	(ignore "toggle")
 	primary
 	list
@@ -7219,7 +7223,7 @@ Return:
 		   (not (string-match ignore str))
 		   (not (member str list)))
 	  (epackage-push
-	   (format "%s:%d: Warning, %s-* but new name space: %s-*"
+	   (format "%s:%d: Warning, detected prefix %s-* but found: %s-*"
 		   name
 		   (epackage-line-number)
 		   primary
@@ -7248,7 +7252,9 @@ Return:
 Major mode must be `emacs-lisp-mode' for the checks to work.
 Return:
   '(\"<error message>\") or nil."
-  (let ((elisp (memq major-mode '(emacs-lisp-mode)))
+  (let ((elisp (memq major-mode
+		     '(emacs-lisp-mode
+		       lisp-interaction-mode)))
 	defcustom-need
 	beg
 	str
@@ -7257,31 +7263,39 @@ Return:
     (when elisp
       (while (re-search-forward
 	      "^(def\\(?:var\\|const\\) +\\([^ \t\r\n]+\\)" nil t)
+	(setq beg (match-beginning 0))
 	(setq str (match-string-no-properties 1))
-	(goto-char (setq beg (match-beginning 0)))
+	(goto-char beg)
 	(forward-sexp 1)		; defvar's last ")"
-	(when (re-search-backward "^ +\"\\*" beg t)
-	  (setq defcustom-need t)
-	  (epackage-push
-	   (format "Missing:%d: defcustom %s"
-		   (epackage-line-number)
-		   str)
-	   ret))))
+	;; Search for "*". Note the use was made obsolete in 24.x
+	;; to mark user variables.
+	(when  (re-search-backward "\"" beg t)
+	  (forward-char 1)  ;; at ending quote
+	  (backward-sexp 1) ;; search starting quote
+	  (when  (looking-at "\"\\*")
+	    (setq defcustom-need t)
+	    (epackage-push
+	     (format "Missing:%d: defcustom %s"
+		     (epackage-line-number)
+		     str)
+	     ret)))))
     (when defcustom-need		; Libraries don't need
       (epackage-point-min)
       (unless (re-search-forward "^(defcustom" nil t)
 	(epackage-push
-	 "Warning: defcustom not found. See "
-	 ret
-	 "14.x (GNU Emacs Lisp Reference Manual)"))
+	 (concat "Warning: defcustom not found. See "
+		 "14.x (GNU Emacs Lisp Reference Manual)")
+	 ret))
       (unless (re-search-forward "^(defgroup" nil t)
 	(epackage-push
-	 "Warning: defgroup not found"
-	 "14.x (GNU Emacs Lisp Reference Manual)")))
+	 (concat
+	  "Warning: defgroup not found "
+	  "(14.x GNU Emacs Lisp Reference Manual)")
+	 ret)))
     ret))
 
 (defun epackage-lint-extra-buffer-run-other-keybindings ()
-  "Check if code uses global-set-key.
+  "Check use of function `global-set-key'.
 Return:
   '(\"ERROR-TYPE:LINE-NUMBER:LINE\" ...) or nil."
   (let (space
@@ -8932,13 +8946,15 @@ Summary, Version, Maintainer etc."
 
 (put 'epackage-batch-setup 'lisp-indent-function 0)
 (put 'epackage-batch-setup 'edebug-form-spec '(body))
-(defmacro epackage-batch-setup (&rest args)
+(defmacro epackage-batch-setup (&rest body)
+  "Set up variables for batch processing and run BODY.
+Disable `find-file-hook', fontification, version control etc."
   `(let (find-file-hook
 	 global-font-lock-mode
 	 vc-handled-backends   ;; Optimize: prevent loading VC for files.
 	 (debug-on-error t)
 	 debug-ignored-errors)
-     ,@args))
+     ,@body))
 
 (put 'epackage-interactive-initialize 'lisp-indent-function 0)
 (put 'epackage-interactive-initialize 'edebug-form-spec '(body))
