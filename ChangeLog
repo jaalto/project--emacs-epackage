@@ -1,7 +1,8 @@
 2012-12-10 Mon  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-lint-extra-buffer-run-other-defcustom):
-	Tighten search regexp. Add more comments.
+	Use backward-sexp to find documentation string start.
+	(epackage-info-mode): No a user variable, drop * from docstring.
 
 2012-12-06 Fri  Jari Aalto  <jari.aalto@cante.net>
 

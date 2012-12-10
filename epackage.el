@@ -1497,7 +1497,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.1210.0811"
+(defconst epackage--version-time "2012.1210.0821"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1802,7 +1802,7 @@ See also `epackage--sources-replace-table'."
   :type 'string)
 
 (defvar epackage-info-mode nil
-  "*Non-nil when Epackage Info Mode is active.
+  "Non-nil when Epackage Info Mode is active.
 Never set this variable directly, use the command
 `epackage-info-mode' instead.")
 
@@ -7267,17 +7267,16 @@ Return:
 	(forward-sexp 1)		; defvar's last ")"
 	;; Search for "*". Note the use was made obsolete in 24.x
 	;; to mark user variables.
-	;;
-	;; Ignore buffer name statements like this (no paren at the end):
-	;;    "*Compile-Log*")
-	;;
-	(when (re-search-backward "^ +\"\\*.*[^)][ \t]*\r?\n" beg t)
-	  (setq defcustom-need t)
-	  (epackage-push
-	   (format "Missing:%d: defcustom %s"
-		   (epackage-line-number)
-		   str)
-	   ret))))
+	(when  (re-search-backward "\"" beg t)
+	  (forward-char 1)  ;; at ending quote
+	  (backward-sexp 1) ;; search starting quote
+	  (when  (looking-at "\"\\*")
+	    (setq defcustom-need t)
+	    (epackage-push
+	     (format "Missing:%d: defcustom %s"
+		     (epackage-line-number)
+		     str)
+	     ret)))))
     (when defcustom-need		; Libraries don't need
       (epackage-point-min)
       (unless (re-search-forward "^(defcustom" nil t)
@@ -7289,7 +7288,7 @@ Return:
 	(epackage-push
 	 (concat
 	  "Warning: defgroup not found "
-	  "14.x (GNU Emacs Lisp Reference Manual)")
+	  "(14.x GNU Emacs Lisp Reference Manual)")
 	 ret)))
     ret))
 
