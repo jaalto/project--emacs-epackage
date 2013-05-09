@@ -1496,7 +1496,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0509.1627"
+(defconst epackage--version-time "2013.0509.1631"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4478,7 +4478,7 @@ relative locations, like this:
 
   (custom-autoload 'some-function \"../lisp/some\" t)"
   (epackage-with-insert-file-contents-literally file
-    (while (re-search-forward "\"\\(.+/\\(.+\\)\\)\"" nil t)
+    (while (re-search-forward "\"\\(\\.?\\.?/\\(.+\\)\\)\"" nil t)
       (replace-match (match-string 2) nil nil nil 1))
     (epackage-write-region (point-min) (point-max) file)))
 

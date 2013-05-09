@@ -1,6 +1,8 @@
 2013-05-09 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el: Correct spelling of autoload word.
+	(epackage-autoload-remove-path-names): Improve
+	regexp in `re-search-forward' call.
 
 2012-10-18 Thu  Jari Aalto  <jari.aalto@cante.net>
 
