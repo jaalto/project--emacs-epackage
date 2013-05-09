@@ -18,7 +18,7 @@
 ;;
 ;; This program is distributed in the hope that it will be useful, but
 ;; WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+;; or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 ;; for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
@@ -1496,7 +1496,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0509.1626"
+(defconst epackage--version-time "2013.0509.1627"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
