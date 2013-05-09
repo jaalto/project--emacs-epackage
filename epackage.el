@@ -1496,7 +1496,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.1018.1115"
+(defconst epackage--version-time "2013.0509.1625"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -3356,7 +3356,7 @@ The TYPE is car of list `epackage--layout-mapping'."
         file)))
 
 (defun epackage-package-autoload-p (package)
-  "Return file if PACKAGE autolaod file exists."
+  "Return file if PACKAGE autoload file exists."
   (let ((file (epackage-file-name-install-compose package 'autoload)))
     (if (file-exists-p file)
         file)))
@@ -4470,7 +4470,7 @@ The first argument is the the destination file where loaddefs are stored."
 
 (defun epackage-autoload-remove-path-names (file)
   "From autoload FILE, remove all references to paths.
-Say you generate autolaods using function
+Say you generate autoloads using function
 `tinylisp-autoload-generate-loaddefs-dir' which would record
 relative locations based on the stored autoload FILE. In case
 those lcoations are already in path, there is no need to preserve
