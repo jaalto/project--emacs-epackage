@@ -4,6 +4,21 @@
 	(epackage-autoload-remove-path-names): Improve
 	regexp in `re-search-forward' call.
 
+2012-12-10 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-lint-extra-buffer-run-other-defcustom):
+	Use backward-sexp to find documentation string start.
+	(epackage-info-mode): No a user variable, drop * from docstring.
+
+2012-12-06 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el: Correct byte compiler problems.
+
+2012-11-14 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-status-installed-packages): handle duplicates
+	and check also autoload, loaddefs.
+
 2012-10-18 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-files-recursive-lisp): Check FILE before
@@ -46,7 +61,8 @@
 	(epackage-run-action-list): Call `epackage-sort-sym'.
 	(epackage-git-command-sha-remote): New.
 	(epackage-package-problems): New epackage-package-problems.
-	(epackage-sources-list-and-repositories-sync): Use `epackage-package-problems'.
+	(epackage-sources-list-and-repositories-sync): Use
+	`epackage-package-problems'.
 	(epackage-recreate-package-lowlevel): New.
 	(epackage-upgrade-package-main): Recreate package if URL moved.
 	(epackage-git-error-handler): Obey `epackage--no-error'.
@@ -57,8 +73,8 @@
 	(epackage--sources-file-list): Improve documentation string.
 	(epackage-sources-list-build): Make interactive.
 	(epackage-git-config-fetch-field-url): New.
-	(epackage-sources-list-and-repositories-sync): Check non-existing Git URL
-	before trying to recreate.
+	(epackage-sources-list-and-repositories-sync): Check non-existing
+	Git URL before trying to recreate.
 	(epackage-cmd-download-package): Improve logic.
 
 2012-01-13 Fri  Jari Aalto  <jari.aalto@cante.net>
