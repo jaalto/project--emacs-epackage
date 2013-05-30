@@ -1,3 +1,11 @@
+2013-05-29 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-defun-regexp): New.
+	(epackage-emacs-lisp-mode-maybe): New.
+	(epackage-autoload-create-on-file): Use
+	`epackage-defun-regexp' and `epackage-autoload-create-on-file'.
+	Correct while loop and forward-sexp position.
+
 2013-05-09 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el: Correct spelling of autoload word.

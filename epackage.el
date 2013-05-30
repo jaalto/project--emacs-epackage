@@ -1497,7 +1497,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0509.1633"
+(defconst epackage--version-time "2013.0529.0648"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2592,6 +2592,27 @@ Description: <short one line>
  Note: YYYY-MM-DD the code hasn't been touched since YYYY.
 "
   "String containing the epackage/info file.")
+
+(defconst epackage-defun-regexp
+  (concat
+   "^(\\("
+   "defun[*]?"
+   "\\|defmacro[*]?"
+   "\\|defsubst"
+   "\\|defun-maybe"
+   "\\|defsubst-maybe"
+   "\\|defmacro-maybe"
+   "\\|define-compilation-mode"
+   "\\|define-derived-mode"
+   "\\|define-generic-mode"
+   "\\|define-global-minor-mode"
+   "\\|define-globalized-minor-mode"
+   "\\|define-minor-mode"
+   "\\|easy-mmode-define-global-mode"
+   "\\|easy-mmode-define-minor-mode"
+   "\\)"
+   "[ \t]+\\([^ \t\n(]+\\)[ \t]*")
+  "Regexp to search def*uns for autoload.")
 
 ;;; ................................................ &functions-simple ...
 
@@ -4519,6 +4540,14 @@ If VERBOSE is non-nil, display informational messages."
        (or verbose (called-interactively-p 'interactive)))
       (epackage-autoload-remove-path-names file))))
 
+(defun epackage-emacs-lisp-mode-maybe ()
+  "Activate `emacs-lisp-mode' if not set."
+  (unless (eq major-mode 'emacs-lisp-mode)
+    (let (emacs-lisp-mode-hook) ;; Run no hooks
+      (if emacs-lisp-mode-hook  ;; Quiet ByteCompiler "unused var"
+	  (setq emacs-lisp-mode-hook nil))
+      (emacs-lisp-mode))))
+
 ;; Copy of ti::package-autoload-create-on-file
 (defun epackage-autoload-create-on-file (file buffer)
   "Read FILE and write autoload statements to BUFFER.
@@ -4533,24 +4562,7 @@ Input:
   FILE      Emacs Lisp file to read
   BUFFER    to insert autoloads."
   (let ((fn     (file-name-nondirectory file))
-        (regexp `,(concat
-                   "^(\\("
-                   "defun[*]?"
-                   "\\|defmacro[*]?"
-                   "\\|defsubst"
-                   "\\|defun-maybe"
-                   "\\|defsubst-maybe"
-                   "\\|defmacro-maybe"
-                   "\\|define-compilation-mode"
-                   "\\|define-derived-mode"
-                   "\\|define-generic-mode"
-                   "\\|define-global-minor-mode"
-                   "\\|define-globalized-minor-mode"
-                   "\\|define-minor-mode"
-                   "\\|easy-mmode-define-global-mode"
-                   "\\|easy-mmode-define-minor-mode"
-                   "\\)"
-                   "[ \t]+\\([^ \t\n(]+\\)[ \t]*"))
+	(regexp epackage-defun-regexp)
         list
         args
         func
@@ -4570,25 +4582,25 @@ Input:
       (setq read-buffer (setq tmp (find-file-noselect file))))
     (with-current-buffer read-buffer
       (setq save-point (point))
-      ;; Can't use forward-sexp
-      (unless (string-match "lisp" (symbol-name major-mode))
-        (let (emacs-lisp-mode-hook) ;; Run no hooks
-          (if emacs-lisp-mode-hook  ;; Quiet ByteCompiler "unused var"
-              (setq emacs-lisp-mode-hook nil))
-          (emacs-lisp-mode)))
+      ;; Can't use forward-sexp otherwise
+      (epackage-emacs-lisp-mode-maybe)
       (epackage-point-min)
       (while (re-search-forward regexp nil t)
         (setq iact nil                  ;interactive flag
               args nil
               ;; match (match-string 0)
-              type (match-string 1)
-              func (match-string 2))
+              type (match-string-no-properties 1)
+              func (match-string-no-properties 2))
         (when (and func
                    (progn
+		     ;; Read arguments for defun
                      (goto-char (goto-char (match-end 0)))
-                     (when (search-forward "(" nil t)
-                       (setq point (point))
-                       (backward-char 1)
+                     (when (or (looking-at "[(]")
+			       (and
+				(search-forward "(" nil t)
+				(backward-char 1)))
+		       ;; Text start, not the paren
+                       (setq point (1+ (point)))
                        (forward-sexp 1)
                        (backward-char 1)
                        (setq
@@ -9120,14 +9132,14 @@ Disable `find-file-hook', fontification, version control etc."
 (defun epackage-batch-devel-compose-package-dir ()
   "Run `epackage-devel-compose-package-dir' for first command line arg.
 The arguments:
-  0  Package name
-  1  Directory roo."
+  1  Package name
+  2  Root directory of package files"
   (let ((vc-handled-backends nil)
 	(name (nth 0 command-line-args-left))
 	(path (nth 1 command-line-args-left))
-	(root (nth 2 command-line-args-left))
+	;; (root (nth 2 command-line-args-left))
 	dir)
-    (let ((i 0))
+    (let ((i 1))
       (dolist (elt command-line-args-left)
 	(epackage-message "ARG %d: %s" i elt)
 	(setq i (1+ i))))
@@ -9139,6 +9151,7 @@ The arguments:
       (epackage-error "FILE Argument 2 is missing"))
     (unless (file-directory-p path)
       (epackage-error "Warn: No such directory: %s" path))
+    ;; In case of "."
     (if (string-match "^\\./?$" path)
 	(setq path default-directory))
     (epackage-devel-compose-package-dir name path)))
