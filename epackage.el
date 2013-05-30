@@ -1497,7 +1497,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0529.0648"
+(defconst epackage--version-time "2013.0530.1450"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4493,8 +4493,8 @@ The first argument is the the destination file where loaddefs are stored."
            'verbose)
         (setq dest item)))))
 
-(defun epackage-autoload-remove-path-names (file)
-  "From autoload FILE, remove all references to paths.
+(defun epackage-autoload-remove-path-names-buffer ()
+  "From current point remove directories from autoload definition paths.
 Say you generate autoloads using function
 `tinylisp-autoload-generate-loaddefs-dir' which would record
 relative locations based on the stored autoload FILE. In case
@@ -4502,9 +4502,15 @@ those lcoations are already in path, there is no need to preserve
 relative locations, like this:
 
   (custom-autoload 'some-function \"../lisp/some\" t)"
-  (epackage-with-insert-file-contents-literally file
     (while (re-search-forward "\"\\(\\.?\\.?/\\(.+\\)\\)\"" nil t)
-      (replace-match (match-string 2) nil nil nil 1))
+      (replace-match (match-string 2) nil nil nil 1)))
+
+(defun epackage-autoload-remove-path-names-file (file)
+  "From autoload FILE, remove all references to paths.
+See `epackage-autoload-remove-path-names-buffer' for full
+description."
+  (epackage-with-insert-file-contents-literally file
+    (epackage-autoload-remove-path-names-buffer)
     (epackage-write-region (point-min) (point-max) file)))
 
 ;; Copy of tinylisp-autoload-generate-loaddefs-dir
@@ -4538,7 +4544,7 @@ If VERBOSE is non-nil, display informational messages."
        file
        list
        (or verbose (called-interactively-p 'interactive)))
-      (epackage-autoload-remove-path-names file))))
+      (epackage-autoload-remove-path-names-file file))))
 
 (defun epackage-emacs-lisp-mode-maybe ()
   "Activate `emacs-lisp-mode' if not set."

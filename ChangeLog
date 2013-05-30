@@ -1,3 +1,9 @@
+2013-05-30 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-autoload-remove-path-names-buffer): New.
+	(epackage-autoload-remove-path-names-file): Rename.
+	Was `epackage-autoload-remove-path-names'.
+
 2013-05-29 Wed  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-defun-regexp): New.
