@@ -3,6 +3,8 @@
 	* epackage.el (epackage-autoload-remove-path-names-buffer): New.
 	(epackage-autoload-remove-path-names-file): Rename.
 	Was `epackage-autoload-remove-path-names'.
+	(epackage-batch-autoload-generate-loaddefs-dir): tighten regexp
+	to read previous *0loaddefs* with `directory-files'.
 
 2013-05-29 Wed  Jari Aalto  <jari.aalto@cante.net>
 

@@ -1497,7 +1497,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0530.1450"
+(defconst epackage--version-time "2013.0530.1515"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4502,18 +4502,18 @@ those lcoations are already in path, there is no need to preserve
 relative locations, like this:
 
   (custom-autoload 'some-function \"../lisp/some\" t)"
-    (while (re-search-forward "\"\\(\\.?\\.?/\\(.+\\)\\)\"" nil t)
-      (replace-match (match-string 2) nil nil nil 1)))
+    (while (re-search-forward "\"\\(\\.?\\.?/?[^\"\r\n]+/\\).+\"" nil t)
+      (replace-match ""  nil nil nil 1)))
 
 (defun epackage-autoload-remove-path-names-file (file)
   "From autoload FILE, remove all references to paths.
 See `epackage-autoload-remove-path-names-buffer' for full
 description."
   (epackage-with-insert-file-contents-literally file
+    (epackage-point-min)
     (epackage-autoload-remove-path-names-buffer)
     (epackage-write-region (point-min) (point-max) file)))
 
-;; Copy of tinylisp-autoload-generate-loaddefs-dir
 (defun epackage-autoload-generate-loaddefs-dir
   (dir file &optional exclude recursive verbose)
   "Generate loaddefs from DIR to FILE.
@@ -4983,7 +4983,7 @@ files recursively for all Emacs Lisp files."
 		(directory-files
 		 edir
 		 'full
-		 "-epackage-0loaddefs\\.el$")))
+		 "^[a-z].*-epackage-0loaddefs\\.el$")))
     (unless file
       (epackage-error "No such file: %s/*-epackage-0loaddefs.el" edir))
     (epackage-autoload-generate-loaddefs-dir
