@@ -4,6 +4,9 @@
 	00conf directory.
 	(epackage-loader-file-byte-compile): Before byte compile
 	add package directories to `load-path'.
+	(epackage--directory-name-install): Rename directory from
+	00install to 10install. WARNING: INCOMPATIBLE CHANGE. Rename
+	manually your directories to new name.
 
 2013-05-30 Thu  Jari Aalto  <jari.aalto@cante.net>
 

@@ -413,7 +413,7 @@
 ;;          |   epackage-load-path.el  Internal. Used during byte-compile.
 ;;          |   sources.lst            Internal. Package sources.
 ;;          |
-;;          +-- 00install/         Extension "install" files
+;;          +-- 10install/         Extension "install" files
 ;;          |   *-<type>.el        autoloads, install, activate...
 ;;          |
 ;;          +--packages/           Git DVCS repositories
@@ -1497,7 +1497,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0601.1600"
+(defconst epackage--version-time "2013.0601.1604"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2218,7 +2218,7 @@ Use `epackage-directory-loader' for full path name.")
   "The name of local sources list repository directory.
 Copy of `epackage--sources-list-url'.")
 
-(defconst epackage--directory-name-install "00install"
+(defconst epackage--directory-name-install "10install"
   "Install directory under `epackage--root-directory'.
 This directory contains control files from packages.")
 
