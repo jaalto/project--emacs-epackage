@@ -1,3 +1,8 @@
+2013-06-01 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-loader-file-insert-main): Insert
+	00conf directory.
+
 2013-05-30 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-autoload-remove-path-names-buffer): New.

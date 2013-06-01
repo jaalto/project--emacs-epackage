@@ -1497,7 +1497,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0530.1515"
+(defconst epackage--version-time "2013.0601.1550"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6318,6 +6318,8 @@ If optional VERBOSE is non-nil, display progress message."
 (defsubst epackage-loader-file-insert-main ()
   "Insert Epackage loader boot commands to current point."
   (epackage-loader-file-insert-load-path)
+  (epackage-loader-insert-file-path-list-by-path
+   (epackage-directory-install))
   (epackage-loader-file-insert-install-code)
   (epackage-loader-file-insert-footer))
 
