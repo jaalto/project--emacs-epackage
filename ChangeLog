@@ -2,6 +2,8 @@
 
 	* epackage.el (epackage-loader-file-insert-main): Insert
 	00conf directory.
+	(epackage-loader-file-byte-compile): Before byte compile
+	add package directories to `load-path'.
 
 2013-05-30 Thu  Jari Aalto  <jari.aalto@cante.net>
 
