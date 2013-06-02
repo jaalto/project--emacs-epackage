@@ -1,3 +1,8 @@
+2013-06-02 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage--info-mode-completions-license): Add
+	MIT. Chnage docstring to Official SPDX.
+
 2013-06-01 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-loader-file-insert-main): Insert

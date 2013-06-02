@@ -716,7 +716,7 @@
 ;;
 ;;          *Package: <unique name, all lowercase>
 ;;          *Section: <data | extensions | files | languages | mail | tools | M-x finder-list-keywords>
-;;          License: <GPL-[23]+ | BSD | Apache-2.0 | ... | Custom | None>
+;;          License: <GPL-[23]+ | BSD | MIT | Apache-2.0 | ... | Custom | None>
 ;;          Licence-Text: <only, if license is "Custom">
 ;;          *Depends: emacs (>= 20)
 ;;          Recommends:
@@ -934,14 +934,12 @@
 ;;
 ;;     License
 ;;
-;;      The valid License abbreviations must follow official Linux foundations
-;;      list <http://spdx.org/licenses/> (see also
-;;      <http://dep.debian.net/deps/dep5/#license-specification>).
-;;      A special word "None" should be used if the software
-;;      has no license information in any of the source files.
-;;      Examples of valid license tokens:
+;;      The valid License abbreviations must follow official Linux
+;;      foundations list <http://spdx.org/licenses/>. A special word "None"
+;;      should be used if the software has no license information in any of
+;;      the source files. Examples of valid license tokens:
 ;;
-;;          GPL-2, GPL-2+, GPL-3, GPL-3+, BSD-2-clause, Apache-2.0
+;;          GPL-2, GPL-2+, GPL-3, GPL-3+, MIT, BSD-2-clause, Apache-2.0
 ;;
 ;;      If License is not any of the OSI known standard licenses
 ;;      <http://www.opensource.org/licenses>, or if it contains
@@ -1497,7 +1495,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0601.1604"
+(defconst epackage--version-time "2013.0602.1514"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1958,18 +1956,23 @@ Thanks,
     "MELPA")				; http://melpa.milkbox.net/
   "List of completions for Archive field.")
 
+;; It's very seldom that *.el files were released outside
+;; of these licenses. The purpose of this variable
+;; is *not* to list all known licenses under the earth (or the SPDX).
 (defconst epackage--info-mode-completions-license
-  '("GPL-2+"                        ;XEmacs is not listed by purpose
+  '("GPL-2+"
     "GPL-3+"
-    "BSD"
+    "BSD-2-Clause"
+    "BSD-3-Clause"
+    "MIT"     ;; Official SPDX name. Also known by MIT/X11 (FSF).
     "Apache-2.0"
     "Custom"
     "None")
   "List of completions for License field. This is not a user variable.
 The valid License abbreviations should follow list defined at:
 
-    License specification / Short name
-    <http://dep.debian.net/deps/dep5/#license-specification>.")
+    Linux foundation's SPDX Licence Database (official short names):
+    <http://spdx.org/licenses/>.")
 
 (defvar epackage--info-mode-completions-section nil
   "List of completions for Section field.
