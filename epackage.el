@@ -1495,7 +1495,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0602.1514"
+(defconst epackage--version-time "2013.0603.1049"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1956,9 +1956,8 @@ Thanks,
     "MELPA")				; http://melpa.milkbox.net/
   "List of completions for Archive field.")
 
-;; It's very seldom that *.el files were released outside
-;; of these licenses. The purpose of this variable
-;; is *not* to list all known licenses under the earth (or the SPDX).
+;; The *.el files are customarily licensed under these.
+;; This is *not* a list all known licenses under the earth (or the SPDX).
 (defconst epackage--info-mode-completions-license
   '("GPL-2+"
     "GPL-3+"
