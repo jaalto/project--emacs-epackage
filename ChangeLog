@@ -1,3 +1,9 @@
+2013-06-03 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-autoload-generate-loaddefs-dir): If
+	no autoloads found, skip clean up function
+	`epackage-autoload-remove-path-names-file'.
+
 2013-06-02 Sun  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage--info-mode-completions-license): Add

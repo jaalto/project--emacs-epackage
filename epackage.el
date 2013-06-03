@@ -1495,7 +1495,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0603.1049"
+(defconst epackage--version-time "2013.0603.1647"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -4546,7 +4546,8 @@ If VERBOSE is non-nil, display informational messages."
        file
        list
        (or verbose (called-interactively-p 'interactive)))
-      (epackage-autoload-remove-path-names-file file))))
+      (if (file-exists-p file)
+	  (epackage-autoload-remove-path-names-file file)))))
 
 (defun epackage-emacs-lisp-mode-maybe ()
   "Activate `emacs-lisp-mode' if not set."
