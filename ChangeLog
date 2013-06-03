@@ -3,6 +3,7 @@
 	* epackage.el (epackage-autoload-generate-loaddefs-dir): If
 	no autoloads found, skip clean up function
 	`epackage-autoload-remove-path-names-file'.
+	(epackage-lint-extra-buffer-run-other-autoload): Add 15.5 URL.
 
 2013-06-02 Sun  Jari Aalto  <jari.aalto@cante.net>
 

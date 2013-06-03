@@ -1495,7 +1495,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0603.1647"
+(defconst epackage--version-time "2013.0603.1700"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -7225,7 +7225,9 @@ Return:
 	      (list
 	       `,(concat
 		  "Missing: ;;;###autoload see "
-		  "15.5 Autoload (GNU Emacs Lisp Reference Manual)")))))
+		  "15.5 Autoload (GNU Emacs Lisp Reference Manual) "
+		  "http://www.gnu.org/software/emacs/manual/html_node/elisp/Autoload.html"
+		  )))))
     ret))
 
 (defun epackage-lint-extra-buffer-run-other-namespace ()
