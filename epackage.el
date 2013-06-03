@@ -718,7 +718,7 @@
 ;;          *Section: <data | extensions | files | languages | mail | tools | M-x finder-list-keywords>
 ;;          License: <GPL-[23]+ | BSD | MIT | Apache-2.0 | ... | Custom | None>
 ;;          Licence-Text: <only, if license is "Custom">
-;;          *Depends: emacs (>= 20)
+;;          *Depends: emacs (>= 23)
 ;;          Recommends:
 ;;          Status: [ <keyword> ...]
 ;;          Archive: <ELPA/GNU, ELPA/Marmalade, MELPA, ELPA>
@@ -747,7 +747,7 @@
 ;;          Package: test-package
 ;;          Section: extensions
 ;;          License: GPL-2+
-;;          Depends: emacs (>= 21)
+;;          Depends: emacs (>= 23)
 ;;          Status: unmaintained
 ;;          Maintainer: Joe Average <joe@example.org>
 ;;          Upstream: John doe <jdoe@example.com>
@@ -883,13 +883,13 @@
 ;;      official Epackage Sources List. Examples:
 ;;
 ;;          Depends: foo
-;;          Depends: emacs (>= 22.2) | xemacs (>= 20), foo
+;;          Depends: emacs (>= 23) | xemacs (>= 20), foo
 ;;
 ;;      To mark that package does not work in XEmacs, use "!". The
 ;;      version parameter is ignored with logical *not* but
 ;;      the parenthesis are still required:
 ;;
-;;          Depends: emacs (>= 22.2), xemacs (!), foo
+;;          Depends: emacs (>= 23), xemacs (!), foo
 ;;
 ;;      _Limitations_: The *vertical* *bar*, OR-operator(|), is not
 ;;      really used. It is only respected on the Emacs flavor part.
@@ -905,9 +905,9 @@
 ;;      `boundp' and `fboundp' to see if they have the required
 ;;      environment. So don't write:
 ;;
-;;          Depends: emacs (>= 22.2), xemacs (!), foo (>= 0.9)
-;;                                                    |
-;;                               Ignored. Has no effect.
+;;          Depends: emacs (>= 23), xemacs (!), foo (>= 0.9)
+;;                                                      |
+;;                                 Ignored. Has no effect
 ;;
 ;;      See also section "Development notes: depends".
 ;;
@@ -1229,8 +1229,8 @@
 ;;      "emacs" and "xemacs" are treated specifically and the effect
 ;;      of "|" is actually the same as if it were written with comma:
 ;;
-;;          Depends: emacs (>= 22) | xemacs (> 21.3)
-;;          Depends: emacs (>= 22), xemacs (> 21.3)
+;;          Depends: emacs (>= 23) | xemacs (> 21.3)
+;;          Depends: emacs (>= 23), xemacs (> 21.3)
 ;;
 ;;      Writing an algorithm for package depends clause that would
 ;;      understand variety of operations (>=, <=, !, |) is
@@ -1495,7 +1495,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0603.1700"
+(defconst epackage--version-time "2013.0603.1710"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2569,9 +2569,9 @@ The files are written to %s. See function
   "\
 Package:
 Section: data | extensions | files | languages | mail | tools <M-x finder-list-keywords>
-License: GPL-2+ | BSD | Apache-2.0 | ... | Custom | None
+License: GPL-2+ | BSD | MIT | Apache-2.0 | ... | Custom | None
 License-Text: <only for type Custom; full text or URL to page in http://spdx.org/licenses/>
-Depends: emacs (>= 22)
+Depends: emacs (>= 23)
 Status: core-emacs[-NN.N] unmaintained broken unsafe stable unstable experimental
 Archive:
 Compat:

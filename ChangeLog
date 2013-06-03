@@ -4,6 +4,7 @@
 	no autoloads found, skip clean up function
 	`epackage-autoload-remove-path-names-file'.
 	(epackage-lint-extra-buffer-run-other-autoload): Add 15.5 URL.
+	(epackage--layout-template-info): Add MIT.
 
 2013-06-02 Sun  Jari Aalto  <jari.aalto@cante.net>
 
