@@ -1110,6 +1110,14 @@
 ;;          Vcs-Type: http
 ;;          Vcs-Url: http://www.emacswiki.org/emacs/download/vline.el
 ;;
+;;      If `Vcs-Type' is *http*, this argument can be list of URLs separated
+;;      by whitespace. And example to span multple lines:
+;;
+;;          Vcs-Type: http
+;;          Vcs-Url: http://example.com/file1.el
+;;            http://example.com/file2.el
+;;            http://example.com/file3.el
+;;
 ;;     Vcs-Url
 ;;
 ;;      The Version Control System repository URL without any options.
@@ -1495,7 +1503,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0603.1710"
+(defconst epackage--version-time "2013.0609.2205"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
