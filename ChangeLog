@@ -2,6 +2,7 @@
 
 	* epackage.el: (DOC::Details of the info file fields): Add
 	new field `Info:'.
+	(epackage--layout-template-info): Add new field `Info:'.
 
 2013-06-09 Mon  Jari Aalto  <jari.aalto@cante.net>
 

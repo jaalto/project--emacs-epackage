@@ -1513,7 +1513,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0703.0928"
+(defconst epackage--version-time "2013.0703.0935"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1981,7 +1981,7 @@ Thanks,
     "GPL-3+"
     "BSD-2-Clause"
     "BSD-3-Clause"
-    "MIT"     ;; Official SPDX name. Also known by MIT/X11 (FSF).
+    "MIT"     ;; Official SPDX name. Also known by name MIT/X11 (FSF).
     "Apache-2.0"
     "Custom"
     "None")
@@ -2007,8 +2007,8 @@ time in `epackage-info-mode-tab-command'.")
   '( ;; Special cases
     "Custom"
     "None"
-
-    ;; Call at this point, M-x epackage-devel-licence-list-http-insert
+    ;; To update, call at this point
+    ;; M-x epackage-devel-licence-list-http-insert
     "AFL-1.2"
     "AFL-2"
     "AFL-2.1"
@@ -2606,6 +2606,7 @@ Vcs-Password:
 Homepage:
 Wiki: http://www.emacswiki.org/emacs/
 Commentary:
+Info:
 Description: <short one line>
  [<Longer description>]
  .
