@@ -765,7 +765,7 @@
 ;;           the current lisp code. With a prefix argument, shows also
 ;;           notes and minor details.
 ;;           .
-;;           Note: 2010-12-03 the code hasn't been touched since 2004.
+;;           Note: 2010-12-03 the code hasn't been updated since 2004.
 ;;
 ;;  Details of the info file fields
 ;;
@@ -1513,7 +1513,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0703.0935"
+(defconst epackage--version-time "2013.0704.1017"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2610,7 +2610,7 @@ Info:
 Description: <short one line>
  [<Longer description>]
  .
- Note: YYYY-MM-DD the code hasn't been touched since YYYY.
+ Note: YYYY-MM-DD the code hasn't been updated since YYYY.
 "
   "String containing the epackage/info file.")
 
