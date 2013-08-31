@@ -1513,7 +1513,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0704.1017"
+(defconst epackage--version-time "2013.0831.0357"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -8554,12 +8554,16 @@ If optional VERBOSE is non-nil, display progress messages."
    (list 'interactive))
   (epackage-initialize verbose)
   (epackage-kill-buffer-sources-list)
-  (unless (epackage-sources-list-p)
-    (epackage-with-message verbose "Wait, downloading sources list"))
-  (let ((status (epackage-sources-list-download verbose)))
-    (unless status
-      (epackage-sources-list-upgrade verbose)
-      (epackage-verbose-message "Upgrade sources list")))
+  (let (initial)
+    (unless (epackage-sources-list-p)
+      (setq initial 'first-time)
+      (epackage-with-message verbose "Wait, downloading sources list"))
+    (let ((status (epackage-sources-list-download verbose)))
+      (unless status
+        (epackage-sources-list-upgrade verbose)
+        (epackage-verbose-message "Upgrade sources list")))
+    (when initial
+      (epackage-with-message "Download done.")))
   (epackage-sources-list-build verbose))
 
 ;;;###autoload
