@@ -1513,7 +1513,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0831.0357"
+(defconst epackage--version-time "2013.0831.1805"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1650,7 +1650,7 @@ returned by `epackage-file-name-loader-file' is byte compiled."
   :group 'epackage)
 
 (defvar epackage--sources-list-url
-  "git://github.com/jaalto/project--emacs-epackage-sources-list.git"
+  "https://github.com/jaalto/project--emacs-epackage-sources-list.git"
   "URL to the location of the official Git package list.
 This is the Git repository that contains the canonical list of
 available packages.
