@@ -4,6 +4,8 @@
 	download done message.
 	(epackage--sources-list-url): Chnage from git:// to https://
 	as not all sites have Git port open.
+	(epackage-cmd-sources-list-upgrade): Correct call to
+	`epackage-with-message'.
 
 2013-07-03 Wed  Jari Aalto  <jari.aalto@cante.net>
 
