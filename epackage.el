@@ -1513,7 +1513,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0831.1809"
+(defconst epackage--version-time "2013.0831.1817"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -7491,6 +7491,9 @@ With VERBOSE display `epackage--buffer-lint'."
 
 ;;; .................................................. &functions-misc ...
 
+(defvar epackage--cmd-select-package-history nil
+  "Interactive history of `epackage-cmd-select-package' input.")
+
 (defun epackage-cmd-select-package (&optional message list)
   "Interactively select package with optional MESSAGE from LIST.
 Return package name or nil."
@@ -7510,7 +7513,9 @@ Return package name or nil."
              (or list
                  (epackage-sources-list-info-pkg-list))
              (not 'predicate)
-             'require-match))
+             (not 'require-match)
+             (not 'initial-input)
+             'epackage--cmd-select-package-history))
       (if (epackage-string-p package)
           (epackage-string-delete-whitespace package)))))
 

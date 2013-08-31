@@ -6,6 +6,8 @@
 	as not all sites have Git port open.
 	(epackage-cmd-sources-list-upgrade): Correct call to
 	`epackage-with-message'.
+	(epackage--cmd-select-package-history): New.
+	(epackage-cmd-select-package): Remember packages for input.
 
 2013-07-03 Wed  Jari Aalto  <jari.aalto@cante.net>
 
