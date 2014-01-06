@@ -1513,7 +1513,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2013.0831.1817"
+(defconst epackage--version-time "2014.0106.2036"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -7432,7 +7432,7 @@ Return:
     (when (setq str (epackage-lint-extra-buffer-run-lm))
       (epackage-with-lint-buffer
         (goto-char (point-max))
-        (insert "** Lint M-x lm-verify (list-mnt.el)\n")
+        (insert "** Lint M-x lm-verify (lisp-mnt.el)\n")
         (insert str)
         (epackage-push 'lisp-mnt errors)))
     (epackage-verbose-message "Lint running: extra checks...")
