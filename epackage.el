@@ -1338,7 +1338,7 @@
 ;;      repository is supposed to have tags for all upstream versions
 ;;      of the package. It would be duplicate and manual work to keep
 ;;      the `info::Version' field in synch with the tags of Git
-;;      repository. The version numbers are in fact immateria an
+;;      repository. The version numbers are in fact immaterial and
 ;;      unnecessary: nice to know, but in daily use, not much used.
 ;;      User isn't downloading some specific version of extension, but
 ;;      upgrading his packages to the latest versions. In Epackage, an
@@ -1513,7 +1513,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2014.0106.2047"
+(defconst epackage--version-time "2014.0106.2052"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
