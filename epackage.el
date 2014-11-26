@@ -98,9 +98,7 @@
 
 ;;  Preface 2009
 ;;
-;;      NOTE: This extension is in early state; meaning that it is
-;;      experimental. The core elements are being planned, written and
-;;      tested. Currently there is only the batch command line UI:
+;;      This utility was initially designed to be used from command line:
 ;;
 ;;          # Or run the provided Makefile: "make ui"
 ;;          emacs --batch -Q -l /path/to/epackage.el -f epackage-batch-ui-menu
@@ -1513,7 +1511,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2014.0106.2052"
+(defconst epackage--version-time "2014.1126.2029"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
