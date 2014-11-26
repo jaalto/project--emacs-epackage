@@ -1,6 +1,6 @@
 ;; epackage.el --- Distributed Emacs Lisp Package System (DELPS) -*-byte-compile-dynamic: t;-*-
 
-;; Copyright (C) 2009-2013 Jari Aalto
+;; Copyright (C) 2009-2015 Jari Aalto
 
 ;; Author:      Jari Aalto <jari.aalto@cante.net>
 ;; Maintainer:  Jari Aalto <jari.aalto@cante.net>
