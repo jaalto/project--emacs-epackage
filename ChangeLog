@@ -1,3 +1,33 @@
+2013-08-31 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-cmd-sources-list-upgrade): Add
+	download done message.
+	(epackage--sources-list-url): Chnage from git:// to https://
+	as not all sites have Git port open.
+	(epackage-cmd-sources-list-upgrade): Correct call to
+	`epackage-with-message'.
+	(epackage--cmd-select-package-history): New.
+	(epackage-cmd-select-package): Remember packages for input.
+
+2013-07-03 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el: (DOC::Details of the info file fields): Add
+	new field `Info:'.
+	(epackage--layout-template-info): Add new field `Info:'.
+
+2013-06-09 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el: (top level::Details of the info file fields):
+	Document that Vcs-Url can span multiple lines for http type.
+
+2013-06-03 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-autoload-generate-loaddefs-dir): If
+	no autoloads found, skip clean up function
+	`epackage-autoload-remove-path-names-file'.
+	(epackage-lint-extra-buffer-run-other-autoload): Add 15.5 URL.
+	(epackage--layout-template-info): Add MIT.
+
 2013-06-02 Sun  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage--info-mode-completions-license): Add
