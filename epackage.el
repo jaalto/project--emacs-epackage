@@ -1511,7 +1511,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2017.0323.2219"
+(defconst epackage--version-time "2017.0323.2232"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -6354,9 +6354,9 @@ If optional VERBOSE is non-nil, display progress message."
       (let ((load-path load-path))
         ;; Set up load path to include all directories for
         ;; `require' commands etc.
-        (dolist (path (list (epackage-directory-install)
-                            (epackage-loader-file-insert-path-list)))
-          (epackage-push path load-path))
+	(epackage-push (epackage-directory-install) load-path)
+        (dolist (package (epackage-status-installed-packages))
+          (epackage-push (epackage-directory-package-root package) load-path))
         (byte-compile-file file)))
      (verbose
       (epackage-message "No boot loader file found to byte compile.")))))
