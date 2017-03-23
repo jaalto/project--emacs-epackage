@@ -1,6 +1,6 @@
 #   Copyright
 #
-#	Copyright (C) 2010-2012 Jari Aalto <jari.aalto@cante.net>
+#	Copyright (C) 2010-2015 Jari Aalto <jari.aalto@cante.net>
 #
 #   License
 #
@@ -36,7 +36,12 @@ help:
 	@echo "---------------------"
 	@grep '^# .* - ' Makefile | sed 's,# ,,' | sort
 
-# clean - Delete files that can be generated
+# realclean - Delete all files that can be generated
+realclean: clean
+	# realclean - you have to run target "doc" to regenerate files
+	rm -f doc/index.html doc/index.txt
+
+# clean - Delete compiled and other files
 clean:
 	rm -f *.elc *[#~] *.bak
 

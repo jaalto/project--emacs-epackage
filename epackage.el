@@ -1,13 +1,13 @@
 ;; epackage.el --- Distributed Emacs Lisp Package System (DELPS) -*-byte-compile-dynamic: t;-*-
 
-;; Copyright (C) 2009-2012 Jari Aalto
+;; Copyright (C) 2009-2017 Jari Aalto
 
-;; Author:	Jari Aalto <jari.aalto@cante.net>
-;; Maintainer:	Jari Aalto <jari.aalto@cante.net>
-;; Created:	2009-10-03
-;; Version:	1.5
+;; Author:      Jari Aalto <jari.aalto@cante.net>
+;; Maintainer:  Jari Aalto <jari.aalto@cante.net>
+;; Created:     2009-10-03
+;; Version:     1.5
 ;; Keywords:    tools
-;; URL:		http://www.emacswiki.org/emacs/DELPS
+;; URL:         http://www.emacswiki.org/emacs/DELPS
 
 ;; This file is not part of Emacs
 
@@ -18,7 +18,7 @@
 ;;
 ;; This program is distributed in the hope that it will be useful, but
 ;; WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+;; or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 ;; for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
@@ -98,9 +98,7 @@
 
 ;;  Preface 2009
 ;;
-;;      NOTE: This extension is in early state; meaning that it is
-;;      experimental. The core elements are being planned, written and
-;;      tested. Currently there is only the batch command line UI:
+;;      This utility was initially designed to be used from command line:
 ;;
 ;;          # Or run the provided Makefile: "make ui"
 ;;          emacs --batch -Q -l /path/to/epackage.el -f epackage-batch-ui-menu
@@ -213,7 +211,7 @@
 ;;
 ;;  User commands
 ;;
-;;	[PLANNED: not yet implemented; Use makefile: "make ui"]
+;;      [PLANNED: not yet implemented; Use makefile: "make ui"]
 ;;
 ;;      Command `M-x' `epackage' is alias for function
 ;;      `epackage-manager'. It builds buffer where packages can be
@@ -413,7 +411,7 @@
 ;;          |   epackage-load-path.el  Internal. Used during byte-compile.
 ;;          |   sources.lst            Internal. Package sources.
 ;;          |
-;;          +-- 00install/         Extension "install" files
+;;          +-- 10install/         Extension "install" files
 ;;          |   *-<type>.el        autoloads, install, activate...
 ;;          |
 ;;          +--packages/           Git DVCS repositories
@@ -463,7 +461,7 @@
 ;;          |
 ;;          +-- epackage/
 ;;              info                       required: The information file
-;;              lisp		           optional: Location of Emacs Lisp files
+;;              lisp                       optional: Location of Emacs Lisp files
 ;;              ignore                     optional: regexp to ignore Emacs Lisp files
 ;;              PACKAGE-epackage-0loaddefs.el  optional: extracted ###autoload statements
 ;;              PACKAGE-epackage-autoloads.el  optional: autoload statements (manual)
@@ -650,12 +648,12 @@
 ;;      to the package root directory. An example:
 ;;
 ;;          ;; Comments on their own lines start with a semicolon
-;;	    one.el\|two.el
+;;          one.el\|two.el
 ;;          tree.el
 ;;
 ;;  The 'format' file
 ;;
-;;	Type of Git repository. The type is indicated in the first line
+;;      Type of Git repository. The type is indicated in the first line
 ;;      of the file. Valid value in this file is "upstream".
 ;;
 ;;      This file is used to mark repositories of different origin. In
@@ -670,36 +668,36 @@
 ;;      is used for distribution (contains epackage/ directory) is
 ;;      marked wit asterisk:
 ;;
-;;	    * master	    REQUIRED
-;;	      upstream	    REQUIRED
-;;	      [patches]	    OPTIONAL
+;;          * master        REQUIRED
+;;            upstream      REQUIRED
+;;            [patches]     OPTIONAL
 ;;
-;;	Compared to upstream development, there may be only on branch:
+;;      Compared to upstream development, there may be only on branch:
 ;;
-;;	    * master
+;;          * master
 ;;
-;;	The "master" is effectively the latest development which may
-;;	not be best for direct distribution. Many divide development
-;;	into separate lines:
+;;      The "master" is effectively the latest development which may
+;;      not be best for direct distribution. Many divide development
+;;      into separate lines:
 ;;
-;;	    * master	    (when "devel" is stable, it is merged here)
-;;	      devel
+;;          * master        (when "devel" is stable, it is merged here)
+;;            devel
 ;;
-;;	If you compare to the Epackage layout, the upstream is missing
-;;	required branch "upstream". This `format' file is there to
-;;	notify that in this repository the "upstream" branch is
-;;	expected to be missing. It also notifies that in this
-;;	repository the tag names do not have =upstream/= prefix.
+;;      If you compare to the Epackage layout, the upstream is missing
+;;      required branch "upstream". This `format' file is there to
+;;      notify that in this repository the "upstream" branch is
+;;      expected to be missing. It also notifies that in this
+;;      repository the tag names do not have =upstream/= prefix.
 ;;
 ;;  The 'lisp' file
 ;;
-;;	This file contains Emacs Lisp file directories relative to the
-;;	root of package. Empty lines and standalone comments on their
-;;	own lines starting with semicolon(;) are ignored. Comments
-;;	must not be placed at the directory lines. If all the Emacs
-;;	Lisp files are in the package's root directory, this file not
-;;	needed. The file is used internally to find out if the package
-;;	has been byte compiled or not.
+;;      This file contains Emacs Lisp file directories relative to the
+;;      root of package. Empty lines and standalone comments on their
+;;      own lines starting with semicolon(;) are ignored. Comments
+;;      must not be placed at the directory lines. If all the Emacs
+;;      Lisp files are in the package's root directory, this file not
+;;      needed. The file is used internally to find out if the package
+;;      has been byte compiled or not.
 ;;
 ;;  The 'info' file
 ;;
@@ -716,9 +714,9 @@
 ;;
 ;;          *Package: <unique name, all lowercase>
 ;;          *Section: <data | extensions | files | languages | mail | tools | M-x finder-list-keywords>
-;;          License: <GPL-[23]+ | BSD | Apache-2.0 | ... | Custom | None>
+;;          License: <GPL-[23]+ | BSD | MIT | Apache-2.0 | ... | Custom | None>
 ;;          Licence-Text: <only, if license is "Custom">
-;;          *Depends: emacs (>= 20)
+;;          *Depends: emacs (>= 23)
 ;;          Recommends:
 ;;          Status: [ <keyword> ...]
 ;;          Archive: <ELPA/GNU, ELPA/Marmalade, MELPA, ELPA>
@@ -737,6 +735,7 @@
 ;;          Wiki: http://www.emacswiki.org/emacs/<page name>
 ;;          X-<Field>-<Name>: [anything]
 ;;          Commentary: <single *.el file>
+;;          Info: <location of *.info files>
 ;;          *Description: <short one line>
 ;;           [<Longer description>]
 ;;           .
@@ -747,7 +746,7 @@
 ;;          Package: test-package
 ;;          Section: extensions
 ;;          License: GPL-2+
-;;          Depends: emacs (>= 21)
+;;          Depends: emacs (>= 23)
 ;;          Status: unmaintained
 ;;          Maintainer: Joe Average <joe@example.org>
 ;;          Upstream: John doe <jdoe@example.com>
@@ -756,6 +755,7 @@
 ;;          Homepage: http://example.com
 ;;          Wiki: http://www.emacswiki.org/emacs/TheTestPackage
 ;;          Commentary: test-package.el
+;;          Info: doc/test-package.info
 ;;          X-Development:
 ;;           YYYY-MM-DD upstream email confirmad.
 ;;          Description: test package with various functions
@@ -763,7 +763,7 @@
 ;;           the current lisp code. With a prefix argument, shows also
 ;;           notes and minor details.
 ;;           .
-;;           Note: 2010-12-03 the code hasn't been touched since 2004.
+;;           Note: 2010-12-03 the code hasn't been updated since 2004.
 ;;
 ;;  Details of the info file fields
 ;;
@@ -844,7 +844,7 @@
 ;;
 ;;      Guidelines:
 ;;
-;;	o   For modes, start short description with
+;;      o   For modes, start short description with
 ;;          "major mode for ..." or "minor mode for..."
 ;;      o   For libraries, start short description with
 ;;          "library of ..."
@@ -860,10 +860,10 @@
 ;;      Examples:
 ;;
 ;;          Package: cygwin-mount
-;;	    Description: Add Cygwin mount point support (ms)
+;;          Description: Add Cygwin mount point support (ms)
 ;;
 ;;          Package: lib-xml-rpm
-;;	    Description: library of remote procedure calls alls over HTTP
+;;          Description: library of remote procedure calls alls over HTTP
 ;;
 ;;     Depends (required)
 ;;
@@ -883,13 +883,13 @@
 ;;      official Epackage Sources List. Examples:
 ;;
 ;;          Depends: foo
-;;          Depends: emacs (>= 22.2) | xemacs (>= 20), foo
+;;          Depends: emacs (>= 23) | xemacs (>= 20), foo
 ;;
 ;;      To mark that package does not work in XEmacs, use "!". The
 ;;      version parameter is ignored with logical *not* but
 ;;      the parenthesis are still required:
 ;;
-;;          Depends: emacs (>= 22.2), xemacs (!), foo
+;;          Depends: emacs (>= 23), xemacs (!), foo
 ;;
 ;;      _Limitations_: The *vertical* *bar*, OR-operator(|), is not
 ;;      really used. It is only respected on the Emacs flavor part.
@@ -905,9 +905,9 @@
 ;;      `boundp' and `fboundp' to see if they have the required
 ;;      environment. So don't write:
 ;;
-;;          Depends: emacs (>= 22.2), xemacs (!), foo (>= 0.9)
-;;                                                    |
-;;                               Ignored. Has no effect.
+;;          Depends: emacs (>= 23), xemacs (!), foo (>= 0.9)
+;;                                                      |
+;;                                 Ignored. Has no effect
 ;;
 ;;      See also section "Development notes: depends".
 ;;
@@ -932,16 +932,22 @@
 ;;      e.g. for issue tracking. For more information, see
 ;;      <http://en.wikipedia.org/wiki/Comparison_of_open_source_software_hosting_facilities>.
 ;;
+;;     Info
+;;
+;;      location of info files relative to the package root directory.
+;;      Wildcard `*' can be used in case of mult-part info files. An
+;;      examples:
+;;
+;;          Info: doc/*.info
+;;
 ;;     License
 ;;
-;;      The valid License abbreviations must follow official Linux foundations
-;;      list <http://spdx.org/licenses/> (see also
-;;      <http://dep.debian.net/deps/dep5/#license-specification>).
-;;      A special word "None" should be used if the software
-;;      has no license information in any of the source files.
-;;      Examples of valid license tokens:
+;;      The valid License abbreviations must follow official Linux
+;;      foundations list <http://spdx.org/licenses/>. A special word "None"
+;;      should be used if the software has no license information in any of
+;;      the source files. Examples of valid license tokens:
 ;;
-;;          GPL-2, GPL-2+, GPL-3, GPL-3+, BSD-2-clause, Apache-2.0
+;;          GPL-2, GPL-2+, GPL-3, GPL-3+, MIT, BSD-2-clause, Apache-2.0
 ;;
 ;;      If License is not any of the OSI known standard licenses
 ;;      <http://www.opensource.org/licenses>, or if it contains
@@ -1084,7 +1090,7 @@
 ;;          shortly "ok" or let me know if you prefer to use another
 ;;          address.
 ;;
-;;	    Thanks,
+;;          Thanks,
 ;;          John Doe
 ;;
 ;;     Upstream-Bugs
@@ -1111,6 +1117,14 @@
 ;;
 ;;          Vcs-Type: http
 ;;          Vcs-Url: http://www.emacswiki.org/emacs/download/vline.el
+;;
+;;      If `Vcs-Type' is *http*, this argument can be list of URLs separated
+;;      by whitespace. And example to span multple lines:
+;;
+;;          Vcs-Type: http
+;;          Vcs-Url: http://example.com/file1.el
+;;            http://example.com/file2.el
+;;            http://example.com/file3.el
 ;;
 ;;     Vcs-Url
 ;;
@@ -1231,8 +1245,8 @@
 ;;      "emacs" and "xemacs" are treated specifically and the effect
 ;;      of "|" is actually the same as if it were written with comma:
 ;;
-;;          Depends: emacs (>= 22) | xemacs (> 21.3)
-;;          Depends: emacs (>= 22), xemacs (> 21.3)
+;;          Depends: emacs (>= 23) | xemacs (> 21.3)
+;;          Depends: emacs (>= 23), xemacs (> 21.3)
 ;;
 ;;      Writing an algorithm for package depends clause that would
 ;;      understand variety of operations (>=, <=, !, |) is
@@ -1276,7 +1290,7 @@
 ;;      PACKAGE VERSIONS AND DEPENDS
 ;;
 ;;      NOTE: upstream should use standard Emacs package `inversion.el'
-;;      which provides means to ensure that a spcific library version
+;;      which provides means to ensure that a specific library version
 ;;      is required.
 ;;
 ;;      Regarding the requirement for a specific version of the package
@@ -1322,7 +1336,7 @@
 ;;      repository is supposed to have tags for all upstream versions
 ;;      of the package. It would be duplicate and manual work to keep
 ;;      the `info::Version' field in synch with the tags of Git
-;;      repository. The version numbers are in fact immateria an
+;;      repository. The version numbers are in fact immaterial and
 ;;      unnecessary: nice to know, but in daily use, not much used.
 ;;      User isn't downloading some specific version of extension, but
 ;;      upgrading his packages to the latest versions. In Epackage, an
@@ -1492,12 +1506,12 @@
     (defun called-interactively-p (&rest args)
       "Emacs < 23.2 compatibility. ARGS are ignored."
       (let ((function 'interactive-p))
-	(funcall function)))))
+        (funcall function)))))
 
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2012.1210.0841"
+(defconst epackage--version-time "2017.0323.2219"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1634,7 +1648,7 @@ returned by `epackage-file-name-loader-file' is byte compiled."
   :group 'epackage)
 
 (defvar epackage--sources-list-url
-  "git://github.com/jaalto/project--emacs-epackage-sources-list.git"
+  "https://github.com/jaalto/project--emacs-epackage-sources-list.git"
   "URL to the location of the official Git package list.
 This is the Git repository that contains the canonical list of
 available packages.
@@ -1701,10 +1715,10 @@ Use case:
 
 for more in depth manipulation, see  `epackage--build-sources-list-hook'."
   :type  '(repeat
-	   (list
-	    (string :tag "Regexp")
-	    (string :tag "Replace")
-	    (choice (const nil) (integer :tag "match level"))))
+           (list
+            (string :tag "Regexp")
+            (string :tag "Replace")
+            (choice (const nil) (integer :tag "match level"))))
   :group 'epackage)
 
 ;;; ................................................. &variables-hooks ...
@@ -1892,7 +1906,7 @@ know if you prefer to use another address.
 
 Thanks,
 "
-	  epackage--url-doc-emacswiki)
+          epackage--url-doc-emacswiki)
   "Body text in `epackage-info-mode-cmd-email-upstream-ping'."
   :tag "Email message body text for initial upstream contact."
   :group 'epackage
@@ -1953,23 +1967,27 @@ Thanks,
   "List of completions for Status field.")
 
 (defconst epackage--info-mode-completions-archive
-  '("ELPA/GNU"				; Official Emacs 24.x+ repository
-    "ELPA/Marmalade"			; Google maintained http://marmalade-repo.org/
-    "MELPA")				; http://melpa.milkbox.net/
+  '("ELPA/GNU"                          ; Official Emacs 24.x+ repository
+    "ELPA/Marmalade"                    ; Google maintained http://marmalade-repo.org/
+    "MELPA")                            ; http://melpa.milkbox.net/
   "List of completions for Archive field.")
 
+;; The *.el files are customarily licensed under these.
+;; This is *not* a list all known licenses under the earth (or the SPDX).
 (defconst epackage--info-mode-completions-license
-  '("GPL-2+"                        ;XEmacs is not listed by purpose
+  '("GPL-2+"
     "GPL-3+"
-    "BSD"
+    "BSD-2-Clause"
+    "BSD-3-Clause"
+    "MIT"     ;; Official SPDX name. Also known by name MIT/X11 (FSF).
     "Apache-2.0"
     "Custom"
     "None")
   "List of completions for License field. This is not a user variable.
 The valid License abbreviations should follow list defined at:
 
-    License specification / Short name
-    <http://dep.debian.net/deps/dep5/#license-specification>.")
+    Linux foundation's SPDX Licence Database (official short names):
+    <http://spdx.org/licenses/>.")
 
 (defvar epackage--info-mode-completions-section nil
   "List of completions for Section field.
@@ -1987,8 +2005,8 @@ time in `epackage-info-mode-tab-command'.")
   '( ;; Special cases
     "Custom"
     "None"
-
-    ;; Call at this point, M-x epackage-devel-licence-list-http-insert
+    ;; To update, call at this point
+    ;; M-x epackage-devel-licence-list-http-insert
     "AFL-1.2"
     "AFL-2"
     "AFL-2.1"
@@ -2174,8 +2192,8 @@ The %s marks the package name.")
 
 (defcustom epackage--root-directory
   (let ((dir (if (featurep 'xemacs)
-		 "~/.xemacs.d"
-	       "~/.emacs.d")))
+                 "~/.xemacs.d"
+               "~/.emacs.d")))
     (cond
      ((file-directory-p dir)
       dir)
@@ -2184,9 +2202,9 @@ The %s marks the package name.")
       ;; No known package installation root directory.
       (error
        (concat
-	"Epackage: [ERROR] Can't determine location of Emacs Lisp files."
-	"See `epackage--root-directory'."
-	"Please define environment variable HOME")))
+        "Epackage: [ERROR] Can't determine location of Emacs Lisp files."
+        "See `epackage--root-directory'."
+        "Please define environment variable HOME")))
      (t
       (make-directory dir)
       dir)))
@@ -2218,7 +2236,7 @@ Use `epackage-directory-loader' for full path name.")
   "The name of local sources list repository directory.
 Copy of `epackage--sources-list-url'.")
 
-(defconst epackage--directory-name-install "00install"
+(defconst epackage--directory-name-install "10install"
   "Install directory under `epackage--root-directory'.
 This directory contains control files from packages.")
 
@@ -2279,12 +2297,12 @@ packages.")
      "\\<"
      (regexp-opt
       '("Mon"
-	"Tue"
-	"Wed"
-	"Thu"
-	"Fri"
-	"Sat"
-	"Sun"))
+        "Tue"
+        "Wed"
+        "Thu"
+        "Fri"
+        "Sat"
+        "Sun"))
      "\\>")
   "Regexp matching short month names.")
 
@@ -2352,21 +2370,21 @@ Format is:
 
 Description:
 
-    TYPE	    Property type name.
+    TYPE            Property type name.
 
-    FILENAME	    If FILENAME starts with '-', then the package name
-		    is prefixed to the FILENAME. Say package name
-		    'foo', and suffix is '-install', the full
-		    filename is 'foo-install.el.
+    FILENAME        If FILENAME starts with '-', then the package name
+                    is prefixed to the FILENAME. Say package name
+                    'foo', and suffix is '-install', the full
+                    filename is 'foo-install.el.
 
     REQUIRED-FLAG   If non-nil, this configuration file is required
 
-    TYPE-FLAG	    List of types the REQUIRED-FLAG applies. Valid
-		    values are `file' and `lib'. If value is nil,
-		    REQUIREd-FLAG is treated as it this were set to '(file lib).
+    TYPE-FLAG       List of types the REQUIRED-FLAG applies. Valid
+                    values are `file' and `lib'. If value is nil,
+                    REQUIREd-FLAG is treated as it this were set to '(file lib).
 
-		    For example, to require that file only exists
-		    only in library packages, set this value to '(lib).")
+                    For example, to require that file only exists
+                    only in library packages, set this value to '(lib).")
 
 (defvar epackage--buffer-autoload "*Epackage autoloads*"
   "Buffer to use for gathering manual autoload definitions.
@@ -2567,9 +2585,9 @@ The files are written to %s. See function
   "\
 Package:
 Section: data | extensions | files | languages | mail | tools <M-x finder-list-keywords>
-License: GPL-2+ | BSD | Apache-2.0 | ... | Custom | None
+License: GPL-2+ | BSD | MIT | Apache-2.0 | ... | Custom | None
 License-Text: <only for type Custom; full text or URL to page in http://spdx.org/licenses/>
-Depends: emacs (>= 22)
+Depends: emacs (>= 23)
 Status: core-emacs[-NN.N] unmaintained broken unsafe stable unstable experimental
 Archive:
 Compat:
@@ -2586,12 +2604,34 @@ Vcs-Password:
 Homepage:
 Wiki: http://www.emacswiki.org/emacs/
 Commentary:
+Info:
 Description: <short one line>
  [<Longer description>]
  .
- Note: YYYY-MM-DD the code hasn't been touched since YYYY.
+ Note: YYYY-MM-DD the code hasn't been updated since YYYY.
 "
   "String containing the epackage/info file.")
+
+(defconst epackage-defun-regexp
+  (concat
+   "^(\\("
+   "defun[*]?"
+   "\\|defmacro[*]?"
+   "\\|defsubst"
+   "\\|defun-maybe"
+   "\\|defsubst-maybe"
+   "\\|defmacro-maybe"
+   "\\|define-compilation-mode"
+   "\\|define-derived-mode"
+   "\\|define-generic-mode"
+   "\\|define-global-minor-mode"
+   "\\|define-globalized-minor-mode"
+   "\\|define-minor-mode"
+   "\\|easy-mmode-define-global-mode"
+   "\\|easy-mmode-define-minor-mode"
+   "\\)"
+   "[ \t]+\\([^ \t\n(]+\\)[ \t]*")
+  "Regexp to search def*uns for autoload.")
 
 ;;; ................................................ &functions-simple ...
 
@@ -2610,7 +2650,7 @@ Description: <short one line>
 Like `insert-file-contents-literally' but disable everything."
   `(with-temp-buffer
      (let (vc-handled-backends
-	   (buffer-undo-list t))
+           (buffer-undo-list t))
        (insert-file-contents-literally ,file)
        ,@body)))
 
@@ -2689,12 +2729,12 @@ Save `load-path' before using this macro."
   `(progn
      (let (list)
        (dolist (elt (epackage-directory-recursive-list
-		     dir
-		     list
-		     (concat epackage--directory-exclude-regexp
-			     "\\|/" epackage--directory-name)))
-	 (dolist (elt list)
-	   (epackage-push elt load-path))))
+                     dir
+                     list
+                     (concat epackage--directory-exclude-regexp
+                             "\\|/" epackage--directory-name)))
+         (dolist (elt list)
+           (epackage-push elt load-path))))
      ,@body))
 
 (put 'epackage-with-byte-compile-buffer 'lisp-indent-function 0)
@@ -2717,8 +2757,8 @@ Save `load-path' before using this macro."
 (defmacro epackage-with-checkdoc-buffer (&rest body)
   "Run BODY in `epackage--buffer-checkdoc' (will be rcrated is needed)."
   `(with-current-buffer (get-buffer-create (or (and (boundp 'checkdoc-diagnostic-buffer)
-						    checkdoc-diagnostic-buffer)
-					       "*Style Warnings*"))
+                                                    checkdoc-diagnostic-buffer)
+                                               "*Style Warnings*"))
      (setq buffer-read-only nil)
      (let ((buffer-undo-list t))
        ,@body)))
@@ -2762,10 +2802,10 @@ Save `load-path' before using this macro."
 (defsubst epackage-error-if-not-directory (directory &optional message)
   "Signal error unless DIRECTORY. Optional custom MESSAGE."
   (when (or (not (stringp directory))
-	    (not (file-directory-p directory)))
+            (not (file-directory-p directory)))
     (epackage-error
      (or message
-	 (format "Directory DIR does not exist: %s" directory)))))
+         (format "Directory DIR does not exist: %s" directory)))))
 
 (defsubst epackage-string-delete-whitespace (string)
   "Delete BOL and EOL whitespaces from STRING."
@@ -2776,16 +2816,16 @@ Save `load-path' before using this macro."
 (defsubst epackage-sort (list)
   "Sort LIST of string."
   (sort list
-	(lambda (a b)
-	  (string< a b))))
+        (lambda (a b)
+          (string< a b))))
 
 (defsubst epackage-sort-sym (list)
   "Sort LIST of symbols."
   (sort list
-	(lambda (a b)
-	  (string<
-	   (symbol-name a)
-	   (symbol-name b)))))
+        (lambda (a b)
+          (string<
+           (symbol-name a)
+           (symbol-name b)))))
 
 (defsubst epackage-erase-buffer ()
   "Disable undo and erase current buffer."
@@ -2796,22 +2836,22 @@ Save `load-path' before using this macro."
 (defsubst epackage-url-extract-host (url)
   "Extract from URL the HOST portion."
   (if (or (string-match "^[^:]+@\\([^/:]+\\):" url) ;login@host:
-	  (string-match "^[^:]+://\\([^/]+\\)" url)) ;http://
+          (string-match "^[^:]+://\\([^/]+\\)" url)) ;http://
       (match-string 1 url)))
 
 (defsubst epackage-auto-revert-mode-p ()
   "Check if auto-revert is active in current buffer."
   (or (and (boundp 'auto-revert-mode)
-	   auto-revert-mode)
+           auto-revert-mode)
       (and (boundp 'auto-revert-tail-mode)
-	   auto-revert-tail-mode)
+           auto-revert-tail-mode)
       (and (boundp 'global-auto-revert-mode)
-	   global-auto-revert-mode)))
+           global-auto-revert-mode)))
 
 (defsubst epackage-turn-on-auto-revert-mode ()
   "Turn on function `auto-revert-mode' in current buffer."
   (when (and (buffer-file-name)         ;; Must be file buffer
-	     (not (epackage-auto-revert-mode-p)))
+             (not (epackage-auto-revert-mode-p)))
     (auto-revert-mode 1)))
 
 (defsubst epackage-append-to-buffer (buffer string &optional begin)
@@ -2831,14 +2871,14 @@ Return:
   (epackage-point-min)
   (unless (re-search-forward "^(provide" nil t)
     (let ((name (file-name-sans-extension
-		 (file-name-nondirectory
-		  (or file
-		      buffer-file-name
-		      (epackage-error
-		       "Can't add provide from empty buffer-file-name"))))))
+                 (file-name-nondirectory
+                  (or file
+                      buffer-file-name
+                      (epackage-error
+                       "Can't add provide from empty buffer-file-name"))))))
       (goto-char (point-max))
       (unless (looking-at "^[ \t]*$")
-	(insert "\n"))
+        (insert "\n"))
       (insert (format "(provide '%s)\n" name))
       (point))))
 
@@ -3039,13 +3079,13 @@ Return `epackage--download-action-list'."
 (defsubst epackage-layout-file-name (dir package type)
   "Return file name under DIR of PACKAGE and layout TYPE."
   (format "%s%s/%s"
-	  (file-name-as-directory dir)
-	  epackage--package-control-directory
-	  (let* ((type (or (epackage-layout-mapping-file type)
-			   (error "Unknown epackage layout type: %s" type))))
-	    (if (string-match "^-" type)
-		(concat (downcase package) type)
-	      type))))
+          (file-name-as-directory dir)
+          epackage--package-control-directory
+          (let* ((type (or (epackage-layout-mapping-file type)
+                           (error "Unknown epackage layout type: %s" type))))
+            (if (string-match "^-" type)
+                (concat (downcase package) type)
+              type))))
 
 (defsubst epackage-eval-file (file &optional security)
   "Evaluate FILE with optionally checking SECURITY.
@@ -3119,7 +3159,7 @@ Strip epackage specific 'lib-*' prefix."
 (defun epackage-date-to-iso (str)
   "Convert STR date string into ISO 8601 format YYYY-MM-DD."
   (cond
-   ((not (stringp str))					; skip
+   ((not (stringp str))                                 ; skip
     nil)
    ;; YYYY-MM-DD
    ((string-match "\\<\\([12][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]\\)\\>" str)
@@ -3127,67 +3167,67 @@ Strip epackage specific 'lib-*' prefix."
    ;; YYYYMMDD
    ((string-match
      `,(concat
-	"\\<"
-	"\\([12][0-9][0-9][0-9]\\)"
-	"\\([0-1][0-9]\\)"
-	"\\([0-3][0-9]\\)"
-	"\\>")
+        "\\<"
+        "\\([12][0-9][0-9][0-9]\\)"
+        "\\([0-1][0-9]\\)"
+        "\\([0-3][0-9]\\)"
+        "\\>")
      str)
     (let ((y (match-string-no-properties 1 str))
-	  (m (string-to-number (match-string-no-properties 2 str)))
-	  (d (string-to-number (match-string-no-properties 3 str))))
+          (m (string-to-number (match-string-no-properties 2 str)))
+          (d (string-to-number (match-string-no-properties 3 str))))
       (format "%s-%02d-%02d" y m d)))
    ;; YYYY.MM?.DD?
    ((string-match
      `,(concat "\\<\\([0-9][0-9][0-9][0-9]\\)[.]"
-	       "\\([0-9][0-9]?\\)[.]"
-	       "\\([0-9][0-9]?\\)\\>")
+               "\\([0-9][0-9]?\\)[.]"
+               "\\([0-9][0-9]?\\)\\>")
      str)
     (let ((y (match-string-no-properties 1 str))
-	  (m (string-to-number (match-string-no-properties 2 str)))
-	  (d (string-to-number (match-string-no-properties 3 str))))
+          (m (string-to-number (match-string-no-properties 2 str)))
+          (d (string-to-number (match-string-no-properties 3 str))))
       (format "%s-%02d-%02d" y m d)))
    ;; US format MM?/DD?/YY(YY)?
    ((string-match
      `,(concat
-	"\\<\\([0-9][0-9]?\\)/"
-	"\\([0-9][0-9]?\\)/"
-	"\\([0-9][0-9]+\\(?:[0-9][0-9]\\)?\\)\\>")
+        "\\<\\([0-9][0-9]?\\)/"
+        "\\([0-9][0-9]?\\)/"
+        "\\([0-9][0-9]+\\(?:[0-9][0-9]\\)?\\)\\>")
      str)
     (let ((m (string-to-number (match-string-no-properties 1 str)))
-	  (d (string-to-number (match-string-no-properties 2 str)))
-	  (y (match-string-no-properties 3 str)))
+          (d (string-to-number (match-string-no-properties 2 str)))
+          (y (match-string-no-properties 3 str)))
       (when (= (length y) 2)
-	(if (string-match "^[789]" y)
-	    (setq y (concat "19" y))
-	  (setq y (concat "20" y))))
+        (if (string-match "^[789]" y)
+            (setq y (concat "19" y))
+          (setq y (concat "20" y))))
       (format "%s-%02d-%02d" y m d)))
    ;; "Wed Jun 17 14:26:21 2009 (-0700)"
    ((string-match
      `,(concat
-	epackage--date-weekday-regexp
-	"[ \t]+"
-	"\\(" 	epackage--date-month-regexp "\\)"	; 1 month
-	"[ \t]+"
-	"\\([0-9]+\\)"					; 2 date
-	"[ \t]+"
-	"[0-9]+:[0-9:]+"				; time
-	"[ \t]+"
-	"\\([0-9][0-9][0-9][0-9]\\)")			; 3 year
+        epackage--date-weekday-regexp
+        "[ \t]+"
+        "\\("   epackage--date-month-regexp "\\)"       ; 1 month
+        "[ \t]+"
+        "\\([0-9]+\\)"                                  ; 2 date
+        "[ \t]+"
+        "[0-9]+:[0-9:]+"                                ; time
+        "[ \t]+"
+        "\\([0-9][0-9][0-9][0-9]\\)")                   ; 3 year
      str)
     (let ((m (nth 1 (assoc (match-string-no-properties 1 str)
-			   epackage--date-month-list)))
-	  (d (string-to-number (match-string-no-properties 2 str)))
-	  (y (match-string-no-properties 3 str)))
+                           epackage--date-month-list)))
+          (d (string-to-number (match-string-no-properties 2 str)))
+          (y (match-string-no-properties 3 str)))
       (format "%s-%02d-%02d" y m d)))))
 
 (defun epackage-insert-file-contents (file)
   "Call `insert-file-contents' on FILE and put point after end of insert."
   ;; `insert-file-contents' does not put point after last line
   (let ((marker (if (not (eobp))
-		    (make-marker))))
+                    (make-marker))))
     (if marker
-	(set-marker marker (min (1+ (point)) (point-max))))
+        (set-marker marker (min (1+ (point)) (point-max))))
     (insert-file-contents file)
     (goto-char (if marker
                    (1- (marker-position marker))
@@ -3198,11 +3238,11 @@ Strip epackage specific 'lib-*' prefix."
   "Delete empty lines from current point forward."
   (unless (eq (point-min) (point-max))
     (while (and (not (eobp))
-		(re-search-forward "^[ \t\f\r]*$" nil t))
+                (re-search-forward "^[ \t\f\r]*$" nil t))
       (delete-region (line-beginning-position)
-		     (if (eobp)
-			 (point-max)
-		       (1+ (point)))))))
+                     (if (eobp)
+                         (point-max)
+                       (1+ (point)))))))
 
 (defun epackage-buffer-remove-whitespace-eol ()
   "Clear end of line whitespaces from whole buffer. Including ^L."
@@ -3285,25 +3325,25 @@ Input:
 
 See `epackage-directory-recursive-list-default' for more information."
   (let ((regexp (format "^%s\\(.+\\)$"
-			(regexp-quote
-			 (file-name-as-directory
-			  (expand-file-name dir)))))
-	list)
+                        (regexp-quote
+                         (file-name-as-directory
+                          (expand-file-name dir)))))
+        list)
     (dolist (elt (epackage-directory-recursive-lisp dir))
       (dolist (file (directory-files elt nil "\\.el$"))
-	(when (or (null exclude)
-		  (not (string-match exclude file)))
-	  (setq file
-		(cond
-		 ((eq type 'nopath)
-		  (file-name-nondirectory file))
-		 ((eq type 'relative)
-		  (if (string-match regexp elt)
-		      (concat (match-string 1 elt) "/" file)
-		    (file-name-nondirectory file)))
-		 (t
-		  (format "%s/%s" elt file))))
-	  (epackage-push file list))))
+        (when (or (null exclude)
+                  (not (string-match exclude file)))
+          (setq file
+                (cond
+                 ((eq type 'nopath)
+                  (file-name-nondirectory file))
+                 ((eq type 'relative)
+                  (if (string-match regexp elt)
+                      (concat (match-string 1 elt) "/" file)
+                    (file-name-nondirectory file)))
+                 (t
+                  (format "%s/%s" elt file))))
+          (epackage-push file list))))
     list))
 
 (defun epackage-directory-packages-control-file (package type)
@@ -3358,7 +3398,7 @@ The TYPE is car of list `epackage--layout-mapping'."
         file)))
 
 (defun epackage-package-autoload-p (package)
-  "Return file if PACKAGE autolaod file exists."
+  "Return file if PACKAGE autoload file exists."
   (let ((file (epackage-file-name-install-compose package 'autoload)))
     (if (file-exists-p file)
         file)))
@@ -3378,13 +3418,13 @@ The TYPE is car of list `epackage--layout-mapping'."
 (defun epackage-package-byte-compiled-p (package)
   "Return non-nil if PACKAGE has been byte compiled."
   (let ((root (epackage-directory-package-root package))
-	status)
+        status)
     (when (file-directory-p root)
       (let ((list (epackage-pkg-lisp-directory package)))
-	(dolist (dir list)
-	  (unless status
-	    (if (directory-files dir nil "\\.elc$")
-		(setq status dir))))))
+        (dolist (dir list)
+          (unless status
+            (if (directory-files dir nil "\\.elc$")
+                (setq status dir))))))
     status))
 
 (defun epackage-package-installed-p (package)
@@ -3416,7 +3456,7 @@ The TYPE is car of list `epackage--layout-mapping'."
 If optional VERBOSE is non-nil, display informational messages.
 
 Return:
-  nil	everything ok
+  nil   everything ok
   '(PROBLEM ...)."
   (let (list)
     (cond
@@ -3427,7 +3467,7 @@ Return:
       (epackage-push 'not-git-master list)
       ;; FIXME: should check if repository is not locally modified.
       (epackage-verbose-message
-	"Package probalem %s: Git is not using \"master\" branch" package)))
+        "Package probalem %s: Git is not using \"master\" branch" package)))
     list))
 
 (defsubst epackage-directory-sources-list ()
@@ -3470,8 +3510,8 @@ location of `epackage--sources-file-name-official'."
   (let ((buffer (get-file-buffer (epackage-file-name-sources-list-main))))
     (when buffer
       (with-current-buffer buffer
-	(set-buffer-modified-p (not 'modified))
-	(kill-buffer (current-buffer))))))
+        (set-buffer-modified-p (not 'modified))
+        (kill-buffer (current-buffer))))))
 
 (defsubst epackage-sources-list-verify ()
   "Signal error if `epackage--sources-file-name-main' does not exist."
@@ -3619,9 +3659,9 @@ If variable `epackage--no-error' is set to non-nil, do nothing."
   (unless epackage--no-error
     (display-buffer epackage--process-output)
     (epackage-error "Git %scommand error"
-		    (if command
-			(format "'%s' " command)
-		      ""))))
+                    (if command
+                        (format "'%s' " command)
+                      ""))))
 
 (put 'epackage-with-process-output 'lisp-indent-function 0)
 (put 'epackage-with-process-output 'edebug-form-spec '(body))
@@ -3682,14 +3722,14 @@ If VERBOSE is non-nil, display progress message."
            (mapconcat #'concat (list ,@args) " ")
            (abbreviate-file-name ,dir)))
      (unless (epackage-git-command-ok-p
-	      (epackage-git-command-process
-	       ,@args))
+              (epackage-git-command-process
+               ,@args))
        (epackage-git-error-handler))
      (if ,verbose
-	 (epackage-message
-	  "Running 'git %s' in %s ...done"
-	  (mapconcat #'concat (list ,@args) " ")
-	  (abbreviate-file-name ,dir)))))
+         (epackage-message
+          "Running 'git %s' in %s ...done"
+          (mapconcat #'concat (list ,@args) " ")
+          (abbreviate-file-name ,dir)))))
 
 (put 'epackage-with-git-config 'lisp-indent-function 1)
 (put 'epackage-with-git-config 'edebug-form-spec '(body))
@@ -3709,12 +3749,12 @@ Kill buffer after BODY."
 (defun epackage-field-goto (field)
   "Go to the beginning of FIELD only if it exists."
   (let ((case-fold-search t)
-	end)
+        end)
     (epackage-point-min)
     (when (re-search-forward (concat "^" (regexp-quote field) ":") end t)
       (if (looking-at " ")
-	  (forward-char 1)
-	(insert " "))
+          (forward-char 1)
+        (insert " "))
       t)))
 
 (defsubst epackage-field-fetch-value (field)
@@ -3737,46 +3777,46 @@ If FIELD is empty or does not exist, return nil."
 If optional REGION is non-nil, return position of field '(beginning end)."
   (save-excursion
     (when (or (looking-at "^\\([^:]+\\):")
-	      (epackage-field-backward))
+              (epackage-field-backward))
       (if region
-	  (list (match-beginning 1)
-		(match-end 1))
-	(match-string-no-properties 1)))))
+          (list (match-beginning 1)
+                (match-end 1))
+        (match-string-no-properties 1)))))
 
 (defun epackage-field-narrow-to (&optional full) ;; FIXME: implement
   "Narrow the buffer to the field data area of the current line.
 If optional FULL is non-nil, include field in narrowed region."
   (let ((region (epackage-field-name 'region)) ;; moves backward
-	beg
-	end)
+        beg
+        end)
     (unless region
       (error "Field not found. Cannot narrow"))
     (save-excursion
       (goto-char (line-end-position))
       (setq end (or (epackage-field-forward)
-		    (re-search-forward "^[ \t]*$" nil t) ; first empty line
-		    (point-max))))
+                    (re-search-forward "^[ \t]*$" nil t) ; first empty line
+                    (point-max))))
     (cond
      (full
       (setq beg (car region)))
      (t
-      (setq beg (1+ (nth 1 region)))	; after colon(:)
+      (setq beg (1+ (nth 1 region)))    ; after colon(:)
       (goto-char beg)
-      (if (looking-at " ")		; "field: "
-	  (setq beg (1+ beg)))))
+      (if (looking-at " ")              ; "field: "
+          (setq beg (1+ beg)))))
     (narrow-to-region beg end)))
 
 (defsubst epackage-field-set (field value &optional overwrite)
   "Set FIELD if it exists to VALUE. If OVERWRITE is non-nil, replace old."
   (let ((old (epackage-field-fetch-value field)))
     (when (or overwrite
-	      (null old))
+              (null old))
       (or (epackage-field-goto field)
-	  (epackage-error "No such field to goto: %s" field))
+          (epackage-error "No such field to goto: %s" field))
       (when (and overwrite old)
-	(delete-region (point) (+ (point) (length old))))
+        (delete-region (point) (+ (point) (length old))))
       (if value
-	  (insert value))
+          (insert value))
       t)))
 
 (defun epackage-field-fetch-description ()
@@ -3942,7 +3982,7 @@ Return subexpression 1, or 0; the one that exists."
           (setq status (mapconcat
                         #'concat
                         (epackage-sort list)
-			" ")))
+                        " ")))
       status)))
 
 (defun epackage-read-file-content-regexp (file)
@@ -3950,42 +3990,42 @@ Return subexpression 1, or 0; the one that exists."
 Empty lines and comments on their own lines started with ';' are
 ignored"
   (let (str
-	regexp)
+        regexp)
     (when (file-exists-p file)
       (with-temp-buffer
-	(insert-file-contents-literally file)
-	(epackage-point-min)
-	(while (re-search-forward "^[ \t]*\\([^ ;\t\r\n].*\\)" nil t)
-	  (setq str (match-string-no-properties 1))
-	  (if regexp
-	      (setq regexp (format "%s\\|%s" regexp str))
-	    (setq regexp str)))))
+        (insert-file-contents-literally file)
+        (epackage-point-min)
+        (while (re-search-forward "^[ \t]*\\([^ ;\t\r\n].*\\)" nil t)
+          (setq str (match-string-no-properties 1))
+          (if regexp
+              (setq regexp (format "%s\\|%s" regexp str))
+            (setq regexp str)))))
     regexp))
 
 (defun epackage-pkg-ignore-file-content (package)
   "Return content of ignore file from PACKAGE."
   (let ((dir (epackage-directory-package-root package))
-	(file (epackage-file-name-package-compose package 'ignore)))
+        (file (epackage-file-name-package-compose package 'ignore)))
     (when (and (file-directory-p dir)  ;; FIXME: redundant?
-	       (file-exists-p file))
-	(epackage-read-file-content-regexp file))))
+               (file-exists-p file))
+        (epackage-read-file-content-regexp file))))
 
 (defun epackage-pkg-lisp-directory (package)
   "Return list of Emacs Lisp directories of PACKAGE."
   (let ((dir (epackage-directory-package-root package))
-	(file (epackage-file-name-package-compose package 'lisp))
-	elt
-	list)
+        (file (epackage-file-name-package-compose package 'lisp))
+        elt
+        list)
     (when (file-directory-p dir)
       (if (not (file-exists-p file))
-	  (setq list (list dir))
-	(with-temp-buffer
-	  (insert-file-contents-literally file)
-	  (epackage-point-min)
-	  (setq dir (file-name-as-directory dir))
-	  (while (re-search-forward "^[ \t]*\\([^ ;\t\r\n]+\\)" nil t)
-	    (setq elt (format "%s%s" dir (match-string-no-properties 1)))
-	    (epackage-push elt list)))))
+          (setq list (list dir))
+        (with-temp-buffer
+          (insert-file-contents-literally file)
+          (epackage-point-min)
+          (setq dir (file-name-as-directory dir))
+          (while (re-search-forward "^[ \t]*\\([^ ;\t\r\n]+\\)" nil t)
+            (setq elt (format "%s%s" dir (match-string-no-properties 1)))
+            (epackage-push elt list)))))
     list))
 
 ;;; ................................................... &functions-git ...
@@ -4196,9 +4236,9 @@ Return:
   (let ((epackage--no-error 'noerr))
     (ignore-errors
       (epackage-with-git-command dir verbose
-	"ls-remote"
-	(or remote "origin")
-	(format "refs/heads/%s" (or branch "master")))))
+        "ls-remote"
+        (or remote "origin")
+        (format "refs/heads/%s" (or branch "master")))))
   (epackage-with-last-git-output
     (when (looking-at "^[a-cA-F0-9]\\{40\\}")
       (match-string-no-properties 0))))
@@ -4215,13 +4255,13 @@ Return:
   "Return SHA of HEAD drectly by reading repository DIR.
 If optional VERBOSE is non-nil, display progress message."
   (let ((file (format "%s.git/refs/heads/master"
-		      (file-name-as-directory dir))))
+                      (file-name-as-directory dir))))
     (cond
      ((file-exists-p file)
       (epackage-with-insert-file-contents-literally file
-	;; Without newlinw
-	(if (looking-at "^[^ \t\f\r\n]+")
-	    (match-string-no-properties 0))))
+        ;; Without newlinw
+        (if (looking-at "^[^ \t\f\r\n]+")
+            (match-string-no-properties 0))))
      (t
       (epackage-git-command-sha-current dir verbose)))))
 
@@ -4301,8 +4341,8 @@ No pending commits and no modified files."
 (defun epackage-status-install-files (package)
   "Return list of currently installed files for PACKAGE."
   (let ((dir    (epackage-directory-install))
-	(regexp (format "%s-.*\\.el$" (regexp-quote package)))
-	list)
+        (regexp (format "%s-.*\\.el$" (regexp-quote package)))
+        list)
     (directory-files
      dir
      (not 'full-path)
@@ -4322,14 +4362,14 @@ No pending commits and no modified files."
          (regexp   (concat (regexp-quote template) "$"))
          (match    (concat "\\(.+\\)" regexp))
          list
-	 package)
+         package)
     (dolist (elt (directory-files
                   dir
                   (not 'full-path)
                   regexp))
       (when (and (string-match match elt)
-		 (setq package (match-string 1 elt)))
-	(add-to-list 'list package)))
+                 (setq package (match-string 1 elt)))
+        (add-to-list 'list package)))
     (nreverse list)))
 
 (defsubst epackage-status-enabled-packages ()
@@ -4359,7 +4399,7 @@ No pending commits and no modified files."
   (let (list)
     (dolist (type '(autoload loaddefs enable activate))
       (dolist (elt (epackage-config-status-of-packages type))
-	(add-to-list 'list elt)))
+        (add-to-list 'list elt)))
     (sort list 'string<)))
 
 (defun epackage-status-not-installed-packages ()
@@ -4382,11 +4422,11 @@ g  '(KEYWORD ...)."
   (let (list)
     ;; Order if the statements matter: keep 'list' in alphabetical order
     (if (epackage-package-byte-compiled-p package)
-	(epackage-push 'compile list))
+        (epackage-push 'compile list))
     (if (epackage-package-enabled-p package)
-	(epackage-push 'enable list))
+        (epackage-push 'enable list))
     (if (epackage-package-activated-p package)
-	(epackage-push 'activate list))
+        (epackage-push 'activate list))
     list))
 
 ;;; ............................................. epackage development ...
@@ -4415,8 +4455,8 @@ g  '(KEYWORD ...)."
   (let (list)
     (dolist (elt (directory-files dir 'full "\\.el$"))
       (when (and (not (string-match "[#~]" elt))
-		 (or (null exclude)
-		     (not (string-match exclude elt))))
+                 (or (null exclude)
+                     (not (string-match exclude elt))))
         (push elt list)))
     list))
 
@@ -4431,14 +4471,14 @@ g  '(KEYWORD ...)."
 If optional VERBOSE is non-nil, display progress message."
   (let ((generated-autoload-file dest))
       (with-current-buffer (find-file-noselect dest)
-	(when buffer-auto-save-file-name
-	  (if (file-exists-p buffer-auto-save-file-name)
-	      (delete-file buffer-auto-save-file-name))
-	  (auto-save-mode -1))
+        (when buffer-auto-save-file-name
+          (if (file-exists-p buffer-auto-save-file-name)
+              (delete-file buffer-auto-save-file-name))
+          (auto-save-mode -1))
         (goto-char (point-max))
         (let ((point (point)))
           (generate-file-autoloads file)
-	  (epackage-autoload-write-loaddefs-clean)
+          (epackage-autoload-write-loaddefs-clean)
           ;;  was something inserted?
           (cond
            ((eq (point) point)
@@ -4472,21 +4512,27 @@ The first argument is the the destination file where loaddefs are stored."
            'verbose)
         (setq dest item)))))
 
-(defun epackage-autoload-remove-path-names (file)
-  "From autoload FILE, remove all references to paths.
-Say you generate autolaods using function
+(defun epackage-autoload-remove-path-names-buffer ()
+  "From current point remove directories from autoload definition paths.
+Say you generate autoloads using function
 `tinylisp-autoload-generate-loaddefs-dir' which would record
 relative locations based on the stored autoload FILE. In case
 those lcoations are already in path, there is no need to preserve
 relative locations, like this:
 
   (custom-autoload 'some-function \"../lisp/some\" t)"
+    (while (re-search-forward "\"\\(\\.?\\.?/?[^\"\r\n]+/\\).+\"" nil t)
+      (replace-match ""  nil nil nil 1)))
+
+(defun epackage-autoload-remove-path-names-file (file)
+  "From autoload FILE, remove all references to paths.
+See `epackage-autoload-remove-path-names-buffer' for full
+description."
   (epackage-with-insert-file-contents-literally file
-    (while (re-search-forward "\"\\(.+/\\(.+\\)\\)\"" nil t)
-      (replace-match (match-string 2) nil nil nil 1))
+    (epackage-point-min)
+    (epackage-autoload-remove-path-names-buffer)
     (epackage-write-region (point-min) (point-max) file)))
 
-;; Copy of tinylisp-autoload-generate-loaddefs-dir
 (defun epackage-autoload-generate-loaddefs-dir
   (dir file &optional exclude recursive verbose)
   "Generate loaddefs from DIR to FILE.
@@ -4498,26 +4544,35 @@ If VERBOSE is non-nil, display informational messages."
   (let ((regexp "\\(?:loaddef\\|autoload\\).*\\.el\\|[#~]\\|/[.][^/]+$")
         list)
     (if (or (null exclude)
-	    (and (stringp exclude)
-		 (string-match "^[ \t\r\n]*$" exclude)))
+            (and (stringp exclude)
+                 (string-match "^[ \t\r\n]*$" exclude)))
         ;; Interactive, no answer. Use default.
         (setq exclude regexp))
     (when (setq list
-		(if recursive
-		    (epackage-files-recursive-lisp dir nil exclude)
-		  (epackage-directory-file-list dir exclude)))
+                (if recursive
+                    (epackage-files-recursive-lisp dir nil exclude)
+                  (epackage-directory-file-list dir exclude)))
       (if (file-exists-p file)
           (delete-file file))
       (let ((buffer (get-file-buffer file)))
-	(when buffer
-	  (with-current-buffer buffer
-	    (set-buffer-modified-p nil))
-	  (kill-buffer buffer)))
+        (when buffer
+          (with-current-buffer buffer
+            (set-buffer-modified-p nil))
+          (kill-buffer buffer)))
       (epackage-autoload-generate-loaddefs-file-list
        file
        list
        (or verbose (called-interactively-p 'interactive)))
-      (epackage-autoload-remove-path-names file))))
+      (if (file-exists-p file)
+          (epackage-autoload-remove-path-names-file file)))))
+
+(defun epackage-emacs-lisp-mode-maybe ()
+  "Activate `emacs-lisp-mode' if not set."
+  (unless (eq major-mode 'emacs-lisp-mode)
+    (let (emacs-lisp-mode-hook) ;; Run no hooks
+      (if emacs-lisp-mode-hook  ;; Quiet ByteCompiler "unused var"
+          (setq emacs-lisp-mode-hook nil))
+      (emacs-lisp-mode))))
 
 ;; Copy of ti::package-autoload-create-on-file
 (defun epackage-autoload-create-on-file (file buffer)
@@ -4533,24 +4588,7 @@ Input:
   FILE      Emacs Lisp file to read
   BUFFER    to insert autoloads."
   (let ((fn     (file-name-nondirectory file))
-        (regexp `,(concat
-                   "^(\\("
-                   "defun[*]?"
-                   "\\|defmacro[*]?"
-                   "\\|defsubst"
-                   "\\|defun-maybe"
-                   "\\|defsubst-maybe"
-                   "\\|defmacro-maybe"
-                   "\\|define-compilation-mode"
-                   "\\|define-derived-mode"
-                   "\\|define-generic-mode"
-                   "\\|define-global-minor-mode"
-                   "\\|define-globalized-minor-mode"
-                   "\\|define-minor-mode"
-                   "\\|easy-mmode-define-global-mode"
-                   "\\|easy-mmode-define-minor-mode"
-                   "\\)"
-                   "[ \t]+\\([^ \t\n(]+\\)[ \t]*"))
+        (regexp epackage-defun-regexp)
         list
         args
         func
@@ -4559,7 +4597,7 @@ Input:
         iact
         point
         read-buffer
-	save-point
+        save-point
         tmp)
     ;;   We want to say (autoload 'func "pacakge" t t)
     ;;   and not        (autoload 'func "pacakge.el" t t)
@@ -4570,25 +4608,25 @@ Input:
       (setq read-buffer (setq tmp (find-file-noselect file))))
     (with-current-buffer read-buffer
       (setq save-point (point))
-      ;; Can't use forward-sexp
-      (unless (string-match "lisp" (symbol-name major-mode))
-        (let (emacs-lisp-mode-hook) ;; Run no hooks
-          (if emacs-lisp-mode-hook  ;; Quiet ByteCompiler "unused var"
-              (setq emacs-lisp-mode-hook nil))
-          (emacs-lisp-mode)))
+      ;; Can't use forward-sexp otherwise
+      (epackage-emacs-lisp-mode-maybe)
       (epackage-point-min)
       (while (re-search-forward regexp nil t)
         (setq iact nil                  ;interactive flag
               args nil
               ;; match (match-string 0)
-              type (match-string 1)
-              func (match-string 2))
+              type (match-string-no-properties 1)
+              func (match-string-no-properties 2))
         (when (and func
                    (progn
+                     ;; Read arguments for defun
                      (goto-char (goto-char (match-end 0)))
-                     (when (search-forward "(" nil t)
-                       (setq point (point))
-                       (backward-char 1)
+                     (when (or (looking-at "[(]")
+                               (and
+                                (search-forward "(" nil t)
+                                (backward-char 1)))
+                       ;; Text start, not the paren
+                       (setq point (1+ (point)))
                        (forward-sexp 1)
                        (backward-char 1)
                        (setq
@@ -4598,7 +4636,7 @@ Input:
                          (subst-char-in-string
                           ;;  Convert multiline args to one line.
                           ?\n ?\ (buffer-substring-no-properties
-				  point (point)) ))))))
+                                  point (point)) ))))))
           (if (or (string-match "define.*mode" type)
                   (re-search-forward
                    "[ \t\n]+([ \t]*interactive"
@@ -4627,9 +4665,9 @@ Input:
                                 (format ";;%s" type) "")))
           (epackage-append-to-buffer buffer str)
           (setq iact "t")))
-      (if tmp			        ; We loaded this to Emacs, remove it
+      (if tmp                           ; We loaded this to Emacs, remove it
           (kill-buffer tmp)
-	(goto-char save-point))		; Restore position
+        (goto-char save-point))         ; Restore position
       buffer)))
 
 (defun epackage-autoload-write-autoload-files (&rest args);; FIXME remove this
@@ -4662,15 +4700,15 @@ Input:
                 dir
                 'full
                 "\\.el$"))
-	(regexp "\\(?:loaddef\\|autoload\\)\\|[#~]"))
+        (regexp "\\(?:loaddef\\|autoload\\)\\|[#~]"))
     (if exclude
-	(setq regexp (concat regexp "\\|" exclude)))
+        (setq regexp (concat regexp "\\|" exclude)))
     (dolist (file files)
       (unless (string-match regexp file)
-	(epackage-autoload-create-on-file
-	 file
-	 (or buffer
-	     (current-buffer)))))
+        (epackage-autoload-create-on-file
+         file
+         (or buffer
+             (current-buffer)))))
     files))
 
 (defun epackage-make-directory (directory &optional no-question error)
@@ -4679,12 +4717,12 @@ If optional ERROR is non-nil, signal error if DIRECTORY was not created."
   (unless (file-directory-p directory)
     (cond
      ((or no-question
-	  (y-or-n-p (format "Create directory %s? " directory)))
+          (y-or-n-p (format "Create directory %s? " directory)))
       (make-directory directory)
       t)
      (t
       (if error
-	  (epackage-error "Directory creation not confirmed: %d" directory))
+          (epackage-error "Directory creation not confirmed: %d" directory))
       nil))))
 
 (defun epackage-devel-licence-list-http-get ()
@@ -4693,8 +4731,8 @@ Connects to `epackage--info-licence-list-url'.
 Return buffer."
   (interactive)
   (let* ((url epackage--info-licence-list-url)
-	 (dest (get-buffer-create "*epackage-licenses-spdx.org*"))
-	 (buffer (url-retrieve-synchronously url)))
+         (dest (get-buffer-create "*epackage-licenses-spdx.org*"))
+         (buffer (url-retrieve-synchronously url)))
     (if (not buffer)
         (epackage-error "Failed to connect to %s" url)
       buffer)))
@@ -4703,16 +4741,16 @@ Return buffer."
   "Parse result of `epackage-devel-licence-list-http-get'."
   ;; <td about="./AFL-1.2" typeof="spdx:License">
   (let ((regexp `,(concat
-		   "<td +about=\"\\./\\([^ \"\t\r\n]+\\)\" *"
-		   "typeof=\"spdx:License\">"))
-	str
-	list)
+                   "<td +about=\"\\./\\([^ \"\t\r\n]+\\)\" *"
+                   "typeof=\"spdx:License\">"))
+        str
+        list)
     (epackage-point-min)
     (while (re-search-forward regexp nil t)
       (setq str (match-string-no-properties 1))
       ;; Drop dot-zero "*.0"
       (if (string-match "^\\(.+\\)\\(?:\\.0\\)+$" str)
-	  (setq str (match-string 1 str)))
+          (setq str (match-string 1 str)))
       (epackage-push str list))
     (nreverse list)))
 
@@ -4722,14 +4760,14 @@ If RAW is non-nil, do not surround lincense names with quotes.
 Note: Connects to `epackage--info-licence-list-url'."
   (interactive "P")
   (let ((buffer (epackage-devel-licence-list-http-get))
-	list)
+        list)
     (when buffer
       (with-current-buffer buffer
-	(setq list (epackage-devel-licence-list-http-parse)))
+        (setq list (epackage-devel-licence-list-http-parse)))
       (dolist (str list)
-	(if raw
-	    (insert str "\n")
-	  (insert (format "\"%s\"\n" str)))))))
+        (if raw
+            (insert str "\n")
+          (insert (format "\"%s\"\n" str)))))))
 
 (defun epackage-devel-generate-compile-write-file (file list)
   "Write to FILE commands to compile LIST of files."
@@ -4737,12 +4775,12 @@ Note: Connects to `epackage--info-licence-list-url'."
     (with-temp-buffer
       (insert
        (format
-	epackage--layout-template-compile
-	(mapconcat
-	 (lambda (x)
-	   (format "\"%s\"" x))
-	 (epackage-sort list)
-	 "\n")))
+        epackage--layout-template-compile
+        (mapconcat
+         (lambda (x)
+           (format "\"%s\"" x))
+         (epackage-sort list)
+         "\n")))
       (emacs-lisp-mode)
       (epackage-point-min)
       (indent-sexp)
@@ -4756,13 +4794,13 @@ The file is stored under directory ROOT/`epackage--directory-name'.
 
 Input:
 
-    PACKAGE	Epackage name
-    ROOT	Epackage root directory (must exists).
-    DIR   	Optional. Emacs Lisp package directories. This can be a
+    PACKAGE     Epackage name
+    ROOT        Epackage root directory (must exists).
+    DIR         Optional. Emacs Lisp package directories. This can be a
                 one string or list of strings. Defaults to ROOT.
     RECURSIVE   Optional. If non-nil, read all *.el files under DIR.
-		Interactive prefix.
-    VERBOSE	Optional. If non-nil, display verbose messages.
+                Interactive prefix.
+    VERBOSE     Optional. If non-nil, display verbose messages.
                 Interactive call sets this."
   (interactive
    (let ((root (read-directory-name "Epackage root dir: ")))
@@ -4780,20 +4818,20 @@ Input:
   (epackage-error-if-not-directory dir)
   (epackage-error-if-invalid-package-name package)
   (let* ((file (epackage-layout-file-name root package 'uninstall))
-	 (edir (file-name-directory file)))
+         (edir (file-name-directory file)))
     (epackage-make-directory edir 'no-question 'error)
     (cond
      ((file-exists-p file)
       (if verbose
-	  (epackage-message "Not writing, already exists: %s" file)))
+          (epackage-message "Not writing, already exists: %s" file)))
      (t
       (with-temp-buffer
-	(insert (format "\
+        (insert (format "\
 ;; Template. Add remove-hook etc calls here.
 \(error \"%s is not a configuration file.\")
 "
-			(file-name-nondirectory file)))
-	(epackage-write-region (point-min) (point-max) file))))))
+                        (file-name-nondirectory file)))
+        (epackage-write-region (point-min) (point-max) file))))))
 
 (defun epackage-devel-generate-examples
   (package root &optional dir recursive verbose)
@@ -4802,13 +4840,13 @@ The file is stored under directory ROOT/`epackage--directory-name'.
 
 Input:
 
-    PACKAGE	Epackage name
-    ROOT	Epackage root directory (must exists).
-    DIR   	Optional. Emacs Lisp package directories. This can be a
+    PACKAGE     Epackage name
+    ROOT        Epackage root directory (must exists).
+    DIR         Optional. Emacs Lisp package directories. This can be a
                 one string or list of strings. Defaults to ROOT.
     RECURSIVE   Optional. If non-nil, read all *.el files under DIR.
-		Interactive prefix.
-    VERBOSE	Optional. If non-nil, display verbose messages.
+                Interactive prefix.
+    VERBOSE     Optional. If non-nil, display verbose messages.
                 Interactive call sets this."
   (interactive
    (let ((root (read-directory-name "Epackage root dir: ")))
@@ -4826,9 +4864,9 @@ Input:
   (epackage-error-if-not-directory dir)
   (epackage-error-if-invalid-package-name package)
   (let* ((file (epackage-layout-file-name root package 'examples))
-	 (edir (file-name-directory file))
-	 (exclude (epackage-read-file-content-regexp
-		   (epackage-layout-file-name root package 'ignore))))
+         (edir (file-name-directory file))
+         (exclude (epackage-read-file-content-regexp
+                   (epackage-layout-file-name root package 'ignore))))
     ;; FIXME: Add some extraction code that would rip code examples
     ;; from inside source code files.
     ;; For now, just write dummy template file.
@@ -4836,16 +4874,16 @@ Input:
     (cond
      ((file-exists-p file)
       (if verbose
-	  (epackage-message "Not writing, already exists: %s" file)))
+          (epackage-message "Not writing, already exists: %s" file)))
      (t
       (with-temp-buffer
-	(insert (format "\
+        (insert (format "\
 ;; Prevent loading this file. Study the examples.
 \(error \"%s is not a configuration file.\")
 ;; End of file
 "
-			(file-name-nondirectory file)))
-	(epackage-write-region (point-min) (point-max) file))))))
+                        (file-name-nondirectory file)))
+        (epackage-write-region (point-min) (point-max) file))))))
 
 (defun epackage-devel-generate-compile-main
   (package root &optional dir recursive verbose)
@@ -4854,13 +4892,13 @@ The file is stored under directory ROOT/`epackage--directory-name'.
 
 Input:
 
-    PACKAGE	Epackage name
-    ROOT	Epackage root directory (must exists).
-    DIR   	Optional. Emacs Lisp package directories. This can be a
+    PACKAGE     Epackage name
+    ROOT        Epackage root directory (must exists).
+    DIR         Optional. Emacs Lisp package directories. This can be a
                 one string or list of strings. Defaults to ROOT.
     RECURSIVE   Optional. If non-nil, read all *.el files under DIR.
-		Interactive prefix.
-    VERBOSE	Optional. If non-nil, display verbose messages.
+                Interactive prefix.
+    VERBOSE     Optional. If non-nil, display verbose messages.
                 Interactive call sets this."
   (interactive
    (let ((root (read-directory-name "Epackage root dir: ")))
@@ -4878,16 +4916,16 @@ Input:
   (epackage-error-if-not-directory dir)
   (epackage-error-if-invalid-package-name package)
   (let* ((file (epackage-layout-file-name root package 'compile))
-	 (edir (file-name-directory file))
-	 (regexp epackage--lisp-file-exclude-regexp)
-	 (ignore (epackage-read-file-content-regexp
-		   (epackage-layout-file-name root package 'ignore)))
-	 (exclude (if ignore
-		      (format "%s\\|%s" ignore regexp)
-		    regexp))
-	 (list (if recursive
-		   (epackage-files-recursive-lisp dir 'relative exclude)
-		 (epackage-directory-file-list dir exclude))))
+         (edir (file-name-directory file))
+         (regexp epackage--lisp-file-exclude-regexp)
+         (ignore (epackage-read-file-content-regexp
+                   (epackage-layout-file-name root package 'ignore)))
+         (exclude (if ignore
+                      (format "%s\\|%s" ignore regexp)
+                    regexp))
+         (list (if recursive
+                   (epackage-files-recursive-lisp dir 'relative exclude)
+                 (epackage-directory-file-list dir exclude))))
     (epackage-make-directory edir 'no-question 'error)
     (epackage-devel-generate-compile-write-file file list)))
 
@@ -4898,17 +4936,17 @@ The loaddefs file is stored under directory ROOT/`epackage--directory-name'.
 
 Input:
 
-    PACKAGE	Epackage name
-    ROOT	Epackage root directory (must exists).
-    DIR   	Optional. Emacs Lisp package directories. This can be a
+    PACKAGE     Epackage name
+    ROOT        Epackage root directory (must exists).
+    DIR         Optional. Emacs Lisp package directories. This can be a
                 one string or list of strings. Defaults to ROOT.
     RECURSIVE   Optional. If non-nil, read all *.el files under DIR.
-		Interactive prefix.
-    VERBOSE	Optional. If non-nil, display verbose messages.
+                Interactive prefix.
+    VERBOSE     Optional. If non-nil, display verbose messages.
                 Interactive call sets this."
   (interactive
    (let ((package (read-string "Package name: "))
-	 (root (read-directory-name "Epackage root dir: ")))
+         (root (read-directory-name "Epackage root dir: ")))
      (list
       package
       root
@@ -4922,14 +4960,14 @@ Input:
   (epackage-error-if-not-directory dir)
   (epackage-error-if-invalid-package-name package)
   (let* ((file (epackage-layout-file-name root package 'loaddefs))
-	 (edir (file-name-directory file))
-	 (buffer epackage--buffer-autoload)
-	 (regexp "\\(?:loaddef\\|autoload\\).*\\.el\\|[#~]")
-	 (ignore (epackage-read-file-content-regexp
-		   (epackage-layout-file-name root package 'ignore)))
-	 (exclude (if ignore
-		      (format "%s\\|%s" ignore regexp)
-		    regexp)))
+         (edir (file-name-directory file))
+         (buffer epackage--buffer-autoload)
+         (regexp "\\(?:loaddef\\|autoload\\).*\\.el\\|[#~]")
+         (ignore (epackage-read-file-content-regexp
+                   (epackage-layout-file-name root package 'ignore)))
+         (exclude (if ignore
+                      (format "%s\\|%s" ignore regexp)
+                    regexp)))
     (epackage-make-directory edir 'no-question 'error)
     (cond
      (recursive
@@ -4938,11 +4976,11 @@ Input:
        dir file exclude recursive verbose))
      (t
       (if (stringp dir)
-	  (epackage-autoload-generate-loaddefs-dir
-	   dir file exclude recursive verbose)
-	(dolist (elt dir)
-	  (epackage-autoload-generate-loaddefs-dir
-	   dir file exclude recursive verbose)))))
+          (epackage-autoload-generate-loaddefs-dir
+           dir file exclude recursive verbose)
+        (dolist (elt dir)
+          (epackage-autoload-generate-loaddefs-dir
+           dir file exclude recursive verbose)))))
     (when (file-exists-p file)
       (epackage-add-provide-to-file file))))
 
@@ -4951,21 +4989,21 @@ Input:
 The first argument is the directory name. Update existing epackage/*loaddefs*
 files recursively for all Emacs Lisp files."
   (let* ((arg (nth 0 command-line-args-left))
-	 (dir (or arg
-		  default-directory))
-	 (edir (concat (file-name-as-directory dir)
-		       epackage--directory-name))
-	 file)
+         (dir (or arg
+                  default-directory))
+         (edir (concat (file-name-as-directory dir)
+                       epackage--directory-name))
+         file)
     (when (and (stringp dir)
-	       (string-match "^[ \t]*$" dir))
+               (string-match "^[ \t]*$" dir))
       (epackage-error "Empty DIRECTORY argument"))
     (unless (file-directory-p dir)
       (epackage-error "No such directory: %s" dir))
     (setq file (car-safe
-		(directory-files
-		 edir
-		 'full
-		 "-epackage-0loaddefs\\.el$")))
+                (directory-files
+                 edir
+                 'full
+                 "^[a-z].*-epackage-0loaddefs\\.el$")))
     (unless file
       (epackage-error "No such file: %s/*-epackage-0loaddefs.el" edir))
     (epackage-autoload-generate-loaddefs-dir
@@ -4982,13 +5020,13 @@ The autoloads are stored under directory ROOT/`epackage--directory-name'.
 
 Input:
 
-    PACKAGE	Epackage name
-    ROOT	Epackage root directory (must exists).
-    DIR   	Emacs Lisp package directories. This can be a one string
+    PACKAGE     Epackage name
+    ROOT        Epackage root directory (must exists).
+    DIR         Emacs Lisp package directories. This can be a one string
                 or list of strings.
     RECURSIVE   Optional. If non-nil, read all *.el files under DIR-LIST.
-		Interactive prefix.
-    VERBOSE	Optional. If non-nil, display verbose message.
+                Interactive prefix.
+    VERBOSE     Optional. If non-nil, display verbose message.
                 Interactive call sets this.
 
 Return:
@@ -5003,59 +5041,59 @@ Notes:
    directories; of which only one of them is relevant for
    autoload generation: the lisp/ directory.
 
-	bits/
-	bits/bbdb-filters/
-	lisp/
-	misc/
-	testing/
-	texinfo/
-	utils/
+        bits/
+        bits/bbdb-filters/
+        lisp/
+        misc/
+        testing/
+        texinfo/
+        utils/
 
    So, you must manually check and possibly edit the generated results."
   (interactive
    "sPackage name: \nDPackage root dir: \nDRead autoloads from dir: \np")
   (epackage-error-if-invalid-package-name package)
   (when (or (not (stringp dir))
-	    (not (file-directory-p dir)))
+            (not (file-directory-p dir)))
     (epackage-error "Drectory does not exist: %s" dir))
   (when (or (not (stringp root))
-	    (not (file-directory-p root)))
+            (not (file-directory-p root)))
     (epackage-error "Drectory does not exist: %s" dir))
   (let* ((file (epackage-layout-file-name root package 'autoload))
-	 (edir (file-name-directory file))
-	 (buffer epackage--buffer-autoload)
-	 (exclude (epackage-read-file-content-regexp
-		   (epackage-layout-file-name root package 'ignore)))
-	 list)
+         (edir (file-name-directory file))
+         (buffer epackage--buffer-autoload)
+         (exclude (epackage-read-file-content-regexp
+                   (epackage-layout-file-name root package 'ignore)))
+         list)
     (if (called-interactively-p 'interactive)
-	(setq verbose t))
+        (setq verbose t))
     (epackage-make-directory edir 'error)
     (epackage-with-buffer-autoload
       (epackage-erase-buffer)
       (cond
        (recursive
-	(dolist (elt (epackage-directory-recursive-lisp dir))
-	  (epackage-nconc
-	   (epackage-autoload-create-on-directory elt nil exclude)
-	   list)))
+        (dolist (elt (epackage-directory-recursive-lisp dir))
+          (epackage-nconc
+           (epackage-autoload-create-on-directory elt nil exclude)
+           list)))
        (t
-	(if (stringp dir)
-	    (setq list (epackage-autoload-create-on-directory dir nil exclude))
-	  (dolist (elt dir)
-	    (epackage-nconc
-	     (epackage-autoload-create-on-directory elt nil exclude)
-	     list)))))
+        (if (stringp dir)
+            (setq list (epackage-autoload-create-on-directory dir nil exclude))
+          (dolist (elt dir)
+            (epackage-nconc
+             (epackage-autoload-create-on-directory elt nil exclude)
+             list)))))
       (cond
        ((not (eq (point-min) (point-max)))
-	(epackage-add-provide-to-buffer file)
-	(epackage-write-region (point-min) (point-max) file)
-	(epackage-verbose-message "Wrote %s" file)
-	(or list
-	    t))
+        (epackage-add-provide-to-buffer file)
+        (epackage-write-region (point-min) (point-max) file)
+        (epackage-verbose-message "Wrote %s" file)
+        (or list
+            t))
        (t
-	(epackage-verbose-message
-	  "[WARN] No autoloads found for %s from dir %s" file dir)
-	nil)))))
+        (epackage-verbose-message
+          "[WARN] No autoloads found for %s from dir %s" file dir)
+        nil)))))
 
 (defun epackage-devel-generate-install
   (package root afile &optional verbose)
@@ -5065,83 +5103,83 @@ Extract interactive autoload statements from AFILE.
 
 Input:
 
-    PACKAGE	Epackage name
-    ROOT	Epackage root directory (must exists).
+    PACKAGE     Epackage name
+    ROOT        Epackage root directory (must exists).
     AFILE       The `autoload' statement file.
-    VERBOSE	Optional. If non-nil, display verbose message.
+    VERBOSE     Optional. If non-nil, display verbose message.
                 Interactive call sets this."
   (interactive
    "sPackage name: \nFAutoload file: ")
   (epackage-error-if-invalid-package-name package)
   (when (or (not (stringp root))
-	    (not (file-directory-p root)))
+            (not (file-directory-p root)))
     (epackage-error "Drectory does not exist: %s" root))
   (let ((autoloads afile)
-	(install (epackage-layout-file-name root package 'enable)))
+        (install (epackage-layout-file-name root package 'enable)))
     ;; By default we copy all interactive functions to install.
     (if (file-exists-p install)
-	(epackage-verbose-message
-	  "Already created, not touching %s" install)
+        (epackage-verbose-message
+          "Already created, not touching %s" install)
       (if (not (file-exists-p autoloads))
-	  (epackage-verbose-message
-	    "[NOTE] File does not exist %s" autoloads)
-	(with-temp-buffer
-	  (insert-file-contents autoloads)
-	  (epackage-point-min)
-	  ;; Searh line that have "t" at end:
-	  ;;
-	  ;; (autoload 'command "package" "" t)
-	  ;; (autoload 'command "package" "" nil 'macro)
-	  (delete-non-matching-lines "t)[ \t]*$")
-	  (epackage-add-provide-to-buffer install)
-	  (epackage-write-region (point-min) (point-max) install)
-	  (epackage-verbose-message "Wrote %s" install))))))
+          (epackage-verbose-message
+            "[NOTE] File does not exist %s" autoloads)
+        (with-temp-buffer
+          (insert-file-contents autoloads)
+          (epackage-point-min)
+          ;; Searh line that have "t" at end:
+          ;;
+          ;; (autoload 'command "package" "" t)
+          ;; (autoload 'command "package" "" nil 'macro)
+          (delete-non-matching-lines "t)[ \t]*$")
+          (epackage-add-provide-to-buffer install)
+          (epackage-write-region (point-min) (point-max) install)
+          (epackage-verbose-message "Wrote %s" install))))))
 
 (defun epackage-devel-information-license-gpl-standard ()
   "If there is standard GPL stanza, return GPL[-<version>[+]].
 Point is not preserved."
-  (let* ((max (min (* 80 400)		; 400 lines
-		   (point-max)))
-	 (spc    "[ ;\t\f\r\n]+")
-	 (spc*   "[ ;\t\f\r\n]*")
-	 (any    "[\0-\377]+")		; Match accross lines; Was ".*"
-	 (re-gpl (concat
-		  "terms"
-		  spc
-		  "of"
-		  spc
-		  "\\(?:the\\)?"
-		  spc*
-		  "GNU"
-		  spc
-		  "General"
-		  spc
-		  "Public"
-		  spc
-		  "License"
-		  ))
-	 ;;  either version 2 of the License, or (at your option)
-	 ;;  either version 2, or (at your option)
-	 (re-ver  (concat
-		   "version"
-		   spc
-		   "\\([2-9]\\)"
-		   spc*
-		   "\\(?:,"
-		       "\\|"
-		       "of"
-		       spc
-		       "\\(?:the\\)?"
-		       spc*
-		       "License\\)")))
+  (let* ((max (min (* 80 400)           ; 400 lines
+                   (point-max)))
+         (spc    "[ ;\t\f\r\n]+")
+         (spc*   "[ ;\t\f\r\n]*")
+         (any    "[\0-\377]+")          ; Match accross lines; Was ".*"
+         (re-gpl (concat
+                  "terms"
+                  spc
+                  "of"
+                  spc
+                  "\\(?:the\\)?"
+                  spc*
+                  "GNU"
+                  spc
+                  "General"
+                  spc
+                  "Public"
+                  spc
+                  "License"
+                  ))
+         ;;  either version 2 of the License, or (at your option)
+         ;;  either version 2, or (at your option)
+         (re-ver  (concat
+                   "version"
+                   spc
+                   "\\([2-9]\\)"
+                   spc*
+                   "\\(?:,"
+                       "\\|"
+                       "of"
+                       spc
+                       "\\(?:the\\)?"
+                       spc*
+                       "License\\)")))
     (epackage-point-min)
     (when (re-search-forward re-gpl max t)
       (let ((str "GPL"))
-	(when (re-search-forward re-ver max t)
-	  (setq str (format "%s-%s" str (match-string-no-properties 1)))
-	  (if (re-search-forward "any[ \t]+later[ \t]+version" nil t)
-	      (setq str (concat str "+"))))
-	str))))
+        (when (re-search-forward re-ver max t)
+          (setq str (format "%s-%s" str (match-string-no-properties 1)))
+          (if (re-search-forward "any[ \t]+later[ \t]+version" nil t)
+              (setq str (concat str "+"))))
+        str))))
 
 (defun epackage-devel-information-license-apache ()
   "If there is MIT stanza, return MIT.
@@ -5151,18 +5189,18 @@ Point is not preserved."
   ;; You may obtain a copy of the License at
   ;;      http://www.apache.org/licenses/LICENSE-2.0
   (let ((max (min (point-max)
-		  (* 50 80)))		; 50 lines
-	ver
-	ret)
+                  (* 50 80)))           ; 50 lines
+        ver
+        ret)
     (epackage-point-min)
     ;; FIXME: fill in other regexps
     (when (re-search-forward "Licensed under the Apache License" max t)
       (setq ret "Apache")
       (when (looking-at ".*\\<Version[ \t]+\\([0-9.]+\\)")
-	(setq ver (match-string-no-properties 1))
-	(if (string-match "^\\(.+\\).0" ver) ;Drop POINT.ZERO
-	    (setq ver (match-string 1 ver)))
-	(setq ret (format "%s-%s" ret ver))))
+        (setq ver (match-string-no-properties 1))
+        (if (string-match "^\\(.+\\).0" ver) ;Drop POINT.ZERO
+            (setq ver (match-string 1 ver)))
+        (setq ret (format "%s-%s" ret ver))))
     ret))
 
 (defun epackage-devel-information-license-mit ()
@@ -5191,7 +5229,7 @@ Point is not preserved."
   ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   ;;
   (let ((max (min (point-max)
-		  (* 50 80))))		; 50 lines
+                  (* 50 80))))          ; 50 lines
     (epackage-point-min)
     ;; FIXME: fill in other regexps
     (when (re-search-forward "The MIT license" max t)
@@ -5211,10 +5249,10 @@ Point is not preserved."
     (when str
       ;; Clean up: leave out sentence end(.)
       (if (string-match "^\\(.+\\)\\.[ ]*$" str)
-	  (setq str (match-string-no-properties 1 str)))
+          (setq str (match-string-no-properties 1 str)))
       ;; There may be stanza:  -*-coding: utf-8 -*-
       (if (string-match "^\\(.+[^ ]\\) *-[*]-" str)
-	  (setq str (match-string-no-properties 1 str)))
+          (setq str (match-string-no-properties 1 str)))
       str)))
 
 (defun epackage-devel-information-version-from-comment ()
@@ -5224,7 +5262,7 @@ Point is not preserved. An example:
   ;; Version: 1.0"
   (epackage-point-min)
   (when (re-search-forward
-	 "^;;+ *Version: *\\([0-9][^\"]+\\)" nil t)
+         "^;;+ *Version: *\\([0-9][^\"]+\\)" nil t)
     (match-string-no-properties 1)))
 
 (defun epackage-devel-information-version-from-lm ()
@@ -5237,12 +5275,12 @@ Point is not preserved. Call `lm-header'."
 Search beginning of buffer for \";;; Version\" or similar.
 Point is not preserved."
   (let ((max (min (point-max)
-		  (* 15 80))))		; 15 lines
+                  (* 15 80))))          ; 15 lines
     (epackage-point-min)
     ;; FIXME: More 'or' cases.
     (if (or (re-search-forward
-	     "^;+[ \t]+version[ \t]+\\([1-9][^ \t\r\n]+\\)" max 'noerr))
-	(match-string-no-properties 1))))
+             "^;+[ \t]+version[ \t]+\\([1-9][^ \t\r\n]+\\)" max 'noerr))
+        (match-string-no-properties 1))))
 
 (defun epackage-devel-information-version-from-variable ()
   "Return version from current buffer.
@@ -5251,8 +5289,8 @@ Point is not preserved. An example:
    ;; (defconst foo-version \"2011.1119.1749\""
   (epackage-point-min)
   (when (re-search-forward
-	 "^(def[a-z].*[ \t\r\n]+[a-z-]+version.* \"\\([0-9][^\"]+\\)"
-	 nil t)
+         "^(def[a-z].*[ \t\r\n]+[a-z-]+version.* \"\\([0-9][^\"]+\\)"
+         nil t)
     (match-string-no-properties 1)))
 
 (defun epackage-devel-information-version-main ()
@@ -5270,15 +5308,15 @@ Return
   ((YER NAME) ...) If multiple copyright lines
   STRING           If single copyright."
   (let ((max (min (point-max)
-		  (* 30 80))))		; 30 lines
+                  (* 30 80))))          ; 30 lines
     (cond
      ((re-search-forward
        (concat
-	"Copyright[ \t]*(C)[ \t]*\\([0-9][,0-9 ]*\\)[ \t]+"
-	"\\(?:by *\\)\\(.+[^ \t\f\r\n]\\)")
+        "Copyright[ \t]*(C)[ \t]*\\([0-9][,0-9 ]*\\)[ \t]+"
+        "\\(?:by *\\)\\(.+[^ \t\f\r\n]\\)")
        max t)
       (list (match-string-no-properties 1)
-	    (match-string-no-properties 2)))
+            (match-string-no-properties 2)))
      ((re-search-forward
        "Copyright[ \t]+[0-9 ,]+[ \t]\\(.+[^ \t\f\r\n]\\)" max t)
       (match-string-no-properties 1))
@@ -5289,23 +5327,23 @@ Return
 (defun epackage-devel-information-maintainer-copyright ()
   "Read Copyright line and return maintainer (latest year)."
   (let ((loop t)
-	elt
-	year
-	ret)
+        elt
+        year
+        ret)
     (epackage-point-min)
     (while (and loop
-		(setq elt (epackage-devel-information-maintainer-copyright-1)))
+                (setq elt (epackage-devel-information-maintainer-copyright-1)))
       (cond
        ((stringp elt)
-	(setq loop nil
-	      ret elt))
+        (setq loop nil
+              ret elt))
        (year ;; if set (see next)
-	(when (string< year (car elt))
-	  (setq year (car elt)
-		ret (nth 1 elt))))
+        (when (string< year (car elt))
+          (setq year (car elt)
+                ret (nth 1 elt))))
        (t
-	(setq year (nth 0 elt)
-	      ret  (nth 1 elt)))))
+        (setq year (nth 0 elt)
+              ret  (nth 1 elt)))))
     ret))
 
 (defun epackage-devel-information-maintainer-main ()
@@ -5327,10 +5365,10 @@ Point is not preserved."
   "Return homepage from current buffer.
 Point is not preserved."
   (let ((str (or (lm-header "Wiki")
-		 (lm-header "Emacswiki"))))
+                 (lm-header "Emacswiki"))))
     (if (and str
-	     (string-match "emacswiki.org" str))
-	str)))
+             (string-match "emacswiki.org" str))
+        str)))
 
 (defun epackage-devel-information-date-lm ()
   "Return date from current buffer.
@@ -5350,27 +5388,27 @@ Point is not preserved. Examine Version string for YYYY.MMDD."
   ;; See if version is in format YYYY.MMDD
   (let ((version (epackage-devel-information-version-main)))
     (when (and version
-	       (string-match
-		`,(concat
-		   "\\(\\(?:19\\|20\\)[0-9][0-9]\\)\\." ;Year  19xx 20xx
-		   "\\([0][1-9]\\|1[012]\\)"		;Month 01-12
-		   "\\([0-3][0-9]\\)")			;Date
-		version))
+               (string-match
+                `,(concat
+                   "\\(\\(?:19\\|20\\)[0-9][0-9]\\)\\." ;Year  19xx 20xx
+                   "\\([0][1-9]\\|1[012]\\)"            ;Month 01-12
+                   "\\([0-3][0-9]\\)")                  ;Date
+                version))
       (format "%s-%s-%s"
-	      (match-string-no-properties 1 version)
-	      (match-string-no-properties 2 version)
-	      (match-string-no-properties 3 version)))))
+              (match-string-no-properties 1 version)
+              (match-string-no-properties 2 version)
+              (match-string-no-properties 3 version)))))
 
 (defun epackage-devel-information-date-main ()
   "Return date from current buffer.
 Point is not preserved."
   (let ((str (or (epackage-devel-information-date-lm)
-		 (epackage-devel-information-date-versionstr)))
-	iso)
+                 (epackage-devel-information-date-versionstr)))
+        iso)
     (if str
-	(setq iso (epackage-date-to-iso str)))
+        (setq iso (epackage-date-to-iso str)))
     (or iso
-	str)))
+        str)))
 
 (defun epackage-devel-information-buffer ()
   "Examine current buffer and return list '((field value) ...)
@@ -5386,19 +5424,19 @@ FIELD can be:
         list)
     (save-excursion
       (when (setq str (epackage-devel-information-description-short))
-	(epackage-push (list "description" str) list))
+        (epackage-push (list "description" str) list))
       (when (setq str (epackage-devel-information-license-main))
-	(epackage-push (list "license" str) list))
+        (epackage-push (list "license" str) list))
       (when (setq str (epackage-devel-information-maintainer-main))
-	(epackage-push (list "upstream" str) list))
+        (epackage-push (list "upstream" str) list))
       (when (setq str (epackage-devel-information-homepage))
-	(epackage-push (list "homepage" str) list))
+        (epackage-push (list "homepage" str) list))
       (when (setq str (epackage-devel-information-wiki))
-	(epackage-push (list "wiki" str) list))
+        (epackage-push (list "wiki" str) list))
       (when (setq str (epackage-devel-information-date-main))
-	  (epackage-push (list "date" str) list))
+          (epackage-push (list "date" str) list))
       (when (setq str (epackage-devel-information-version-main))
-	(epackage-push (list "version" str) list))
+        (epackage-push (list "version" str) list))
       list)))
 
 ;;;###autoload
@@ -5408,10 +5446,10 @@ FIELD can be:
 
 Input:
 
-  PACKAGE	Package name. All lowercase.
-  DIR		Package root directory.
-  VERBOSE	Optional. If non-nil, display informational messages.
-  ALIST		Optional. See `epackage-devel-information-buffer'
+  PACKAGE       Package name. All lowercase.
+  DIR           Package root directory.
+  VERBOSE       Optional. If non-nil, display informational messages.
+  ALIST         Optional. See `epackage-devel-information-buffer'
 
 Notes:
 
@@ -5422,39 +5460,39 @@ Notes:
   (if (called-interactively-p 'interactive)
       (setq verbose 'interactive))
   (let ((file (format "%s%s/%s"
-			(file-name-as-directory dir)
-			epackage--package-control-directory
-			"info"))
-	(maintainer (and user-full-name
-			 user-mail-address
-			 (format "%s <%s>"
-				 user-full-name
-				 user-mail-address)))
-	(desc (nth 1 (assoc "description" alist))))
+                        (file-name-as-directory dir)
+                        epackage--package-control-directory
+                        "info"))
+        (maintainer (and user-full-name
+                         user-mail-address
+                         (format "%s <%s>"
+                                 user-full-name
+                                 user-mail-address)))
+        (desc (nth 1 (assoc "description" alist))))
     (if (file-exists-p file)
-	  (epackage-verbose-message
-	    "[NOTE] Not touching existing info file %s" file)
-	(with-temp-buffer
-	  (insert epackage--layout-template-info)
-	  (epackage-field-set "Package" package)
-	  (when maintainer
-	    (epackage-field-set "Maintainer" maintainer 'replace))
-	  (when desc
-	    (epackage-field-goto "Description")
-	    (unless (eq (point) (line-end-position))
-	      (delete-region (point) (line-end-position)))
-	    (insert desc))
-	  (when alist
-	    (let (elt)
-	      (dolist (item '("license"
-			      "upstream"
-			      "homepage"
-			      "wiki"))
-	      (when (setq elt (assoc item alist))
-		(epackage-field-set item (nth 1 elt) 'replace)))))
-	  (epackage-write-region (point-min) (point-max) file)
-	  (epackage-verbose-message "Wrote %s" file)
-	  t))))
+          (epackage-verbose-message
+            "[NOTE] Not touching existing info file %s" file)
+        (with-temp-buffer
+          (insert epackage--layout-template-info)
+          (epackage-field-set "Package" package)
+          (when maintainer
+            (epackage-field-set "Maintainer" maintainer 'replace))
+          (when desc
+            (epackage-field-goto "Description")
+            (unless (eq (point) (line-end-position))
+              (delete-region (point) (line-end-position)))
+            (insert desc))
+          (when alist
+            (let (elt)
+              (dolist (item '("license"
+                              "upstream"
+                              "homepage"
+                              "wiki"))
+              (when (setq elt (assoc item alist))
+                (epackage-field-set item (nth 1 elt) 'replace)))))
+          (epackage-write-region (point-min) (point-max) file)
+          (epackage-verbose-message "Wrote %s" file)
+          t))))
 
 ;;;###autoload
 (defun epackage-devel-compose-package-info-from-current-buffer
@@ -5464,9 +5502,9 @@ The buffer should be the *.el file that contains all the License and
 Version information.
 
 Input:
-  PACKAGE	Package name. All lowercase.
-  DIR		Package root directory.
-  VERBOSE	Optional. If non-nil, display informational messages."
+  PACKAGE       Package name. All lowercase.
+  DIR           Package root directory.
+  VERBOSE       Optional. If non-nil, display informational messages."
   (interactive "sEpackage name: \nDLisp package root dir: \n")
   (if (called-interactively-p 'interactive)
       (setq verbose 'interactive))
@@ -5479,10 +5517,10 @@ Input:
   "Compose initial info file for PACKAGE in DIR by readig FILE.
 
 Input:
-  PACKAGE	Package name. All lowercase.
-  DIR		Package root directory.
+  PACKAGE       Package name. All lowercase.
+  DIR           Package root directory.
   FILE          The *.el file user to extract information: version etc.
-  VERBOSE	Optional. If non-nil, display informational messages."
+  VERBOSE       Optional. If non-nil, display informational messages."
   (interactive
    "sEpackage name: \nDLisp package root dir: \nfSource *.el file: ")
   (if (called-interactively-p 'interactive)
@@ -5500,37 +5538,37 @@ Generate autoloads, loaddefs file and write other template files
 under `epackage--directory-name'.
 
 Input:
-  PACKAGE	Package name. All lowercase.
-  DIR		Package root directory.
-  VERBOSE	Optional. if non-nil, display informational messages.
-  ALIST		Optional. See`epackage-devel-information-buffer'."
+  PACKAGE       Package name. All lowercase.
+  DIR           Package root directory.
+  VERBOSE       Optional. if non-nil, display informational messages.
+  ALIST         Optional. See`epackage-devel-information-buffer'."
   (interactive "sEpackage name: \nDLisp package root dir: ")
   (if (called-interactively-p 'interactive)
       (setq verbose 'interactive))
   (epackage-error-if-invalid-package-name package)
   (let ((list
-	 (epackage-devel-generate-autoloads
-	  package
-	  dir dir 'recursive verbose)))
+         (epackage-devel-generate-autoloads
+          package
+          dir dir 'recursive verbose)))
     (epackage-devel-generate-loaddefs package dir dir 'recursive verbose)
     (unless (epackage-package-name-library-p package)
       (let ((file (epackage-layout-file-name dir package 'autoload)))
-	(epackage-devel-generate-install package dir file verbose))
+        (epackage-devel-generate-install package dir file verbose))
       (epackage-devel-generate-compile-main package dir dir 'recursive verbose)
       (epackage-devel-generate-examples package dir dir 'recursive verbose)
       (epackage-devel-generate-uninstall package dir dir 'reursive verbose))
     (when (and list
-	       (listp list))
+               (listp list))
       (let ((file (car list)))
-	;; Was (epackage-devel-compose-package-info package dir verbose)
-	(unless (eq 1 (length list))
-	  (dolist (elt list)
-	    ;; Select one without dash(-). Could be the main file
-	    (unless (string-match "-" elt)
-	      (setq file elt))))
-	(epackage-verbose-message "Using %s for creating info file" file)
-	(epackage-devel-compose-package-info-from-file
-	 package dir (car list) verbose)))
+        ;; Was (epackage-devel-compose-package-info package dir verbose)
+        (unless (eq 1 (length list))
+          (dolist (elt list)
+            ;; Select one without dash(-). Could be the main file
+            (unless (string-match "-" elt)
+              (setq file elt))))
+        (epackage-verbose-message "Using %s for creating info file" file)
+        (epackage-devel-compose-package-info-from-file
+         package dir (car list) verbose)))
     t))
 
 ;;;###autoload
@@ -5567,72 +5605,72 @@ Return:
     (when (file-directory-p git)
       (epackage-error "Already Git repository in directory %s" git)))
   (let ((dirs (epackage-directory-recursive-lisp dir))
-	files
-	list)
+        files
+        list)
     (if (> (length dirs) 1)
-	(epackage-error
-	 (format
-	    `,(concat
-	       "Abort. epackage-devel-compose-git-import "
-	       "can only handle single *.el file packages (dirs: %d).")
-	    (length dirs))))
+        (epackage-error
+         (format
+            `,(concat
+               "Abort. epackage-devel-compose-git-import "
+               "can only handle single *.el file packages (dirs: %d).")
+            (length dirs))))
     (setq files (directory-files dir 'fullpath "\\.el$"))
     (unless files
       (epackage-error "No *.el files found in %s" dir))
     ;; Filter out some common files
     (dolist (elt files)
       (unless (string-match "autoload\\|loaddefs" elt)
-	(epackage-push elt list)))
+        (epackage-push elt list)))
     (if (> (length list) 1)
-	(epackage-error
-	 (format
-	    `,(concat
-	       "Abort. epackage-devel-compose-git-import "
-	       "can only handle single *.el packages (files: %d).")
-	    (length list))))
+        (epackage-error
+         (format
+            `,(concat
+               "Abort. epackage-devel-compose-git-import "
+               "can only handle single *.el packages (files: %d).")
+            (length list))))
     (let ((file (car list))
-	  version
-	  date
-	  alist)
+          version
+          date
+          alist)
     (with-temp-buffer
       (insert-file-contents file)
       (setq alist (epackage-devel-information-buffer))
       (unless (setq date (nth 1 (assoc "date" alist)))
-	(epackage-error "Cannot find date field from file %s" file))
+        (epackage-error "Cannot find date field from file %s" file))
       (unless (setq version (nth 1 (assoc "version" alist)))
-	(epackage-error "Cannot find version number from file %s" file))
+        (epackage-error "Cannot find version number from file %s" file))
       (epackage-require-git)
       (epackage-git-command-init dir)
       ;;  start directly at upstream branch
       (epackage-with-git-command dir verbose
-	"symbolic-ref" "HEAD" "refs/heads/upstream")
+        "symbolic-ref" "HEAD" "refs/heads/upstream")
       ;; import
       (epackage-with-git-command dir verbose
-	"add" ".")
+        "add" ".")
       (let ((message
-	     (format "Import upstream %s (%s)" version date)))
-	(epackage-with-git-command dir verbose
-	  "commit" "-m" message))
+             (format "Import upstream %s (%s)" version date)))
+        (epackage-with-git-command dir verbose
+          "commit" "-m" message))
       (let ((tag (format "upstream/%s--%s" date version)))
-	(epackage-with-git-command dir verbose
-	  "tag" tag))
+        (epackage-with-git-command dir verbose
+          "tag" tag))
       (epackage-with-git-command dir verbose
-	"checkout" "-b" "master")
+        "checkout" "-b" "master")
       alist))))
 
 (defun epackage-devel-compose-1-interactive ()
   "Ask DIR and PACKAGE name."
   (let* ((dir (read-directory-name
-	       "Lisp package root directory: "
-	       default-directory
-	       default-directory
-	       'must-match
-	       (not 'initial-value)))
-	 (default (if (string-match "/\\([^/]+\\)/$" dir)
-		      (match-string 1 dir)))
-	 (package (read-string "Epackage name: " default)))
+               "Lisp package root directory: "
+               default-directory
+               default-directory
+               'must-match
+               (not 'initial-value)))
+         (default (if (string-match "/\\([^/]+\\)/$" dir)
+                      (match-string 1 dir)))
+         (package (read-string "Epackage name: " default)))
     (list dir
-	  package)))
+          package)))
 
 ;; (epackage-devel-compose-main "~/tmp/ep" "test" t)
 (defun epackage-devel-compose-main (package dir &optional verbose)
@@ -5644,7 +5682,7 @@ Notes:
   See caveats from `epackage-devel-compose-git-import'."
   (interactive
    (append (epackage-devel-compose-1-interactive)
-	   (list 'interactive)))	;
+           (list 'interactive)))        ;
   ;; FIXME
   ;; 2011-12-29 It was a nice idea. Unfortunately the Emacs Lisp
   ;; packages usually do not follow any discipline, so there is almost
@@ -5654,21 +5692,21 @@ Notes:
   ;;
   (epackage-error
    (concat "Disabled due to lisp files being imported lacking proper "
-	   "structure. Please use epackage-devel-compose-package-dir instead"))
+           "structure. Please use epackage-devel-compose-package-dir instead"))
   (if (called-interactively-p 'interactive)
       (setq verbose 'interactive))
   (unless (file-directory-p dir)
     (epackage-error "[compose-main] No such directory %s" dir))
   (let ((alist (epackage-devel-compose-git-import dir verbose)))
     (prog1
-	(epackage-devel-compose-package-dir package dir verbose alist)
+        (epackage-devel-compose-package-dir package dir verbose alist)
       (when verbose
-	(let ((file (format "%s%s/%s"
-			    (file-name-as-directory dir)
-			    epackage--package-control-directory
-			    (epackage-layout-mapping-file 'info))))
-	  (epackage-message
-	   "Epackage %s done, edit %s" package file))))))
+        (let ((file (format "%s%s/%s"
+                            (file-name-as-directory dir)
+                            epackage--package-control-directory
+                            (epackage-layout-mapping-file 'info))))
+          (epackage-message
+           "Epackage %s done, edit %s" package file))))))
 
 ;;; ............................................... &functions-package ...
 
@@ -5679,9 +5717,9 @@ If optional VERBOSE is non-nil, display progress messages."
   ;; - New or deleted files in <package>/*
   ;; - What about obsolete 00control/* files ?
   (let ((root (epackage-directory-package-control package))
-	(install (epackage-directory-install))
-	from
-	to)
+        (install (epackage-directory-install))
+        from
+        to)
     (dolist (file (epackage-status-install-files package))
       (setq from (format "%s/%s" root file))
       (setq to (format "%s/%s" install file))
@@ -5694,12 +5732,12 @@ If optional VERBOSE is non-nil, display progress messages."
   ;; - New or deleted files in epackage/*
   ;; - obsolete 00control/* files ?
   (let ((list (epackage-rerun-action-list package verbose)) ; Current installed state
-	actions)
+        actions)
     ;; Any other actions in effect set by user?
     (dolist (elt epackage--download-action-list)
       (unless (memq elt list)
-	(epackage-push elt actions)))
-    (when actions			 ; Run more actions as needed
+        (epackage-push elt actions)))
+    (when actions                        ; Run more actions as needed
       (epackage-run-action-list package actions verbose))))
 
 (defun epackage-upgrade-package-git (package &optional verbose noerr)
@@ -5770,11 +5808,11 @@ If optional VERBOSE is non-nil, display informational message."
      ((null url)
       (epackage-warn
        (format
-	"Can't re-create. No Git URL for package %s" package)))
+        "Can't re-create. No Git URL for package %s" package)))
      ((epackage-package-problems package verbose)
       (epackage-warn
        (format
-	"Won't re-create due to probles in package %s" package)))
+        "Won't re-create due to probles in package %s" package)))
      (t
       (epackage-recreate-package-lowlevel package verbose)))))
 
@@ -5789,29 +5827,29 @@ still in pristine state."
   (let (elt
         package
         dir
-	url)
+        url)
     (dolist (package (epackage-status-downloaded-packages))
       (when (setq elt (epackage-pkg-lint-git-url package verbose))
         (setq package (nth 0 elt)
               dir (epackage-directory-package-root package)
-	      url (epackage-sources-list-info-url package))
-	(cond
-	 ((not url)
-	  (epackage-warn
-	   (concat "Packgage %s no longer listed in Sources List")
-	   package))
-	 ((not (epackage-git-url-valid-p url))
-	  (epackage-warn
-	   (substitute-command-keys
-	    `,(concat
-	       "Packgage %s in Sources List "
-	       "points to %s which does not exist. "
-	       "Possibly try \\[epackage-cmd-sources-list-download]"))
-	   package
-	   url))
-	 (t
-	  (epackage-verbose-message "Rebuild repository of %s" package)
-	  (epackage-recreate-package package verbose)))))))
+              url (epackage-sources-list-info-url package))
+        (cond
+         ((not url)
+          (epackage-warn
+           (concat "Packgage %s no longer listed in Sources List")
+           package))
+         ((not (epackage-git-url-valid-p url))
+          (epackage-warn
+           (substitute-command-keys
+            `,(concat
+               "Packgage %s in Sources List "
+               "points to %s which does not exist. "
+               "Possibly try \\[epackage-cmd-sources-list-download]"))
+           package
+           url))
+         (t
+          (epackage-verbose-message "Rebuild repository of %s" package)
+          (epackage-recreate-package package verbose)))))))
 
 (defun epackage-upgrade-package-main (package &optional verbose)
   "Do all steps necessary to upgrade PACKAGE.
@@ -5826,45 +5864,45 @@ NOTE: The boot loader is not generated here.
 Return:
   non-nil if anything upgraded."
   (let ((dir (epackage-directory-package-root package))
-	sha
-	sha-remote
-	url
-	git)
+        sha
+        sha-remote
+        url
+        git)
     (when (file-directory-p dir)
       (setq sha (epackage-git-sha-current dir)
-	    sha-remote (epackage-git-command-sha-remote dir))
+            sha-remote (epackage-git-command-sha-remote dir))
       (cond
-       ((not (stringp sha-remote))	; Repository no longer there or moved
-	(setq url (epackage-sources-list-info-url package)
-	      git (epackage-git-config-fetch-field-url package))
-	(cond
-	 ((not url)
-	  (epackage-warn
-	   `,(concat "Can't upgrade. Packgage %s no longer "
-		     "listed in Sources List")
-	   package))
-	 ((string= git url)
-	  (epackage-warn
-	   (substitute-command-keys
-	    `,(concat
-	       "Can't upgrade. "
-	       "Packgage %s in Sources List "
-	       "points to %s which does not exist. "
-	       "Try again after \\[epackage-cmd-sources-list-download]"))
-	   package
-	   url))
-	 (t
-	  (epackage-verbose-message "URL moved, recreating from %s" url)
-	  (epackage-recreate-package package verbose))))
+       ((not (stringp sha-remote))      ; Repository no longer there or moved
+        (setq url (epackage-sources-list-info-url package)
+              git (epackage-git-config-fetch-field-url package))
+        (cond
+         ((not url)
+          (epackage-warn
+           `,(concat "Can't upgrade. Packgage %s no longer "
+                     "listed in Sources List")
+           package))
+         ((string= git url)
+          (epackage-warn
+           (substitute-command-keys
+            `,(concat
+               "Can't upgrade. "
+               "Packgage %s in Sources List "
+               "points to %s which does not exist. "
+               "Try again after \\[epackage-cmd-sources-list-download]"))
+           package
+           url))
+         (t
+          (epackage-verbose-message "URL moved, recreating from %s" url)
+          (epackage-recreate-package package verbose))))
        ((not (string= sha sha-remote))
-	;; Standard upgrade. Remote has new commits.
-	(epackage-upgrade-package-git package verbose)
-	(epackage-upgrade-package-files package verbose)
-	(epackage-upgrade-package-actions package verbose)
-	t)
+        ;; Standard upgrade. Remote has new commits.
+        (epackage-upgrade-package-git package verbose)
+        (epackage-upgrade-package-files package verbose)
+        (epackage-upgrade-package-actions package verbose)
+        t)
        (t
-	(epackage-verbose-message "Package up to date: %s" package)
-	nil)))))
+        (epackage-verbose-message "Package up to date: %s" package)
+        nil)))))
 
 (defun epackage-sources-list-upgrade (&optional verbose)
   "Update list of available packages.
@@ -5883,18 +5921,18 @@ This is a low level command."
 (defun epackage-replace-regexp-in-buffer (table)
   "Replace according to TABLE '((re replace [match]) ...) in buffer."
   (let ((point (point))
-	re
-	str
-	match
-	status)
+        re
+        str
+        match
+        status)
     (dolist (elt table)
       (setq re (nth 0 elt)
-	    str (nth 1 elt)
-	    match (or (nth 2 elt) 0))
+            str (nth 1 elt)
+            match (or (nth 2 elt) 0))
       (goto-char point)
       (while (re-search-forward re nil t)
-	(setq status 'replaced)
-	(replace-match match str)))
+        (setq status 'replaced)
+        (replace-match match str)))
     status))
 
 (defun epackage-combine-files (file list &optional hooks verbose)
@@ -5909,9 +5947,9 @@ Before saving, apply `epackage--sources-replace-table'."
       (epackage-verbose-message "Combining sources list file %s" elt)
       (insert "###file: " elt "\n")
       (if (file-exists-p elt)
-	  (insert-file-contents elt)
-	(insert "# WARN: Not found\n")
-	(epackage-warn "Non-existing file for combine: %s" file)))
+          (insert-file-contents elt)
+        (insert "# WARN: Not found\n")
+        (epackage-warn "Non-existing file for combine: %s" file)))
     (epackage-with-message
         verbose (format "Write master sources list file %s" file)
       (epackage-point-min)
@@ -5921,7 +5959,7 @@ Before saving, apply `epackage--sources-replace-table'."
       (epackage-replace-regexp-in-buffer
        epackage--sources-replace-table)
       (if hooks
-	  (run-hooks hooks))
+          (run-hooks hooks))
       (epackage-write-region (point-min) (point-max) file))))
 
 (defun epackage-sources-list-initialize (&optional verbose)
@@ -6281,16 +6319,16 @@ If optional VERBOSE is non-nil, display progress message."
   "Insert package installation code into `current-buffer'."
   ;; FIXME: If there is both install, xactivate should be install both?
   (let ((list (epackage-sort
-	       (directory-files
-		(epackage-directory-install)
-		'full-path
-		"^.*-.*\\.el"
-		t))))
+               (directory-files
+                (epackage-directory-install)
+                'full-path
+                "^.*-.*\\.el"
+                t))))
     (dolist (file list)
       ;; `insert-file-contents' does not put point after last line
       ;; inserted so we must move ourselves.
       (if (file-exists-p file)
-	  (epackage-insert-file-contents file)))))
+          (epackage-insert-file-contents file)))))
 
 (defsubst epackage-loader-file-insert-load-path ()
   "Insert Epackage loader boot commands: header and`load-path'."
@@ -6300,6 +6338,8 @@ If optional VERBOSE is non-nil, display progress message."
 (defsubst epackage-loader-file-insert-main ()
   "Insert Epackage loader boot commands to current point."
   (epackage-loader-file-insert-load-path)
+  (epackage-loader-insert-file-path-list-by-path
+   (epackage-directory-install))
   (epackage-loader-file-insert-install-code)
   (epackage-loader-file-insert-footer))
 
@@ -6311,9 +6351,15 @@ If optional VERBOSE is non-nil, display progress message."
   (let ((file (epackage-file-name-loader-boot)))
     (cond
      ((file-exists-p file)
-      (byte-compile-file file))
+      (let ((load-path load-path))
+        ;; Set up load path to include all directories for
+        ;; `require' commands etc.
+        (dolist (path (list (epackage-directory-install)
+                            (epackage-loader-file-insert-path-list)))
+          (epackage-push path load-path))
+        (byte-compile-file file)))
      (verbose
-      (epackage-message "No boot loader file generated to byte compile.")))))
+      (epackage-message "No boot loader file found to byte compile.")))))
 
 ;;; Note really meant for user, but anyways....
 ;;;###autoload
@@ -6351,9 +6397,9 @@ If optional VERBOSE is non-nil, display progress message.
 Return:
   non-nil if byte compile was run."
   (let* ((load-path load-path)
-	 (dir  (epackage-directory-package-root package))
-	 (list (epackage-lisp-file-list dir))
-	 file)
+         (dir  (epackage-directory-package-root package))
+         (list (epackage-lisp-file-list dir))
+         file)
     (when (eq 1 (length list))
       (setq file (car list))
       (epackage-push dir load-path)
@@ -6373,9 +6419,9 @@ If optional VERBOSE is non-nil, display progress message."
   (unless (file-exists-p file)
     (epackage-error "Compile, file does not exisit: %s" file))
   (let* ((load-path load-path)
-	 (dir (epackage-file-name-directory-previous
-	       (file-name-directory file)))
-	 (default-directory dir)
+         (dir (epackage-file-name-directory-previous
+               (file-name-directory file)))
+         (default-directory dir)
         list)
     (setq list (epackage-directory-recursive-list
                 dir
@@ -6476,7 +6522,7 @@ Format is described in variable `epackage--sources-list-url'."
      (let (list)
        (epackage-point-min)
        (while (re-search-forward "^\\([a-z][a-z0-9-]+\\)[ \t]+[a-z]" nil t)
-	 (epackage-push (match-string-no-properties 1) list))
+         (epackage-push (match-string-no-properties 1) list))
        (setq list (epackage-sort list))
        list))))
 
@@ -6529,12 +6575,12 @@ If optional VERBOSE is non-nil, display progress message."
       nil)
      (t
       (with-current-buffer (find-file-noselect file)
-	;; We need to be notified about changes
-	(epackage-turn-on-auto-revert-mode)
-	(epackage-point-min)
-	;; <host>,<ip> <key type> <key>
-	(let ((re (format "^[ \t]*%s," (regexp-quote host))))
-	  (re-search-forward re nil t)))))))
+        ;; We need to be notified about changes
+        (epackage-turn-on-auto-revert-mode)
+        (epackage-point-min)
+        ;; <host>,<ip> <key type> <key>
+        (let ((re (format "^[ \t]*%s," (regexp-quote host))))
+          (re-search-forward re nil t)))))))
 
 (defun epackage-ssh-config-strict-key-check-disabled-p (&optional host)
   "Check that HOST is set to \"StrictHostKeyChecking no\" in ~/.ssh/config."
@@ -6550,14 +6596,14 @@ If optional VERBOSE is non-nil, display progress message."
     (cond
      ((not (file-exists-p file))
       (error (concat "Epacakge: [ERROR] File does not exist: %s. "
-		     "Please install SSH" file)))
+                     "Please install SSH" file)))
      (t
       (with-current-buffer (find-file-noselect file)
-	;; We need to be notified about changes
-	(epackage-turn-on-auto-revert-mode)
-	(epackage-point-min)
-	(let ((re (format "^[ \t]*Host[ \t]+.*%s" (regexp-quote host))))
-	  (re-search-forward re nil t)))))))
+        ;; We need to be notified about changes
+        (epackage-turn-on-auto-revert-mode)
+        (epackage-point-min)
+        (let ((re (format "^[ \t]*Host[ \t]+.*%s" (regexp-quote host))))
+          (re-search-forward re nil t)))))))
 
 (defun epackage-ssh-help-string (host)
   "Return SSH configuration help message for HOST."
@@ -6571,9 +6617,9 @@ DESCRIPTION
 
     When git with a ssh protocol is being used, ssh may ask question like this:
 
-	The authenticity of host 'github.com (207.97.227.239)' can't be established.
-	RSA key fingerprint is 16:27:ac:a5:76:28:2d:36:63:1b:56:4d:eb:df:a6:48.
-	Are you sure you want to continue connecting (yes/no)? no
+        The authenticity of host 'github.com (207.97.227.239)' can't be established.
+        RSA key fingerprint is 16:27:ac:a5:76:28:2d:36:63:1b:56:4d:eb:df:a6:48.
+        Are you sure you want to continue connecting (yes/no)? no
 
     As epackage.el cannot answer to these kind interactive
     questions, the SSH must be configured so that it doesn't ask
@@ -6584,7 +6630,7 @@ SOLUTIONS
     (A) Connect manually from command line at least once to %s
         so that host is recorded to ~/.ssh/known_hosts
     (B) Or add to file ~/.ssh/config line:
-	Host %s\n\tStrictHostKeyChecking no"
+        Host %s\n\tStrictHostKeyChecking no"
    host
    host))
 
@@ -6605,15 +6651,15 @@ SOLUTIONS
   (when (epackage-ssh-url-p url)
     (let ((host (epackage-url-extract-host url)))
       (or (and (stringp host)
-	       (epackage-ssh-p host))
-	  (let ((msg (epackage-ssh-help-string host)))
-	    (epackage-princ msg) ;Record user help to *Messages* buffer
-	    (let ((debug-on-error nil)) ;; batch UI: don't display stack trace
-	      (error
-	       (substitute-command-keys
-		`,(concat "Epackage: [ERROR] SSH configuration problem. "
-			  "See recent message with "
-			  "\\[view-echo-area-messages]")))))))))
+               (epackage-ssh-p host))
+          (let ((msg (epackage-ssh-help-string host)))
+            (epackage-princ msg) ;Record user help to *Messages* buffer
+            (let ((debug-on-error nil)) ;; batch UI: don't display stack trace
+              (error
+               (substitute-command-keys
+                `,(concat "Epackage: [ERROR] SSH configuration problem. "
+                          "See recent message with "
+                          "\\[view-echo-area-messages]")))))))))
 
 (defun epackage-require-main (&optional verbose)
   "Check requirements to run Epackage.
@@ -6679,12 +6725,12 @@ If optional VERBOSE is non-nil, display progress message."
   "Check validity of info in current buffer.
 If optional VERBOSE is non-nil, display progress message."
   (let ((status t)
-	(str (epackage-field-fetch-value "License"))
-	(regexp `,(concat "^" epackage--info-mode-license-regexp)))
+        (str (epackage-field-fetch-value "License"))
+        (regexp `,(concat "^" epackage--info-mode-license-regexp)))
     (when (and str
-	       (not (string-match regexp str)))
+               (not (string-match regexp str)))
       (epackage-verbose-message
-	"[ERROR] Lint - field Licence, invalid value: %s" str)
+        "[ERROR] Lint - field Licence, invalid value: %s" str)
       (setq status nil))
     status))
 
@@ -6692,11 +6738,11 @@ If optional VERBOSE is non-nil, display progress message."
   "Check validity of info in current buffer.
 If optional VERBOSE is non-nil, display progress message."
   (let ((status t)
-	(str (epackage-field-fetch-value "Package")))
+        (str (epackage-field-fetch-value "Package")))
     (when (and str
-	       (not (epackage-package-name-valid-p str)))
+               (not (epackage-package-name-valid-p str)))
       (epackage-verbose-message
-	"[ERROR] Lint - field Package, invalid value: %s" str)
+        "[ERROR] Lint - field Package, invalid value: %s" str)
       (setq status nil))
     status))
 
@@ -6712,54 +6758,54 @@ If optional VERBOSE is non-nil, display progress message."
   "Check validity of info in current buffer.
 If optional VERBOSE is non-nil, display progress message."
   (let* ((status t)
-	 (str (epackage-field-fetch-value "Section"))
-	 (list (and str
-		    (split-string str))))
+         (str (epackage-field-fetch-value "Section"))
+         (list (and str
+                    (split-string str))))
     (when list
       (let ((keywords (epackage-pkg-lint-finder-known-keywords)))
-	(dolist (value list)
-	  (unless (member value keywords)
-	    (epackage-verbose-message
-	      "[ERROR] Lint - field Section, invalid value: %s" str)
-	    (setq status nil)))))
+        (dolist (value list)
+          (unless (member value keywords)
+            (epackage-verbose-message
+              "[ERROR] Lint - field Section, invalid value: %s" str)
+            (setq status nil)))))
     status))
 
 (defun epackage-pkg-lint-info-buffer-field-maintainer (&optional verbose)
   "Check validity of info in current buffer.
 If optional VERBOSE is non-nil, display progress message."
   (let ((status t)
-	(str (epackage-field-fetch-value "Maintainer")))
+        (str (epackage-field-fetch-value "Maintainer")))
     (when (and str
-	       (not (string-match "@" str)))
-	(epackage-verbose-message
-	  "[ERROR] Lint - field Maintainer, invalid email: %s" str)
-	(setq status nil))
+               (not (string-match "@" str)))
+        (epackage-verbose-message
+          "[ERROR] Lint - field Maintainer, invalid email: %s" str)
+        (setq status nil))
     status))
 
 (defun epackage-pkg-lint-info-buffer-field-upstream (&optional verbose)
   "Check validity of info in current buffer.
 If optional VERBOSE is non-nil, display progress message."
   (let ((status t)
-	(str (epackage-field-fetch-value "Upstream")))
+        (str (epackage-field-fetch-value "Upstream")))
     (when (and str
-	       (not (string-match "@" str)))
-	(epackage-verbose-message
-	  "[ERROR] Lint - field Upstream, invalid email: %s" str)
-	(setq status nil))
+               (not (string-match "@" str)))
+        (epackage-verbose-message
+          "[ERROR] Lint - field Upstream, invalid email: %s" str)
+        (setq status nil))
     status))
 
 (defun epackage-pkg-lint-info-buffer-field-status (&optional verbose)
   "Check validity of info in current buffer.
 If optional VERBOSE is non-nil, display progress message."
   (let* ((status t)
-	 (str (epackage-field-fetch-value "Status"))
-	 (list (and str
-		    (split-string str))))
+         (str (epackage-field-fetch-value "Status"))
+         (list (and str
+                    (split-string str))))
     (dolist (value list)
       (unless (member value epackage--info-mode-completions-status)
-	(epackage-verbose-message
-	  "[ERROR] Lint - field Status, unknown value: %s" value)
-	(setq status nil)))
+        (epackage-verbose-message
+          "[ERROR] Lint - field Status, unknown value: %s" value)
+        (setq status nil)))
     status))
 
 (defun epackage-pkg-lint-info-buffer-field-all (&optional verbose)
@@ -6767,12 +6813,12 @@ If optional VERBOSE is non-nil, display progress message."
 If optional VERBOSE is non-nil, display progress message."
   (let ((status t))
     (dolist (function
-	     '(epackage-pkg-lint-info-buffer-field-package
-	       epackage-pkg-lint-info-buffer-field-section
-	       epackage-pkg-lint-info-buffer-field-license
-	       epackage-pkg-lint-info-buffer-field-status
-	       epackage-pkg-lint-info-buffer-field-upstream
-	       epackage-pkg-lint-info-buffer-field-maintainer))
+             '(epackage-pkg-lint-info-buffer-field-package
+               epackage-pkg-lint-info-buffer-field-section
+               epackage-pkg-lint-info-buffer-field-license
+               epackage-pkg-lint-info-buffer-field-status
+               epackage-pkg-lint-info-buffer-field-upstream
+               epackage-pkg-lint-info-buffer-field-maintainer))
     (unless (funcall function verbose)
       (setq status nil)))
     status))
@@ -6857,13 +6903,13 @@ The base name of DIR is taken as the package name. An example:
 Return:
     t  if valid."
   (let* ((package (epackage-file-name-nondirectory dir))
-	 (lib-p   (epackage-package-name-library-p package))
-	 (status t)
-	 list
-	 name
-	 required
-	 type
-	 path)
+         (lib-p   (epackage-package-name-library-p package))
+         (status t)
+         list
+         name
+         required
+         type
+         path)
     (dolist (elt epackage--layout-mapping)
       (setq name     (nth 1 elt)
             required (nth 2 elt)
@@ -6879,10 +6925,10 @@ Return:
                            epackage--directory-name
                            name)))
       (when (and required
-		 (or (null type)	;applies to all packages
-		     (and lib-p
-			  (memq 'lib type)))
-		 (not (file-exists-p path)))
+                 (or (null type)        ;applies to all packages
+                     (and lib-p
+                          (memq 'lib type)))
+                 (not (file-exists-p path)))
         (epackage-verbose-message
           "[ERROR] Lint - missing required file: %s" path)
         (setq status nil)))
@@ -7035,12 +7081,12 @@ Return:
 (defsubst epackage-lint-extra-delimiter-string (id &optional stop)
   "Return start delimiter string ID. ro If STOP is non-nil, stop string."
   (format "Epackage: %s %s%s"
-	  (if stop
-	      "STOP"
-	    "START")
-	  id
-	  (if buffer-file-name
-	      (format " file: %s" buffer-file-name))))
+          (if stop
+              "STOP"
+            "START")
+          id
+          (if buffer-file-name
+              (format " file: %s" buffer-file-name))))
 
 (defsubst epackage-lint-extra-collect-data (&optional id buffer)
   "Return data surrounded by optional ID from *Messages* or optional BUFFER."
@@ -7048,21 +7094,21 @@ Return:
     (goto-char (point-max))
     (let (end)
       (when (re-search-backward
-	     (format "^Epackage: STOP%s"
-		     (if id
-			 (concat " " id)
-		       ""))
-	     nil t)
-	(setq end (line-beginning-position))
-	(when (re-search-backward
-	       (format "^Epackage: START%s"
-		       (if id
-			   (concat " " id)
-			 ""))
-	       nil t)
-	  (forward-line 1)
-	  (unless (eq (point) end)
-	    (buffer-substring-no-properties (point) end)))))))
+             (format "^Epackage: STOP%s"
+                     (if id
+                         (concat " " id)
+                       ""))
+             nil t)
+        (setq end (line-beginning-position))
+        (when (re-search-backward
+               (format "^Epackage: START%s"
+                       (if id
+                           (concat " " id)
+                         ""))
+               nil t)
+          (forward-line 1)
+          (unless (eq (point) end)
+            (buffer-substring-no-properties (point) end)))))))
 
 (defun epackage-lint-extra-buffer-run-lm ()
   "Run `lm-verify' on current buffer."
@@ -7085,7 +7131,7 @@ Return:
       (message "Warning: Version: %s (expected pure numeric [0-9][0-9.]+)" str))))
   (unless (lm-header "Keywords")
     (message "Missing: ;; Keywords:"))
-  (unless (lm-header "URL")		;ELPA convention
+  (unless (lm-header "URL")             ;ELPA convention
     (message "Missing: ;; URL:"))
   (unless (lm-commentary-mark)
     (message "Missing: ;;; Commentary:"))
@@ -7110,18 +7156,18 @@ Return:
     (when (re-search-forward "^[*][*][*]" nil t)
       (forward-line 1)
       (let ((point (point)))
-	;; Delete extra separators
-	(while (re-search-forward "^[*][*][*]" nil t)
-	  (delete-region (1- (line-beginning-position))
-			 (line-end-position)))
-	(goto-char point)
-	(unless (eobp)
-	  (sort-lines nil (point) (point-max))
-	  (goto-char (point-max))
-	  ;; Final newline
-	  (unless (eq (point) (line-beginning-position))
-	    (insert "\n"))
-	  (buffer-substring-no-properties point (point-max)))))))
+        ;; Delete extra separators
+        (while (re-search-forward "^[*][*][*]" nil t)
+          (delete-region (1- (line-beginning-position))
+                         (line-end-position)))
+        (goto-char point)
+        (unless (eobp)
+          (sort-lines nil (point) (point-max))
+          (goto-char (point-max))
+          ;; Final newline
+          (unless (eq (point) (line-beginning-position))
+            (insert "\n"))
+          (buffer-substring-no-properties point (point-max)))))))
 
 (defun epackage-lint-extra-buffer-checkdoc-cleanup ()
   "Clean up entries after checkdoc run."
@@ -7138,15 +7184,15 @@ Return:
   "Run checkdoc on current buffer."
   (require 'checkdoc)
   (let ((file buffer-file-name)
-	(checkdoc-bouncy-flag t)	; No silent fixes
-	(checkdoc-arguments-in-order-flag t)
-	(checkdoc-verb-check-experimental-flag t)
-	checkdoc-spellcheck-documentation-flag ;None, too expensive
-	(checkdoc-force-docstrings-flag t)
-	(checkdoc-force-history-flag t)
-	(checkdoc-permit-comma-termination-flag t)
-	(checkdoc-autofix-flag 'never)
-	(checkdoc-generate-compile-warnings-flag t))
+        (checkdoc-bouncy-flag t)        ; No silent fixes
+        (checkdoc-arguments-in-order-flag t)
+        (checkdoc-verb-check-experimental-flag t)
+        checkdoc-spellcheck-documentation-flag ;None, too expensive
+        (checkdoc-force-docstrings-flag t)
+        (checkdoc-force-history-flag t)
+        (checkdoc-permit-comma-termination-flag t)
+        (checkdoc-autofix-flag 'never)
+        (checkdoc-generate-compile-warnings-flag t))
     ;;  (message (epackage-lint-extra-delimiter-string "checkdoc"))
     (epackage-with-checkdoc-buffer
      (epackage-erase-buffer))
@@ -7172,7 +7218,7 @@ This is a heavy check and first time initializing will take time."
   (or elint-builtin-variables
       (elint-initialize))
   (elint-clear-log (format "Elint %s" (or (buffer-file-name)
-					  (buffer-name))))
+                                          (buffer-name))))
   (mapc 'elint-top-form (elint-update-env))
   (with-current-buffer elint-log-buffer
     (epackage-point-min)
@@ -7191,12 +7237,14 @@ Return:
       ;; autoload. Check 'interactive' or variables.
       (epackage-point-min)
       (when (or (epackage-search-user-customizable)
-		(epackage-search-user-function))
-	(setq ret
-	      (list
-	       `,(concat
-		  "Missing: ;;;###autoload see "
-		  "15.5 Autoload (GNU Emacs Lisp Reference Manual)")))))
+                (epackage-search-user-function))
+        (setq ret
+              (list
+               `,(concat
+                  "Missing: ;;;###autoload see "
+                  "15.5 Autoload (GNU Emacs Lisp Reference Manual) "
+                  "http://www.gnu.org/software/emacs/manual/html_node/elisp/Autoload.html"
+                  )))))
     ret))
 
 (defun epackage-lint-extra-buffer-run-other-namespace ()
@@ -7204,47 +7252,47 @@ Return:
 Return:
   '(\"<error message>\") or nil."
   (let ((name (if buffer-file-name
-		  (file-name-nondirectory buffer-file-name)
-		(buffer-name)))
-	(ignore "toggle")
-	primary
-	list
-	point
-	str
-	ret)
+                  (file-name-nondirectory buffer-file-name)
+                (buffer-name)))
+        (ignore "toggle")
+        primary
+        list
+        point
+        str
+        ret)
     (epackage-point-min)
     ;; The primary name space is the onle that is found first.
     (while (re-search-forward
-	    "^(def[^ \t\r\n]+ +\\([a-zA-Z]+\\)-" nil t)
-	(setq str (match-string-no-properties 1))
-	(unless list
-	  (setq primary str))
-	(when (and list
-		   (not (string-match ignore str))
-		   (not (member str list)))
-	  (epackage-push
-	   (format "%s:%d: Warning, detected prefix %s-* but found: %s-*"
-		   name
-		   (epackage-line-number)
-		   primary
-		   str)
-	   ret))
-	(epackage-push str list))
+            "^(def[^ \t\r\n]+ +\\([a-zA-Z]+\\)-" nil t)
+        (setq str (match-string-no-properties 1))
+        (unless list
+          (setq primary str))
+        (when (and list
+                   (not (string-match ignore str))
+                   (not (member str list)))
+          (epackage-push
+           (format "%s:%d: Warning, detected prefix %s-* but found: %s-*"
+                   name
+                   (epackage-line-number)
+                   primary
+                   str)
+           ret))
+        (epackage-push str list))
     (epackage-point-min)
     (while (re-search-forward
-	    "^(defalias +'\\([a-zA-Z]+\\)-" nil t)
-	(setq str (match-string-no-properties 1))
-	(when (and list
-		   (not (string-match ignore str))
-		   (not (member str list)))
-	  (epackage-push
-	   (format "%s:%d: Warning, %s-* but new name space: %s-*"
-		   name
-		   (epackage-line-number)
-		   primary
-		   str)
-	   ret))
-	(epackage-push str list))
+            "^(defalias +'\\([a-zA-Z]+\\)-" nil t)
+        (setq str (match-string-no-properties 1))
+        (when (and list
+                   (not (string-match ignore str))
+                   (not (member str list)))
+          (epackage-push
+           (format "%s:%d: Warning, %s-* but new name space: %s-*"
+                   name
+                   (epackage-line-number)
+                   primary
+                   str)
+           ret))
+        (epackage-push str list))
     ret))
 
 (defun epackage-lint-extra-buffer-run-other-defcustom ()
@@ -7253,45 +7301,45 @@ Major mode must be `emacs-lisp-mode' for the checks to work.
 Return:
   '(\"<error message>\") or nil."
   (let ((elisp (memq major-mode
-		     '(emacs-lisp-mode
-		       lisp-interaction-mode)))
-	defcustom-need
-	beg
-	str
-	ret)
+                     '(emacs-lisp-mode
+                       lisp-interaction-mode)))
+        defcustom-need
+        beg
+        str
+        ret)
     (epackage-point-min)
     (when elisp
       (while (re-search-forward
-	      "^(def\\(?:var\\|const\\) +\\([^ \t\r\n]+\\)" nil t)
-	(setq beg (match-beginning 0))
-	(setq str (match-string-no-properties 1))
-	(goto-char beg)
-	(forward-sexp 1)		; defvar's last ")"
-	;; Search for "*". Note the use was made obsolete in 24.x
-	;; to mark user variables.
-	(when  (re-search-backward "\"" beg t)
-	  (forward-char 1)  ;; at ending quote
-	  (backward-sexp 1) ;; search starting quote
-	  (when  (looking-at "\"\\*")
-	    (setq defcustom-need t)
-	    (epackage-push
-	     (format "Missing:%d: defcustom %s"
-		     (epackage-line-number)
-		     str)
-	     ret)))))
-    (when defcustom-need		; Libraries don't need
+              "^(def\\(?:var\\|const\\) +\\([^ \t\r\n]+\\)" nil t)
+        (setq beg (match-beginning 0))
+        (setq str (match-string-no-properties 1))
+        (goto-char beg)
+        (forward-sexp 1)                ; defvar's last ")"
+        ;; Search for "*". Note the use was made obsolete in 24.x
+        ;; to mark user variables.
+        (when  (re-search-backward "\"" beg t)
+          (forward-char 1)  ;; at ending quote
+          (backward-sexp 1) ;; search starting quote
+          (when  (looking-at "\"\\*")
+            (setq defcustom-need t)
+            (epackage-push
+             (format "Missing:%d: defcustom %s"
+                     (epackage-line-number)
+                     str)
+             ret)))))
+    (when defcustom-need                ; Libraries don't need
       (epackage-point-min)
       (unless (re-search-forward "^(defcustom" nil t)
-	(epackage-push
-	 (concat "Warning: defcustom not found. See "
-		 "14.x (GNU Emacs Lisp Reference Manual)")
-	 ret))
+        (epackage-push
+         (concat "Warning: defcustom not found. See "
+                 "14.x (GNU Emacs Lisp Reference Manual)")
+         ret))
       (unless (re-search-forward "^(defgroup" nil t)
-	(epackage-push
-	 (concat
-	  "Warning: defgroup not found "
-	  "(14.x GNU Emacs Lisp Reference Manual)")
-	 ret)))
+        (epackage-push
+         (concat
+          "Warning: defgroup not found "
+          "(14.x GNU Emacs Lisp Reference Manual)")
+         ret)))
     ret))
 
 (defun epackage-lint-extra-buffer-run-other-keybindings ()
@@ -7299,28 +7347,28 @@ Return:
 Return:
   '(\"ERROR-TYPE:LINE-NUMBER:LINE\" ...) or nil."
   (let (space
-	line
-	type
-	list)
+        line
+        type
+        list)
     (epackage-point-min)
     (while (re-search-forward "^\\(\\([ \t]*\\)(global-set-key.*\\)" nil t)
       (setq line  (match-string-no-properties 1)
-	    space (match-string-no-properties 2)
-	    type  (if (string= "" space)
-		      ;; Immediately to the left: unconditional call.
-		      "Error"
-		    ;; Indented, possibly inside *-install function.
-		    "Note"))
+            space (match-string-no-properties 2)
+            type  (if (string= "" space)
+                      ;; Immediately to the left: unconditional call.
+                      "Error"
+                    ;; Indented, possibly inside *-install function.
+                    "Note"))
       (let (ok)
-	(when (eq major-mode 'emacs-lisp-mode)
-	  (save-excursion
-	    (beginning-of-defun)
-	    ;;  (defun PACKAGE-install () ...
-	    (setq ok (looking-at "^[ \t]*(def"))))
-	(unless ok
-	  (epackage-push
-	   (format "%s:%d:%s" type (epackage-line-number) line)
-	   list))))
+        (when (eq major-mode 'emacs-lisp-mode)
+          (save-excursion
+            (beginning-of-defun)
+            ;;  (defun PACKAGE-install () ...
+            (setq ok (looking-at "^[ \t]*(def"))))
+        (unless ok
+          (epackage-push
+           (format "%s:%d:%s" type (epackage-line-number) line)
+           list))))
     list))
 
 (defun epackage-lint-extra-buffer-run-other-main ()
@@ -7328,10 +7376,10 @@ Return:
 Return list of results '(\"message\" ...)."
   ;; FIXME make into a user variable
   (let ((list '(epackage-lint-extra-buffer-run-other-autoload
-		epackage-lint-extra-buffer-run-other-defcustom
-		epackage-lint-extra-buffer-run-other-namespace
-		epackage-lint-extra-buffer-run-other-keybindings))
-	ret)
+                epackage-lint-extra-buffer-run-other-defcustom
+                epackage-lint-extra-buffer-run-other-namespace
+                epackage-lint-extra-buffer-run-other-keybindings))
+        ret)
     (dolist (function list)
       (epackage-nconc (funcall function) ret))
     (delq nil ret)))
@@ -7359,60 +7407,60 @@ Return:
     'interactive))
   ;; Lint with all we've got and collect results
   (let ((file (if buffer-file-name
-		  (format " file: %s"
-			  (abbreviate-file-name
-			   buffer-file-name))
-		""))
-	str
-	list
-	errors)
+                  (format " file: %s"
+                          (abbreviate-file-name
+                           buffer-file-name))
+                ""))
+        str
+        list
+        errors)
     (epackage-with-lint-buffer
       (if clear
-	  (epackage-erase-buffer)
-	(goto-char (point-max))
-	(goto-char (line-beginning-position)))
+          (epackage-erase-buffer)
+        (goto-char (point-max))
+        (goto-char (line-beginning-position)))
       (unless (looking-at "^[ t\r]*$")
-	(insert "\n"))
+        (insert "\n"))
       ;; Stars are there to support `outline-minor-mode'.
       (insert (format "*** Lint Emacs %s %s%s\n"
-		      emacs-version
-		      (epackage-time)
-		      file)))
+                      emacs-version
+                      (epackage-time)
+                      file)))
     (epackage-verbose-message "Lint running: lisp-mnt.el...")
     (when (setq str (epackage-lint-extra-buffer-run-lm))
       (epackage-with-lint-buffer
-	(goto-char (point-max))
-	(insert "** Lint M-x lm-verify (list-mnt.el)\n")
-	(insert str)
-	(epackage-push 'lisp-mnt errors)))
+        (goto-char (point-max))
+        (insert "** Lint M-x lm-verify (lisp-mnt.el)\n")
+        (insert str)
+        (epackage-push 'lisp-mnt errors)))
     (epackage-verbose-message "Lint running: extra checks...")
     (when (setq list (epackage-lint-extra-buffer-run-other-main))
       (epackage-with-lint-buffer
-	(goto-char (point-max))
-	(insert "** Lint extra checks (epackage.el)\n")
-	(dolist (str list)
-	  (epackage-with-lint-buffer
-	    (goto-char (point-max))
-	    (insert str "\n")
-	    (epackage-push 'miscellaneous errors)))))
+        (goto-char (point-max))
+        (insert "** Lint extra checks (epackage.el)\n")
+        (dolist (str list)
+          (epackage-with-lint-buffer
+            (goto-char (point-max))
+            (insert str "\n")
+            (epackage-push 'miscellaneous errors)))))
     (epackage-verbose-message "Lint running: checkdoc.el...")
     (when (setq str (epackage-lint-extra-buffer-run-checkdoc))
       (epackage-with-lint-buffer
-	(goto-char (point-max))
-	(insert "** Lint M-x checkdoc-current-buffer (checkdoc.el)\n")
-	(insert str)
-	(epackage-push 'checkdoc errors)))
+        (goto-char (point-max))
+        (insert "** Lint M-x checkdoc-current-buffer (checkdoc.el)\n")
+        (insert str)
+        (epackage-push 'checkdoc errors)))
     (epackage-verbose-message "Lint running: elint.el...")
     (when (setq str (epackage-lint-extra-buffer-run-elint))
       (epackage-with-lint-buffer
-	(goto-char (point-max))
-	(insert "** Lint M-x elint-current-buffer (elint.el)\n")
-	(insert str)
-	(epackage-push 'checkdoc errors)))
+        (goto-char (point-max))
+        (insert "** Lint M-x elint-current-buffer (elint.el)\n")
+        (insert str)
+        (epackage-push 'checkdoc errors)))
     (epackage-with-lint-buffer
       (outline-minor-mode 1))
     (if verbose
-	(display-buffer epackage--buffer-lint))
+        (display-buffer epackage--buffer-lint))
     errors))
 
 ;; More familiar user callable function
@@ -7430,16 +7478,19 @@ With VERBOSE display `epackage--buffer-lint'."
     (read-file-name "File to Lint extra: ")
     'interactive))
   (let ((new-p (null (get-file-buffer file)))
-	buffer)
+        buffer)
     (with-current-buffer (find-file-noselect file)
       (prog1
-	  (epackage-lint-extra-buffer-main verbose)
-	(if new-p
-	    (setq buffer (current-buffer))))
-      (if buffer			; We loaded it, clean up
-	  (kill-buffer buffer)))))
+          (epackage-lint-extra-buffer-main verbose)
+        (if new-p
+            (setq buffer (current-buffer))))
+      (if buffer                        ; We loaded it, clean up
+          (kill-buffer buffer)))))
 
 ;;; .................................................. &functions-misc ...
+
+(defvar epackage--cmd-select-package-history nil
+  "Interactive history of `epackage-cmd-select-package' input.")
 
 (defun epackage-cmd-select-package (&optional message list)
   "Interactively select package with optional MESSAGE from LIST.
@@ -7460,7 +7511,9 @@ Return package name or nil."
              (or list
                  (epackage-sources-list-info-pkg-list))
              (not 'predicate)
-             'require-match))
+             (not 'require-match)
+             (not 'initial-input)
+             'epackage--cmd-select-package-history))
       (if (epackage-string-p package)
           (epackage-string-delete-whitespace package)))))
 
@@ -7495,37 +7548,37 @@ Return package name or nil."
     (defmacro epackage-mail-macro (buffer-name to &rest body)
       "Compose mail in BUFFER-NAME, set TO and run BODY."
       `(progn
-	 (pop-to-buffer ,buffer-name)
-	 (epackage-erase-buffer)
-	 (mail-setup
-	  ,to
-	  (not 'subject)
-	  (not 'in-reply-to)
-	  (not 'cc)
-	  (not 'replybuffer)
-	  (not 'actions))
-	 (prog1
-	     (progn
-	       ,@body)
-	   (message-mode)))))
+         (pop-to-buffer ,buffer-name)
+         (epackage-erase-buffer)
+         (mail-setup
+          ,to
+          (not 'subject)
+          (not 'in-reply-to)
+          (not 'cc)
+          (not 'replybuffer)
+          (not 'actions))
+         (prog1
+             (progn
+               ,@body)
+           (message-mode)))))
     (t
      (defmacro epackage-mail-macro (buffer-name to &rest body)
        "Compose mail in BUFFER-NAME, set TO and run BODY."
        `(progn
-	  (pop-to-buffer ,buffer-name)
-	  (epackage-erase-buffer)
-	  (mail-setup
-	   ,to
-	   (not 'subject)
-	   (not 'in-reply-to)
-	   (not 'cc)
-	   (not 'replybuffer)
-	   (not 'actions)
-	   (not 'return-action))
-	  (prog1
-	      (progn
-		,@body)
-	    (message-mode)))))))
+          (pop-to-buffer ,buffer-name)
+          (epackage-erase-buffer)
+          (mail-setup
+           ,to
+           (not 'subject)
+           (not 'in-reply-to)
+           (not 'cc)
+           (not 'replybuffer)
+           (not 'actions)
+           (not 'return-action))
+          (prog1
+              (progn
+                ,@body)
+            (message-mode)))))))
 
 (defsubst epackage-mail-buffer-name (package &optional string)
   "Compose email buffer name from PACKAGE and optional STRING."
@@ -7648,7 +7701,7 @@ function description of `epackage-info-mode-tab-command'.
     (if email
         (epackage-mail-macro
             (epackage-mail-buffer-name package " maintainer")
-	    email)
+            email)
       (epackage-message "No maintainer information to email to."))))
 
 (defun epackage-info-mode-cmd-email-upstream ()
@@ -7659,8 +7712,8 @@ function description of `epackage-info-mode-tab-command'.
     (cond
      (email
       (epackage-mail-macro
-	  (epackage-mail-buffer-name package " upstream")
-	  email)
+          (epackage-mail-buffer-name package " upstream")
+          email)
       (epackage-field-set "Subject" (format "Emacs: %s - " package)))
      (t
       (epackage-message "No upstream information to email to.")))))
@@ -7676,18 +7729,18 @@ use for contacts."
     (if email
         (epackage-mail-macro
             (epackage-mail-buffer-name package " upstream")
-	    email
-	  (if (stringp epackage--info-mode-email-ping-subject)
-	      (epackage-field-set
-	       "Subject"
-	       (format
-		epackage--info-mode-email-ping-subject
-		package)))
-	  (goto-char (mail-text-start))
-	  (when (stringp epackage--info-mode-email-ping-body)
-	    (insert epackage--info-mode-email-ping-body)
-	    (when (stringp user-full-name)
-	      (insert user-full-name "\n"))))
+            email
+          (if (stringp epackage--info-mode-email-ping-subject)
+              (epackage-field-set
+               "Subject"
+               (format
+                epackage--info-mode-email-ping-subject
+                package)))
+          (goto-char (mail-text-start))
+          (when (stringp epackage--info-mode-email-ping-body)
+            (insert epackage--info-mode-email-ping-body)
+            (when (stringp user-full-name)
+              (insert user-full-name "\n"))))
       (epackage-message "No upstream information to email to."))))
 
 (defun epackage-info-mode-cmd-url-homepage ()
@@ -7799,13 +7852,13 @@ In interactive call, the point must be in buffer visiting
    ((and (not (bolp))
          (eolp)
          (string-match ":" (buffer-substring-no-properties
-			    (- (point) 2) (point))))
+                            (- (point) 2) (point))))
     (insert "http://www.emacswiki.org/emacs/")
     (goto-char (line-end-position)))
    ((and (not (bolp))
          (eolp)
          (string-match "/" (buffer-substring-no-properties
-			    (- (point) 1) (point))))
+                            (- (point) 1) (point))))
     (let ((search
            "http://www.google.fi/search?hl=en&oe=UTF-8&num=100&q=")
           (str (read-string "Google (empty = cancel): "
@@ -7828,7 +7881,7 @@ In interactive call, the point must be in buffer visiting
   "Initialize variable `epackage--info-mode-completions-section'.
 The values are list of cars from `finder-known-keywords'."
   (unless epackage--info-mode-completions-section
-    (require 'finder)			; To define finder-known-keywords
+    (require 'finder)                   ; To define finder-known-keywords
     (setq epackage--info-mode-completions-section
           (mapcar (lambda (elt)
                     (symbol-name (car elt)))
@@ -8151,7 +8204,7 @@ If optional VERBOSE is non-nil, display progress message."
          (t
           (epackage-mail-macro
               (epackage-mail-buffer-name package " maintainer")
-	      to)))))
+              to)))))
     (t
      (if (eq verbose 'interactive)
          (epackage-message
@@ -8191,7 +8244,7 @@ If optional VERBOSE is non-nil, display progress message."
          (t
           (epackage-mail-macro
               (format "*mail epackage %s upstream*" package)
-	      to)))))
+              to)))))
     (t
      (if (eq verbose 'interactive)
          (epackage-message
@@ -8422,7 +8475,7 @@ If optional VERBOSE is non-nil, display progress message."
       (cond
        (list
         (run-hooks 'epackage--install-clean-hook)
-	(epackage-loader-file-generate-boot verbose))
+        (epackage-loader-file-generate-boot verbose))
        (verbose
         (epackage-message
           "Nothing to clean. No files installed for package: %s"
@@ -8472,28 +8525,28 @@ This is a lowlevel function.
 Return:
   Non-nil if anything was done."
   (let* ((dir  (epackage-sources-list-official-directory))
-	 (file (epackage-file-name-sources-list-official))
-	 (need-clone (not (file-directory-p dir)))
-	 status)
+         (file (epackage-file-name-sources-list-official))
+         (need-clone (not (file-directory-p dir)))
+         status)
     (unless need-clone          ;; directory exists, check validity
       (cond
        ((not (epackage-git-directory-p dir))
-	(epackage-verbose-message "Deleting corrupted Git dir: %s"
-				  (abbreviate-file-name dir))
-	;; Something is very wrong. Start from fresh.
-	(delete-directory dir 'recursive)
-	(setq need-clone t))
+        (epackage-verbose-message "Deleting corrupted Git dir: %s"
+                                  (abbreviate-file-name dir))
+        ;; Something is very wrong. Start from fresh.
+        (delete-directory dir 'recursive)
+        (setq need-clone t))
        ((not (file-exists-p file))
-	(epackage-verbose-message "Restoring state of dir: %s"
-				  (abbreviate-file-name dir))
-	;; Somebody deleted the file; reset git
-	(setq status 'git-checkout-force)
-	(epackage-git-command-checkout-force-head dir verbose))))
+        (epackage-verbose-message "Restoring state of dir: %s"
+                                  (abbreviate-file-name dir))
+        ;; Somebody deleted the file; reset git
+        (setq status 'git-checkout-force)
+        (epackage-git-command-checkout-force-head dir verbose))))
     (when need-clone
       (setq status 'git-clone)
       (let* ((url epackage--sources-list-url)
-	     (host (epackage-url-extract-host url)))
-	(epackage-git-command-clone url dir verbose)))
+             (host (epackage-url-extract-host url)))
+        (epackage-git-command-clone url dir verbose)))
     status))
 
 ;;;###autoload
@@ -8504,12 +8557,16 @@ If optional VERBOSE is non-nil, display progress messages."
    (list 'interactive))
   (epackage-initialize verbose)
   (epackage-kill-buffer-sources-list)
-  (unless (epackage-sources-list-p)
-    (epackage-with-message verbose "Wait, downloading sources list"))
-  (let ((status (epackage-sources-list-download verbose)))
-    (unless status
-      (epackage-sources-list-upgrade verbose)
-      (epackage-verbose-message "Upgrade sources list")))
+  (let (initial)
+    (unless (epackage-sources-list-p)
+      (setq initial 'first-time)
+      (epackage-with-message verbose "Wait, downloading sources list"))
+    (let ((status (epackage-sources-list-download verbose)))
+      (unless status
+        (epackage-sources-list-upgrade verbose)
+        (epackage-verbose-message "Upgrade sources list")))
+    (when initial
+      (epackage-with-message verbose "Download done.")))
   (epackage-sources-list-build verbose))
 
 ;;;###autoload
@@ -8542,30 +8599,30 @@ If optional VERBOSE is non-nil, display progress messages."
     (let ((url (epackage-sources-list-info-url package)))
       (cond
        ((null url)
-	(epackage-warn
-	 (substitute-command-keys
-	  `,(concat
-	     "Package %s has no download URL. "
-	     "Try \\[epackage-sources-list-build] "
-	     "and check epackage--sources-file-list"))
-	 package))
+        (epackage-warn
+         (substitute-command-keys
+          `,(concat
+             "Package %s has no download URL. "
+             "Try \\[epackage-sources-list-build] "
+             "and check epackage--sources-file-list"))
+         package))
        ((not (epackage-git-url-valid-p url))
-	(epackage-warn
-	 (substitute-command-keys
-	  `,(concat
-	     "Sources List error. URL %s does not respond. "
-	     "Try \\[epackage-cmd-sources-list-download]"))
-	 url))
+        (epackage-warn
+         (substitute-command-keys
+          `,(concat
+             "Sources List error. URL %s does not respond. "
+             "Try \\[epackage-cmd-sources-list-download]"))
+         url))
        (t
-	(epackage-download-package package verbose)
-	(epackage-download-package-actions package verbose)
-	(when verbose
-	  (let ((warnings (epackage-pkg-info-status-warnings package)))
-	    (if warnings
-		(epackage-warn
-		 "package status %s: %s"
-		 package warnings))))
-	t))))))
+        (epackage-download-package package verbose)
+        (epackage-download-package-actions package verbose)
+        (when verbose
+          (let ((warnings (epackage-pkg-info-status-warnings package)))
+            (if warnings
+                (epackage-warn
+                 "package status %s: %s"
+                 package warnings))))
+        t))))))
 
 ;;;###autoload
 (defun epackage-cmd-lint-package (package &optional verbose)
@@ -8675,12 +8732,12 @@ If optional VERBOSE is non-nil, display progress message."
   ;; There are few checks that need this
   (let ((dir (epackage-sources-list-official-directory)))
     (unless (and
-	     ;; sources list exists (has been installed)
-	     (epackage-sources-list-p)
-	     ;; and sources list git repository exists
-	     (file-directory-p dir))
+             ;; sources list exists (has been installed)
+             (epackage-sources-list-p)
+             ;; and sources list git repository exists
+             (file-directory-p dir))
       (let ((epackage--initialize-flag t))
-	(epackage-cmd-sources-list-download verbose))))
+        (epackage-cmd-sources-list-download verbose))))
   (setq epackage--initialize-flag t)
   (unless (epackage-sources-list-p)
     (epackage-sources-list-build verbose))
@@ -8787,7 +8844,7 @@ Summary, Version, Maintainer etc."
   (when epackage--buffer-princ
     (let ((buffer (get-buffer epackage--buffer-ui-simple)))
       (eq epackage--buffer-princ
-	  buffer))))
+          buffer))))
 
 ;;;###autoload
 (defun epackage-ui-simple ()
@@ -8795,7 +8852,7 @@ Summary, Version, Maintainer etc."
   (interactive)
   (epackage-initialize)
   (let* ((buffer (get-buffer-create epackage--buffer-ui-simple))
-	 (epackage--buffer-princ buffer))
+         (epackage--buffer-princ buffer))
     (switch-to-buffer buffer)
     (delete-other-windows)
     (goto-char (point-max))
@@ -8950,10 +9007,10 @@ Summary, Version, Maintainer etc."
   "Set up variables for batch processing and run BODY.
 Disable `find-file-hook', fontification, version control etc."
   `(let (find-file-hook
-	 global-font-lock-mode
-	 vc-handled-backends   ;; Optimize: prevent loading VC for files.
-	 (debug-on-error t)
-	 debug-ignored-errors)
+         global-font-lock-mode
+         vc-handled-backends   ;; Optimize: prevent loading VC for files.
+         (debug-on-error t)
+         debug-ignored-errors)
      ,@body))
 
 (put 'epackage-interactive-initialize 'lisp-indent-function 0)
@@ -9078,9 +9135,9 @@ Disable `find-file-hook', fontification, version control etc."
   (epackage-batch-setup
     (let ((list (epackage-status-downloaded-packages)))
       (if (not list)
-	  (epackage-princ "No packages downloaded.")
-	(epackage-princ "Downloaded packages:")
-	(epackage-batch-list-package-summary list)))))
+          (epackage-princ "No packages downloaded.")
+        (epackage-princ "Downloaded packages:")
+        (epackage-batch-list-package-summary list)))))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-not-installed-packages ()
@@ -9089,9 +9146,9 @@ Disable `find-file-hook', fontification, version control etc."
   (epackage-batch-setup
     (let ((list (epackage-status-not-installed-packages)))
       (if (not list)
-	  (epackage-princ "All downloaded packages are installed.")
-	(epackage-princ "Downloaded, but not enabled packages:")
-	(epackage-batch-list-package-summary list)))))
+          (epackage-princ "All downloaded packages are installed.")
+        (epackage-princ "Downloaded, but not enabled packages:")
+        (epackage-batch-list-package-summary list)))))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-installed-packages ()
@@ -9100,9 +9157,9 @@ Disable `find-file-hook', fontification, version control etc."
   (epackage-batch-setup
     (let ((list (epackage-status-installed-packages)))
       (if (not list)
-	  (epackage-princ "No packages installed.")
-	(epackage-princ "Installed packages:")
-	(epackage-batch-list-package-summary list)))))
+          (epackage-princ "No packages installed.")
+        (epackage-princ "Installed packages:")
+        (epackage-batch-list-package-summary list)))))
 
 ;;;###autoload
 (defun epackage-batch-ui-list-available-packages ()
@@ -9120,17 +9177,17 @@ Disable `find-file-hook', fontification, version control etc."
 (defun epackage-batch-devel-compose-package-dir ()
   "Run `epackage-devel-compose-package-dir' for first command line arg.
 The arguments:
-  0  Package name
-  1  Directory roo."
+  1  Package name
+  2  Root directory of package files"
   (let ((vc-handled-backends nil)
-	(name (nth 0 command-line-args-left))
-	(path (nth 1 command-line-args-left))
-	(root (nth 2 command-line-args-left))
-	dir)
-    (let ((i 0))
+        (name (nth 0 command-line-args-left))
+        (path (nth 1 command-line-args-left))
+        ;; (root (nth 2 command-line-args-left))
+        dir)
+    (let ((i 1))
       (dolist (elt command-line-args-left)
-	(epackage-message "ARG %d: %s" i elt)
-	(setq i (1+ i))))
+        (epackage-message "ARG %d: %s" i elt)
+        (setq i (1+ i))))
     (unless (stringp name)
       (epackage-error "PACKAGE NAME argument 1 is missing"))
     (unless (epackage-package-name-valid-p name)
@@ -9139,35 +9196,36 @@ The arguments:
       (epackage-error "FILE Argument 2 is missing"))
     (unless (file-directory-p path)
       (epackage-error "Warn: No such directory: %s" path))
+    ;; In case of "."
     (if (string-match "^\\./?$" path)
-	(setq path default-directory))
+        (setq path default-directory))
     (epackage-devel-compose-package-dir name path)))
 
 (defun epackage-batch-devel-lint-lisp ()
   "Run `epackage-lint-extra-file' for all command line args."
   (let ((load-path load-path)
-	(debug-on-error t)
-	list
-	dir)
+        (debug-on-error t)
+        list
+        dir)
     (auto-compression-mode 1)
     ;; For elint.el
     (epackage-push default-directory load-path)
     (dolist (elt command-line-args-left)
       (when (string-match "[/\\]" elt)
-	;; FIXME: There is better code somewhere above (see compile package)
-	(setq dir (file-name-directory elt))
-	(unless (member dir list)
-	  (epackage-push dir list)
-	  (dolist (elt (epackage-directory-recursive-lisp dir))
-	    (epackage-push elt load-path))))
+        ;; FIXME: There is better code somewhere above (see compile package)
+        (setq dir (file-name-directory elt))
+        (unless (member dir list)
+          (epackage-push dir list)
+          (dolist (elt (epackage-directory-recursive-lisp dir))
+            (epackage-push elt load-path))))
       (cond
        ((not (file-exists-p elt))
-	(epackage-warn "No such file: %s" elt))
+        (epackage-warn "No such file: %s" elt))
        ((string-match "\\.elc" elt))
        (t
-	(epackage-lint-extra-file elt)
-	(epackage-with-lint-buffer
-	  (message (buffer-string))))))))
+        (epackage-lint-extra-file elt)
+        (epackage-with-lint-buffer
+          (message (buffer-string))))))))
 
 (defun epackage-batch-enable-package ()
   "Run `epackage-cmd-enable-package' for command line args."
@@ -9269,27 +9327,27 @@ The arguments:
     ;;   (overlay-recenter (point))
     ;;   (recenter -3))))
     (let ((last-command 'ignore)
-	  (recenter-positions '(bottom)))
+          (recenter-positions '(bottom)))
       (recenter-top-bottom)))
 
 (defun epackage-shrink-window (&optional buffer-name) ; FIXME, not correct
   "Adjust visible `current-buffer' or BUFFER-NAME to minimum."
   (let* ((buffer (get-buffer buffer-name))
-	 win
-	 winb)
+         win
+         winb)
     (when (and buffer
-	       (window-live-p buffer))
+               (window-live-p buffer))
       (setq winb (window-buffer buffer-name))
       (setq win (get-buffer-window winb))
       (with-current-buffer winb
-	(select-window win)
-	(goto-char (point-max))
-	(unless (window-fixed-size-p)
-	  (let* ((size (window-height win))
-		 (min window-min-height)
-		 (diff (- size min)))
-	    (if (> diff 0)
-		(shrink-window diff))))))))
+        (select-window win)
+        (goto-char (point-max))
+        (unless (window-fixed-size-p)
+          (let* ((size (window-height win))
+                 (min window-min-height)
+                 (diff (- size min)))
+            (if (> diff 0)
+                (shrink-window diff))))))))
 
 (defsubst epackage-batch-ui-menu-goto-point-max ()
   "Position point at `point-max'."
@@ -9307,36 +9365,36 @@ The arguments:
   "Present an UI to run basic command."
   (epackage-batch-setup
    (let ((epackage--install-action-list epackage--install-action-list)
-	 (loop t)
-	 choice)
+         (loop t)
+         choice)
      (epackage-initialize 'verbose)
      (setq epackage--debug nil)
      ;;  This is from command line, no enable action is needed for
      ;;  current Emacs
      (setq epackage--install-action-list
-	   (delq 'enable epackage--install-action-list))
+           (delq 'enable epackage--install-action-list))
      (epackage-batch-ui-menu-header)
      (while loop
        (epackage-batch-ui-menu-goto-point-max)
        (setq choice (epackage-batch-ui-menu-selection
-		     epackage--batch-ui-menu-prompt))
+                     epackage--batch-ui-menu-prompt))
        (epackage-with-debug
-	 (epackage-princ "debug: choice %s" choice))
+         (epackage-princ "debug: choice %s" choice))
        (cond
-	((null choice)
-	 (epackage-princ "** Unknown selection"))
-	((eq choice 'ignore)
-	 (epackage-princ "** Not implmented yet"))
-	((eq choice 'quit)
-	 (epackage-princ "** Exit")
-	 (setq loop nil))
-	((functionp choice)
-	 (call-interactively choice))
-	((eq choice ?\?)
-	 (epackage-batch-separator-insert)
-	 (epackage-princ epackage--batch-ui-menu-help))
-	(t
-	 (epackage-princ "** Unknown menu selection: %s" choice))))
+        ((null choice)
+         (epackage-princ "** Unknown selection"))
+        ((eq choice 'ignore)
+         (epackage-princ "** Not implmented yet"))
+        ((eq choice 'quit)
+         (epackage-princ "** Exit")
+         (setq loop nil))
+        ((functionp choice)
+         (call-interactively choice))
+        ((eq choice ?\?)
+         (epackage-batch-separator-insert)
+         (epackage-princ epackage--batch-ui-menu-help))
+        (t
+         (epackage-princ "** Unknown menu selection: %s" choice))))
      (epackage-batch-ui-menu-goto-point-max))))
 
 (defun epackage-run-action-list (package actions &optional verbose)
@@ -9383,7 +9441,7 @@ files, then reinstall autoload files etc.
 Return list of actions as in `epackage--download-action-list':
   '((action ...))."
   (let ((actions (epackage-package-status-actions package)))
-    (when actions			; If not installed, nothing to do
+    (when actions                       ; If not installed, nothing to do
       (epackage-run-action-list package actions verbose))))
 
 ;;;###autoload
