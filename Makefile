@@ -34,7 +34,7 @@ all: help
 help:
 	@echo "Select make <target>:"
 	@echo "---------------------"
-	@grep '^# .*-' Makefile | sed 's,# ,,' | sort
+	@grep '^# .* - ' Makefile | sed 's,# ,,' | sort
 
 # realclean - Delete all files that can be generated
 realclean: clean
