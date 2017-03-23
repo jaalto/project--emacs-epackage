@@ -1,6 +1,6 @@
 ;; epackage.el --- Distributed Emacs Lisp Package System (DELPS) -*-byte-compile-dynamic: t;-*-
 
-;; Copyright (C) 2009-2015 Jari Aalto
+;; Copyright (C) 2009-2017 Jari Aalto
 
 ;; Author:      Jari Aalto <jari.aalto@cante.net>
 ;; Maintainer:  Jari Aalto <jari.aalto@cante.net>
@@ -1511,7 +1511,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2014.1126.2029"
+(defconst epackage--version-time "2017.0323.2219"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
