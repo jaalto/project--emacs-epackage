@@ -1,3 +1,75 @@
+2017-03-24 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-loader-file-byte-compile): Correct
+	pushing to ´load-path' all installed packages.
+
+2013-08-31 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-cmd-sources-list-upgrade): Add
+	download done message.
+	(epackage--sources-list-url): Chnage from git:// to https://
+	as not all sites have Git port open.
+	(epackage-cmd-sources-list-upgrade): Correct call to
+	`epackage-with-message'.
+	(epackage--cmd-select-package-history): New.
+	(epackage-cmd-select-package): Remember packages for input.
+
+2013-07-03 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el: (DOC::Details of the info file fields): Add
+	new field `Info:'.
+	(epackage--layout-template-info): Add new field `Info:'.
+
+2013-06-09 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el: (top level::Details of the info file fields):
+	Document that Vcs-Url can span multiple lines for http type.
+
+2013-06-03 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-autoload-generate-loaddefs-dir): If
+	no autoloads found, skip clean up function
+	`epackage-autoload-remove-path-names-file'.
+	(epackage-lint-extra-buffer-run-other-autoload): Add 15.5 URL.
+	(epackage--layout-template-info): Add MIT.
+
+2013-06-02 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage--info-mode-completions-license): Add
+	MIT. Chnage docstring to Official SPDX.
+
+2013-06-01 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-loader-file-insert-main): Insert
+	00conf directory.
+	(epackage-loader-file-byte-compile): Before byte compile
+	add package directories to `load-path'.
+	(epackage--directory-name-install): Rename directory from
+	00install to 10install. WARNING: INCOMPATIBLE CHANGE. Rename
+	manually your directories to new name.
+
+2013-05-30 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-autoload-remove-path-names-buffer): New.
+	(epackage-autoload-remove-path-names-file): Rename.
+	Was `epackage-autoload-remove-path-names'.
+	(epackage-batch-autoload-generate-loaddefs-dir): tighten regexp
+	to read previous *0loaddefs* with `directory-files'.
+
+2013-05-29 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-defun-regexp): New.
+	(epackage-emacs-lisp-mode-maybe): New.
+	(epackage-autoload-create-on-file): Use
+	`epackage-defun-regexp' and `epackage-autoload-create-on-file'.
+	Correct while loop and forward-sexp position.
+
+2013-05-09 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el: Correct spelling of autoload word.
+	(epackage-autoload-remove-path-names): Improve
+	regexp in `re-search-forward' call.
+
 2012-12-10 Mon  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-lint-extra-buffer-run-other-defcustom):
