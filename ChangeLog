@@ -1,3 +1,8 @@
+2019-05-05 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage-info-mode-set-font-lock):
+	Change `font-lock-fontify-buffer' to `font-lock-ensure'.
+
 2017-03-24 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* epackage.el (epackage-loader-file-byte-compile): Correct
