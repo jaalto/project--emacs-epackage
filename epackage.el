@@ -1,6 +1,6 @@
 ;; epackage.el --- Distributed Emacs Lisp Package System (DELPS) -*-byte-compile-dynamic: t;-*-
 
-;; Copyright (C) 2009-2017 Jari Aalto
+;; Copyright (C) 2009-2019 Jari Aalto
 
 ;; Author:      Jari Aalto <jari.aalto@cante.net>
 ;; Maintainer:  Jari Aalto <jari.aalto@cante.net>
@@ -1511,7 +1511,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2017.0323.2232"
+(defconst epackage--version-time "2019.0505.1402"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -7646,7 +7646,7 @@ Return package name or nil."
        '(epackage--info-mode-font-lock-keywords nil t nil nil))
   (if (or font-lock-mode
           global-font-lock-mode)
-      (font-lock-fontify-buffer)))
+      (font-lock-ensure (point-min) (point-max))))
 
 ;;;###autoload
 (define-minor-mode epackage-info-mode
