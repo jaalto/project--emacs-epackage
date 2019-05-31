@@ -41,10 +41,10 @@ References
             http://en.wikipedia.org/wiki/Git_(software)
 
         [2] Extract Technical Text Format documentation from source code
-            http://freecode.com/projects/perl-ripdoc
+	    https://github.com/jaalto/project--perl-ripdoc
 
         [3] Convert Technical Text Format into HTML
-            http://freecode.com/projects/perl-text2html
+	    https://github.com/jaalto/project--perl-text2html
 
 License
 
