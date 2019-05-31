@@ -66,7 +66,7 @@ ui:
 
 # update - Update Source List file (available packages)
 update:
-	$(INVOKE) -f epackage-batch-ui-sources-list-upgrade
+	$(INVOKE) $(LISP) $(PKG) -f epackage-batch-ui-sources-list-upgrade
 
 # examples - Show command line examples
 examples:

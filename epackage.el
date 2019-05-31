@@ -913,23 +913,15 @@
 ;;
 ;;     Homepage
 ;;
-;;      URL to the project's homepage. It is recommended to use
-;;      addresses that don't move; those of http://Freecode.com,
-;;      http://www.Sourceforge.com, http://Launchpad.net,
-;;      http://Github.com, http://Bitbucket.com etc. The Freecode is
-;;      especially good because it provides project information in
-;;      coherent manner. Through Freecode it is also possible to
-;;      browse related software and subscribe to project
-;;      announcements. Freecode is also easy for the upstream
-;;      developers to set up because it does not require heavy project
+;;      URL to the project's homepage. Examples include
+;;      http://www.sourceforge.com, http://launchpad.net,
+;;      http://github.com, http://bitbucket.com etc.
 ;;      management; only links.
 ;;
-;;      In any case, the homepage URL should not directly point to the
-;;      developer's volatile personal homepage if there are
-;;      alternatives. It is good idea to encourage "garage" upstream
-;;      developers to set up their software at some project hosting
-;;      site which encourage collaboration and provide infrastructure
-;;      e.g. for issue tracking. For more information, see
+;;      Resist using volatile homepage URLs that may change. Encourage
+;;      garage upstream developers to set up their software at some
+;;      project hosting site which would encourage collaboration and provide
+;;      infrastructure e.g. for issue tracking. For more information, see
 ;;      <http://en.wikipedia.org/wiki/Comparison_of_open_source_software_hosting_facilities>.
 ;;
 ;;     Info
@@ -1511,7 +1503,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2019.0505.1402"
+(defconst epackage--version-time "2019.0531.0515"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2191,9 +2183,12 @@ Abbreviation list last updated 2011-12-12.")
 The %s marks the package name.")
 
 (defcustom epackage--root-directory
-  (let ((dir (if (featurep 'xemacs)
-                 "~/.xemacs.d"
-               "~/.emacs.d")))
+  (let* ((confdir 'user-emacs-directory)  ;; quiet byte compiler
+	 (dir (or (and (boundp confdir)
+		       confdir)
+		  (if (featurep 'xemacs)
+		      "~/.xemacs.d"
+		    "~/.emacs.d"))))
     (cond
      ((file-directory-p dir)
       dir)
@@ -2204,11 +2199,12 @@ The %s marks the package name.")
        (concat
         "Epackage: [ERROR] Can't determine location of Emacs Lisp files."
         "See `epackage--root-directory'."
-        "Please define environment variable HOME")))
+        "Please set environment variable HOME")))
      (t
       (make-directory dir)
       dir)))
-  "*Location of Emacs Lisp files. The default is ~/.emacs.d directory.
+  "*Location of Emacs Lisp files. The default is `user-emacs-directory'.
+The standard location is ~/.emacs.d.
 Directory must not contain a trailing slash."
   :type  'directory
   :group 'epackage)

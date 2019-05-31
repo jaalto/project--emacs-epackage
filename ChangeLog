@@ -1,4 +1,13 @@
+2019-05-31 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el (epackage--root-directory): Adjust documentation
+	and handling of `user-emacs-directory'.
+
 2019-05-05 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* ALL: Upate Copyright years.
+
+	* Makefile (update): Add missing $(LISP) $(PKG)
 
 	* epackage.el (epackage-info-mode-set-font-lock):
 	Change `font-lock-fontify-buffer' to `font-lock-ensure'.
