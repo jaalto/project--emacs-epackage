@@ -1,6 +1,12 @@
-See "Depends" section in README first before using makefile to
-generate documentation. See choices with:
+There is no installation. Copy file to Emacs load-path. Alternatively
+for "in place install", make a symlink from current directory:
+
+  mkdir -p ~/.emacs.d
+  ln --symbolic --relative epackage.el ~/.emacs.d/
+
+See Makefile target choices:
 
   make help
 
+To generate documentation, see requirements in "Depends" section of README,
 See "Install:" section in epackage.el for more information.

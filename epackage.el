@@ -40,7 +40,7 @@
 ;;  Put this file along your Emacs-Lisp `load-path' and add following
 ;;  into your ~/.emacs startup file.
 ;;
-;;      ;; If you're behind proxy, be sure to define connection
+;;      ;; If you're behind proxy, be sure to define Git connection
 ;;      ;; details before you start Emacs at command line.
 ;;      ;; Consult http://stackoverflow.com/questions/496277/git-error-fatal-unable-to-connect-a-socket-invalid-argument
 ;;      ;; for details. From bash shell:
@@ -57,10 +57,10 @@
 ;;      ;; (setq epackage--sources-replace-table
 ;;      ;;       '(("git://github" "http://github")))
 ;;
-;;      ;; -- If you want to customize any of the epackages, like BBDB,
-;;      ;; -- do it *here*, at this point, before the next `load' command.
+;;      ;; -- If you want to customize any of the epackages,
+;;      ;; -- do before the `epackage-loader' command.
 ;;
-;;      ;; One big file to boot all installed epackages
+;;      ;; One big file to boot all installed epackages.
 ;;      ;; Automatically generated. Do not edit.
 ;;      (load "~/.emacs.d/epackage/00conf/epackage-loader" 'noerr)
 ;;
@@ -83,8 +83,8 @@
 ;;      (autoload 'epackage-version                     "epackage" "" t)
 ;;      (autoload 'epackage-documentation               "epackage" "" t)
 ;;
-;;      ;; .. Developer functions
-;;      ;; Write initial templates from a single *.el
+;;      ;; -- Developer function
+;;      ;; Writes initial templates from a single *.el
 ;;      (autoload 'epackage-devel-compose-package-dir   "epackage" "" t)
 ;;
 ;;  In addition to Emacs UI, there is also a minimal command line UI:
@@ -92,7 +92,7 @@
 ;;      emacs --batch -Q -l /path/to/epackage.el -f epackage-ui
 ;;
 ;; WARNING: Make sure no *alias* override standard git commands in
-;; your ~/.gitocnfig or those aliased will cause problems.
+;; your ~/.gitocnfig or those will cause problems.
 
 ;;; Commentary:
 
@@ -199,7 +199,7 @@
 ;;      It doesn't necesarily need to be done by the original Emacs
 ;;      extension author (upstream) who may not be familiar with the
 ;;      `Git' distributed version control system. For more
-;;      information about the packaging, refer to section "The DELPS
+;;      information about packaging, refer to section "The DELPS
 ;;      framework".
 ;;
 ;;      [1] DVCS = Distributed Version Control System
@@ -211,11 +211,12 @@
 ;;
 ;;  User commands
 ;;
-;;      [PLANNED: not yet implemented; Use makefile: "make ui"]
+;;      [IDEA ONLY. NOT YET IMPLEMENTED; Use makefile: "make ui"]
 ;;
-;;      Command `M-x' `epackage' is alias for function
-;;      `epackage-manager'. It builds buffer where packages can be
-;;      browsed, fetched, built and installed. The view contains:
+;;      Command `M-x' `epackage' (LIFE HAPPENED, NEVER GOT
+;;      IMPLEMENTED) is alias for function `epackage-manager'. It
+;;      builds buffer where packages can be browsed, fetched, built
+;;      and installed. The view contains:
 ;;
 ;;          [mode indicators]
 ;;
@@ -420,7 +421,7 @@
 ;;             +-- package/        Downloaded PACKAGE
 ;;             +-- ...
 ;;
-;;  Epackage specification (draft; level 1)
+;;  Epackage specification
 ;;
 ;;      The Git repository branches used are:
 ;;
@@ -431,14 +432,15 @@
 ;;          This branch is merged to *master*.
 ;;      o   *upstream*, required. The original unmodified upstream code.
 ;;          Releases are tagged with label
-;;          "upstream/YYYY-MM-DD[--VERSION]". The YYYY-MM-DD is the
-;;          date of upstream release or best guess like if only year
-;;          is known, use YYYY-01-01. The options part "--VERSION" is
-;;          the official version of extension; if known. Not all
-;;          extensions include version information. The ISO 8601 date is
-;;          needed so that the release date is immediately
-;;          available e.g. for post processing and so that the tags sort
-;;          nicely by date. An example: `upstream/2009-12-31--0.3-devel'.
+;;          "upstream/YYYY-MM-DD[--VERSION]". An
+;;          example: `upstream/2009-12-31--0.3-devel'.
+;;          The YYYY-MM-DD is the date of upstream release or best
+;;          guess like if only year is known, use YYYY-01-01. The
+;;          options part "--VERSION" is the official version of
+;;          extension; if known. Not all extensions include version
+;;          information. The ISO 8601 date is needed so that the
+;;          release date is immediately available e.g. for post
+;;          processing and so that the tags sort nicely by date.
 ;;
 ;;      The same in pictures. The `master' contains merges from
 ;;      `patches' and `upstream' branches:
@@ -863,7 +865,7 @@
 ;;          Description: Add Cygwin mount point support (ms)
 ;;
 ;;          Package: lib-xml-rpm
-;;          Description: library of remote procedure calls alls over HTTP
+;;          Description: library of remote procedure calls over HTTP
 ;;
 ;;     Depends (required)
 ;;
@@ -986,7 +988,7 @@
 ;;      o   Add `*-mode', In case of minor or major modes. Always
 ;;          add this suffix even if extension name does not
 ;;          explicitly say so. An example "python.el" => name package
-;;          "python-mode". This helps searching for package names.
+;;          "python-mode". This helps searching for mode package.
 ;;      o   If extension is a library (e.g. xml-rpc.el), start
 ;;          package name with `lib-*'. This way user
 ;;          who is browsing the list of packages can ignore or complete
@@ -1345,30 +1347,32 @@
 ;;      several extensions. Summary: it's best to stick with the
 ;;      latest and send bug reports from latest versions to upstream.
 ;;
-;; TODO
+;; DEVELOPING THOUGHTS (TODO)
 ;;
-;;      [Within groups, sorted by priority]
+;;      [entries sorted by priority]
 ;;
 ;;      General
 ;;
-;;      o   Sources List: Download problem, broken repository link.
-;;          => Suggest sending error report mail the Sources List maintainer
+;;      o   Sources List: We have a Download problem, like broken link to
+;;          repository
+;;          => Display to user that he should consider sending and error
+;;          report mail the Sources List maintainer
 ;;
-;;      o   Lint: if upstream is also packager, then his repository
-;;          does not have "upstream" branch.
+;;      o   Lint: if upstream is also the packager, then his repository
+;;          should not have "upstream" branch. There is no need.
 ;;
 ;;      o   Boot: What if user manually deletes directories?
-;;          What to do with left over config files? Self health
-;;          check on boot?
+;;          What to do with left over config files? Implement self healing.
+;;          Check on boot?
 ;;
-;;      o   Sources List: If package is no longer in there, but is
+;;      o   Sources List: If package is no longer there, but has been
 ;;          downloaded, the package may have been removed. Notify user about
-;;          obsolete package. Package may also have been renamed.
+;;          obsolete package. Package may also have been renamed. What do
+;;          we do then?
 ;;
 ;;      o   [already implemented?] After download. Trying to install or
 ;;          activate package, check emacs compatibility and refuse to
 ;;          install if not met.
-;;
 ;;
 ;;      REPO
 ;;
@@ -1412,7 +1416,7 @@
 ;;
 ;;      o   Big packages that come with configure? What to do with them?
 ;;
-;;      Some day in the future:
+;;      Further ideas
 ;;
 ;;      o   Do something for *.texinfo files in big packages.
 ;;
@@ -1425,9 +1429,10 @@
 ;;          => version controlled, patches? Submit via email? Github Gist?
 ;;
 ;;      o   The epackage/*-compile.el is run with `eval-current-buffer'.
-;;          Security considerations? Is there any need, because
-;;          these are Git repositories and maintainers should be trusted
+;;          Security considerations? Should we care?
+;;          These are Git repositories and maintainers should be trusted
 ;;          => possible solution: require detached GPG signing of *-compile.el
+;;          => Too much hassle for developers?
 ;;
 ;;      o   Package removal: present some analysis command to show what
 ;;          would happen if package X would be removed. Are other packages
@@ -1503,7 +1508,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2019.0531.0515"
+(defconst epackage--version-time "2019.0531.0603"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"

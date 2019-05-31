@@ -1,6 +1,12 @@
 2019-05-31 Fri  Jari Aalto  <jari.aalto@cante.net>
 
-	* epackage.el (epackage--root-directory): Adjust documentation
+	* INSTALL: rewrite.
+
+	* Makefile: (Documentation): new.
+
+	* epackage.el
+	(top level); Minor documetation changes in comments.
+	(epackage--root-directory): Adjust documentation
 	and handling of `user-emacs-directory'.
 
 2019-05-05 Sun  Jari Aalto  <jari.aalto@cante.net>
