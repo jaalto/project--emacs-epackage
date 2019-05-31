@@ -1503,7 +1503,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2019.0505.1435"
+(defconst epackage--version-time "2019.0531.0515"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2183,9 +2183,12 @@ Abbreviation list last updated 2011-12-12.")
 The %s marks the package name.")
 
 (defcustom epackage--root-directory
-  (let ((dir (if (featurep 'xemacs)
-                 "~/.xemacs.d"
-               user-emacs-directory)))
+  (let* ((confdir 'user-emacs-directory)  ;; quiet byte compiler
+	 (dir (or (and (boundp confdir)
+		       confdir)
+		  (if (featurep 'xemacs)
+		      "~/.xemacs.d"
+		    "~/.emacs.d"))))
     (cond
      ((file-directory-p dir)
       dir)
@@ -2196,11 +2199,12 @@ The %s marks the package name.")
        (concat
         "Epackage: [ERROR] Can't determine location of Emacs Lisp files."
         "See `epackage--root-directory'."
-        "Please define environment variable HOME")))
+        "Please set environment variable HOME")))
      (t
       (make-directory dir)
       dir)))
-  "*Location of Emacs Lisp files. The default is ~/.emacs.d directory.
+  "*Location of Emacs Lisp files. The default is `user-emacs-directory'.
+The standard location is ~/.emacs.d.
 Directory must not contain a trailing slash."
   :type  'directory
   :group 'epackage)
