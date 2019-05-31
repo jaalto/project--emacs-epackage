@@ -1,5 +1,7 @@
 2019-05-31 Fri  Jari Aalto  <jari.aalto@cante.net>
 
+	* Makefile: (Documentation): new.
+
 	* epackage.el (epackage--root-directory): Adjust documentation
 	and handling of `user-emacs-directory'.
 
