@@ -2185,7 +2185,7 @@ The %s marks the package name.")
 (defcustom epackage--root-directory
   (let ((dir (if (featurep 'xemacs)
                  "~/.xemacs.d"
-               "~/.emacs.d")))
+               user-emacs-directory)))
     (cond
      ((file-directory-p dir)
       dir)
