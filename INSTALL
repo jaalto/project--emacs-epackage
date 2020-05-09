@@ -1,8 +1,8 @@
 There is no installation. Copy file to Emacs load-path. Alternatively
 for "in place install", make a symlink from current directory:
 
-  mkdir -p ~/.emacs.d
-  ln --symbolic --relative epackage.el ~/.emacs.d/
+  mkdir -p ~/.emacs.d/lisp
+  ln --symbolic --relative epackage.el ~/.emacs.d/lisp
 
 See Makefile target choices:
 
