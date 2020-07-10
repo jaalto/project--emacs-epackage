@@ -1508,7 +1508,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2020.0710.1215"
+(defconst epackage--version-time "2020.0710.1218"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -2190,7 +2190,7 @@ The %s marks the package name.")
 (defcustom epackage--root-directory
   (let* ((confdir 'user-emacs-directory)  ;; quiet byte compiler
 	 (dir (or (and (boundp confdir)
-		       (file-name-directory (symbol-value confdir))
+		       (symbol-value confdir)
 		  (if (featurep 'xemacs)
 		      "~/.xemacs.d"
 		    "~/.emacs.d"))))
