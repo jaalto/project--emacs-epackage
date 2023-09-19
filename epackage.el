@@ -1,4 +1,4 @@
-;; epackage.el --- Distributed Emacs Lisp Package System (DELPS) -*-byte-compile-dynamic: t;-*-
+;; epackage.el --- Distributed Emacs Lisp Package System (DELPS)
 
 ;; Copyright (C) 2009-2019 Jari Aalto
 
@@ -1464,7 +1464,7 @@
   (autoload 'lm-header "lisp-mnt")
   (autoload 'lm-history-mark "lisp-mnt")
   (autoload 'lm-last-modified-date "lisp-mnt")
-  (autoload 'lm-maintainer "lisp-mnt")
+  (autoload 'lm-maintainers "lisp-mnt")
   (autoload 'lm-summary "lisp-mnt")
   (autoload 'lm-summary "lisp-mnt")
   (autoload 'lm-verify "lisp-mnt")
@@ -1508,7 +1508,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verison number.")
 
-(defconst epackage--version-time "2020.1125.1045"
+(defconst epackage--version-time "2023.0919.1035"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
@@ -1534,10 +1534,10 @@
 ;;;###autoload
 (defcustom epackage--install-action-list '(enable boot)
   "*TYPE of actions to run after package is installed.
-Default value is: '(enable boot)
+Default value is: (enable boot)
 
 What to do after package has been downloaded and user selects
-install of one of types: autoload, enabel, activate. Possible
+install of one of types: autoload, enable, activate. Possible
 values are:
 
     boot        Generate boot loader file
@@ -1555,7 +1555,7 @@ for currently running Emacs; i.e. to take the extension into use."
 ;;;###autoload
 (defcustom epackage--download-action-list '(enable package-depends)
   "*TYPE of actions to run after package download.
-Default value is: '(enable package-depeds)
+Default value is: (enable package-depeds)
 
 The order of TYPEs in list is not significant. The \"install\"
 TYPE can be of of following. For more information about install
@@ -1578,7 +1578,7 @@ To check package validity and colloct information in
 An example. The following would automatically compile and enable
 package after download and fetch all depends:
 
-  '(compile enable lint package-depends).
+  \\='(compile enable lint package-depends).
 
 Note: the symbol names have been named so that when sorted, the
 actions can be run safely in order.
@@ -1589,12 +1589,12 @@ See also variable `epackage--depends-handling'."
 
 ;;;###autoload
 (defcustom epackage--depends-handling 'warn
-  "*How to treat package depends. The default is 'warn.
+  "*How to treat package depends. The default is \\=warn.
 Possible values:
 
-    'warn       Warn about unsatisfied depends and proceed with install.
+    \\=warn       Warn about unsatisfied depends and proceed with install.
 
-    'error      Signal error on unsatisfied depends. Refuse to install.
+    \\=error      Signal error on unsatisfied depends. Refuse to install.
 
     nil         Do nothing. Bypass depends checks. Useful if you want
                 to mass download many packages as the code to check
@@ -1612,7 +1612,7 @@ which see."
   "*Non-nil means to recreate any changed repositories.
 When this variable is non-nil, whenever function
 `epackage-cmd-sources-list-download' is called, all the URLs in
-the list are matched against the git 'origin' URLs in respective
+the list are matched against the git \"origin\" URLs in respective
 downloaded repositories. If package's sources list URL differ
 from the repository on disk, the package will be deleted and
 downloaded again to keep it in synch.
@@ -1681,7 +1681,7 @@ to be used when creating new epackages. Needed by the developers."
 In here you can list additional package repositories. Non-existing files
 will be ignored. Default value is:
 
-  '(\"~/.emacs.d/epackage-local.lst\")
+  \\='(\"~/.emacs.d/epackage-local.lst\")
 
 After any changes either to this variable or contents of the file
 the variable points to, call `epackage-sources-list-build'.
@@ -1699,18 +1699,18 @@ by function `epackage-file-name-sources-list-main'."
 "Replace each found REGEXP with STRING in sources list.
 
 Format:
-  '((regexp string [regexp submatch] ...))
+  \\='((regexp string [regexp submatch] ...))
 
 Use case:
 
-  If you're behind a firewall that blocks git port, change all
+  If you are behind a firewall that blocks git port, change all
   git:// protocols to http:// to access the repositories.
 
   ;; Use this
   (setq epackage--sources-replace-table
-        '((\"git://github\" \"http://github\")))
+        \\='((\"git://github\" \"http://github\")))
 
-for more in depth manipulation, see  `epackage--build-sources-list-hook'."
+For more in depth manipulation, see `epackage--build-sources-list-hook'."
   :type  '(repeat
            (list
             (string :tag "Regexp")
@@ -2283,7 +2283,7 @@ packages.")
     ("Oct" 10)
     ("Nov" 11)
     ("Dec" 12))
-  "Assoc list of months '((MONTH NUMBER) ...).")
+  "Assoc list of months \\='((MONTH NUMBER) ...).")
 
 (defconst epackage--date-month-regexp
   `,(concat
@@ -2339,7 +2339,7 @@ Used in function `epackage-devel-generate-compile-main'.")
       "/texinfo"))
    "$")
   "Regexp to exclude dirctory names.
-See function 'epackage-directory-recursive-list-default'
+See function `epackage-directory-recursive-list-default'
 which also excludes directories than contain file .nosearch.")
 
 (defconst epackage--info-layout-mapping
@@ -2349,10 +2349,9 @@ which also excludes directories than contain file .nosearch.")
     ("Maintainer" "[^ \t+r\n]+@[^ \t+r\n]+")
     ("Email" "[^ \t+r\n]+@[^ \t+r\n]+")
     ("Description" "[^ \t+r\n]+"))
-
   "Required fields and test regexp for `epackage--pkg-info-file-name'.
 Format is:
-  '((FIELD CONTENT-TEST-REGEXP) ...).")
+  \\='((FIELD CONTENT-TEST-REGEXP) ...).")
 
 (defconst epackage--layout-mapping
   '((activate   "-epackage-xactivate.el")
@@ -2367,25 +2366,25 @@ Format is:
     (uninstall  "-epackage-uninstall.el"))
   "File type mapping table for files in `epackage--package-control-directory'.
 Format is:
-    '((TYPE FILENAME [REQUIRED-FLAG] [TYPE-FLAG]) ...)
+    \\='((TYPE FILENAME [REQUIRED-FLAG] [TYPE-FLAG]) ...)
 
 Description:
 
     TYPE            Property type name.
 
-    FILENAME        If FILENAME starts with '-', then the package name
+    FILENAME        If FILENAME starts with \"-\", then the package name
                     is prefixed to the FILENAME. Say package name
-                    'foo', and suffix is '-install', the full
-                    filename is 'foo-install.el.
+                    `foo', and suffix is \"-install\", the full
+                    filename is \"foo-install.el\".
 
     REQUIRED-FLAG   If non-nil, this configuration file is required
 
     TYPE-FLAG       List of types the REQUIRED-FLAG applies. Valid
                     values are `file' and `lib'. If value is nil,
-                    REQUIREd-FLAG is treated as it this were set to '(file lib).
+                    REQUIREd-FLAG is treated as it this were set to \\='(file lib).
 
                     For example, to require that file only exists
-                    only in library packages, set this value to '(lib).")
+                    only in library packages, set this value to \\='(lib).")
 
 (defvar epackage--buffer-autoload "*Epackage autoloads*"
   "Buffer to use for gathering manual autoload definitions.
@@ -2520,7 +2519,7 @@ Y         Action toggle: after download, b(y)te compile package
     (?Q quit)
     (?y epackage-batch-ui-byte-compile-package)
     (?Y epackage-batch-ui-download-action-compile-toggle))
-  "UI menucommand and actions. Format: '((KEY FUNCTION) ...).")
+  "UI menucommand and actions. Format: \\='((KEY FUNCTION) ...).")
 
 (defconst epackage--batch-ui-menu-help "
 In a nutshell
@@ -2672,7 +2671,7 @@ Like `insert-file-contents-literally' but disable everything."
 
 (defmacro epackage-assoc (key list)
   "Access of KEY in LIST and return its value.
-An example:  '((a 1) (b 3))  => key \"a\". Returns 1."
+An example: \\='((a 1) (b 3))  => key \"a\". Returns 1."
   `(nth 1 (assoc ,key ,list)))
 
 (defmacro epackage-fatal (format &rest args)
@@ -2884,7 +2883,7 @@ Return:
       (point))))
 
 (defsubst epackage-write-region (start end file)
-  "Like  'write-region' START END FILE; but disable backup etc."
+  "Like `write-region' START END FILE; but disable backup etc."
   (epackage-with-write-file
     (write-region start end file)))
 
@@ -2896,7 +2895,7 @@ Return:
       (epackage-write-region (point-min) (point-max) file))))
 
 (defsubst epackage-save-buffer ()
-  "Like 'save-buffer' FILE; but disable backup etc."
+  "Like `save-buffer' FILE; but disable backup etc."
   (epackage-with-write-file
     (save-buffer)))
 
@@ -3134,7 +3133,7 @@ Return:
 
 (defun epackage-locate-library (library)
   "Search LIBRARY source file from `load-path'.
-Strip epackage specific 'lib-*' prefix."
+Strip epackage specific \"lib-*\" prefix."
   (let* ((name library)
          (mode (if (string-match "^\\(.+\\)-mode$" library)
                    ;; python-mode => python.el
@@ -3319,8 +3318,8 @@ See `epackage-directory-recursive-list-default' for more information."
 Input:
 
    TYPE     How to return path names:
-            'nopath    Only filenames.
-            'relative  Path relative to DIR.
+            \\='nopath    Only filenames.
+            \\='relative  Path relative to DIR.
             nil        With full path.
    EXCLUDE  Regexp to exclude path names
 
@@ -3458,7 +3457,7 @@ If optional VERBOSE is non-nil, display informational messages.
 
 Return:
   nil   everything ok
-  '(PROBLEM ...)."
+  \\='(PROBLEM ...)."
   (let (list)
     (cond
      ((not (epackage-package-downloaded-p package))
@@ -3735,7 +3734,7 @@ If VERBOSE is non-nil, display progress message."
 (put 'epackage-with-git-config 'lisp-indent-function 1)
 (put 'epackage-with-git-config 'edebug-form-spec '(body))
 (defmacro epackage-with-git-config (package &rest body)
-  "Read Git 'config' of PACKAGE and run BODY.
+  "Read Git `config' of PACKAGE and run BODY.
 Kill buffer after BODY."
   `(let ((config-file (epackage-directory-package-git-config package)))
      (if (not (file-exists-p config-file))
@@ -3775,7 +3774,8 @@ If FIELD is empty or does not exist, return nil."
 
 (defsubst epackage-field-name (&optional region)
   "Return field name near point.
-If optional REGION is non-nil, return position of field '(beginning end)."
+If optional REGION is non-nil, return position 
+of field as list: \\='(beginning end)."
   (save-excursion
     (when (or (looking-at "^\\([^:]+\\):")
               (epackage-field-backward))
@@ -3821,7 +3821,8 @@ If optional FULL is non-nil, include field in narrowed region."
       t)))
 
 (defun epackage-field-fetch-description ()
-  "Return content of 'Description:' '(\"short desc\" \"long desc\").
+  "Return content of \"Description:\". 
+Return valie is list: \\='(\"short desc\" \"long desc\").
 Remove 1 space indentation and paragraph separator(.) characters."
   (let ((str (epackage-field-fetch-value "Description"))
         short
@@ -3838,7 +3839,7 @@ Remove 1 space indentation and paragraph separator(.) characters."
     (list short long)))
 
 (defun epackage-field-fetch-status ()
-  "Return content of 'Status:'. Items are separated by spaces."
+  "Return content of \"Status:\". Items are separated by spaces."
   (let ((str (epackage-field-fetch-value "Status")))
     (when str
       (replace-regexp-in-string "[ \t\r\n]+" " " str))))
@@ -3847,11 +3848,11 @@ Remove 1 space indentation and paragraph separator(.) characters."
   "Collect items from buffer prepared by `epackage-depends-parse-buffer'.
 
 Return:
-    '((PACKAGE [OP] [VERSION]) ...)
+    \\='((PACKAGE [OP] [VERSION]) ...)
 
 Examples:
-    '((emacs \">=\" \"22\"))
-    '((xemacs \"!\" nil))."
+    \\='((emacs \">=\" \"22\"))
+    \\='((xemacs \"!\" nil))."
   (let ((regexp
          `,(concat
             "\\([a-z][^ ,|!()<>=\t\r\n(]+\\)"
@@ -4075,7 +4076,7 @@ like \"remote.*origin\"."
    (mapconcat #'concat list " ")))
 
 (defun epackage-git-command-tag-list (dir &optional verbose)
-  "Run 'git tag -l' in DIR.
+  "Run \"git tag -l\" in DIR.
 If optional VERBOSE is non-nil, display progress message.
 
 Return:
@@ -4090,7 +4091,7 @@ Return:
       list)))
 
 (defun epackage-git-command-init (dir &optional verbose)
-  "Run 'git init' in DIR.
+  "Run \"git init\" in DIR.
 If optional VERBOSE is non-nil, display progress message.
 
 Return:
@@ -4101,7 +4102,7 @@ Return:
     (re-search-forward "^\\(Reinitialized\\|Initialized\\)" nil t)))
 
 (defun epackage-git-command-status-parse-buffer-limit ()
-  "Return next limit point of 'status' section in current buffer.
+  "Return next limit point of `status' section in current buffer.
 The limist are those of top level heading:
 
     # Changes to be committed:
@@ -4188,12 +4189,12 @@ See manual page of git-status(1)."
 
 (defmacro epackage-git-command-branch-with-args
   (dir &optional verbose &rest args)
-  "In DIR, run in optional VERBOSE mode 'git branch ARGS'.
+  "In DIR, run in optional VERBOSE mode \"git branch ARGS\".
 If optional VERBOSE is non-nil, display progress message."
   `(epackage-with-git-command ,dir ,verbose "branch" ,@args))
 
 (defun epackage-git-command-branch-list (dir &optional verbose arg)
-  "In DIR, run in optional VERBOSE mode 'git branch [ARG]'.
+  "In DIR, run in optional VERBOSE mode \"git branch [ARG]\".
 If optional VERBOSE is non-nil, display progress message.
 
 Return:
@@ -4216,19 +4217,19 @@ Return:
     ret))
 
 (defsubst epackage-git-command-branch-current-name (dir &optional verbose)
-  "Run 'git branch' in DIR and return active branch name.
+  "Run \"git branch\" in DIR and return active branch name.
 If optional VERBOSE is non-nil, display progress message."
   (epackage-git-branch-list-current-branch
    (epackage-git-command-branch-list dir verbose)))
 
 (defun epackage-git-command-sha-current (dir &optional verbose)
-  "Run 'git rev-parse HEAD' in DIR.
+  "Run \"git rev-parse HEAD\" in DIR.
 If optional VERBOSE is non-nil, display progress message."
   (epackage-with-git-command dir verbose
     "rev-parse" "HEAD"))
 
 (defun epackage-git-command-sha-remote (dir &optional remote branch verbose)
-  "Run in DIR 'git ls-remote REMOTE refs/heads/BRANCH'.
+  "Run in DIR \"git ls-remote REMOTE refs/heads/BRANCH\".
 REMOTE defaults to \"origin\" and BRANCH to \"master\".
 If optional VERBOSE is non-nil, display progress message.
 
@@ -4267,25 +4268,25 @@ If optional VERBOSE is non-nil, display progress message."
       (epackage-git-command-sha-current dir verbose)))))
 
 (defun epackage-git-command-checkout-force-head (dir &optional verbose)
-  "Run 'git checkout -f HEAD' in DIR.
+  "Run \"git checkout -f HEAD\" in DIR.
 If optional VERBOSE is non-nil, display progress message."
   (epackage-with-git-command dir verbose
     "checkout" "-f" "HEAD"))
 
 (defun epackage-git-command-pull (dir &optional verbose)
-  "Run 'git pull' in DIR.
+  "Run \"git pull\" in DIR.
 If optional VERBOSE is non-nil, display progress message."
   (epackage-with-git-command dir verbose
     "pull"))
 
 (defun epackage-git-command-fetch (dir &optional verbose)
-  "Run 'git fetch' in DIR.
+  "Run \"git fetch\" in DIR.
 If optional VERBOSE is non-nil, display progress message."
   (epackage-with-git-command dir verbose
     "fetch"))
 
 (defun epackage-git-command-clone (url dir &optional verbose)
-  "Run 'git clone URL DIR' in VCS package directory vault.
+  "Run \"git clone URL DIR\" in VCS package directory vault.
 If optional VERBOSE is non-nil, display progress message."
   (let ((name (epackage-file-name-basename dir))
         (dir-before (epackage-file-name-directory-previous dir)))
@@ -4294,7 +4295,7 @@ If optional VERBOSE is non-nil, display progress message."
       "clone" url name)))
 
 (defun epackage-git-command-status (dir &optional verbose)
-  "Run 'git status' in DIR.
+  "Run \"git status\" in DIR.
 If optional VERBOSE is non-nil, display progress message."
   (epackage-with-git-command dir verbose
     "status"))
@@ -4305,9 +4306,9 @@ If optional VERBOSE is non-nil, display progress message.
 
 Return:
 
-    '((modified '(FILE ...))
-      (untracked '(FILE ...))
-      (commit '(FILE ...)))."
+    \\='((modified (FILE ...))
+      (untracked (FILE ...))
+      (commit (FILE ...)))."
   (epackage-git-command-status dir verbose)
   (let (list
         data)
@@ -4418,8 +4419,8 @@ Those that are not installed in `epackage-directory-install'."
   "Return current status of installed PACKAGE.
 See `epackage--download-action-list'.
 
-Returns:
-g  '(KEYWORD ...)."
+Return:
+  \\='(KEYWORD ...)."
   (let (list)
     ;; Order if the statements matter: keep 'list' in alphabetical order
     (if (epackage-package-byte-compiled-p package)
@@ -4521,7 +4522,7 @@ relative locations based on the stored autoload FILE. In case
 those lcoations are already in path, there is no need to preserve
 relative locations, like this:
 
-  (custom-autoload 'some-function \"../lisp/some\" t)"
+  (custom-autoload \\='some-function \"../lisp/some\" t)"
     (while (re-search-forward "\"\\(\\.?\\.?/?[^\"\r\n]+/\\).+\"" nil t)
       (replace-match ""  nil nil nil 1)))
 
@@ -5412,7 +5413,7 @@ Point is not preserved."
         str)))
 
 (defun epackage-devel-information-buffer ()
-  "Examine current buffer and return list '((field value) ...)
+  "Examine current buffer. Return list: \\='((field value) ...).
 FIELD can be:
   date
   description      the first line description string
@@ -5580,7 +5581,7 @@ If VERBOSE is non-nil, display informational messages.
 This is the initial step for starting to work with Epackages:
 
   - Initialize Git repository in DIR
-  - Import all code to 'upstream' branch
+  - Import all code to \"upstream\" branch
   - Tag import
   - Branch off to master
   ... after that you can populate epackage/ directory.
@@ -5744,7 +5745,9 @@ If optional VERBOSE is non-nil, display progress messages."
 (defun epackage-upgrade-package-git (package &optional verbose noerr)
   "Upgrade PACKAGE.
 If optional VERBOSE is non-nil, display progress message.
-If optional NOERR is non-nil, display error messages but do not die on fatal errors."
+
+If optional NOERR is non-nil, display
+error messages but do not die on fatal errors."
   (let ((url (epackage-sources-list-info-url package)))
     (unless url
       (epackage-error "No download URL for package '%s'" package))
@@ -5822,7 +5825,7 @@ If optional VERBOSE is non-nil, display informational message."
   "Verify that URLs still match and rebuild package repositories if needed.
 If optional VERBOSE is non-nil, display progress message.
 
-If sources list URLs differ from current Git repositoriy 'origin'
+If sources list URLs differ from current Git repositoriy \"origin\"
 URLs, recreate each repository provided that they are
 still in pristine state."
   (let (elt
@@ -5920,7 +5923,7 @@ This is a low level command."
     (epackage-git-command-pull dir verbose)))
 
 (defun epackage-replace-regexp-in-buffer (table)
-  "Replace according to TABLE '((re replace [match]) ...) in buffer."
+  "Replace according to TABLE \\='((re replace [match]) ...) in buffer."
   (let ((point (point))
         re
         str
@@ -6492,7 +6495,7 @@ Point must be at the beginning of line."
        (match-string-no-properties 3))))
 
 (defun epackage-sources-list-info-main (package)
-  "Return '(pkg url description) for PACKAGE.
+  "Return list \\='(pkg url description) for PACKAGE.
 Format is described in variable `epackage--sources-list-url'."
   (epackage-with-sources-list
     (epackage-point-min)
@@ -6899,7 +6902,7 @@ If valid, return list of required branches."
 If optional VERBOSE is non-nil, display progress message.
 The base name of DIR is taken as the package name. An example:
 
-  ~/.emacs.d/epackage/package/foo  => 'foo' is the package name
+  ~/.emacs.d/epackage/package/foo  => the package name is \"foo\".
 
 Return:
     t  if valid."
@@ -6941,10 +6944,10 @@ Return:
 If optional VERBOSE is non-nil, display progress message.
 
 If invalid, return list of classified problems:
-  'dir      Missing `epackage--directory-name'
-  'files    Missing required `epackage--layout-mapping'.
-  'info     Missing file or required fields in info file.
-  'git      Missing required Git branches: upstream, master."
+  \\='dir      Missing `epackage--directory-name'
+  \\='files    Missing required `epackage--layout-mapping'.
+  \\='info     Missing file or required fields in info file.
+  \\='git      Missing required Git branches: upstream, master."
   (interactive "DLint epackage directory: ")
   (if (called-interactively-p 'interactive)
       (setq verbose 'interactive))
@@ -6976,7 +6979,7 @@ If invalid, return list of classified problems:
     list))
 
 (defun epackage-pkg-lint-git-url (package &optional verbose)
-  "Check that 'origin' URL of PACKAGE to match the one in sources list.
+  "Check that \"origin\" URL of PACKAGE to match the one in sources list.
 If optional VERBOSE is non-nil, display progress message.
 Existence of PACKAGE is not checked.
 
@@ -6984,7 +6987,7 @@ Return:
 
    In case there is are mismatched
 
-   '(PACKAGE SOURCES-URL GIT-URL)."
+   \\='(PACKAGE SOURCES-URL GIT-URL)."
   (let ((url (epackage-sources-list-info-url package))
         (git (epackage-git-config-fetch-field-url package)))
     (cond
@@ -7002,11 +7005,11 @@ Return:
       nil))))
 
 (defun epackage-pkg-lint-downloaded-git-url (package &optional verbose)
-  "Check each downloded PACKAGE: that Git 'origin' URL match sources list.
+  "Check each downloded PACKAGE: that Git \"origin\" URL match sources list.
 If optional VERBOSE is non-nil, display progress message.
 
 Return prblems:
-    '((PACKAGE SOURCES-URL GIT-URL) ...)."
+    \\='((PACKAGE SOURCES-URL GIT-URL) ...)."
   (let (list
         elt)
   (dolist (package (epackage-status-downloaded-packages))
@@ -7057,7 +7060,7 @@ in respect to package.
 
 Return:
     See function `epackage-pkg-lint-directory' plus
-    value 'git-config if URL does not match sources list."
+    value \\='git-config if URL does not match sources list."
   (interactive
    (list (epackage-cmd-select-package "Lint package: ")
          'interactive))
@@ -7230,11 +7233,11 @@ This is a heavy check and first time initializing will take time."
 (defun epackage-lint-extra-buffer-run-other-autoload ()
   "Check missing ###autoload stanzas.
 Return:
-  '(\"<error message>\") or nil."
+  \\='(\"<error message>\") or nil."
   (let (ret)
     (epackage-point-min)
     (unless (re-search-forward "^;;;###autoload" nil t)
-      ;; If this is library, there isn't necessarily nothing to
+      ;; If this is library, there is not necessarily nothing to
       ;; autoload. Check 'interactive' or variables.
       (epackage-point-min)
       (when (or (epackage-search-user-customizable)
@@ -7251,7 +7254,7 @@ Return:
 (defun epackage-lint-extra-buffer-run-other-namespace ()
   "Check name space problems.
 Return:
-  '(\"<error message>\") or nil."
+  \\='(\"<error message>\") or nil."
   (let ((name (if buffer-file-name
                   (file-name-nondirectory buffer-file-name)
                 (buffer-name)))
@@ -7300,7 +7303,7 @@ Return:
   "Check missing defcustom variables.
 Major mode must be `emacs-lisp-mode' for the checks to work.
 Return:
-  '(\"<error message>\") or nil."
+  \\='(\"<error message>\") or nil."
   (let ((elisp (memq major-mode
                      '(emacs-lisp-mode
                        lisp-interaction-mode)))
@@ -7346,7 +7349,7 @@ Return:
 (defun epackage-lint-extra-buffer-run-other-keybindings ()
   "Check use of function `global-set-key'.
 Return:
-  '(\"ERROR-TYPE:LINE-NUMBER:LINE\" ...) or nil."
+  \\='(\"ERROR-TYPE:LINE-NUMBER:LINE\" ...) or nil."
   (let (space
         line
         type
@@ -7374,7 +7377,7 @@ Return:
 
 (defun epackage-lint-extra-buffer-run-other-main ()
   "Check miscellaneous QA problems on current buffer.
-Return list of results '(\"message\" ...)."
+Return list of results \\='(\"message\" ...)."
   ;; FIXME make into a user variable
   (let ((list '(epackage-lint-extra-buffer-run-other-autoload
                 epackage-lint-extra-buffer-run-other-defcustom
@@ -7401,7 +7404,7 @@ Input:
   VERBOSE  Optional; if non-nil, display progress messages
            and display `epackage--buffer-lint'.
 Return:
-  '(ERROR ...)     Type of errors if any."
+  \\='(ERROR ...)     Type of errors if any."
   (interactive
    (list
     current-prefix-arg
@@ -7832,7 +7835,7 @@ In interactive call, the point must be in buffer visiting
      (space-p
       (cond
        ((eq 1 (length complete-list))
-        (pcomplete))
+        (pcomplete-completions-at-point))
        ((and complete-list
              (not (eq (length word) (length try))))
         (insert (substring try (length word)))
@@ -8771,19 +8774,19 @@ Look for:  (defconst VARIABLE-NAME-VERSION* \"VALUE\"..."
   "Return documentation from current buffer.
 Return:
 
-    '((KEY VALUE) ....)
+    \\='((KEY VALUE) ....)
 
 KEY is one of:
 
-    'summary    One line information
-    'version    Version number
-    'modified   Date
-    'created    Date
-    'copyright  Copyright line
-    'maintainer Emaail address(es) of maintainer."
+    \\='summary    One line information
+    \\='version    Version number
+    \\='modified   Date
+    \\='created    Date
+    \\='copyright  Copyright line
+    \\='maintainer Emaail address(es) of maintainer."
   (let ((summary    (lm-summary))
         (commentary (lm-commentary))
-        (maintainer (mapconcat #'concat (lm-maintainer) ", "))
+        (maintainer (mapconcat #'concat (lm-maintainers) ", "))
         (created    (lm-creation-date))
         (modified   (lm-last-modified-date))
         (version    (epackage-documentation-buffer-version-main)))
@@ -9440,7 +9443,7 @@ are byte compiled files, then byte compile. If there are autoload
 files, then reinstall autoload files etc.
 
 Return list of actions as in `epackage--download-action-list':
-  '((action ...))."
+  \\='((action ...))."
   (let ((actions (epackage-package-status-actions package)))
     (when actions                       ; If not installed, nothing to do
       (epackage-run-action-list package actions verbose))))

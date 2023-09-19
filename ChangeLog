@@ -1,3 +1,13 @@
+2023-09-19 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* epackage.el
+	(all): Emacs 29.x correct docstring byte compile
+	errors.
+	(epackage-documentation-buffer-main): Change
+	`lm-maintainer' to `lm-maintainers'.
+	(epackage-info-mode-pcomplete-list):
+	Change `pcomplete' to `pcomplete-completions-at-point'.
+
 2019-05-31 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* INSTALL: rewrite.
