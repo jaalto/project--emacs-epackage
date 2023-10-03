@@ -1,6 +1,6 @@
 ;; epackage.el --- Distributed Emacs Lisp Package System (DELPS)
 
-;; Copyright (C) 2009-2019 Jari Aalto
+;; Copyright (C) 2009-2023 Jari Aalto
 
 ;; Author:      Jari Aalto <jari.aalto@cante.net>
 ;; Maintainer:  Jari Aalto <jari.aalto@cante.net>
