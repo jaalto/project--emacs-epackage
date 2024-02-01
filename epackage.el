@@ -1474,9 +1474,10 @@
   (autoload 'checkdoc-continue "checkdoc")
   (autoload 'checkdoc-start-section "checkdoc")
 
-  (if (string< emacs-version "27")
-      (autoload 'dired-make-relative-symlink "dired-x")
-    (autoload 'dired-make-relative-symlink "dired-aux"))
+  (unless (fboundp 'dired-make-relative-symlink)
+    (if (string< emacs-version "29")
+	(autoload 'dired-make-relative-symlink "dired-x")
+      (autoload 'dired-make-relative-symlink "dired-aux")))
 
   (autoload 'generate-file-autoloads "autoload")
   (autoload 'mail-position-on-field "sendmail")
@@ -1509,9 +1510,13 @@
         (funcall function)))))
 
 (defconst epackage-version "1.5"
-  "Standard Emacs inversion.el supported verison number.")
+  "Standard Emacs inversion.el supported verision number.")
 
-(defconst epackage--version-time "2024.0201.2227"
+<<<<<<< HEAD
+(defconst epackage--version-time "2024.0201.2238"
+=======
+(defconst epackage--version-time "2024.0201.2232"
+>>>>>>> devel
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
