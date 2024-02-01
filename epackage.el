@@ -1506,9 +1506,9 @@
         (funcall function)))))
 
 (defconst epackage-version "1.5"
-  "Standard Emacs inversion.el supported verison number.")
+  "Standard Emacs inversion.el supported verision number.")
 
-(defconst epackage--version-time "2023.0919.1035"
+(defconst epackage--version-time "2024.0201.2230"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
