@@ -1512,11 +1512,7 @@
 (defconst epackage-version "1.5"
   "Standard Emacs inversion.el supported verision number.")
 
-<<<<<<< HEAD
-(defconst epackage--version-time "2024.0201.2238"
-=======
-(defconst epackage--version-time "2024.0201.2232"
->>>>>>> devel
+(defconst epackage--version-time "2024.0201.2239"
   "Package's version number in format YYYY.MMDD.HHMM.")
 
 (defconst epackage--maintainer "jari.aalto@cante.net"
