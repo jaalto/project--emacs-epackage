@@ -1,3 +1,5 @@
+# -*- mode: makefile-gmake; -*-
+#
 #   Copyright
 #
 #	Copyright (C) 2010-2025 Jari Aalto <jari.aalto@cante.net>
